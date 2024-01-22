@@ -80,7 +80,8 @@ DerivedDataCache/*
 
 # leehayoon
 .idea/*
-#Content/*
+Content/ThirdPerson/
+Content/__ExternalActors__/
 RiderLink/
 Saved/
 Platforms/
