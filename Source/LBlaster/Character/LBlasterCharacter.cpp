@@ -8,11 +8,32 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "InputAction.h"
 #include "InputMappingContext.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 ALBlasterCharacter::ALBlasterCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	/* Movement */
+	bUseControllerRotationYaw = false;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	
+	/* Mesh */
+	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -88.f), FRotator(0.f, -90.f, 0.f));
+	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Assets/Characters/Manny/Meshes/SKM_Manny.SKM_Manny'"));
+	if (SkeletalMeshRef.Object)
+	{
+		GetMesh()->SetSkeletalMesh(SkeletalMeshRef.Object);
+	}
+	
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceRef(TEXT("/Script/Engine.AnimBlueprint'/Game/Blueprints/Character/ABP_LBlasterAnimInstance.ABP_LBlasterAnimInstance_C'"));
+	if (AnimInstanceRef.Class)
+	{
+		GetMesh()->SetAnimInstanceClass(AnimInstanceRef.Class);
+	}
+	
 	/* Camera and SpringArm */
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(GetMesh());
@@ -69,6 +90,7 @@ void ALBlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ThisClass::Move);
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ThisClass::Look);
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
+	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 }
 
 void ALBlasterCharacter::Move(const FInputActionValue& ActionValue)
