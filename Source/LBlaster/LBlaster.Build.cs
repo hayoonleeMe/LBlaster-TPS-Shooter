@@ -8,7 +8,9 @@ public class LBlaster : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
+		PublicIncludePaths.AddRange(new string[] { "LBlaster" });
+        
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
