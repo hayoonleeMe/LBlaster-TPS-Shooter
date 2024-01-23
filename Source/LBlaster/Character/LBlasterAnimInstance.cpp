@@ -33,7 +33,7 @@ void ULBlasterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	GroundSpeed = Velocity.Size2D();
 	bShouldMove = GroundSpeed > MovingThreshold && Acceleration != FVector::ZeroVector;
 	bIsFalling = Owner->GetCharacterMovement()->IsFalling();
-	bIsJumping = bIsFallin g && Velocity.Z > JumpingThreshold;
+	bIsJumping = bIsFalling && Velocity.Z > JumpingThreshold;
 }
 
 bool ULBlasterAnimInstance::IsValidOwner()
