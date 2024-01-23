@@ -49,4 +49,10 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category="Camera")
 	TObjectPtr<class UCameraComponent> FollowCamera;
+
+	/*
+	 *	Overhead Widget
+	 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Widget", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UWidgetComponent> OverheadWidgetComponent;
 };

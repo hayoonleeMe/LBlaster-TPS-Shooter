@@ -8,7 +8,9 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "InputAction.h"
 #include "InputMappingContext.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "HUD/OverheadWidget.h"
 
 ALBlasterCharacter::ALBlasterCharacter()
 {
@@ -68,6 +70,19 @@ ALBlasterCharacter::ALBlasterCharacter()
 	{
 		LookAction = LookActionRef.Object;
 	}
+
+	/* Overhead Widget */
+	OverheadWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidgetComponent"));
+	OverheadWidgetComponent->SetupAttachment(GetMesh());
+	OverheadWidgetComponent->SetRelativeLocation(FVector(0.f, 0.f, 190.f));
+	OverheadWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	OverheadWidgetComponent->SetDrawAtDesiredSize(true);
+
+	static ConstructorHelpers::FClassFinder<UOverheadWidget> OverheadWidgetClassRef(TEXT("/Game/Blueprints/HUD/WBP_OverheadWidget.WBP_OverheadWidget_C"));
+	if (OverheadWidgetClassRef.Class)
+	{
+		OverheadWidgetComponent->SetWidgetClass(OverheadWidgetClassRef.Class);
+	}
 }
 
 void ALBlasterCharacter::BeginPlay()
@@ -75,10 +90,16 @@ void ALBlasterCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	/* Input */
-	APlayerController* PC = CastChecked<APlayerController>(GetController());
-	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
+	APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 	{
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
+	}
+
+	/* Overhead Widget */
+	if (UOverheadWidget* OverheadWidget = Cast<UOverheadWidget>(OverheadWidgetComponent->GetUserWidgetObject()))
+	{
+		OverheadWidget->ShowPlayerName(this);
 	}
 }
 
