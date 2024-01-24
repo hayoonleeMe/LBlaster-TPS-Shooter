@@ -8,7 +8,9 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "InputAction.h"
 #include "InputMappingContext.h"
+#include "Component/CombatComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "HUD/OverheadWidget.h"
 #include "Net/UnrealNetwork.h"
@@ -73,6 +75,12 @@ ALBlasterCharacter::ALBlasterCharacter()
 		LookAction = LookActionRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> EquipActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_Equip.IA_Equip'"));
+	if (EquipActionRef.Object)
+	{
+		EquipAction = EquipActionRef.Object;
+	}
+
 	/* Overhead Widget */
 	OverheadWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidgetComponent"));
 	OverheadWidgetComponent->SetupAttachment(GetMesh());
@@ -85,6 +93,9 @@ ALBlasterCharacter::ALBlasterCharacter()
 	{
 		OverheadWidgetComponent->SetWidgetClass(OverheadWidgetClassRef.Class);
 	}
+
+	/* Combat Component */
+	CombatComponent = CreateDefaultSubobject<UCombatComponent>(TEXT("Combat Component"));
 }
 
 void ALBlasterCharacter::BeginPlay()
@@ -118,6 +129,19 @@ void ALBlasterCharacter::SetOverlappingWeapon(AWeapon* InWeapon)
 	}
 }
 
+void ALBlasterCharacter::AttachWeapon(AWeapon* InEquippedWeapon)
+{
+	// Called from UCombatComponent::EquipWeapon()
+	if (InEquippedWeapon)
+	{
+		if (const USkeletalMeshSocket* HandSocket = GetMesh()->GetSocketByName(FName(TEXT("RightHandSocket"))))
+		{
+			HandSocket->AttachActor(InEquippedWeapon, GetMesh());
+		}
+		InEquippedWeapon->SetOwner(this);
+	}
+}
+
 void ALBlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -127,6 +151,7 @@ void ALBlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ThisClass::Look);
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+	EnhancedInputComponent->BindAction(EquipAction, ETriggerEvent::Triggered, this, &ThisClass::EquipWeapon);
 }
 
 void ALBlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -155,6 +180,16 @@ void ALBlasterCharacter::Look(const FInputActionValue& ActionValue)
 	AddControllerPitchInput(LookAxisVector.Y);
 }
 
+void ALBlasterCharacter::EquipWeapon(const FInputActionValue& ActionValue)
+{
+	if (!OverlappingWeapon)
+	{
+		return;
+	}
+
+	ServerEquipWeapon();
+}
+
 void ALBlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastOverlappingWeapon) const
 {
 	ShowOverlappingWeaponPickupWidget(LastOverlappingWeapon);
@@ -169,6 +204,14 @@ void ALBlasterCharacter::ShowOverlappingWeaponPickupWidget(AWeapon* LastOverlapp
 	if (LastOverlappingWeapon)
 	{
 		LastOverlappingWeapon->ShowPickupWidget(false);
+	}
+}
+
+void ALBlasterCharacter::ServerEquipWeapon_Implementation()
+{
+	if (CombatComponent)
+	{
+		CombatComponent->EquipWeapon(OverlappingWeapon);
 	}
 }
 

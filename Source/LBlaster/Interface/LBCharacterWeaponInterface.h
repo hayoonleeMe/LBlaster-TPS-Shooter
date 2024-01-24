@@ -23,4 +23,5 @@ class LBLASTER_API ILBCharacterWeaponInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual void SetOverlappingWeapon(class AWeapon* InWeapon) = 0;
+	virtual void AttachWeapon(AWeapon* InEquippedWeapon) = 0;
 };

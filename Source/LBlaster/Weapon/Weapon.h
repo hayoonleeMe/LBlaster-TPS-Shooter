@@ -22,8 +22,10 @@ class LBLASTER_API AWeapon : public AActor
 	
 public:	
 	AWeapon();
-
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
 	void ShowPickupWidget(bool bInShow) const;
+	void SetWeaponState(EWeaponState InWeaponState);
 
 protected:
 	virtual void BeginPlay() override;
@@ -39,7 +41,12 @@ protected:
 	);
 
 	UFUNCTION()
-	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	virtual void OnSphereEndOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex
+	);
 	
 private:
 	/*
@@ -60,6 +67,10 @@ private:
 	/*
 	 *	Weapon State
 	 */
-	UPROPERTY(VisibleAnywhere, Category="Weapon")
+	UPROPERTY(ReplicatedUsing = OnRep_WeaponState, VisibleAnywhere, Category="Weapon")
 	EWeaponState WeaponState;
+
+	UFUNCTION()
+	void OnRep_WeaponState();
+	void OnChangedWeaponState();
 };

@@ -28,6 +28,7 @@ public:
 	 *	Interface Section
 	 */
 	virtual void SetOverlappingWeapon(class AWeapon* InWeapon) override;
+	virtual void AttachWeapon(AWeapon* InEquippedWeapon) override;
 
 protected:
 	/*
@@ -45,8 +46,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<UInputAction> LookAction;
 
+	UPROPERTY(EditAnywhere, Category="Input")
+	TObjectPtr<UInputAction> EquipAction;
+	
 	void Move(const FInputActionValue& ActionValue);
 	void Look(const FInputActionValue& ActionValue);
+	void EquipWeapon(const FInputActionValue& ActionValue);
 	
 private:
 	/*
@@ -68,10 +73,18 @@ private:
 	 *	Weapon
 	 */
 	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon)
-	TObjectPtr<class AWeapon> OverlappingWeapon;
+	TObjectPtr<AWeapon> OverlappingWeapon;
 
 	UFUNCTION()
 	void OnRep_OverlappingWeapon(AWeapon* LastOverlappingWeapon) const;
-
 	void ShowOverlappingWeaponPickupWidget(AWeapon* LastOverlappingWeapon) const;
+
+	/*
+	 *	Combat Section
+	 */
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class UCombatComponent> CombatComponent;
+
+	UFUNCTION(Server, Reliable)
+	void ServerEquipWeapon();
 };

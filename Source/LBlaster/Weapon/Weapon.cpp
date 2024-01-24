@@ -3,10 +3,10 @@
 
 #include "Weapon/Weapon.h"
 
-#include "Character/LBlasterCharacter.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Interface/LBCharacterWeaponInterface.h"
+#include "Net/UnrealNetwork.h"
 
 AWeapon::AWeapon()
 {
@@ -40,12 +40,25 @@ AWeapon::AWeapon()
 	}
 }
 
+void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AWeapon, WeaponState);
+}
+
 void AWeapon::ShowPickupWidget(bool bInShow) const
 {
 	if (PickupWidgetComponent)
 	{
 		PickupWidgetComponent->SetVisibility(bInShow);
 	}
+}
+
+void AWeapon::SetWeaponState(EWeaponState InWeaponState)
+{
+	WeaponState = InWeaponState;
+	OnChangedWeaponState();
 }
 
 void AWeapon::BeginPlay()
@@ -77,6 +90,24 @@ void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 	if (ILBCharacterWeaponInterface* OverlappingPawn = Cast<ILBCharacterWeaponInterface>(OtherActor))
 	{
 		OverlappingPawn->SetOverlappingWeapon(nullptr);
+	}
+}
+
+void AWeapon::OnRep_WeaponState()
+{
+	OnChangedWeaponState();
+}
+
+void AWeapon::OnChangedWeaponState()
+{
+	// TODO : 모든 EWeaponState 경우 처리 필요
+	switch (WeaponState)
+	{
+	case EWeaponState::EWS_Equipped:
+		// 무기가 장착된 상태라면 Pickup Widget을 숨기고 Pickup Overlap 발생 중지
+		ShowPickupWidget(false);
+		AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		break;
 	}
 }
 
