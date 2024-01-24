@@ -11,6 +11,8 @@
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "HUD/OverheadWidget.h"
+#include "Net/UnrealNetwork.h"
+#include "Weapon/Weapon.h"
 
 ALBlasterCharacter::ALBlasterCharacter()
 {
@@ -90,16 +92,29 @@ void ALBlasterCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	/* Input */
-	APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
-	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
 	{
-		Subsystem->AddMappingContext(DefaultMappingContext, 0);
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(DefaultMappingContext, 0);
+		}	
 	}
 
 	/* Overhead Widget */
 	if (UOverheadWidget* OverheadWidget = Cast<UOverheadWidget>(OverheadWidgetComponent->GetUserWidgetObject()))
 	{
 		OverheadWidget->ShowPlayerName(this);
+	}
+}
+
+void ALBlasterCharacter::SetOverlappingWeapon(AWeapon* InWeapon)
+{
+	AWeapon* LastOverlappingWeapon = OverlappingWeapon;
+	OverlappingWeapon = InWeapon;
+
+	if (IsLocallyControlled())
+	{
+		ShowOverlappingWeaponPickupWidget(LastOverlappingWeapon);
 	}
 }
 
@@ -112,6 +127,13 @@ void ALBlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ThisClass::Look);
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+}
+
+void ALBlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ALBlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
 }
 
 void ALBlasterCharacter::Move(const FInputActionValue& ActionValue)
@@ -131,6 +153,23 @@ void ALBlasterCharacter::Look(const FInputActionValue& ActionValue)
 	const FVector2D LookAxisVector = ActionValue.Get<FVector2D>();
 	AddControllerYawInput(LookAxisVector.X);
 	AddControllerPitchInput(LookAxisVector.Y);
+}
+
+void ALBlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastOverlappingWeapon) const
+{
+	ShowOverlappingWeaponPickupWidget(LastOverlappingWeapon);
+}
+
+void ALBlasterCharacter::ShowOverlappingWeaponPickupWidget(AWeapon* LastOverlappingWeapon) const
+{
+	if (OverlappingWeapon)
+	{
+		OverlappingWeapon->ShowPickupWidget(true);
+	}
+	if (LastOverlappingWeapon)
+	{
+		LastOverlappingWeapon->ShowPickupWidget(false);
+	}
 }
 
 void ALBlasterCharacter::Tick(float DeltaTime)
