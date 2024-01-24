@@ -10,7 +10,7 @@ ALobbyGameMode::ALobbyGameMode()
 {
 	bUseSeamlessTravel = true;
 	
-	static ConstructorHelpers::FClassFinder<ALBlasterCharacter> LBlasterCharacterClassRef(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/Character/BP_LBlasterCharacter.BP_LBlasterCharacter_C'"));
+	static ConstructorHelpers::FClassFinder<ALBlasterCharacter> LBlasterCharacterClassRef(TEXT("/Script/Engine.Blueprint'/Game/LBlaster/Actors/Players/Manny/BP_LBlasterCharacter.BP_LBlasterCharacter_C'"));
 	if (LBlasterCharacterClassRef.Class)
 	{
 		DefaultPawnClass = LBlasterCharacterClassRef.Class; 
@@ -25,7 +25,7 @@ void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 	{
 		if (UWorld* World = GetWorld())
 		{
-			World->ServerTravel(FString(TEXT("/Game/Maps/LBlasterMap?listen")));
+			World->ServerTravel(FString(TEXT("/Game/LBlaster/Maps/LBlasterMap?listen")));
 		}
 	}
 }

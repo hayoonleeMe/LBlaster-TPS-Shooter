@@ -24,13 +24,13 @@ ALBlasterCharacter::ALBlasterCharacter()
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -88.f), FRotator(0.f, -90.f, 0.f));
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Assets/Characters/Manny/Meshes/SKM_Manny.SKM_Manny'"));
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/LBlaster/Actors/Players/Manny/Meshes/SKM_Manny.SKM_Manny'"));
 	if (SkeletalMeshRef.Object)
 	{
 		GetMesh()->SetSkeletalMesh(SkeletalMeshRef.Object);
 	}
 	
-	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceRef(TEXT("/Script/Engine.AnimBlueprint'/Game/Blueprints/Character/ABP_LBlasterAnimInstance.ABP_LBlasterAnimInstance_C'"));
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceRef(TEXT("/Script/Engine.AnimBlueprint'/Game/LBlaster/Actors/Players/Manny/ABP_LBlasterAnimInstance.ABP_LBlasterAnimInstance_C'"));
 	if (AnimInstanceRef.Class)
 	{
 		GetMesh()->SetAnimInstanceClass(AnimInstanceRef.Class);
@@ -47,25 +47,25 @@ ALBlasterCharacter::ALBlasterCharacter()
 	FollowCamera->bUsePawnControlRotation = false;	// 카메라는 항상 RelativeRotation을 유지해 캐릭터를 바라본다.
 
 	/* Input */
-	static ConstructorHelpers::FObjectFinder<UInputMappingContext> InputMappingContextRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/Blueprints/Input/IMC_LBContext.IMC_LBContext'"));
+	static ConstructorHelpers::FObjectFinder<UInputMappingContext> InputMappingContextRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/LBlaster/Core/Inputs/IMC_LBContext.IMC_LBContext'"));
 	if (InputMappingContextRef.Object)
 	{
 		DefaultMappingContext = InputMappingContextRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UInputAction> MoveActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Blueprints/Input/IA_Move.IA_Move'"));
+	static ConstructorHelpers::FObjectFinder<UInputAction> MoveActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_Move.IA_Move'"));
 	if (MoveActionRef.Object)
 	{
 		MoveAction = MoveActionRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UInputAction> JumpActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Blueprints/Input/IA_Jump.IA_Jump'"));
+	static ConstructorHelpers::FObjectFinder<UInputAction> JumpActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_Jump.IA_Jump'"));
 	if (JumpActionRef.Object)
 	{
 		JumpAction = JumpActionRef.Object;
 	}
 	
-	static ConstructorHelpers::FObjectFinder<UInputAction> LookActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Blueprints/Input/IA_Look.IA_Look'"));
+	static ConstructorHelpers::FObjectFinder<UInputAction> LookActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_Look.IA_Look'"));
 	if (LookActionRef.Object)
 	{
 		LookAction = LookActionRef.Object;
@@ -78,7 +78,7 @@ ALBlasterCharacter::ALBlasterCharacter()
 	OverheadWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	OverheadWidgetComponent->SetDrawAtDesiredSize(true);
 
-	static ConstructorHelpers::FClassFinder<UOverheadWidget> OverheadWidgetClassRef(TEXT("/Game/Blueprints/HUD/WBP_OverheadWidget.WBP_OverheadWidget_C"));
+	static ConstructorHelpers::FClassFinder<UOverheadWidget> OverheadWidgetClassRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/LBlaster/UI/HUD/WBP_OverheadWidget.WBP_OverheadWidget_C'"));
 	if (OverheadWidgetClassRef.Class)
 	{
 		OverheadWidgetComponent->SetWidgetClass(OverheadWidgetClassRef.Class);

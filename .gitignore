@@ -1,3 +1,13 @@
+# leehayoon
+.idea/*
+Content/
+RiderLink/
+Saved/
+Platforms/
+
+# include specific content folder - !Content/{~}/
+!Content/LBlaster/Maps/
+
 # Visual Studio 2015 user specific files
 .vs/
 
@@ -77,12 +87,3 @@ Plugins/*/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
-
-# leehayoon
-.idea/*
-Content/
-RiderLink/
-Saved/
-Platforms/
-
-# include specific content folder - !Content/{~}/
