@@ -35,6 +35,8 @@ void ULBlasterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	bShouldMove = GroundSpeed > MovingThreshold && Acceleration != FVector::ZeroVector;
 	bIsFalling = Owner->GetCharacterMovement()->IsFalling();
 	bIsJumping = bIsFalling && Velocity.Z > JumpingThreshold;
+	bIsCrouched = Owner->bIsCrouched;
+	
 	// TODO : Tick에서 매번 인터페이스로 캐스팅하는 것이 성능에 괜찮은지 체크
 	if (ILBCharacterAnimInterface* Interface = Cast<ILBCharacterAnimInterface>(Owner))
 	{

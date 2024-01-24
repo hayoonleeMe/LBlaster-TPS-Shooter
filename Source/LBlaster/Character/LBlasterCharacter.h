@@ -50,10 +50,14 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<UInputAction> EquipAction;
+
+	UPROPERTY(EditAnywhere, Category="Input")
+	TObjectPtr<UInputAction> CrouchAction;
 	
 	void Move(const FInputActionValue& ActionValue);
 	void Look(const FInputActionValue& ActionValue);
 	void EquipWeapon(const FInputActionValue& ActionValue);
+	void DoCrouch(const FInputActionValue& ActionValue);
 	
 private:
 	/*

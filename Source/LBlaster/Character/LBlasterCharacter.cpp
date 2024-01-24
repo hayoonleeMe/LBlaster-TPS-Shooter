@@ -23,18 +23,23 @@ ALBlasterCharacter::ALBlasterCharacter()
 	/* Movement */
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->MaxWalkSpeed = 450.f;
+	GetCharacterMovement()->MaxAcceleration = 1500.f;
+	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
+	GetCharacterMovement()->CrouchedHalfHeight = 55.f;
+	GetCharacterMovement()->MaxWalkSpeedCrouched = 250.f;
 	
 	/* Mesh */
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -88.f), FRotator(0.f, -90.f, 0.f));
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/LBlaster/Actors/Players/Manny/Meshes/SKM_Manny.SKM_Manny'"));
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/LBlaster/Actors/Manny/Meshes/SKM_Manny.SKM_Manny'"));
 	if (SkeletalMeshRef.Object)
 	{
 		GetMesh()->SetSkeletalMesh(SkeletalMeshRef.Object);
 	}
 	
-	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceRef(TEXT("/Script/Engine.AnimBlueprint'/Game/LBlaster/Actors/Players/Manny/ABP_LBlasterAnimInstance.ABP_LBlasterAnimInstance_C'"));
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceRef(TEXT("/Script/Engine.AnimBlueprint'/Game/LBlaster/Actors/Manny/ABP_LBlasterAnimInstance.ABP_LBlasterAnimInstance_C'"));
 	if (AnimInstanceRef.Class)
 	{
 		GetMesh()->SetAnimInstanceClass(AnimInstanceRef.Class);
@@ -81,6 +86,12 @@ ALBlasterCharacter::ALBlasterCharacter()
 		EquipAction = EquipActionRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> CrouchActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_Crouch.IA_Crouch'"));
+	if (CrouchActionRef.Object)
+	{
+		CrouchAction = CrouchActionRef.Object;
+	}
+	
 	/* Overhead Widget */
 	OverheadWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidgetComponent"));
 	OverheadWidgetComponent->SetupAttachment(GetMesh());
@@ -157,6 +168,7 @@ void ALBlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 	EnhancedInputComponent->BindAction(EquipAction, ETriggerEvent::Triggered, this, &ThisClass::EquipWeapon);
+	EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &ThisClass::DoCrouch);
 }
 
 void ALBlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -193,6 +205,19 @@ void ALBlasterCharacter::EquipWeapon(const FInputActionValue& ActionValue)
 	}
 
 	ServerEquipWeapon();
+}
+
+void ALBlasterCharacter::DoCrouch(const FInputActionValue& ActionValue)
+{
+	if (!bIsCrouched)
+	{
+		Crouch();
+	}
+	else
+	{
+		UnCrouch();
+	}
+		
 }
 
 void ALBlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastOverlappingWeapon) const
