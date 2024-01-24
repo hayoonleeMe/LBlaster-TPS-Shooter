@@ -10,7 +10,7 @@ ALobbyGameMode::ALobbyGameMode()
 {
 	bUseSeamlessTravel = true;
 	
-	static ConstructorHelpers::FClassFinder<ALBlasterCharacter> LBlasterCharacterClassRef(TEXT("/Script/Engine.Blueprint'/Game/LBlaster/Actors/Players/Manny/BP_LBlasterCharacter.BP_LBlasterCharacter_C'"));
+	static ConstructorHelpers::FClassFinder<ALBlasterCharacter> LBlasterCharacterClassRef(TEXT("/Script/Engine.Blueprint'/Game/LBlaster/Actors/Manny/BP_LBlasterCharacter.BP_LBlasterCharacter_C'"));
 	if (LBlasterCharacterClassRef.Class)
 	{
 		DefaultPawnClass = LBlasterCharacterClassRef.Class; 
