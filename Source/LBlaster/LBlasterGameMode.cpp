@@ -7,7 +7,7 @@
 
 ALBlasterGameMode::ALBlasterGameMode()
 {
-	static ConstructorHelpers::FClassFinder<ALBlasterCharacter> LBlasterCharacterClassRef(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/Character/BP_LBlasterCharacter.BP_LBlasterCharacter_C'"));
+	static ConstructorHelpers::FClassFinder<ALBlasterCharacter> LBlasterCharacterClassRef(TEXT("/Script/Engine.Blueprint'/Game/LBlaster/Actors/Players/Manny/BP_LBlasterCharacter.BP_LBlasterCharacter_C'"));
 	if (LBlasterCharacterClassRef.Class)
 	{
 		DefaultPawnClass = LBlasterCharacterClassRef.Class;
