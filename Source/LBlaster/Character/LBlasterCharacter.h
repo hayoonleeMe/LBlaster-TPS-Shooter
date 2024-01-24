@@ -5,10 +5,11 @@
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
 #include "GameFramework/Character.h"
+#include "Interface/LBCharacterWeaponInterface.h"
 #include "LBlasterCharacter.generated.h"
 
 UCLASS()
-class LBLASTER_API ALBlasterCharacter : public ACharacter
+class LBLASTER_API ALBlasterCharacter : public ACharacter, public ILBCharacterWeaponInterface
 {
 	GENERATED_BODY()
 
@@ -17,9 +18,16 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 protected:
 	virtual void BeginPlay() override;
+
+public:
+	/*
+	 *	Interface Section
+	 */
+	virtual void SetOverlappingWeapon(class AWeapon* InWeapon) override;
 
 protected:
 	/*
@@ -55,4 +63,15 @@ private:
 	 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Widget", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UWidgetComponent> OverheadWidgetComponent;
+
+	/*
+	 *	Weapon
+	 */
+	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon)
+	TObjectPtr<class AWeapon> OverlappingWeapon;
+
+	UFUNCTION()
+	void OnRep_OverlappingWeapon(AWeapon* LastOverlappingWeapon) const;
+
+	void ShowOverlappingWeaponPickupWidget(AWeapon* LastOverlappingWeapon) const;
 };
