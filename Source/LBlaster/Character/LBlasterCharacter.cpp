@@ -142,6 +142,11 @@ void ALBlasterCharacter::AttachWeapon(AWeapon* InEquippedWeapon)
 	}
 }
 
+bool ALBlasterCharacter::IsEquippedWeapon()
+{
+	return CombatComponent && CombatComponent->IsEquippedWeapon();
+}
+
 void ALBlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -209,7 +214,7 @@ void ALBlasterCharacter::ShowOverlappingWeaponPickupWidget(AWeapon* LastOverlapp
 
 void ALBlasterCharacter::ServerEquipWeapon_Implementation()
 {
-	if (CombatComponent)
+	if (CombatComponent && OverlappingWeapon)
 	{
 		CombatComponent->EquipWeapon(OverlappingWeapon);
 	}

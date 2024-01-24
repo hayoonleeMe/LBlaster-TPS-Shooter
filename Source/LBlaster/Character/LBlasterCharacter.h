@@ -5,11 +5,12 @@
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
 #include "GameFramework/Character.h"
+#include "Interface/LBCharacterAnimInterface.h"
 #include "Interface/LBCharacterWeaponInterface.h"
 #include "LBlasterCharacter.generated.h"
 
 UCLASS()
-class LBLASTER_API ALBlasterCharacter : public ACharacter, public ILBCharacterWeaponInterface
+class LBLASTER_API ALBlasterCharacter : public ACharacter, public ILBCharacterWeaponInterface, public ILBCharacterAnimInterface
 {
 	GENERATED_BODY()
 
@@ -29,6 +30,7 @@ public:
 	 */
 	virtual void SetOverlappingWeapon(class AWeapon* InWeapon) override;
 	virtual void AttachWeapon(AWeapon* InEquippedWeapon) override;
+	virtual bool IsEquippedWeapon() override;
 
 protected:
 	/*
