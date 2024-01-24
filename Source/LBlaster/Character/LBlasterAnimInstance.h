@@ -20,8 +20,8 @@ public:
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 private:
-	UPROPERTY(BlueprintReadonly, Category="Character", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class ALBlasterCharacter> Owner;
+	UPROPERTY()
+	TObjectPtr<ACharacter> Owner;
 
 	bool IsValidOwner();
 	
@@ -42,4 +42,7 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadonly, Category="Character", meta = (AllowPrivateAccess = "true"))
 	float JumpingThreshold;
+
+	UPROPERTY(BlueprintReadonly, Category="Character", meta = (AllowPrivateAccess = "true"))
+	uint8 bIsEquippedWeapon : 1;
 };

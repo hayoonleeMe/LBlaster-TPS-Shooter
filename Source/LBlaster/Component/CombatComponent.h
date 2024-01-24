@@ -13,8 +13,10 @@ class LBLASTER_API UCombatComponent : public UActorComponent
 
 public:	
 	UCombatComponent();
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	void EquipWeapon(class AWeapon* InWeapon);
+	FORCEINLINE bool IsEquippedWeapon() const { return EquippedWeapon != nullptr; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -23,6 +25,6 @@ private:
 	/*
 	 *	Weapon
 	 */
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	TObjectPtr<AWeapon> EquippedWeapon;
 };
