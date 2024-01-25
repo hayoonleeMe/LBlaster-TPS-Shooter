@@ -23,4 +23,5 @@ class LBLASTER_API ILBCharacterAnimInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual bool IsEquippedWeapon() = 0;
+	virtual bool IsAiming() = 0;
 };

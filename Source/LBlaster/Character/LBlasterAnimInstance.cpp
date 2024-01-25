@@ -41,6 +41,7 @@ void ULBlasterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	if (ILBCharacterAnimInterface* Interface = Cast<ILBCharacterAnimInterface>(Owner))
 	{
 		bIsEquippedWeapon = Interface->IsEquippedWeapon();
+		bIsAiming = Interface->IsAiming();
 	}
 }
 

@@ -31,6 +31,7 @@ public:
 	virtual void SetOverlappingWeapon(class AWeapon* InWeapon) override;
 	virtual void AttachWeapon(AWeapon* InEquippedWeapon) override;
 	virtual bool IsEquippedWeapon() override;
+	virtual bool IsAiming() override;
 
 protected:
 	/*
@@ -53,11 +54,16 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<UInputAction> CrouchAction;
+
+	UPROPERTY(EditAnywhere, Category="Input")
+	TObjectPtr<UInputAction> AimAction;
 	
 	void Move(const FInputActionValue& ActionValue);
 	void Look(const FInputActionValue& ActionValue);
 	void EquipWeapon(const FInputActionValue& ActionValue);
 	void DoCrouch(const FInputActionValue& ActionValue);
+	void AimStarted(const FInputActionValue& ActionValue);
+	void AimFinished(const FInputActionValue& ActionValue);
 	
 private:
 	/*

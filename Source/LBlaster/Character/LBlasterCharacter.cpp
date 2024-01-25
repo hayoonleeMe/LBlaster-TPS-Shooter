@@ -92,6 +92,12 @@ ALBlasterCharacter::ALBlasterCharacter()
 		CrouchAction = CrouchActionRef.Object;
 	}
 	
+	static ConstructorHelpers::FObjectFinder<UInputAction> AimActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_Aim.IA_Aim'"));
+    if (AimActionRef.Object)
+    {
+    	AimAction = AimActionRef.Object;
+    }
+	
 	/* Overhead Widget */
 	OverheadWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidgetComponent"));
 	OverheadWidgetComponent->SetupAttachment(GetMesh());
@@ -107,6 +113,33 @@ ALBlasterCharacter::ALBlasterCharacter()
 
 	/* Combat Component */
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>(TEXT("Combat Component"));
+}
+
+void ALBlasterCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
+void ALBlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
+	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ThisClass::Move);
+	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ThisClass::Look);
+	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
+	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+	EnhancedInputComponent->BindAction(EquipAction, ETriggerEvent::Triggered, this, &ThisClass::EquipWeapon);
+	EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &ThisClass::DoCrouch);
+	EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Started, this, &ThisClass::AimStarted);
+	EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Completed, this, &ThisClass::AimFinished);
+}
+
+void ALBlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ALBlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
 }
 
 void ALBlasterCharacter::BeginPlay()
@@ -158,24 +191,9 @@ bool ALBlasterCharacter::IsEquippedWeapon()
 	return CombatComponent && CombatComponent->IsEquippedWeapon();
 }
 
-void ALBlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+bool ALBlasterCharacter::IsAiming()
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
-	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ThisClass::Move);
-	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ThisClass::Look);
-	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
-	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
-	EnhancedInputComponent->BindAction(EquipAction, ETriggerEvent::Triggered, this, &ThisClass::EquipWeapon);
-	EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &ThisClass::DoCrouch);
-}
-
-void ALBlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME_CONDITION(ALBlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
+	return CombatComponent && CombatComponent->IsAiming();
 }
 
 void ALBlasterCharacter::Move(const FInputActionValue& ActionValue)
@@ -220,6 +238,22 @@ void ALBlasterCharacter::DoCrouch(const FInputActionValue& ActionValue)
 		
 }
 
+void ALBlasterCharacter::AimStarted(const FInputActionValue& ActionValue)
+{
+	if (CombatComponent)
+	{
+		CombatComponent->SetAiming(true);
+	}	
+}
+
+void ALBlasterCharacter::AimFinished(const FInputActionValue& ActionValue)
+{
+	if (CombatComponent)
+	{
+		CombatComponent->SetAiming(false);
+	}
+}
+
 void ALBlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastOverlappingWeapon) const
 {
 	ShowOverlappingWeaponPickupWidget(LastOverlappingWeapon);
@@ -243,10 +277,5 @@ void ALBlasterCharacter::ServerEquipWeapon_Implementation()
 	{
 		CombatComponent->EquipWeapon(OverlappingWeapon);
 	}
-}
-
-void ALBlasterCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 }
 

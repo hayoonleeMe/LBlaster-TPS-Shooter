@@ -48,4 +48,7 @@ private:
 
 	UPROPERTY(BlueprintReadonly, Category="Character", meta = (AllowPrivateAccess = "true"))
 	uint8 bIsCrouched : 1;
+
+	UPROPERTY(BlueprintReadonly, Category="Character", meta = (AllowPrivateAccess = "true"))
+    uint8 bIsAiming : 1;
 };
