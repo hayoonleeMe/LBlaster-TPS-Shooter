@@ -17,6 +17,8 @@ public:
 
 	void EquipWeapon(class AWeapon* InWeapon);
 	FORCEINLINE bool IsEquippedWeapon() const { return EquippedWeapon != nullptr; }
+	FORCEINLINE bool IsAiming() const { return bIsAiming; }
+	void SetAiming(bool bInAiming);
 
 protected:
 	virtual void BeginPlay() override;
@@ -27,4 +29,13 @@ private:
 	 */
 	UPROPERTY(Replicated)
 	TObjectPtr<AWeapon> EquippedWeapon;
+
+	/*
+	 *	Aiming
+	 */
+	UPROPERTY(Replicated)
+	uint8 bIsAiming : 1;
+
+	UFUNCTION(Server, Reliable)
+	void ServerSetAiming(bool bInAiming);
 };
