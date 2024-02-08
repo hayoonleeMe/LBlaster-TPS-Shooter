@@ -6,7 +6,7 @@ Saved/
 Platforms/
 
 # include specific content folder - !Content/{~}/
-!Content/LBlaster/Maps/
+!Content/LBlaster/
 
 # Visual Studio 2015 user specific files
 .vs/
