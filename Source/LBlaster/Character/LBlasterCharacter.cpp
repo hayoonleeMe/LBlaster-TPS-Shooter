@@ -138,7 +138,7 @@ void ALBlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ThisClass::Move);
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ThisClass::Look);
-	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
+	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ThisClass::DoJump);
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 	EnhancedInputComponent->BindAction(EquipAction, ETriggerEvent::Triggered, this, &ThisClass::EquipWeapon);
 	EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &ThisClass::DoCrouch);
@@ -236,6 +236,21 @@ void ALBlasterCharacter::Look(const FInputActionValue& ActionValue)
 	AddControllerPitchInput(LookAxisVector.Y);
 }
 
+void ALBlasterCharacter::DoJump(const FInputActionValue& ActionValue)
+{
+	if (GetCharacterMovement()->IsMovingOnGround())
+	{
+		if (bIsCrouched)
+		{
+			UnCrouch();
+		}
+		else
+		{
+			Jump();
+		}
+	}
+}
+
 void ALBlasterCharacter::EquipWeapon(const FInputActionValue& ActionValue)
 {
 	if (!OverlappingWeapon)
@@ -248,7 +263,7 @@ void ALBlasterCharacter::EquipWeapon(const FInputActionValue& ActionValue)
 
 void ALBlasterCharacter::DoCrouch(const FInputActionValue& ActionValue)
 {
-	if (!bIsCrouched)
+	if (!bIsCrouched && GetCharacterMovement()->IsMovingOnGround())
 	{
 		Crouch();
 	}
