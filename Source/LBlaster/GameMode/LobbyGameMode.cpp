@@ -4,7 +4,6 @@
 #include "GameMode/LobbyGameMode.h"
 
 #include "Character/LBlasterCharacter.h"
-#include "GameFramework/GameStateBase.h"
 
 ALobbyGameMode::ALobbyGameMode()
 {
@@ -21,11 +20,11 @@ void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 
-	if (GameState->PlayerArray.Num() == 2)
-	{
-		if (UWorld* World = GetWorld())
-		{
-			World->ServerTravel(FString(TEXT("/Game/LBlaster/Maps/LBlasterMap?listen")));
-		}
-	}
+	// if (GameState->PlayerArray.Num() == 2)
+	// {
+	// 	if (UWorld* World = GetWorld())
+	// 	{
+	// 		World->ServerTravel(FString(TEXT("/Game/LBlaster/Maps/LBlasterMap?listen")));
+	// 	}
+	// }
 }
