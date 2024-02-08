@@ -16,10 +16,11 @@ public:
 	UCombatComponent();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	FORCEINLINE bool IsEquippingWeapon() const { return EquippedWeapon != nullptr; }
+	FORCEINLINE bool IsEquippingWeapon() const { return EquippingWeapon != nullptr; }
 	FORCEINLINE bool IsAiming() const { return bIsAiming; }
+	FORCEINLINE class AWeapon* GetEquippingWeapon() const { return EquippingWeapon; }
 	EWeaponType GetEquippingWeaponType() const;
-	void EquipWeapon(class AWeapon* InWeapon);
+	void EquipWeapon(class AWeapon* InWeapon);	
 	void SetAiming(bool bInAiming);
 
 protected:
@@ -30,7 +31,7 @@ private:
 	 *	Weapon
 	 */
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
-	TObjectPtr<AWeapon> EquippedWeapon;
+	TObjectPtr<AWeapon> EquippingWeapon;
 
 	UFUNCTION()
 	void OnRep_EquippedWeapon();
