@@ -23,6 +23,10 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	/* Replication */
+	NetUpdateFrequency = 66.f;
+	MinNetUpdateFrequency = 33.f;
+	
 	/* Movement */
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	bUseControllerRotationYaw = true;
