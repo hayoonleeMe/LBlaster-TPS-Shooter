@@ -4,16 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "LBTypes/WeaponTypes.h"
 #include "Weapon.generated.h"
-
-UENUM(BlueprintType)
-enum class EWeaponState : uint8
-{
-	EWS_Initial UMETA(DisplayName = "Initial State"),
-	EWS_Equipped UMETA(DisplayName = "Equipped"),
-	EWS_Dropped UMETA(DisplayName = "Dropped"),
-	EWS_MAX UMETA(DisplayName = "DefaultMAX")
-};
 
 UCLASS()
 class LBLASTER_API AWeapon : public AActor
@@ -26,6 +18,9 @@ public:
 	
 	void ShowPickupWidget(bool bInShow) const;
 	void SetWeaponState(EWeaponState InWeaponState);
+
+	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
+	FORCEINLINE TSubclassOf<UAnimInstance> GetWeaponAnimLayer() const { return WeaponAnimLayer; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -47,6 +42,18 @@ protected:
 		UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex
 	);
+
+	/*
+	 *	Weapon Type
+	 */
+	UPROPERTY(EditDefaultsOnly, Category="Weapon")
+	EWeaponType WeaponType;
+
+	/*
+	 * Linked Anim Layer
+	 */
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UAnimInstance> WeaponAnimLayer;
 	
 private:
 	/*

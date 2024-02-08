@@ -11,6 +11,7 @@ UCombatComponent::UCombatComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 	SetIsReplicatedByDefault(true);
+	ADSMultiplier = 0.5f;
 }
 
 void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -23,12 +24,18 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 void UCombatComponent::SetAiming(bool bInAiming)
 {
+	bIsAiming = bInAiming;
 	ServerSetAiming(bInAiming);
 }
 
 void UCombatComponent::ServerSetAiming_Implementation(bool bInAiming)
 {
 	bIsAiming = bInAiming;
+
+	if (ILBCharacterWeaponInterface* Interface = Cast<ILBCharacterWeaponInterface>(GetOwner()))
+	{
+		Interface->SetADSWalkSpeed(bInAiming, ADSMultiplier);
+	}
 }
 
 void UCombatComponent::BeginPlay()
@@ -37,15 +44,40 @@ void UCombatComponent::BeginPlay()
 
 }
 
+void UCombatComponent::OnRep_EquippedWeapon()
+{
+	if (EquippedWeapon)
+	{
+		if (ILBCharacterWeaponInterface* Interface = Cast<ILBCharacterWeaponInterface>(GetOwner()))
+		{
+			Interface->SetWeaponAnimLayers(EquippedWeapon->GetWeaponAnimLayer());
+		}
+	}
+}
+
+EWeaponType UCombatComponent::GetEquippingWeaponType() const
+{
+	if (EquippedWeapon)
+	{
+		return EquippedWeapon->GetWeaponType();
+	}
+	return EWeaponType();
+}
+
 void UCombatComponent::EquipWeapon(AWeapon* InWeapon)
 {
 	// From ServerRPC (Server Only)
 	EquippedWeapon = InWeapon;
-	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
 
-	if (ILBCharacterWeaponInterface* Interface = Cast<ILBCharacterWeaponInterface>(GetOwner()))
+	if (EquippedWeapon)
 	{
-		Interface->AttachWeapon(EquippedWeapon);
+		EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
+
+		if (ILBCharacterWeaponInterface* Interface = Cast<ILBCharacterWeaponInterface>(GetOwner()))
+		{
+			Interface->AttachWeapon(EquippedWeapon);
+			Interface->SetWeaponAnimLayers(EquippedWeapon->GetWeaponAnimLayer());
+		}
 	}
 }
 

@@ -5,37 +5,38 @@
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
 #include "GameFramework/Character.h"
-#include "Interface/LBCharacterAnimInterface.h"
 #include "Interface/LBCharacterWeaponInterface.h"
 #include "LBlasterCharacter.generated.h"
 
 UCLASS()
-class LBLASTER_API ALBlasterCharacter : public ACharacter, public ILBCharacterWeaponInterface, public ILBCharacterAnimInterface
+class LBLASTER_API ALBlasterCharacter : public ACharacter, public ILBCharacterWeaponInterface
 {
 	GENERATED_BODY()
 
 public:
-	ALBlasterCharacter();
+	ALBlasterCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	bool IsAiming() const;	
+	
 protected:
 	virtual void BeginPlay() override;
 
 public:
 	/*
-	 *	Interface Section
+	 *	ULBCharacterWeaponInterface
 	 */
 	virtual void SetOverlappingWeapon(class AWeapon* InWeapon) override;
 	virtual void AttachWeapon(AWeapon* InEquippedWeapon) override;
-	virtual bool IsEquippedWeapon() override;
-	virtual bool IsAiming() override;
+	virtual void SetADSWalkSpeed(bool bEnabled, float InADSMultiplier) override;
+	virtual void SetWeaponAnimLayers(TSubclassOf<UAnimInstance> InWeaponAnimLayer) override;
 
 protected:
 	/*
-	 *	Input Section
+	 *	Input
 	 */
 	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<class UInputMappingContext> DefaultMappingContext;
@@ -67,7 +68,13 @@ protected:
 	
 private:
 	/*
-	 *	Camera and SpringArm Section
+	 *	Movement
+	 */
+	UPROPERTY(EditAnywhere)
+	float BaseMaxWalkSpeed;
+	
+	/*
+	 *	Camera and SpringArm
 	 */
 	UPROPERTY(VisibleAnywhere, Category="Camera")
 	TObjectPtr<class USpringArmComponent> CameraBoom;
@@ -92,7 +99,7 @@ private:
 	void ShowOverlappingWeaponPickupWidget(AWeapon* LastOverlappingWeapon) const;
 
 	/*
-	 *	Combat Section
+	 *	Combat
 	 */
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class UCombatComponent> CombatComponent;

@@ -24,4 +24,6 @@ class LBLASTER_API ILBCharacterWeaponInterface
 public:
 	virtual void SetOverlappingWeapon(class AWeapon* InWeapon) = 0;
 	virtual void AttachWeapon(AWeapon* InEquippedWeapon) = 0;
+	virtual void SetADSWalkSpeed(bool bEnabled, float InADSMultiplier) = 0;
+	virtual void SetWeaponAnimLayers(TSubclassOf<UAnimInstance> InWeaponAnimLayer) = 0;
 };
