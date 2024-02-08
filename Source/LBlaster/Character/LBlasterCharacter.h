@@ -61,6 +61,7 @@ protected:
 	
 	void Move(const FInputActionValue& ActionValue);
 	void Look(const FInputActionValue& ActionValue);
+	void DoJump(const FInputActionValue& ActionValue);
 	void EquipWeapon(const FInputActionValue& ActionValue);
 	void DoCrouch(const FInputActionValue& ActionValue);
 	void AimStarted(const FInputActionValue& ActionValue);
