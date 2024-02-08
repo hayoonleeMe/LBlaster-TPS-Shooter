@@ -19,8 +19,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
-	bool IsAiming() const;	
 	
 protected:
 	virtual void BeginPlay() override;
@@ -34,6 +32,12 @@ public:
 	virtual void SetADSWalkSpeed(bool bEnabled, float InADSMultiplier) override;
 	virtual void SetWeaponAnimLayers(TSubclassOf<UAnimInstance> InWeaponAnimLayer) override;
 
+	/*
+	 *	LBlasterAnimInstance
+	 */
+	bool IsAiming() const;
+	FTransform GetLeftHandTransform() const;
+	
 protected:
 	/*
 	 *	Input

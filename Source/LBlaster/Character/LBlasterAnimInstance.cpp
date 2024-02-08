@@ -28,6 +28,9 @@ void ULBlasterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	bIsAiming = Character->IsAiming();
 	const FLBlasterCharacterGroundInfo& GroundInfo = CharacterMovementComponent->GetGroundInfo();
 	GroundDistance = GroundInfo.GroundDistance;
+
+	/* Left Hand */
+	LeftHandTransform = Character->GetLeftHandTransform();
 }
 
 bool ULBlasterAnimInstance::IsValidCharacter()

@@ -18,13 +18,13 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
+	DOREPLIFETIME(UCombatComponent, EquippingWeapon);
 	DOREPLIFETIME(UCombatComponent, bIsAiming);
 }
 
 void UCombatComponent::SetAiming(bool bInAiming)
 {
-	if (!EquippedWeapon)
+	if (!EquippingWeapon)
 	{
 		return;
 	}
@@ -55,20 +55,20 @@ void UCombatComponent::BeginPlay()
 
 void UCombatComponent::OnRep_EquippedWeapon()
 {
-	if (EquippedWeapon)
+	if (EquippingWeapon)
 	{
 		if (ILBCharacterWeaponInterface* Interface = Cast<ILBCharacterWeaponInterface>(GetOwner()))
 		{
-			Interface->SetWeaponAnimLayers(EquippedWeapon->GetWeaponAnimLayer());
+			Interface->SetWeaponAnimLayers(EquippingWeapon->GetWeaponAnimLayer());
 		}
 	}
 }
 
 EWeaponType UCombatComponent::GetEquippingWeaponType() const
 {
-	if (EquippedWeapon)
+	if (EquippingWeapon)
 	{
-		return EquippedWeapon->GetWeaponType();
+		return EquippingWeapon->GetWeaponType();
 	}
 	return EWeaponType();
 }
@@ -76,16 +76,16 @@ EWeaponType UCombatComponent::GetEquippingWeaponType() const
 void UCombatComponent::EquipWeapon(AWeapon* InWeapon)
 {
 	// From ServerRPC (Server Only)
-	EquippedWeapon = InWeapon;
+	EquippingWeapon = InWeapon;
 
-	if (EquippedWeapon)
+	if (EquippingWeapon)
 	{
-		EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
+		EquippingWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
 
 		if (ILBCharacterWeaponInterface* Interface = Cast<ILBCharacterWeaponInterface>(GetOwner()))
 		{
-			Interface->AttachWeapon(EquippedWeapon);
-			Interface->SetWeaponAnimLayers(EquippedWeapon->GetWeaponAnimLayer());
+			Interface->AttachWeapon(EquippingWeapon);
+			Interface->SetWeaponAnimLayers(EquippingWeapon->GetWeaponAnimLayer());
 		}
 	}
 }

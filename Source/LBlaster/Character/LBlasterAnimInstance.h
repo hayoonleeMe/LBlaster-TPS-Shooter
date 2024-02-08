@@ -37,4 +37,10 @@ private:
 	
 	UPROPERTY(BlueprintReadOnly, Category="Character State", meta = (AllowPrivateAccess = "true"))
 	uint8 bIsAiming : 1;
+
+	/*
+	 *	Left Hand
+	 */
+	UPROPERTY(BlueprintReadOnly, Category="Left Hand", meta = (AllowPrivateAccess = "true"))
+	FTransform LeftHandTransform;
 };

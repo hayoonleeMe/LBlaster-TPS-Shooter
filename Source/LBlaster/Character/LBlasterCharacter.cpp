@@ -311,6 +311,24 @@ bool ALBlasterCharacter::IsAiming() const
 	return CombatComponent && CombatComponent->IsAiming();
 }
 
+FTransform ALBlasterCharacter::GetLeftHandTransform() const
+{
+	if (CombatComponent->IsEquippingWeapon() && GetMesh())
+	{
+		if (USkeletalMeshComponent* EquippingWeaponMesh = CombatComponent->GetEquippingWeapon()->GetWeaponMesh())
+		{
+			FTransform LeftHandTransform = EquippingWeaponMesh->GetSocketTransform(FName("LeftHandSocket"), RTS_World);
+			FVector OutPosition;
+			FRotator OutRotation;
+			GetMesh()->TransformToBoneSpace(FName("hand_r"), LeftHandTransform.GetLocation(), FRotator::ZeroRotator, OutPosition, OutRotation);
+			LeftHandTransform.SetLocation(OutPosition);
+			LeftHandTransform.SetRotation(FQuat(OutRotation));
+			return LeftHandTransform;
+		}	
+	}
+	return FTransform();
+}
+
 void ALBlasterCharacter::ServerEquipWeapon_Implementation()
 {
 	if (CombatComponent && OverlappingWeapon)
