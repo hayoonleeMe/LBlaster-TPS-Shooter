@@ -30,13 +30,17 @@ void UCombatComponent::SetAiming(bool bInAiming)
 	}
 	
 	bIsAiming = bInAiming;
+	if (ILBCharacterWeaponInterface* Interface = Cast<ILBCharacterWeaponInterface>(GetOwner()))
+	{
+		Interface->SetADSWalkSpeed(bInAiming, ADSMultiplier);
+	}
+	
 	ServerSetAiming(bInAiming);
 }
 
 void UCombatComponent::ServerSetAiming_Implementation(bool bInAiming)
 {
 	bIsAiming = bInAiming;
-
 	if (ILBCharacterWeaponInterface* Interface = Cast<ILBCharacterWeaponInterface>(GetOwner()))
 	{
 		Interface->SetADSWalkSpeed(bInAiming, ADSMultiplier);
