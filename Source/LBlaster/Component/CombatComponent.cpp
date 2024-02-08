@@ -24,6 +24,11 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 void UCombatComponent::SetAiming(bool bInAiming)
 {
+	if (!EquippedWeapon)
+	{
+		return;
+	}
+	
 	bIsAiming = bInAiming;
 	ServerSetAiming(bInAiming);
 }
