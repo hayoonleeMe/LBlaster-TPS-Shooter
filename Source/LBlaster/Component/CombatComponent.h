@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "LBTypes/WeaponTypes.h"
 #include "CombatComponent.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -15,9 +16,10 @@ public:
 	UCombatComponent();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	void EquipWeapon(class AWeapon* InWeapon);
-	FORCEINLINE bool IsEquippedWeapon() const { return EquippedWeapon != nullptr; }
+	FORCEINLINE bool IsEquippingWeapon() const { return EquippedWeapon != nullptr; }
 	FORCEINLINE bool IsAiming() const { return bIsAiming; }
+	EWeaponType GetEquippingWeaponType() const;
+	void EquipWeapon(class AWeapon* InWeapon);
 	void SetAiming(bool bInAiming);
 
 protected:
@@ -27,14 +29,20 @@ private:
 	/*
 	 *	Weapon
 	 */
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
 	TObjectPtr<AWeapon> EquippedWeapon;
 
+	UFUNCTION()
+	void OnRep_EquippedWeapon();
+	
 	/*
 	 *	Aiming
 	 */
 	UPROPERTY(Replicated)
 	uint8 bIsAiming : 1;
+
+	UPROPERTY(EditAnywhere)
+	float ADSMultiplier;
 
 	UFUNCTION(Server, Reliable)
 	void ServerSetAiming(bool bInAiming);

@@ -2,54 +2,48 @@
 
 
 #include "LBlasterAnimInstance.h"
-
-#include "GameFramework/Character.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "Interface/LBCharacterAnimInterface.h"
-
-void ULBlasterAnimInstance::UlBlasterAnim()
-{
-	MovingThreshold = 3.f;
-	JumpingThreshold = 100.f;
-}
+#include "LBlasterCharacter.h"
+#include "Component/LBCharacterMovementComponent.h"
 
 void ULBlasterAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
 
-	IsValidOwner();
 }
 
 void ULBlasterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	if (!IsValidOwner())
+	if (!IsValidCharacter())
+	{
+		return;
+	}
+	if (!IsValidMovement())
 	{
 		return;
 	}
 
-	const FVector Velocity = Owner->GetCharacterMovement()->Velocity;
-	const FVector Acceleration = Owner->GetCharacterMovement()->GetCurrentAcceleration();
-	GroundSpeed = Velocity.Size2D();
-	bShouldMove = GroundSpeed > MovingThreshold && Acceleration != FVector::ZeroVector;
-	bIsFalling = Owner->GetCharacterMovement()->IsFalling();
-	bIsJumping = bIsFalling && Velocity.Z > JumpingThreshold;
-	bIsCrouched = Owner->bIsCrouched;
-	
-	// TODO : Tick에서 매번 인터페이스로 캐스팅하는 것이 성능에 괜찮은지 체크
-	if (ILBCharacterAnimInterface* Interface = Cast<ILBCharacterAnimInterface>(Owner))
-	{
-		bIsEquippedWeapon = Interface->IsEquippedWeapon();
-		bIsAiming = Interface->IsAiming();
-	}
+	/* Character State */
+	bIsAiming = Character->IsAiming();
+	const FLBlasterCharacterGroundInfo& GroundInfo = CharacterMovementComponent->GetGroundInfo();
+	GroundDistance = GroundInfo.GroundDistance;
 }
 
-bool ULBlasterAnimInstance::IsValidOwner()
+bool ULBlasterAnimInstance::IsValidCharacter()
 {
-	if (!Owner)
+	if (!Character)
 	{
-		Owner = Cast<ACharacter>(TryGetPawnOwner());
+		Character = Cast<ALBlasterCharacter>(TryGetPawnOwner());
 	}
-	return Owner != nullptr;
+	return Character != nullptr;
+}
+
+bool ULBlasterAnimInstance::IsValidMovement()
+{
+	if (!CharacterMovementComponent)
+	{
+		CharacterMovementComponent = CastChecked<ULBCharacterMovementComponent>(Character->GetCharacterMovement());
+	}
+	return CharacterMovementComponent != nullptr;
 }

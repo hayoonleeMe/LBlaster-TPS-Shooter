@@ -15,40 +15,26 @@ class LBLASTER_API ULBlasterAnimInstance : public UAnimInstance
 	GENERATED_BODY()
 
 public:
-	void UlBlasterAnim();
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
+protected:
+	bool IsValidCharacter();
+	bool IsValidMovement();
+
 private:
 	UPROPERTY()
-	TObjectPtr<ACharacter> Owner;
+	TObjectPtr<class ALBlasterCharacter> Character;
 
-	bool IsValidOwner();
+	UPROPERTY()
+	TObjectPtr<class ULBCharacterMovementComponent> CharacterMovementComponent;
 	
-	UPROPERTY(BlueprintReadonly, Category="Character", meta = (AllowPrivateAccess = "true"))
-	float GroundSpeed;
-
-	UPROPERTY(BlueprintReadonly, Category="Character", meta = (AllowPrivateAccess = "true"))
-	uint8 bShouldMove : 1;
+	/*
+	 *	Character State
+	 */
+	UPROPERTY(BlueprintReadOnly, Category = "Character State", meta = (AllowPrivateAccess = "true"))
+	float GroundDistance;
 	
-	UPROPERTY(BlueprintReadonly, Category="Character", meta = (AllowPrivateAccess = "true"))
-	uint8 bIsFalling : 1;
-
-	UPROPERTY(BlueprintReadonly, Category="Character", meta = (AllowPrivateAccess = "true"))
-	uint8 bIsJumping : 1;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadonly, Category="Character", meta = (AllowPrivateAccess = "true"))
-	float MovingThreshold;
-
-	UPROPERTY(EditAnywhere, BlueprintReadonly, Category="Character", meta = (AllowPrivateAccess = "true"))
-	float JumpingThreshold;
-
-	UPROPERTY(BlueprintReadonly, Category="Character", meta = (AllowPrivateAccess = "true"))
-	uint8 bIsEquippedWeapon : 1;
-
-	UPROPERTY(BlueprintReadonly, Category="Character", meta = (AllowPrivateAccess = "true"))
-	uint8 bIsCrouched : 1;
-
-	UPROPERTY(BlueprintReadonly, Category="Character", meta = (AllowPrivateAccess = "true"))
-    uint8 bIsAiming : 1;
+	UPROPERTY(BlueprintReadOnly, Category="Character State", meta = (AllowPrivateAccess = "true"))
+	uint8 bIsAiming : 1;
 };

@@ -9,6 +9,8 @@
 #include "InputAction.h"
 #include "InputMappingContext.h"
 #include "Component/CombatComponent.h"
+#include "Component/LBCharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -16,20 +18,29 @@
 #include "Net/UnrealNetwork.h"
 #include "Weapon/Weapon.h"
 
-ALBlasterCharacter::ALBlasterCharacter()
+ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<ULBCharacterMovementComponent>(CharacterMovementComponentName))
 {
 	PrimaryActorTick.bCanEverTick = true;
 
 	/* Movement */
-	bUseControllerRotationYaw = false;
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->MaxWalkSpeed = 450.f;
-	GetCharacterMovement()->MaxAcceleration = 1500.f;
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+	bUseControllerRotationYaw = true;
+	BaseMaxWalkSpeed = 600.f;
+	GetCharacterMovement()->MaxWalkSpeed = BaseMaxWalkSpeed;
+	GetCharacterMovement()->MaxWalkSpeedCrouched = 300.f;
+	GetCharacterMovement()->MaxAcceleration = 2400.f;
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
-	GetCharacterMovement()->CrouchedHalfHeight = 55.f;
-	GetCharacterMovement()->MaxWalkSpeedCrouched = 250.f;
+	GetCharacterMovement()->MaxWalkSpeedCrouched = 300.f;
+	GetCharacterMovement()->SetCrouchedHalfHeight(65.f);
+	GetCharacterMovement()->BrakingFrictionFactor = 1.f;
+	GetCharacterMovement()->BrakingDecelerationWalking = 1400.f;
+	GetCharacterMovement()->bCanWalkOffLedgesWhenCrouching = true;
+	GetCharacterMovement()->RotationRate.Yaw = 720.f;
 	
 	/* Mesh */
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -88.f), FRotator(0.f, -90.f, 0.f));
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 
@@ -186,14 +197,24 @@ void ALBlasterCharacter::AttachWeapon(AWeapon* InEquippedWeapon)
 	}
 }
 
-bool ALBlasterCharacter::IsEquippedWeapon()
+void ALBlasterCharacter::SetADSWalkSpeed(bool bEnabled, float InADSMultiplier)
 {
-	return CombatComponent && CombatComponent->IsEquippedWeapon();
+	if (bEnabled)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = BaseMaxWalkSpeed * InADSMultiplier;
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = BaseMaxWalkSpeed;
+	}
 }
 
-bool ALBlasterCharacter::IsAiming()
+void ALBlasterCharacter::SetWeaponAnimLayers(TSubclassOf<UAnimInstance> InWeaponAnimLayer)
 {
-	return CombatComponent && CombatComponent->IsAiming();
+	if (::IsValid(InWeaponAnimLayer))
+	{
+		GetMesh()->LinkAnimClassLayers(InWeaponAnimLayer);
+	}
 }
 
 void ALBlasterCharacter::Move(const FInputActionValue& ActionValue)
@@ -221,7 +242,7 @@ void ALBlasterCharacter::EquipWeapon(const FInputActionValue& ActionValue)
 	{
 		return;
 	}
-
+	
 	ServerEquipWeapon();
 }
 
@@ -235,7 +256,6 @@ void ALBlasterCharacter::DoCrouch(const FInputActionValue& ActionValue)
 	{
 		UnCrouch();
 	}
-		
 }
 
 void ALBlasterCharacter::AimStarted(const FInputActionValue& ActionValue)
@@ -269,6 +289,11 @@ void ALBlasterCharacter::ShowOverlappingWeaponPickupWidget(AWeapon* LastOverlapp
 	{
 		LastOverlappingWeapon->ShowPickupWidget(false);
 	}
+}
+
+bool ALBlasterCharacter::IsAiming() const
+{
+	return CombatComponent && CombatComponent->IsAiming();
 }
 
 void ALBlasterCharacter::ServerEquipWeapon_Implementation()
