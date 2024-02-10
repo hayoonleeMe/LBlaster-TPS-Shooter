@@ -111,4 +111,10 @@ private:
 
 	UFUNCTION(Server, Reliable)
 	void ServerEquipWeapon();
+
+	/*
+	 *	Animation
+	 */
+	UPROPERTY(EditDefaultsOnly, Category="LBlaster|Animation")
+	TSubclassOf<UAnimInstance> BaseAnimLayerClass;
 };
