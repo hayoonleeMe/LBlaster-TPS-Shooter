@@ -61,6 +61,14 @@ void AWeapon::SetWeaponState(EWeaponState InWeaponState)
 	OnChangedWeaponState();
 }
 
+void AWeapon::Fire()
+{
+	if (FireAnimation)
+	{
+		WeaponMesh->PlayAnimation(FireAnimation, false);
+	}
+}
+
 void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
