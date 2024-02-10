@@ -26,4 +26,5 @@ public:
 	virtual void AttachWeapon(AWeapon* InEquippedWeapon) = 0;
 	virtual void SetADSWalkSpeed(bool bEnabled, float InADSMultiplier) = 0;
 	virtual void SetWeaponAnimLayers(TSubclassOf<UAnimInstance> InWeaponAnimLayer) = 0;
+	virtual void PlayFireMontage(class UAnimMontage* InFireMontage) = 0;
 };

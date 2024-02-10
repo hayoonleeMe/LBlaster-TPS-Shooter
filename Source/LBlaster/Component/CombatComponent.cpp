@@ -47,6 +47,20 @@ void UCombatComponent::ServerSetAiming_Implementation(bool bInAiming)
 	}
 }
 
+void UCombatComponent::SetFiring(bool bInFiring)
+{
+	if (!EquippingWeapon)
+	{
+		return;
+	}
+	
+	bIsFiring = bInFiring;
+	if (bIsFiring)
+	{
+		ServerFire();
+	}
+}
+
 void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -64,13 +78,17 @@ void UCombatComponent::OnRep_EquippedWeapon()
 	}
 }
 
-EWeaponType UCombatComponent::GetEquippingWeaponType() const
+void UCombatComponent::ServerFire_Implementation()
 {
-	if (EquippingWeapon)
+	MulticastFire();
+}
+
+void UCombatComponent::MulticastFire_Implementation()
+{
+	if (ILBCharacterWeaponInterface* Interface = Cast<ILBCharacterWeaponInterface>(GetOwner()))
 	{
-		return EquippingWeapon->GetWeaponType();
-	}
-	return EWeaponType();
+		Interface->PlayFireMontage(FireMontages[EquippingWeapon->GetWeaponType()]);
+	}	
 }
 
 void UCombatComponent::EquipWeapon(AWeapon* InWeapon)
