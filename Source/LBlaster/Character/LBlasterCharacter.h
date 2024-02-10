@@ -17,8 +17,9 @@ public:
 	ALBlasterCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	virtual void Tick(float DeltaTime) override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void PostInitializeComponents() override;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -27,10 +28,11 @@ public:
 	/*
 	 *	ULBCharacterWeaponInterface
 	 */
-	virtual void SetOverlappingWeapon(class AWeapon* InWeapon) override;
+	virtual void SetOverlappingWeapon(AWeapon* InWeapon) override;
 	virtual void AttachWeapon(AWeapon* InEquippedWeapon) override;
 	virtual void SetADSWalkSpeed(bool bEnabled, float InADSMultiplier) override;
 	virtual void SetWeaponAnimLayers(TSubclassOf<UAnimInstance> InWeaponAnimLayer) override;
+	virtual void PlayFireMontage(UAnimMontage* InFireMontage) override;
 
 	/*
 	 *	LBlasterAnimInstance
@@ -42,26 +44,29 @@ protected:
 	/*
 	 *	Input
 	 */
-	UPROPERTY(EditAnywhere, Category="Input")
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
 	TObjectPtr<class UInputMappingContext> DefaultMappingContext;
 	
-	UPROPERTY(EditAnywhere, Category="Input")
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
 	TObjectPtr<class UInputAction> MoveAction;
 	
-	UPROPERTY(EditAnywhere, Category="Input")
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
 	TObjectPtr<UInputAction> JumpAction;
 	
-	UPROPERTY(EditAnywhere, Category="Input")
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
 	TObjectPtr<UInputAction> LookAction;
 
-	UPROPERTY(EditAnywhere, Category="Input")
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
 	TObjectPtr<UInputAction> EquipAction;
 
-	UPROPERTY(EditAnywhere, Category="Input")
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
 	TObjectPtr<UInputAction> CrouchAction;
 
-	UPROPERTY(EditAnywhere, Category="Input")
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
 	TObjectPtr<UInputAction> AimAction;
+	
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
+    TObjectPtr<UInputAction> FireAction;
 	
 	void Move(const FInputActionValue& ActionValue);
 	void Look(const FInputActionValue& ActionValue);
@@ -70,27 +75,29 @@ protected:
 	void DoCrouch(const FInputActionValue& ActionValue);
 	void AimStarted(const FInputActionValue& ActionValue);
 	void AimFinished(const FInputActionValue& ActionValue);
+	void FireStarted(const FInputActionValue& ActionValue);
+	void FireFinished(const FInputActionValue& ActionValue);
 	
 private:
 	/*
 	 *	Movement
 	 */
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="LBlaster|Movement")
 	float BaseMaxWalkSpeed;
 	
 	/*
 	 *	Camera and SpringArm
 	 */
-	UPROPERTY(VisibleAnywhere, Category="Camera")
+	UPROPERTY(VisibleAnywhere, Category="LBlaster|Camera")
 	TObjectPtr<class USpringArmComponent> CameraBoom;
 
-	UPROPERTY(VisibleAnywhere, Category="Camera")
+	UPROPERTY(VisibleAnywhere, Category="LBlaster|Camera")
 	TObjectPtr<class UCameraComponent> FollowCamera;
 
 	/*
 	 *	Overhead Widget
 	 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Widget", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, Category="LBlaster|Widget")
 	TObjectPtr<class UWidgetComponent> OverheadWidgetComponent;
 
 	/*
@@ -106,7 +113,7 @@ private:
 	/*
 	 *	Combat
 	 */
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category="LBlaster|Combat")
 	TObjectPtr<class UCombatComponent> CombatComponent;
 
 	UFUNCTION(Server, Reliable)

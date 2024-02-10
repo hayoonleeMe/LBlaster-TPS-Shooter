@@ -112,6 +112,12 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
     {
     	AimAction = AimActionRef.Object;
     }
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> FireActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_Fire.IA_Fire'"));
+	if (FireActionRef.Object)
+	{
+		FireAction = FireActionRef.Object;
+	}
 	
 	/* Overhead Widget */
 	OverheadWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidgetComponent"));
@@ -155,6 +161,8 @@ void ALBlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &ThisClass::DoCrouch);
 	EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Started, this, &ThisClass::AimStarted);
 	EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Completed, this, &ThisClass::AimFinished);
+	EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &ThisClass::FireStarted);
+	EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Completed, this, &ThisClass::FireFinished);
 }
 
 void ALBlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -238,6 +246,14 @@ void ALBlasterCharacter::SetWeaponAnimLayers(TSubclassOf<UAnimInstance> InWeapon
 	}
 }
 
+void ALBlasterCharacter::PlayFireMontage(UAnimMontage* InFireMontage)
+{
+	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+	{
+		AnimInstance->Montage_Play(InFireMontage);	
+	}
+}
+
 void ALBlasterCharacter::Move(const FInputActionValue& ActionValue)
 {
 	const FVector2D MovementVector = ActionValue.Get<FVector2D>();
@@ -307,6 +323,22 @@ void ALBlasterCharacter::AimFinished(const FInputActionValue& ActionValue)
 	if (CombatComponent)
 	{
 		CombatComponent->SetAiming(false);
+	}
+}
+
+void ALBlasterCharacter::FireStarted(const FInputActionValue& ActionValue)
+{
+	if (CombatComponent)
+	{
+		CombatComponent->SetFiring(true);
+	}
+}
+
+void ALBlasterCharacter::FireFinished(const FInputActionValue& ActionValue)
+{
+	if (CombatComponent)
+	{
+		CombatComponent->SetFiring(false);
 	}
 }
 
