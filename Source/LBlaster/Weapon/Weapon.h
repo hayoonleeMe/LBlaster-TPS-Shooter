@@ -23,6 +23,8 @@ public:
 	FORCEINLINE TSubclassOf<UAnimInstance> GetWeaponAnimLayer() const { return WeaponAnimLayer; }
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
 
+	void Fire();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -56,7 +58,7 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UAnimInstance> WeaponAnimLayer;
 	
-private:
+protected:
 	/*
 	 *	Mesh & Overlap Sphere
 	 */
@@ -77,6 +79,12 @@ private:
 	 */
 	UPROPERTY(ReplicatedUsing = OnRep_WeaponState, VisibleAnywhere, Category="Weapon")
 	EWeaponState WeaponState;
+
+	/*
+	 *	Animation
+	 */
+	UPROPERTY(EditAnywhere, Category="Weapon")
+	TObjectPtr<UAnimationAsset> FireAnimation;
 
 	UFUNCTION()
 	void OnRep_WeaponState();

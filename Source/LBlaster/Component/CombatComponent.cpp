@@ -88,6 +88,7 @@ void UCombatComponent::MulticastFire_Implementation()
 	if (ILBCharacterWeaponInterface* Interface = Cast<ILBCharacterWeaponInterface>(GetOwner()))
 	{
 		Interface->PlayFireMontage(FireMontages[EquippingWeapon->GetWeaponType()]);
+		EquippingWeapon->Fire();
 	}	
 }
 
