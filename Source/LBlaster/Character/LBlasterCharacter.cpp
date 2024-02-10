@@ -128,6 +128,13 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 
 	/* Combat Component */
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>(TEXT("Combat Component"));
+
+	/* Animation */
+	static ConstructorHelpers::FClassFinder<UAnimInstance> BaseAnimLayerRef(TEXT("/Game/LBlaster/Actors/Manny/Animations/Locomotion/Unarmed/ABP_UnarmedAnimLayers.ABP_UnarmedAnimLayers_C"));
+	if (BaseAnimLayerRef.Class)
+	{
+		BaseAnimLayerClass = BaseAnimLayerRef.Class;
+	}
 }
 
 void ALBlasterCharacter::Tick(float DeltaTime)
@@ -155,6 +162,16 @@ void ALBlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(ALBlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
+}
+
+void ALBlasterCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+	{
+		AnimInstance->LinkAnimClassLayers(BaseAnimLayerClass);
+	}
 }
 
 void ALBlasterCharacter::BeginPlay()
