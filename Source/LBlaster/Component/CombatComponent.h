@@ -7,6 +7,8 @@
 #include "LBTypes/WeaponTypes.h"
 #include "CombatComponent.generated.h"
 
+#define TRACE_LENGTH 80000.f;
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class LBLASTER_API UCombatComponent : public UActorComponent
 {
@@ -15,6 +17,7 @@ class LBLASTER_API UCombatComponent : public UActorComponent
 public:	
 	UCombatComponent();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	FORCEINLINE bool IsEquippingWeapon() const { return EquippingWeapon != nullptr; }
 	FORCEINLINE bool IsAiming() const { return bIsAiming; }
@@ -54,10 +57,12 @@ private:
 	uint8 bIsFiring : 1;
 
 	UFUNCTION(Server, Reliable)
-	void ServerFire();
+	void ServerFire(const FVector_NetQuantize& TraceHitTarget);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastFire();
+	void MulticastFire(const FVector_NetQuantize& TraceHitTarget);
+
+	void TraceUnderCrosshair(FHitResult& TraceHitResult);
 
 	UPROPERTY(EditAnywhere, Category = "LBlaster|Firing")
 	TMap<EWeaponType, UAnimMontage*> FireMontages;

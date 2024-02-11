@@ -61,7 +61,7 @@ void AWeapon::SetWeaponState(EWeaponState InWeaponState)
 	OnChangedWeaponState();
 }
 
-void AWeapon::Fire()
+void AWeapon::Fire(const FVector& HitTarget)
 {
 	if (FireAnimation)
 	{
