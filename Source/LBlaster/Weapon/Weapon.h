@@ -49,41 +49,41 @@ protected:
 	/*
 	 *	Weapon Type
 	 */
-	UPROPERTY(EditDefaultsOnly, Category="Weapon")
+	UPROPERTY(EditDefaultsOnly, Category="LBlaster|Weapon Type")
 	EWeaponType WeaponType;
 
 	/*
 	 * Linked Anim Layer
 	 */
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="LBlaster|Linked Anim Layer")
 	TSubclassOf<UAnimInstance> WeaponAnimLayer;
 	
 protected:
 	/*
 	 *	Mesh & Overlap Sphere
 	 */
-	UPROPERTY(VisibleAnywhere, Category="Weapon")
+	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USkeletalMeshComponent> WeaponMesh;
 
-	UPROPERTY(VisibleAnywhere, Category="Weapon")
+	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class USphereComponent> AreaSphere;
 
 	/*
 	 *	Pickup Widget
 	 */
-	UPROPERTY(VisibleAnywhere, Category = "Weapon")
+	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class UWidgetComponent> PickupWidgetComponent;
 	
 	/*
 	 *	Weapon State
 	 */
-	UPROPERTY(ReplicatedUsing = OnRep_WeaponState, VisibleAnywhere, Category="Weapon")
+	UPROPERTY(ReplicatedUsing = OnRep_WeaponState, VisibleAnywhere, Category="LBlaster|Weapon State")
 	EWeaponState WeaponState;
 
 	/*
 	 *	Animation
 	 */
-	UPROPERTY(EditAnywhere, Category="Weapon")
+	UPROPERTY(EditAnywhere, Category="LBlaster|Animation")
 	TObjectPtr<UAnimationAsset> FireAnimation;
 
 	UFUNCTION()
