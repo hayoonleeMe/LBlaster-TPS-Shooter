@@ -3,8 +3,10 @@
 
 #include "Weapon/Weapon.h"
 
+#include "Casing.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Engine/SkeletalMeshSocket.h"
 #include "Interface/LBCharacterWeaponInterface.h"
 #include "Net/UnrealNetwork.h"
 
@@ -66,6 +68,19 @@ void AWeapon::Fire(const FVector& HitTarget)
 	if (FireAnimation)
 	{
 		WeaponMesh->PlayAnimation(FireAnimation, false);
+	}
+
+	if (CasingClass)
+	{
+		if (const USkeletalMeshSocket* Socket = WeaponMesh->GetSocketByName(TEXT("AmmoEject")))
+		{
+			FTransform SocketTransform = Socket->GetSocketTransform(WeaponMesh);
+			
+			if (UWorld* World = GetWorld())
+			{
+				World->SpawnActor<ACasing>(CasingClass, SocketTransform.GetLocation(), SocketTransform.GetRotation().Rotator());
+			}
+		}
 	}
 }
 

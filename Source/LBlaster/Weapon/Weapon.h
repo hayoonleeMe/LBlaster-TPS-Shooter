@@ -86,6 +86,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category="LBlaster|Animation")
 	TObjectPtr<UAnimationAsset> FireAnimation;
 
+	/*
+	 *	Casing
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Casing")
+	TSubclassOf<class ACasing> CasingClass;
+
 	UFUNCTION()
 	void OnRep_WeaponState();
 	void OnChangedWeaponState();
