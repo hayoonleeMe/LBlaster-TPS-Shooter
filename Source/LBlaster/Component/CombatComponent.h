@@ -73,10 +73,11 @@ private:
 	/*
 	 *	Firing
 	 */
+	UPROPERTY(Replicated)
 	uint8 bIsFiring : 1;
 
 	UFUNCTION(Server, Reliable)
-	void ServerFire(const FVector_NetQuantize& TraceHitTarget);
+	void ServerFire(bool bInFiring, const FVector_NetQuantize& TraceHitTarget);
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastFire(const FVector_NetQuantize& TraceHitTarget);
