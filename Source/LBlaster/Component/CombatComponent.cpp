@@ -3,10 +3,12 @@
 
 #include "Component/CombatComponent.h"
 
-#include "Interface/LBCharacterWeaponInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "Weapon/Weapon.h"
+#include "Character/LBlasterCharacter.h"
+#include "HUD/LBlasterHUD.h"
+#include "Player/LBlasterPlayerController.h"
 
 UCombatComponent::UCombatComponent()
 {
@@ -36,9 +38,9 @@ void UCombatComponent::SetAiming(bool bInAiming)
 	}
 	
 	bIsAiming = bInAiming;
-	if (ILBCharacterWeaponInterface* Interface = Cast<ILBCharacterWeaponInterface>(GetOwner()))
+	if (IsValidCharacter())
 	{
-		Interface->SetADSWalkSpeed(bInAiming, ADSMultiplier);
+		Character->SetADSWalkSpeed(bInAiming, ADSMultiplier);
 	}
 	
 	ServerSetAiming(bInAiming);
@@ -47,9 +49,9 @@ void UCombatComponent::SetAiming(bool bInAiming)
 void UCombatComponent::ServerSetAiming_Implementation(bool bInAiming)
 {
 	bIsAiming = bInAiming;
-	if (ILBCharacterWeaponInterface* Interface = Cast<ILBCharacterWeaponInterface>(GetOwner()))
+	if (IsValidCharacter())
 	{
-		Interface->SetADSWalkSpeed(bInAiming, ADSMultiplier);
+		Character->SetADSWalkSpeed(bInAiming, ADSMultiplier);
 	}
 }
 
@@ -73,6 +75,33 @@ void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+}
+
+bool UCombatComponent::IsValidCharacter()
+{
+	if (!Character)
+	{
+		Character = Cast<ALBlasterCharacter>(GetOwner());
+	}
+	return Character != nullptr;
+}
+
+bool UCombatComponent::IsValidPlayerController()
+{
+	if (!PlayerController)
+	{
+		PlayerController = Cast<ALBlasterPlayerController>(Character->Controller);
+	}
+	return PlayerController != nullptr;
+}
+
+bool UCombatComponent::IsValidHUD()
+{
+	if (!HUD)
+	{
+		HUD = Cast<ALBlasterHUD>(PlayerController->GetHUD());
+	}
+	return HUD != nullptr;
 }
 
 void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
@@ -110,9 +139,9 @@ void UCombatComponent::OnRep_EquippedWeapon()
 {
 	if (EquippingWeapon)
 	{
-		if (ILBCharacterWeaponInterface* Interface = Cast<ILBCharacterWeaponInterface>(GetOwner()))
+		if (IsValidCharacter())
 		{
-			Interface->SetWeaponAnimLayers(EquippingWeapon->GetWeaponAnimLayer());
+			Character->SetWeaponAnimLayers(EquippingWeapon->GetWeaponAnimLayer());
 		}
 	}
 }
@@ -124,9 +153,9 @@ void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& Trac
 
 void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
-	if (ILBCharacterWeaponInterface* Interface = Cast<ILBCharacterWeaponInterface>(GetOwner()))
+	if (IsValidCharacter())
 	{
-		Interface->PlayFireMontage(FireMontages[EquippingWeapon->GetWeaponType()]);
+		Character->PlayFireMontage(FireMontages[EquippingWeapon->GetWeaponType()]);
 		EquippingWeapon->Fire(TraceHitTarget);
 	}	
 }
@@ -140,10 +169,10 @@ void UCombatComponent::EquipWeapon(AWeapon* InWeapon)
 	{
 		EquippingWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
 
-		if (ILBCharacterWeaponInterface* Interface = Cast<ILBCharacterWeaponInterface>(GetOwner()))
+		if (IsValidCharacter())
 		{
-			Interface->AttachWeapon(EquippingWeapon);
-			Interface->SetWeaponAnimLayers(EquippingWeapon->GetWeaponAnimLayer());
+			Character->AttachWeapon(EquippingWeapon);
+			Character->SetWeaponAnimLayers(EquippingWeapon->GetWeaponAnimLayer());
 		}
 	}
 }

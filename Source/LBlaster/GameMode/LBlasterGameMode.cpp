@@ -4,6 +4,7 @@
 #include "LBlasterGameMode.h"
 
 #include "Character/LBlasterCharacter.h"
+#include "HUD/LBlasterHUD.h"
 
 ALBlasterGameMode::ALBlasterGameMode()
 {
@@ -11,5 +12,11 @@ ALBlasterGameMode::ALBlasterGameMode()
 	if (LBlasterCharacterClassRef.Class)
 	{
 		DefaultPawnClass = LBlasterCharacterClassRef.Class;
+	}
+
+	static ConstructorHelpers::FClassFinder<ALBlasterHUD> LBlasterHUDClassRef(TEXT("/Script/Engine.Blueprint'/Game/LBlaster/UI/HUD/BP_LBlasterHUD.BP_LBlasterHUD_C'"));
+	if (LBlasterHUDClassRef.Class)
+	{
+		HUDClass = LBlasterHUDClassRef.Class;
 	}
 }
