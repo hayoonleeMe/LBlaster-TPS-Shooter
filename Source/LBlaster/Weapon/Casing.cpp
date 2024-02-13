@@ -14,6 +14,7 @@ ACasing::ACasing()
 	SetRootComponent(CasingMesh);
 	CasingMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	CasingMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	CasingMesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 
 	/* Physics */
 	CasingMesh->SetSimulatePhysics(true);
