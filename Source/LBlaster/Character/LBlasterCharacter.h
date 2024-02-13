@@ -28,17 +28,21 @@ public:
 	/*
 	 *	ULBCharacterWeaponInterface
 	 */
-	virtual void SetOverlappingWeapon(AWeapon* InWeapon) override;
-	virtual void AttachWeapon(AWeapon* InEquippedWeapon) override;
-	virtual void SetADSWalkSpeed(bool bEnabled, float InADSMultiplier) override;
-	virtual void SetWeaponAnimLayers(TSubclassOf<UAnimInstance> InWeaponAnimLayer) override;
-	virtual void PlayFireMontage(UAnimMontage* InFireMontage) override;
+	virtual void SetOverlappingWeapon(class AWeapon* InWeapon);
 
 	/*
 	 *	LBlasterAnimInstance
 	 */
 	bool IsAiming() const;
 	FTransform GetLeftHandTransform() const;
+
+	/*
+	 *	Combat
+	 */
+	void AttachWeapon(AWeapon* InEquippedWeapon);
+	void SetADSWalkSpeed(bool bEnabled, float InADSMultiplier);
+	void SetWeaponAnimLayers(TSubclassOf<UAnimInstance> InWeaponAnimLayer);
+	void PlayFireMontage(UAnimMontage* InFireMontage);
 	
 protected:
 	/*

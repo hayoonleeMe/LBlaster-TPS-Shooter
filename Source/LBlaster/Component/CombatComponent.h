@@ -31,6 +31,24 @@ protected:
 
 private:
 	/*
+	 *	Owner
+	 */
+	UPROPERTY()
+	TObjectPtr<class ALBlasterCharacter> Character;
+
+	bool IsValidCharacter();
+
+	UPROPERTY()
+	TObjectPtr<class ALBlasterPlayerController> PlayerController;
+
+	bool IsValidPlayerController();
+
+	UPROPERTY()
+	TObjectPtr<class ALBlasterHUD> HUD;
+
+	bool IsValidHUD();
+	
+	/*
 	 *	Weapon
 	 */
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)

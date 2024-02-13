@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "LBPlayerController.generated.h"
+#include "LBlasterPlayerController.generated.h"
 
 /**
  * 

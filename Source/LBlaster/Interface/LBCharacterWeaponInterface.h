@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -23,8 +23,4 @@ class LBLASTER_API ILBCharacterWeaponInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual void SetOverlappingWeapon(class AWeapon* InWeapon) = 0;
-	virtual void AttachWeapon(AWeapon* InEquippedWeapon) = 0;
-	virtual void SetADSWalkSpeed(bool bEnabled, float InADSMultiplier) = 0;
-	virtual void SetWeaponAnimLayers(TSubclassOf<UAnimInstance> InWeaponAnimLayer) = 0;
-	virtual void PlayFireMontage(UAnimMontage* InFireMontage) = 0;
 };
