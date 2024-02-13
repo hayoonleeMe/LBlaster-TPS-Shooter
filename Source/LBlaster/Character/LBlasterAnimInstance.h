@@ -37,6 +37,9 @@ private:
 	
 	UPROPERTY(BlueprintReadOnly, Category="Character State", meta = (AllowPrivateAccess = "true"))
 	uint8 bIsAiming : 1;
+	
+	UPROPERTY(BlueprintReadOnly, Category="Character State", meta = (AllowPrivateAccess = "true"))
+	uint8 bIsFiring : 1;
 
 	/*
 	 *	Left Hand

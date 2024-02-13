@@ -364,6 +364,11 @@ bool ALBlasterCharacter::IsAiming() const
 	return CombatComponent && CombatComponent->IsAiming();
 }
 
+bool ALBlasterCharacter::IsFiring() const
+{
+	return CombatComponent && CombatComponent->IsFiring();
+}
+
 FTransform ALBlasterCharacter::GetLeftHandTransform() const
 {
 	if (CombatComponent->IsEquippingWeapon() && GetMesh())

@@ -28,12 +28,13 @@ public:
 	/*
 	 *	ULBCharacterWeaponInterface
 	 */
-	virtual void SetOverlappingWeapon(class AWeapon* InWeapon);
+	virtual void SetOverlappingWeapon(AWeapon* InWeapon) override;
 
 	/*
 	 *	LBlasterAnimInstance
 	 */
 	bool IsAiming() const;
+	bool IsFiring() const;
 	FTransform GetLeftHandTransform() const;
 
 	/*
