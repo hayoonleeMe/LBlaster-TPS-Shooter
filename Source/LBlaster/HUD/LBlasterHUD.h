@@ -25,6 +25,9 @@ struct FHUDPackage
 
 	UPROPERTY()
 	TObjectPtr<UTexture2D> CenterCrosshair;
+
+	UPROPERTY()
+	float CrosshairSpread;
 };
 
 /**
@@ -36,11 +39,18 @@ class LBLASTER_API ALBlasterHUD : public AHUD
 	GENERATED_BODY()
 
 public:
+	ALBlasterHUD();
 	virtual void DrawHUD() override;
 	FORCEINLINE void SetHUDPackage(const FHUDPackage& InPackage) { HUDPackage = InPackage; }
 
 private:
+	/*
+	 *	Crosshair
+	 */
 	FHUDPackage HUDPackage;
 
-	void DrawCrosshair(UTexture2D* InTexture, const FVector2D& ViewportCenter);
+	void DrawCrosshair(UTexture2D* InTexture, const FVector2D& InViewportCenter, const FVector2D& InSpread);
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Crosshair")
+	float CrosshairSpreadMax;
 };

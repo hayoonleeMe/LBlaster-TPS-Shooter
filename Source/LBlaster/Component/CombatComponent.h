@@ -88,5 +88,7 @@ private:
 	/*
 	 *	Crosshair
 	 */
-	void SetHUDCrosshair();
+	void SetHUDCrosshair(float DeltaTime);
+
+	float CrosshairInAirFactor;
 };

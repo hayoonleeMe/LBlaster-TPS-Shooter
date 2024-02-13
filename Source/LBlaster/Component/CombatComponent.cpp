@@ -7,6 +7,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Weapon/Weapon.h"
 #include "Character/LBlasterCharacter.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "HUD/LBlasterHUD.h"
 #include "Player/LBlasterPlayerController.h"
 
@@ -29,7 +30,7 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	SetHUDCrosshair();
+	SetHUDCrosshair(DeltaTime);
 }
 
 void UCombatComponent::SetAiming(bool bInAiming)
@@ -137,7 +138,7 @@ void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 	}
 }
 
-void UCombatComponent::SetHUDCrosshair()
+void UCombatComponent::SetHUDCrosshair(float DeltaTime)
 {
 	if (!IsValidCharacter() || !IsValidPlayerController() || !IsValidHUD())
 	{
@@ -152,6 +153,26 @@ void UCombatComponent::SetHUDCrosshair()
 		HUDPackage.LeftCrosshair = EquippingWeapon->LeftCrosshair;
 		HUDPackage.RightCrosshair = EquippingWeapon->RightCrosshair;
 		HUDPackage.CenterCrosshair = EquippingWeapon->CenterCrosshair;
+	}
+
+	// 이동 속도에 따른 Crosshair Spread
+	if (Character->GetCharacterMovement())
+	{
+		const FVector2D WalkSpeedRange(0.f, Character->GetCharacterMovement()->MaxWalkSpeed);
+		const FVector2D ClampRange(0.f, 1.f);
+		const FVector Velocity = Character->GetCharacterMovement()->Velocity;
+		const float CrosshairSpreadVelocityFactor = FMath::GetMappedRangeValueClamped(WalkSpeedRange, ClampRange, Velocity.Size2D());
+
+		if (Character->GetCharacterMovement()->IsFalling())
+		{
+			CrosshairInAirFactor = FMath::FInterpTo(CrosshairInAirFactor, 2.25f, DeltaTime, 2.25f);
+		}
+		else
+		{
+			CrosshairInAirFactor = FMath::FInterpTo(CrosshairInAirFactor, 0.f, DeltaTime, 30.f);
+		}
+
+		HUDPackage.CrosshairSpread = CrosshairSpreadVelocityFactor + CrosshairInAirFactor;
 	}
 	HUD->SetHUDPackage(HUDPackage);
 }
