@@ -69,6 +69,10 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;	// 카메라는 항상 RelativeRotation을 유지해 캐릭터를 바라본다.
+	FollowCamera->PostProcessSettings.bOverride_DepthOfFieldFocalDistance = true;
+	FollowCamera->PostProcessSettings.DepthOfFieldFocalDistance = 10000.f;
+	FollowCamera->PostProcessSettings.bOverride_DepthOfFieldFstop = true;
+	FollowCamera->PostProcessSettings.DepthOfFieldFstop = 32.f;
 
 	/* Input */
 	static ConstructorHelpers::FObjectFinder<UInputMappingContext> InputMappingContextRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/LBlaster/Core/Inputs/IMC_LBContext.IMC_LBContext'"));
