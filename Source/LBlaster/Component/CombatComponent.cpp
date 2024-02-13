@@ -12,7 +12,7 @@
 
 UCombatComponent::UCombatComponent()
 {
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 	SetIsReplicatedByDefault(true);
 	ADSMultiplier = 0.5f;
 }
@@ -28,6 +28,8 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	SetHUDCrosshair();
 }
 
 void UCombatComponent::SetAiming(bool bInAiming)
@@ -133,6 +135,25 @@ void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 
 		GetWorld()->LineTraceSingleByChannel(TraceHitResult, Start, End, ECC_Visibility);
 	}
+}
+
+void UCombatComponent::SetHUDCrosshair()
+{
+	if (!IsValidCharacter() || !IsValidPlayerController() || !IsValidHUD())
+	{
+		return;
+	}
+
+	FHUDPackage HUDPackage;
+	if (EquippingWeapon)
+	{
+		HUDPackage.TopCrosshair = EquippingWeapon->TopCrosshair;
+		HUDPackage.BottomCrosshair = EquippingWeapon->BottomCrosshair;
+		HUDPackage.LeftCrosshair = EquippingWeapon->LeftCrosshair;
+		HUDPackage.RightCrosshair = EquippingWeapon->RightCrosshair;
+		HUDPackage.CenterCrosshair = EquippingWeapon->CenterCrosshair;
+	}
+	HUD->SetHUDPackage(HUDPackage);
 }
 
 void UCombatComponent::OnRep_EquippedWeapon()

@@ -84,4 +84,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "LBlaster|Firing")
 	TMap<EWeaponType, UAnimMontage*> FireMontages;
+
+	/*
+	 *	Crosshair
+	 */
+	void SetHUDCrosshair();
 };

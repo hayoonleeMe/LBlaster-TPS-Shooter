@@ -5,6 +5,7 @@
 
 #include "Character/LBlasterCharacter.h"
 #include "HUD/LBlasterHUD.h"
+#include "Player/LBlasterPlayerController.h"
 
 ALBlasterGameMode::ALBlasterGameMode()
 {
@@ -18,5 +19,11 @@ ALBlasterGameMode::ALBlasterGameMode()
 	if (LBlasterHUDClassRef.Class)
 	{
 		HUDClass = LBlasterHUDClassRef.Class;
+	}
+
+	static ConstructorHelpers::FClassFinder<ALBlasterPlayerController> PlayerControllerClassRef(TEXT("/Script/Engine.Blueprint'/Game/LBlaster/Core/Controllers/Player/BP_LBlasterPlayerController.BP_LBlasterPlayerController_C'"));
+	if (PlayerControllerClassRef.Class)
+	{
+		PlayerControllerClass = PlayerControllerClassRef.Class;
 	}
 }

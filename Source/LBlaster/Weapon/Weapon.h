@@ -58,7 +58,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category="LBlaster|Linked Anim Layer")
 	TSubclassOf<UAnimInstance> WeaponAnimLayer;
 	
-protected:
 	/*
 	 *	Mesh & Overlap Sphere
 	 */
@@ -95,4 +94,23 @@ protected:
 	UFUNCTION()
 	void OnRep_WeaponState();
 	void OnChangedWeaponState();
+
+public:
+	/*
+	 *	Crosshair
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Crosshair")
+	TObjectPtr<UTexture2D> TopCrosshair;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Crosshair")
+	TObjectPtr<UTexture2D> BottomCrosshair;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Crosshair")
+	TObjectPtr<UTexture2D> LeftCrosshair;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Crosshair")
+	TObjectPtr<UTexture2D> RightCrosshair;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Crosshair")
+	TObjectPtr<UTexture2D> CenterCrosshair;
 };
