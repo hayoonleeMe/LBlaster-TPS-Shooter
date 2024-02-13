@@ -3,6 +3,7 @@
 
 #include "Component/CombatComponent.h"
 
+#include "Camera/CameraComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "Weapon/Weapon.h"
@@ -32,6 +33,7 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	SetHUDCrosshair(DeltaTime);
+	InterpFOV(DeltaTime);
 }
 
 void UCombatComponent::SetAiming(bool bInAiming)
@@ -85,6 +87,15 @@ void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (!IsValidCharacter())
+	{
+		return;
+	}
+	if (Character->GetFollowCamera())
+	{
+		DefaultFOV = Character->GetFollowCamera()->FieldOfView;
+		CurrentFOV = DefaultFOV;
+	}
 }
 
 bool UCombatComponent::IsValidCharacter()
@@ -182,6 +193,28 @@ void UCombatComponent::SetHUDCrosshair(float DeltaTime)
 		HUDPackage.CrosshairSpread = CrosshairSpreadVelocityFactor + CrosshairInAirFactor;
 	}
 	HUD->SetHUDPackage(HUDPackage);
+}
+
+void UCombatComponent::InterpFOV(float DeltaTime)
+{
+	if (!EquippingWeapon || !IsValidCharacter())
+	{
+		return;
+	}
+
+	if (bIsAiming)
+	{
+		CurrentFOV = FMath::FInterpTo(CurrentFOV, EquippingWeapon->GetZoomedFOV(), DeltaTime, EquippingWeapon->GetZoomInterpSpeed());
+	}
+	else
+	{
+		CurrentFOV = FMath::FInterpTo(CurrentFOV, DefaultFOV, DeltaTime, EquippingWeapon->GetZoomInterpSpeed());
+	}
+
+	if (Character->GetFollowCamera())
+	{
+		Character->GetFollowCamera()->SetFieldOfView(CurrentFOV);
+	}
 }
 
 void UCombatComponent::OnRep_EquippedWeapon()

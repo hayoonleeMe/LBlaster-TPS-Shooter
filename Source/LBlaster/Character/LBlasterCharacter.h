@@ -44,6 +44,11 @@ public:
 	void SetADSWalkSpeed(bool bEnabled, float InADSMultiplier);
 	void SetWeaponAnimLayers(TSubclassOf<UAnimInstance> InWeaponAnimLayer);
 	void PlayFireMontage(UAnimMontage* InFireMontage);
+
+	/*
+	 *	Camera
+	 */
+	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; } 
 	
 protected:
 	/*

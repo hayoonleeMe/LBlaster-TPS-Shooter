@@ -40,6 +40,10 @@ AWeapon::AWeapon()
 	{
 		PickupWidgetComponent->SetWidgetClass(PickupWidgetClassRef.Class);
 	}
+
+	/* Zoom FOV */
+	ZoomedFOV = 45.f;
+	ZoomInterpSpeed = 15.f;	
 }
 
 void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

@@ -22,6 +22,8 @@ public:
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 	FORCEINLINE TSubclassOf<UAnimInstance> GetWeaponAnimLayer() const { return WeaponAnimLayer; }
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
+	FORCEINLINE float GetZoomedFOV() const { return ZoomedFOV; }
+	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
 
 	virtual void Fire(const FVector& HitTarget);
 
@@ -79,6 +81,10 @@ protected:
 	UPROPERTY(ReplicatedUsing = OnRep_WeaponState, VisibleAnywhere, Category="LBlaster|Weapon State")
 	EWeaponState WeaponState;
 
+    UFUNCTION()
+    void OnRep_WeaponState();
+    void OnChangedWeaponState();
+
 	/*
 	 *	Animation
 	 */
@@ -90,10 +96,15 @@ protected:
 	 */
 	UPROPERTY(EditAnywhere, Category="LBlaster|Casing")
 	TSubclassOf<class ACasing> CasingClass;
+	
+	/*
+	 *	ADS FOV
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|ADS FOV")
+	float ZoomedFOV;
 
-	UFUNCTION()
-	void OnRep_WeaponState();
-	void OnChangedWeaponState();
+	UPROPERTY(EditAnywhere, Category="LBlaster|ADS FOV")
+	float ZoomInterpSpeed;
 
 public:
 	/*

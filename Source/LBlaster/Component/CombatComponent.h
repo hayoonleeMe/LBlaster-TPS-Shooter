@@ -93,4 +93,12 @@ private:
 	void SetHUDCrosshair(float DeltaTime);
 
 	float CrosshairInAirFactor;
+
+	/*
+	 *	ADS FOV
+	 */
+	float DefaultFOV;
+	float CurrentFOV;
+
+	void InterpFOV(float DeltaTime);
 };
