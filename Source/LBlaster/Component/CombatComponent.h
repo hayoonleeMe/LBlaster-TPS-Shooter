@@ -21,6 +21,7 @@ public:
 
 	FORCEINLINE bool IsEquippingWeapon() const { return EquippingWeapon != nullptr; }
 	FORCEINLINE bool IsAiming() const { return bIsAiming; }
+	FORCEINLINE bool IsFiring() const { return bIsFiring; }
 	FORCEINLINE class AWeapon* GetEquippingWeapon() const { return EquippingWeapon; }
 	void EquipWeapon(AWeapon* InWeapon);	
 	void SetAiming(bool bInAiming);
