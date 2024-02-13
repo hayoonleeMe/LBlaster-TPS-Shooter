@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class LBLASTER_API ALBPlayerController : public APlayerController
+class LBLASTER_API ALBlasterPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 	
