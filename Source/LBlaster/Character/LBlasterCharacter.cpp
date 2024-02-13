@@ -54,7 +54,7 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 		GetMesh()->SetSkeletalMesh(SkeletalMeshRef.Object);
 	}
 	
-	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceRef(TEXT("/Script/Engine.AnimBlueprint'/Game/LBlaster/Actors/Manny/ABP_LBlasterAnimInstance.ABP_LBlasterAnimInstance_C'"));
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceRef(TEXT("/Script/Engine.AnimBlueprint'/Game/LBlaster/Actors/Manny/Animations/ABP_LBlasterAnimInstance.ABP_LBlasterAnimInstance_C'"));
 	if (AnimInstanceRef.Class)
 	{
 		GetMesh()->SetAnimInstanceClass(AnimInstanceRef.Class);
