@@ -105,6 +105,11 @@ private:
 	UPROPERTY(VisibleAnywhere, Category="LBlaster|Camera")
 	TObjectPtr<class UCameraComponent> FollowCamera;
 
+	UPROPERTY(EditAnywhere, Category="LBlaster|Camera")
+	float MeshHideThreshold;
+	
+	void HideMeshIfCameraClose();
+
 	/*
 	 *	Overhead Widget
 	 */

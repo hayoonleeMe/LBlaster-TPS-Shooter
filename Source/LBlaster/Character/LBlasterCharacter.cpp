@@ -46,6 +46,7 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -88.f), FRotator(0.f, -90.f, 0.f));
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
@@ -67,6 +68,7 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 	CameraBoom->SetupAttachment(GetMesh());
 	CameraBoom->TargetArmLength = 600.f;
 	CameraBoom->bUsePawnControlRotation = true;		// SpringArm은 캐릭터의 회전 입력값을 따른다.
+	MeshHideThreshold = 200.f;
 
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
@@ -152,6 +154,8 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 void ALBlasterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	HideMeshIfCameraClose();
 }
 
 void ALBlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -348,6 +352,38 @@ void ALBlasterCharacter::FireFinished(const FInputActionValue& ActionValue)
 	}
 }
 
+void ALBlasterCharacter::HideMeshIfCameraClose()
+{
+	if (!IsLocallyControlled())
+	{
+		return;
+	}
+
+	// 캐릭터와 카메라가 임계값보다 가까워지면 캐릭터의 메시를 숨긴다.
+	if ((GetActorLocation() - FollowCamera->GetComponentLocation()).Size() < MeshHideThreshold)
+	{
+		GetMesh()->SetVisibility(false);
+		if (CombatComponent && CombatComponent->GetEquippingWeapon() && CombatComponent->GetEquippingWeapon()->GetWeaponMesh())
+		{
+			CombatComponent->GetEquippingWeapon()->GetWeaponMesh()->bOwnerNoSee = true;
+		}
+	}
+	else
+	{
+		// 평소 상황이므로 early return
+		if (GetMesh()->IsVisible())
+		{
+			return;
+		}
+		
+		GetMesh()->SetVisibility(true);
+		if (CombatComponent && CombatComponent->GetEquippingWeapon() && CombatComponent->GetEquippingWeapon()->GetWeaponMesh())
+		{
+			CombatComponent->GetEquippingWeapon()->GetWeaponMesh()->bOwnerNoSee = false;
+		}
+	}
+}
+
 void ALBlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastOverlappingWeapon) const
 {
 	ShowOverlappingWeaponPickupWidget(LastOverlappingWeapon);
@@ -377,7 +413,7 @@ bool ALBlasterCharacter::IsFiring() const
 
 FTransform ALBlasterCharacter::GetLeftHandTransform() const
 {
-	if (CombatComponent->IsEquippingWeapon() && GetMesh())
+	if (CombatComponent->GetEquippingWeapon() && GetMesh())
 	{
 		if (USkeletalMeshComponent* EquippingWeaponMesh = CombatComponent->GetEquippingWeapon()->GetWeaponMesh())
 		{
