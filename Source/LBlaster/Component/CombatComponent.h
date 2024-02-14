@@ -20,7 +20,6 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	FORCEINLINE bool IsEquippingWeapon() const { return EquippingWeapon != nullptr; }
 	FORCEINLINE bool IsAiming() const { return bIsAiming; }
 	FORCEINLINE bool IsFiring() const { return bIsFiring; }
 	FORCEINLINE class AWeapon* GetEquippingWeapon() const { return EquippingWeapon; }
