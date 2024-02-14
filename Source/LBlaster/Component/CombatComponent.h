@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "HUD/LBlasterHUD.h"
 #include "LBTypes/WeaponTypes.h"
 #include "CombatComponent.generated.h"
 
@@ -69,6 +70,14 @@ private:
 
 	UFUNCTION(Server, Reliable)
 	void ServerSetAiming(bool bInAiming);
+	
+	/*
+	 *	ADS FOV
+	 */
+	float DefaultFOV;
+	float CurrentFOV;
+
+	void InterpFOV(float DeltaTime);
 
 	/*
 	 *	Firing
@@ -92,15 +101,8 @@ private:
 	 */
 	void SetHUDCrosshair(float DeltaTime);
 
+	FHUDPackage HUDPackage;
 	float CrosshairInAirFactor;
 	float CrosshairAimFactor;
 	float CrosshairShootingFactor;
-
-	/*
-	 *	ADS FOV
-	 */
-	float DefaultFOV;
-	float CurrentFOV;
-
-	void InterpFOV(float DeltaTime);
 };

@@ -23,35 +23,35 @@ void ALBlasterHUD::DrawHUD()
 		if (HUDPackage.TopCrosshair)
 		{
 			const FVector2D Spread(0.f, -SpreadScaled);
-			DrawCrosshair(HUDPackage.TopCrosshair, ViewportCenter, Spread);
+			DrawCrosshair(HUDPackage.TopCrosshair, ViewportCenter, Spread, HUDPackage.CrosshairColor);
 		}
 		if (HUDPackage.BottomCrosshair)
 		{
 			const FVector2D Spread(0.f, SpreadScaled);
-			DrawCrosshair(HUDPackage.BottomCrosshair, ViewportCenter, Spread);
+			DrawCrosshair(HUDPackage.BottomCrosshair, ViewportCenter, Spread, HUDPackage.CrosshairColor);
 		}
 		if (HUDPackage.LeftCrosshair)
         {
 			const FVector2D Spread(-SpreadScaled, 0.f);
-        	DrawCrosshair(HUDPackage.LeftCrosshair, ViewportCenter, Spread);
+        	DrawCrosshair(HUDPackage.LeftCrosshair, ViewportCenter, Spread, HUDPackage.CrosshairColor);
         }
 		if (HUDPackage.RightCrosshair)
 		{
 			const FVector2D Spread(SpreadScaled, 0.f);
-			DrawCrosshair(HUDPackage.RightCrosshair, ViewportCenter, Spread);
+			DrawCrosshair(HUDPackage.RightCrosshair, ViewportCenter, Spread, HUDPackage.CrosshairColor);
 		}
 		if (HUDPackage.CenterCrosshair)
 		{
 			const FVector2D Spread(0.f, 0.f);
-			DrawCrosshair(HUDPackage.CenterCrosshair, ViewportCenter, Spread);
+			DrawCrosshair(HUDPackage.CenterCrosshair, ViewportCenter, Spread, HUDPackage.CrosshairColor);
 		}
 	}
 }
 
-void ALBlasterHUD::DrawCrosshair(UTexture2D* InTexture, const FVector2D& InViewportCenter, const FVector2D& InSpread)
+void ALBlasterHUD::DrawCrosshair(UTexture2D* InTexture, const FVector2D& InViewportCenter, const FVector2D& InSpread, const FLinearColor& InLinearColor)
 {
 	const float TextureWidth = InTexture->GetSizeX();
 	const float TextureHeight = InTexture->GetSizeY();
 	const FVector2D TextureDrawPoint(InViewportCenter.X - (TextureWidth / 2.f) + InSpread.X, InViewportCenter.Y - (TextureHeight / 2.f) + InSpread.Y);
-	DrawTexture(InTexture, TextureDrawPoint.X, TextureDrawPoint.Y, TextureWidth, TextureHeight, 0.f, 0.f, 1.f, 1.f, FLinearColor::White);	
+	DrawTexture(InTexture, TextureDrawPoint.X, TextureDrawPoint.Y, TextureWidth, TextureHeight, 0.f, 0.f, 1.f, 1.f, InLinearColor);	
 }
