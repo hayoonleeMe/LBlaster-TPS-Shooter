@@ -16,6 +16,8 @@ UCombatComponent::UCombatComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	SetIsReplicatedByDefault(true);
+
+	/* Aiming */
 	ADSMultiplier = 0.5f;
 }
 
@@ -32,6 +34,8 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	FHitResult HitResult;
+	TraceUnderCrosshair(HitResult);
 	SetHUDCrosshair(DeltaTime);
 	InterpFOV(DeltaTime);
 }
@@ -129,6 +133,11 @@ bool UCombatComponent::IsValidHUD()
 
 void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 {
+	if (!EquippingWeapon)
+	{
+		return;
+	}
+	
 	// Viewport Size
 	FVector2D ViewportSize;
 	if (GEngine && GEngine->GameViewport)
@@ -152,9 +161,23 @@ void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 	if (bScreenToWorld)
 	{
 		FVector Start = CrosshairWorldPosition;
-		FVector End = Start + CrosshairWorldDirection * TRACE_LENGTH;
+		if (IsValidCharacter())
+		{
+			const float DistanceToCharacter = (Character->GetActorLocation() - Start).Size();
+			Start += CrosshairWorldDirection * (DistanceToCharacter + 50.f);
+		}
+		const FVector End = Start + CrosshairWorldDirection * TRACE_LENGTH;
 
 		GetWorld()->LineTraceSingleByChannel(TraceHitResult, Start, End, ECC_Visibility);
+
+		if (TraceHitResult.GetActor() && TraceHitResult.GetActor()->Implements<UInteractWithCrosshairInterface>())
+		{
+			HUDPackage.CrosshairColor = FLinearColor::Red;
+		}
+		else
+		{
+			HUDPackage.CrosshairColor = FLinearColor::White;
+		}
 	}
 }
 
@@ -165,7 +188,6 @@ void UCombatComponent::SetHUDCrosshair(float DeltaTime)
 		return;
 	}
 
-	FHUDPackage HUDPackage;
 	if (EquippingWeapon)
 	{
 		HUDPackage.TopCrosshair = EquippingWeapon->TopCrosshair;

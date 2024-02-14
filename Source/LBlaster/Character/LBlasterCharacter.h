@@ -5,11 +5,12 @@
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
 #include "GameFramework/Character.h"
+#include "Interface/InteractWithCrosshairInterface.h"
 #include "Interface/LBCharacterWeaponInterface.h"
 #include "LBlasterCharacter.generated.h"
 
 UCLASS()
-class LBLASTER_API ALBlasterCharacter : public ACharacter, public ILBCharacterWeaponInterface
+class LBLASTER_API ALBlasterCharacter : public ACharacter, public ILBCharacterWeaponInterface, public IInteractWithCrosshairInterface
 {
 	GENERATED_BODY()
 
