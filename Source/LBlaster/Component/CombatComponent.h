@@ -93,6 +93,8 @@ private:
 	void SetHUDCrosshair(float DeltaTime);
 
 	float CrosshairInAirFactor;
+	float CrosshairAimFactor;
+	float CrosshairShootingFactor;
 
 	/*
 	 *	ADS FOV

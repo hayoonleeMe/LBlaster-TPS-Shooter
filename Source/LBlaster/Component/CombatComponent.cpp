@@ -75,6 +75,8 @@ void UCombatComponent::SetFiring(bool bInFiring)
     ServerFire(bInFiring, HitResult.ImpactPoint);
 	if (bIsFiring)
 	{
+		CrosshairShootingFactor = 0.75f;
+		
 		// Debug Line
 		FTransform MuzzleTipTransform = EquippingWeapon->GetWeaponMesh()->GetSocketTransform(FName("MuzzleFlash"), RTS_World);
 		FVector MuzzleX(FRotationMatrix(MuzzleTipTransform.GetRotation().Rotator()).GetUnitAxis(EAxis::X));
@@ -190,7 +192,18 @@ void UCombatComponent::SetHUDCrosshair(float DeltaTime)
 			CrosshairInAirFactor = FMath::FInterpTo(CrosshairInAirFactor, 0.f, DeltaTime, 30.f);
 		}
 
-		HUDPackage.CrosshairSpread = CrosshairSpreadVelocityFactor + CrosshairInAirFactor;
+		if (bIsAiming)
+		{
+			CrosshairAimFactor = FMath::FInterpTo(CrosshairAimFactor, 0.58f, DeltaTime, 30.f);
+		}
+		else
+		{
+			CrosshairAimFactor = FMath::FInterpTo(CrosshairAimFactor, 0.f, DeltaTime, 30.f);
+		}
+
+		CrosshairShootingFactor = FMath::FInterpTo(CrosshairShootingFactor, 0.f, DeltaTime, 30.f);
+
+		HUDPackage.CrosshairSpread = 0.5f + CrosshairSpreadVelocityFactor + CrosshairInAirFactor - CrosshairAimFactor + CrosshairShootingFactor;
 	}
 	HUD->SetHUDPackage(HUDPackage);
 }
