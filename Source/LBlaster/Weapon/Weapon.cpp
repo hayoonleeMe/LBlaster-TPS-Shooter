@@ -43,7 +43,11 @@ AWeapon::AWeapon()
 
 	/* Zoom FOV */
 	ZoomedFOV = 45.f;
-	ZoomInterpSpeed = 15.f;	
+	ZoomInterpSpeed = 15.f;
+
+	/* Auto Fire */
+	bAutomatic = true;
+	FireDelay = 0.15f;
 }
 
 void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

@@ -74,20 +74,8 @@ void UCombatComponent::SetFiring(bool bInFiring)
 	}
 	
 	bIsFiring = bInFiring;
-	
-	FHitResult HitResult;
-    TraceUnderCrosshair(HitResult);
-    ServerFire(bInFiring, HitResult.ImpactPoint);
-	if (bIsFiring)
-	{
-		CrosshairShootingFactor = 0.75f;
-		
-		// Debug Line
-		// FTransform MuzzleTipTransform = EquippingWeapon->GetWeaponMesh()->GetSocketTransform(FName("MuzzleFlash"), RTS_World);
-		// FVector MuzzleX(FRotationMatrix(MuzzleTipTransform.GetRotation().Rotator()).GetUnitAxis(EAxis::X));
-		// DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), MuzzleTipTransform.GetLocation() + MuzzleX * 1000.f, FColor::Red, false, 20.f, 0, 2.f);
-		// DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), HitResult.ImpactPoint, FColor::Orange, false, 20.f, 0, 2.f);
-	}
+	ServerSetFiring(bInFiring);
+	Fire();
 }
 
 UAnimMontage* UCombatComponent::SelectHitReactMontage(const FVector& HitNormal)
@@ -265,6 +253,30 @@ void UCombatComponent::SetHUDCrosshair(float DeltaTime)
 	HUD->SetHUDPackage(HUDPackage);
 }
 
+void UCombatComponent::StartFireTimer()
+{
+	if (!IsValidCharacter() || !EquippingWeapon)
+	{
+		return;
+	}
+
+	Character->GetWorldTimerManager().SetTimer(FireTimer, this, &ThisClass::FireTimerFinished, EquippingWeapon->GetFireDelay());
+}
+
+void UCombatComponent::FireTimerFinished()
+{
+	if (!EquippingWeapon)
+	{
+		return;
+	}
+
+	bCanFire = true;
+	if (bIsFiring && EquippingWeapon->IsAutomatic())
+	{
+		Fire();
+	}
+}
+
 void UCombatComponent::InterpFOV(float DeltaTime)
 {
 	if (!EquippingWeapon || !IsValidCharacter())
@@ -287,6 +299,30 @@ void UCombatComponent::InterpFOV(float DeltaTime)
 	}
 }
 
+void UCombatComponent::Fire()
+{
+	if (bCanFire)
+	{
+		bCanFire = false;
+		
+		FHitResult HitResult;
+		TraceUnderCrosshair(HitResult);
+		ServerFire(HitResult.ImpactPoint);
+		CrosshairShootingFactor = 0.75f;
+		StartFireTimer();
+		/*// Debug Line
+		FTransform MuzzleTipTransform = EquippingWeapon->GetWeaponMesh()->GetSocketTransform(FName("MuzzleFlash"), RTS_World);
+		FVector MuzzleX(FRotationMatrix(MuzzleTipTransform.GetRotation().Rotator()).GetUnitAxis(EAxis::X));
+		DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), MuzzleTipTransform.GetLocation() + MuzzleX * 1000.f, FColor::Red, false, 20.f, 0, 2.f);
+		DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), HitResult.ImpactPoint, FColor::Orange, false, 20.f, 0, 2.f);*/
+	}
+}
+
+void UCombatComponent::ServerSetFiring_Implementation(bool bInFiring)
+{
+	bIsFiring = bInFiring;
+}
+
 void UCombatComponent::OnRep_EquippedWeapon()
 {
 	if (EquippingWeapon)
@@ -298,14 +334,9 @@ void UCombatComponent::OnRep_EquippedWeapon()
 	}
 }
 
-void UCombatComponent::ServerFire_Implementation(bool bInFiring, const FVector_NetQuantize& TraceHitTarget)
+void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
-	bIsFiring = bInFiring;
-
-	if (bIsFiring)
-	{
-		MulticastFire(TraceHitTarget);
-	}
+	MulticastFire(TraceHitTarget);
 }
 
 void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget)

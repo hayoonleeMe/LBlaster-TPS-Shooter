@@ -85,8 +85,13 @@ private:
 	UPROPERTY(Replicated)
 	uint8 bIsFiring : 1;
 
+	void Fire();
+
 	UFUNCTION(Server, Reliable)
-	void ServerFire(bool bInFiring, const FVector_NetQuantize& TraceHitTarget);
+	void ServerSetFiring(bool bInFiring);
+	
+	UFUNCTION(Server, Reliable)
+	void ServerFire(const FVector_NetQuantize& TraceHitTarget);
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastFire(const FVector_NetQuantize& TraceHitTarget);
@@ -120,4 +125,13 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category="LBlaster|HitReact")
 	TArray<UAnimMontage*> RightHitReact;
+
+	/*
+	 *	Auto Fire
+	 */
+	bool bCanFire = true;
+	FTimerHandle FireTimer;
+	
+	void StartFireTimer();
+	void FireTimerFinished();
 };
