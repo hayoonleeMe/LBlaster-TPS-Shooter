@@ -24,6 +24,8 @@ public:
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
 	FORCEINLINE float GetZoomedFOV() const { return ZoomedFOV; }
 	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
+	FORCEINLINE float GetFireDelay() const { return FireDelay; }
+	FORCEINLINE bool IsAutomatic() const { return bAutomatic; }
 
 	virtual void Fire(const FVector& HitTarget);
 
@@ -105,6 +107,15 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|ADS FOV")
 	float ZoomInterpSpeed;
+
+	/*
+	 *	Auto Fire
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Auto Fire")
+	uint8 bAutomatic : 1;
+	
+	UPROPERTY(EditAnywhere, Category="LBlaster|Auto Fire")
+	float FireDelay;
 
 public:
 	/*
