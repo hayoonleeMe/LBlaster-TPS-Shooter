@@ -86,8 +86,6 @@ UAnimMontage* UCombatComponent::SelectHitReactMontage(const FVector& HitNormal)
 	const float ForwardHit = FVector::DotProduct(ActorForward, HitNormal);
 	const float RightHit = FVector::DotProduct(ActorRight, HitNormal);
 
-	UE_LOG(LogTemp, Warning, TEXT("ForwardHit %f , RightHit %f"), ForwardHit, RightHit);
-
 	if (UKismetMathLibrary::InRange_FloatFloat(RightHit, -0.5f, 0.5f))
 	{
 		if (ForwardHit > 0.f)

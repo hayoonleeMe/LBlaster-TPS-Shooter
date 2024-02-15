@@ -190,6 +190,7 @@ void ALBlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(ALBlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
+	DOREPLIFETIME(ALBlasterCharacter, LastHitNormal);
 }
 
 void ALBlasterCharacter::PostInitializeComponents()
@@ -220,6 +221,12 @@ void ALBlasterCharacter::BeginPlay()
 	{
 		OverheadWidget->ShowPlayerName(this);
 	}
+
+	/* Damage */
+	if (HasAuthority())
+	{
+		OnTakeAnyDamage.AddDynamic(this, &ThisClass::ReceiveDamage);
+	}
 }
 
 void ALBlasterCharacter::SetOverlappingWeapon(AWeapon* InWeapon)
@@ -231,11 +238,6 @@ void ALBlasterCharacter::SetOverlappingWeapon(AWeapon* InWeapon)
 	{
 		ShowOverlappingWeaponPickupWidget(LastOverlappingWeapon);
 	}
-}
-
-void ALBlasterCharacter::OnHit(const FVector& HitNormal)
-{
-	MulticastHit(HitNormal);
 }
 
 void ALBlasterCharacter::AttachWeapon(AWeapon* InEquippedWeapon)
@@ -428,9 +430,13 @@ void ALBlasterCharacter::PlayHitReactMontage(const FVector& HitNormal)
 	}
 }
 
-void ALBlasterCharacter::MulticastHit_Implementation(const FVector_NetQuantize& HitNormal)
+void ALBlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController,
+                                       AActor* DamageCauser)
 {
-	PlayHitReactMontage(HitNormal);
+	if (HealthComponent)
+	{
+		HealthComponent->ReceiveDamage(Damage);
+	}
 }
 
 bool ALBlasterCharacter::IsAiming() const
@@ -459,6 +465,22 @@ FTransform ALBlasterCharacter::GetLeftHandTransform() const
 		}	
 	}
 	return FTransform();
+}
+
+void ALBlasterCharacter::SetLastHitNormal(const FVector& InHitNormal)
+{
+	LastHitNormal = InHitNormal;
+	PlayHitReactMontage(LastHitNormal);
+}
+
+void ALBlasterCharacter::OnRep_LastHitNormal()
+{
+	PlayHitReactMontage(LastHitNormal);
+}
+
+AController* ALBlasterCharacter::GetController()
+{
+	return Controller;
 }
 
 void ALBlasterCharacter::ServerEquipWeapon_Implementation()
