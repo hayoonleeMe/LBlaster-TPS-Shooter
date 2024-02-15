@@ -22,7 +22,6 @@ protected:
 	UFUNCTION()
 	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
-private:
 	/*
 	 *	Collision
 	 */
@@ -52,4 +51,10 @@ private:
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Impact")
 	TObjectPtr<USoundBase> ImpactSound;
+
+	/*
+	 *	Damage
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Damage")
+	float Damage;
 };
