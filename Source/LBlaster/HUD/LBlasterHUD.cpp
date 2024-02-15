@@ -51,6 +51,15 @@ void ALBlasterHUD::DrawHUD()
 	}
 }
 
+void ALBlasterHUD::SetHUDHealth(float InHealth, float InMaxHealth)
+{
+	if (CharacterOverlay)
+	{
+		CharacterOverlay->SetHealthBar(InHealth, InMaxHealth);
+		CharacterOverlay->SetHealthText(InHealth, InMaxHealth);
+	}
+}
+
 void ALBlasterHUD::BeginPlay()
 {
 	Super::BeginPlay();
