@@ -69,8 +69,6 @@ void AProjectile::Tick(float DeltaTime)
 
 void AProjectile::Destroyed()
 {
-	Super::Destroyed();
-
 	if (ImpactParticle)
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticle, GetActorTransform());
@@ -79,5 +77,7 @@ void AProjectile::Destroyed()
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation());
 	}
+	
+	Super::Destroyed();
 }
 
