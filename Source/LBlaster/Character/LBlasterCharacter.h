@@ -149,4 +149,9 @@ private:
 	 *	HitReact
 	 */
 	void PlayHitReactMontage(const FVector& HitNormal);
+	/*
+	 *	Health
+	 */
+	UPROPERTY(VisibleAnywhere, Category="LBlaster|Health")
+	TObjectPtr<class UHealthComponent> HealthComponent;
 };
