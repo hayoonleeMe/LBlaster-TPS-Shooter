@@ -10,6 +10,7 @@
 #include "InputMappingContext.h"
 #include "LBlaster.h"
 #include "Component/CombatComponent.h"
+#include "Component/HealthComponent.h"
 #include "Component/LBCharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
@@ -155,6 +156,9 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 	{
 		BaseAnimLayerClass = BaseAnimLayerRef.Class;
 	}
+
+	/* Health */
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
 }
 
 void ALBlasterCharacter::Tick(float DeltaTime)
