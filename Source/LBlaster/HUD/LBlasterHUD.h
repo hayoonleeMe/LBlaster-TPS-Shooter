@@ -46,6 +46,10 @@ public:
 	virtual void DrawHUD() override;
 	FORCEINLINE void SetHUDPackage(const FHUDPackage& InPackage) { HUDPackage = InPackage; }
 
+protected:
+	virtual void BeginPlay() override;
+	void AddCharacterOverlay();
+	
 private:
 	/*
 	 *	Crosshair
@@ -56,4 +60,13 @@ private:
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Crosshair")
 	float CrosshairSpreadMax;
+
+	/*
+	 *	Character Overlay
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Character Overlay")
+	TSubclassOf<UUserWidget> CharacterOverlayClass;
+
+	UPROPERTY()
+	TObjectPtr<class UCharacterOverlay> CharacterOverlay;
 };
