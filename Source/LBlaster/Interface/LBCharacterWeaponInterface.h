@@ -24,7 +24,4 @@ class LBLASTER_API ILBCharacterWeaponInterface
 public:
 	// Weapon -> Character
 	virtual void SetOverlappingWeapon(class AWeapon* InWeapon) = 0;
-
-	// Projectile -> Character
-	virtual void OnHit(const FVector& HitNormal) = 0;
 };

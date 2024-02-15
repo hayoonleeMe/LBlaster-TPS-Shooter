@@ -7,10 +7,11 @@
 #include "GameFramework/Character.h"
 #include "Interface/InteractWithCrosshairInterface.h"
 #include "Interface/LBCharacterWeaponInterface.h"
+#include "Interface/HitReceiverInterface.h"
 #include "LBlasterCharacter.generated.h"
 
 UCLASS()
-class LBLASTER_API ALBlasterCharacter : public ACharacter, public ILBCharacterWeaponInterface, public IInteractWithCrosshairInterface
+class LBLASTER_API ALBlasterCharacter : public ACharacter, public ILBCharacterWeaponInterface, public IInteractWithCrosshairInterface, public IHitReceiverInterface
 {
 	GENERATED_BODY()
 
@@ -30,14 +31,19 @@ public:
 	 *	ULBCharacterWeaponInterface
 	 */
 	virtual void SetOverlappingWeapon(AWeapon* InWeapon) override;
-	virtual void OnHit(const FVector& HitNormal) override;
 
 	/*
-	 *	LBlasterAnimInstance
+	 *	ProjectileHitInterface
 	 */
-	bool IsAiming() const;
-	bool IsFiring() const;
-	FTransform GetLeftHandTransform() const;
+	virtual void SetLastHitNormal(const FVector& InHitNormal) override;
+	virtual AController* GetController() override;
+
+	/*
+     *	LBlasterAnimInstance
+     */
+    bool IsAiming() const;
+    bool IsFiring() const;
+    FTransform GetLeftHandTransform() const;
 
 	/*
 	 *	Combat
@@ -89,6 +95,12 @@ protected:
 	void AimFinished(const FInputActionValue& ActionValue);
 	void FireStarted(const FInputActionValue& ActionValue);
 	void FireFinished(const FInputActionValue& ActionValue);
+
+	/*
+	 *	Damage
+	 */
+	UFUNCTION()
+	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser);
 	
 private:
 	/*
@@ -136,9 +148,6 @@ private:
 	UFUNCTION(Server, Reliable)
 	void ServerEquipWeapon();
 
-	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastHit(const FVector_NetQuantize& HitNormal);
-
 	/*
 	 *	Animation
 	 */
@@ -149,6 +158,13 @@ private:
 	 *	HitReact
 	 */
 	void PlayHitReactMontage(const FVector& HitNormal);
+
+	UPROPERTY(ReplicatedUsing=OnRep_LastHitNormal)
+	FVector LastHitNormal;
+
+	UFUNCTION()
+	void OnRep_LastHitNormal();
+
 	/*
 	 *	Health
 	 */
