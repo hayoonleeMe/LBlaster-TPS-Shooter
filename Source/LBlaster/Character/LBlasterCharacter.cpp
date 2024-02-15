@@ -8,6 +8,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "InputAction.h"
 #include "InputMappingContext.h"
+#include "LBlaster.h"
 #include "Component/CombatComponent.h"
 #include "Component/LBCharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -42,12 +43,17 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 	GetCharacterMovement()->bCanWalkOffLedgesWhenCrouching = true;
 	GetCharacterMovement()->RotationRate.Yaw = 720.f;
 	
-	/* Mesh */
+	/* Capsule Component */
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
-	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
-	GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Destructible, ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_SkeletalMesh, ECR_Ignore);
+
+	/* Mesh */
+	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
+	GetMesh()->SetCollisionResponseToAllChannels(ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	GetMesh()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -88.f), FRotator(0.f, -90.f, 0.f));
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 
@@ -221,6 +227,11 @@ void ALBlasterCharacter::SetOverlappingWeapon(AWeapon* InWeapon)
 	{
 		ShowOverlappingWeaponPickupWidget(LastOverlappingWeapon);
 	}
+}
+
+void ALBlasterCharacter::OnHit(const FVector& HitNormal)
+{
+	MulticastHit(HitNormal);
 }
 
 void ALBlasterCharacter::AttachWeapon(AWeapon* InEquippedWeapon)
@@ -399,6 +410,23 @@ void ALBlasterCharacter::ShowOverlappingWeaponPickupWidget(AWeapon* LastOverlapp
 	{
 		LastOverlappingWeapon->ShowPickupWidget(false);
 	}
+}
+
+void ALBlasterCharacter::PlayHitReactMontage(const FVector& HitNormal)
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (CombatComponent && AnimInstance)
+	{
+		if (UAnimMontage* MontageToPlay = CombatComponent->SelectHitReactMontage(HitNormal))
+		{
+			AnimInstance->Montage_Play(MontageToPlay);
+		}
+	}
+}
+
+void ALBlasterCharacter::MulticastHit_Implementation(const FVector_NetQuantize& HitNormal)
+{
+	PlayHitReactMontage(HitNormal);
 }
 
 bool ALBlasterCharacter::IsAiming() const

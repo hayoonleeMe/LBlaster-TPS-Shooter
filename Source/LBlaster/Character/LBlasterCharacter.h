@@ -30,6 +30,7 @@ public:
 	 *	ULBCharacterWeaponInterface
 	 */
 	virtual void SetOverlappingWeapon(AWeapon* InWeapon) override;
+	virtual void OnHit(const FVector& HitNormal) override;
 
 	/*
 	 *	LBlasterAnimInstance
@@ -135,9 +136,17 @@ private:
 	UFUNCTION(Server, Reliable)
 	void ServerEquipWeapon();
 
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastHit(const FVector_NetQuantize& HitNormal);
+
 	/*
 	 *	Animation
 	 */
 	UPROPERTY(EditDefaultsOnly, Category="LBlaster|Animation")
 	TSubclassOf<UAnimInstance> BaseAnimLayerClass;
+
+	/*
+	 *	HitReact
+	 */
+	void PlayHitReactMontage(const FVector& HitNormal);
 };

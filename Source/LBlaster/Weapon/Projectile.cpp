@@ -3,8 +3,10 @@
 
 #include "Weapon/Projectile.h"
 
+#include "LBlaster.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Interface/LBCharacterWeaponInterface.h"
 #include "Kismet/GameplayStatics.h"
 
 AProjectile::AProjectile()
@@ -20,6 +22,7 @@ AProjectile::AProjectile()
 	CollisionBox->SetCollisionResponseToAllChannels(ECR_Ignore);
 	CollisionBox->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	CollisionBox->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+	CollisionBox->SetCollisionResponseToChannel(ECC_SkeletalMesh, ECR_Block);
 	CollisionBox->SetBoxExtent(FVector(5.f, 2.5f, 2.5f));
 	CollisionBox->SetLineThickness(2.f);
 
@@ -47,6 +50,14 @@ void AProjectile::BeginPlay()
 
 void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	if (OtherActor)
+	{
+		if (ILBCharacterWeaponInterface* Interface = Cast<ILBCharacterWeaponInterface>(OtherActor))
+		{
+			Interface->OnHit(Hit.ImpactNormal);
+		}
+	}
+	
 	Destroy();
 }
 
