@@ -13,5 +13,13 @@ UCLASS()
 class LBLASTER_API ALBlasterPlayerController : public APlayerController
 {
 	GENERATED_BODY()
-	
+
+public:
+	void SetHUDHealth(float Health, float MaxHealth);
+
+private:
+	UPROPERTY()
+	TObjectPtr<class ALBlasterHUD> LBlasterHUD;
+
+	bool IsValidHUD();
 };

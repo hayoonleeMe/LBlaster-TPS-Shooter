@@ -15,6 +15,10 @@ class LBLASTER_API UCharacterOverlay : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	void SetHealthBar(float InHealth, float InMaxHealth);
+	void SetHealthText(float InHealth, float InMaxHealth);
+	
+private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UProgressBar> HealthBar;
 

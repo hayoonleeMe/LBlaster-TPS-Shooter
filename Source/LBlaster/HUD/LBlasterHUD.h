@@ -45,6 +45,7 @@ public:
 	ALBlasterHUD();
 	virtual void DrawHUD() override;
 	FORCEINLINE void SetHUDPackage(const FHUDPackage& InPackage) { HUDPackage = InPackage; }
+	void SetHUDHealth(float InHealth, float InMaxHealth);
 
 protected:
 	virtual void BeginPlay() override;
