@@ -10,6 +10,7 @@
 #include "Character/LBlasterCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "HUD/LBlasterHUD.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Player/LBlasterPlayerController.h"
 
 UCombatComponent::UCombatComponent()
@@ -82,10 +83,44 @@ void UCombatComponent::SetFiring(bool bInFiring)
 		CrosshairShootingFactor = 0.75f;
 		
 		// Debug Line
-		FTransform MuzzleTipTransform = EquippingWeapon->GetWeaponMesh()->GetSocketTransform(FName("MuzzleFlash"), RTS_World);
-		FVector MuzzleX(FRotationMatrix(MuzzleTipTransform.GetRotation().Rotator()).GetUnitAxis(EAxis::X));
-		DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), MuzzleTipTransform.GetLocation() + MuzzleX * 1000.f, FColor::Red, false, 20.f, 0, 2.f);
-		DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), HitResult.ImpactPoint, FColor::Orange, false, 20.f, 0, 2.f);
+		// FTransform MuzzleTipTransform = EquippingWeapon->GetWeaponMesh()->GetSocketTransform(FName("MuzzleFlash"), RTS_World);
+		// FVector MuzzleX(FRotationMatrix(MuzzleTipTransform.GetRotation().Rotator()).GetUnitAxis(EAxis::X));
+		// DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), MuzzleTipTransform.GetLocation() + MuzzleX * 1000.f, FColor::Red, false, 20.f, 0, 2.f);
+		// DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), HitResult.ImpactPoint, FColor::Orange, false, 20.f, 0, 2.f);
+	}
+}
+
+UAnimMontage* UCombatComponent::SelectHitReactMontage(const FVector& HitNormal)
+{
+	const FVector& ActorForward = GetOwner()->GetActorForwardVector();
+	const FVector& ActorRight = GetOwner()->GetActorRightVector();
+
+	const float ForwardHit = FVector::DotProduct(ActorForward, HitNormal);
+	const float RightHit = FVector::DotProduct(ActorRight, HitNormal);
+
+	UE_LOG(LogTemp, Warning, TEXT("ForwardHit %f , RightHit %f"), ForwardHit, RightHit);
+
+	if (UKismetMathLibrary::InRange_FloatFloat(RightHit, -0.5f, 0.5f))
+	{
+		if (ForwardHit > 0.f)
+		{
+			return FrontHitReact[FMath::RandRange(0, FrontHitReact.Num() - 1)];
+		}
+		else
+		{
+			return BackHitReact[FMath::RandRange(0, BackHitReact.Num() - 1)];
+		}
+	}
+	else
+	{
+		if (RightHit > 0.f)
+		{
+			return RightHitReact[FMath::RandRange(0, RightHitReact.Num() - 1)];
+		}
+		else
+		{
+			return LeftHitReact[FMath::RandRange(0, LeftHitReact.Num() - 1)];
+		}
 	}
 }
 

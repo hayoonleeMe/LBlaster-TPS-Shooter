@@ -22,5 +22,9 @@ class LBLASTER_API ILBCharacterWeaponInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+	// Weapon -> Character
 	virtual void SetOverlappingWeapon(class AWeapon* InWeapon) = 0;
+
+	// Projectile -> Character
+	virtual void OnHit(const FVector& HitNormal) = 0;
 };

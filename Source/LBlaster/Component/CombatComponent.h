@@ -26,6 +26,7 @@ public:
 	void EquipWeapon(AWeapon* InWeapon);	
 	void SetAiming(bool bInAiming);
 	void SetFiring(bool bInFiring);
+	UAnimMontage* SelectHitReactMontage(const FVector& HitNormal);
 
 protected:
 	virtual void BeginPlay() override;
@@ -104,4 +105,19 @@ private:
 	float CrosshairInAirFactor;
 	float CrosshairAimFactor;
 	float CrosshairShootingFactor;
+
+	/*
+	 *	HitReact
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|HitReact")
+	TArray<UAnimMontage*> FrontHitReact;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|HitReact")
+	TArray<UAnimMontage*> BackHitReact;
+	
+	UPROPERTY(EditAnywhere, Category="LBlaster|HitReact")
+	TArray<UAnimMontage*> LeftHitReact;
+	
+	UPROPERTY(EditAnywhere, Category="LBlaster|HitReact")
+	TArray<UAnimMontage*> RightHitReact;
 };
