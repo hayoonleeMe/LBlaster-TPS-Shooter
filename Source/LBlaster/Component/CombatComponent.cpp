@@ -222,8 +222,7 @@ void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 		const FVector End = Start + CrosshairWorldDirection * TRACE_LENGTH;
 
 		GetWorld()->LineTraceSingleByChannel(TraceHitResult, Start, End, ECC_Visibility);
-
-		if (TraceHitResult.GetActor() && TraceHitResult.GetActor()->Implements<UInteractWithCrosshairInterface>())
+		if (TraceHitResult.GetActor() && TraceHitResult.GetActor()->IsA(ALBlasterCharacter::StaticClass()))
 		{
 			HUDPackage.CrosshairColor = FLinearColor::Red;
 		}

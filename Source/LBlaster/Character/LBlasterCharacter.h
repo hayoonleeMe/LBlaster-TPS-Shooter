@@ -6,13 +6,12 @@
 #include "InputActionValue.h"
 #include "Components/TimelineComponent.h"
 #include "GameFramework/Character.h"
-#include "Interface/InteractWithCrosshairInterface.h"
 #include "Interface/LBCharacterWeaponInterface.h"
 #include "Interface/HitReceiverInterface.h"
 #include "LBlasterCharacter.generated.h"
 
 UCLASS()
-class LBLASTER_API ALBlasterCharacter : public ACharacter, public ILBCharacterWeaponInterface, public IInteractWithCrosshairInterface, public IHitReceiverInterface
+class LBLASTER_API ALBlasterCharacter : public ACharacter, public ILBCharacterWeaponInterface, public IHitReceiverInterface
 {
 	GENERATED_BODY()
 
