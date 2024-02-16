@@ -17,6 +17,9 @@ class LBLASTER_API ALBlasterPlayerController : public APlayerController
 public:
 	void SetHUDHealth(float Health, float MaxHealth);
 
+protected:
+	virtual void OnPossess(APawn* InPawn) override;
+
 private:
 	UPROPERTY()
 	TObjectPtr<class ALBlasterHUD> LBlasterHUD;

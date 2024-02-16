@@ -63,7 +63,12 @@ public:
 	 *	Elimination
 	 */
 	void Elim();
-	
+
+	/*
+	 *	Health
+	 */
+	void UpdateHUDHealth() const;
+
 protected:
 	/*
 	 *	Input
