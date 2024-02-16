@@ -252,7 +252,6 @@ void ALBlasterCharacter::SetOverlappingWeapon(AWeapon* InWeapon)
 
 void ALBlasterCharacter::AttachWeapon(AWeapon* InEquippedWeapon)
 {
-	// Called from UCombatComponent::EquipWeapon()
 	if (InEquippedWeapon)
 	{
 		if (const USkeletalMeshSocket* HandSocket = GetMesh()->GetSocketByName(FName(TEXT("RightHandSocket"))))
@@ -293,6 +292,11 @@ void ALBlasterCharacter::PlayFireMontage(UAnimMontage* InFireMontage)
 
 void ALBlasterCharacter::Elim()
 {
+	if (CombatComponent && CombatComponent->GetEquippingWeapon())
+	{
+		CombatComponent->GetEquippingWeapon()->Dropped();
+	}
+	
 	GetWorldTimerManager().SetTimer(ElimTimer, this, &ThisClass::ElimTimerFinished, ElimDelay);
 	MulticastElim();
 }

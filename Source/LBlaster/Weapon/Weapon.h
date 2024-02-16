@@ -28,6 +28,7 @@ public:
 	FORCEINLINE bool IsAutomatic() const { return bAutomatic; }
 
 	virtual void Fire(const FVector& HitTarget);
+	void Dropped();
 
 protected:
 	virtual void BeginPlay() override;
