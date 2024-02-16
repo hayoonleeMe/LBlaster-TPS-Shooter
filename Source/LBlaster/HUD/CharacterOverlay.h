@@ -17,6 +17,7 @@ class LBLASTER_API UCharacterOverlay : public UUserWidget
 public:
 	void SetHealthBar(float InHealth, float InMaxHealth);
 	void SetHealthText(float InHealth, float InMaxHealth);
+	void SetScoreAmount(float InScore);
 	
 private:
 	UPROPERTY(meta = (BindWidget))
@@ -24,4 +25,7 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UTextBlock> HealthText;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> ScoreAmount;
 };

@@ -14,6 +14,14 @@ void ALBlasterPlayerController::SetHUDHealth(float InHealth, float InMaxHealth)
 	}
 }
 
+void ALBlasterPlayerController::SetHUDScore(float InScore)
+{
+	if (IsValidHUD())
+	{
+		LBlasterHUD->SetHUDScore(InScore);
+	}
+}
+
 void ALBlasterPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);

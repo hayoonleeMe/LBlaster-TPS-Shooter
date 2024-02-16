@@ -561,6 +561,9 @@ void ALBlasterCharacter::StartDissolve()
 void ALBlasterCharacter::MulticastElim_Implementation()
 {
 	PlayDeathMontage(LastHitNormal);
+	
+	// 죽는 중에 중복 타격되지 않도록 충돌 제거
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	/* Ragdoll */
     const float RagdollDelay = FMath::FRandRange(0.1f, 0.6f);

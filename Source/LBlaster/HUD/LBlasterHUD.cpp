@@ -60,6 +60,14 @@ void ALBlasterHUD::SetHUDHealth(float InHealth, float InMaxHealth)
 	}
 }
 
+void ALBlasterHUD::SetHUDScore(float InScore)
+{
+	if (CharacterOverlay)
+	{
+		CharacterOverlay->SetScoreAmount(InScore);
+	}
+}
+
 void ALBlasterHUD::BeginPlay()
 {
 	Super::BeginPlay();

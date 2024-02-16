@@ -46,6 +46,7 @@ public:
 	virtual void DrawHUD() override;
 	FORCEINLINE void SetHUDPackage(const FHUDPackage& InPackage) { HUDPackage = InPackage; }
 	void SetHUDHealth(float InHealth, float InMaxHealth);
+	void SetHUDScore(float InScore);
 
 protected:
 	virtual void BeginPlay() override;
