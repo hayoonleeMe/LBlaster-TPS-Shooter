@@ -353,14 +353,17 @@ void UCombatComponent::ServerSetFiring_Implementation(bool bInFiring)
 	bIsFiring = bInFiring;
 }
 
-void UCombatComponent::OnRep_EquippedWeapon()
+void UCombatComponent::OnRep_EquippingWeapon()
 {
 	if (EquippingWeapon)
 	{
+		EquippingWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
+		
 		if (IsValidOwnerCharacter())
 		{
+			OwnerCharacter->AttachWeapon(EquippingWeapon);
 			OwnerCharacter->SetWeaponAnimLayers(EquippingWeapon->GetWeaponAnimLayer());
-		}
+		}	
 	}
 }
 

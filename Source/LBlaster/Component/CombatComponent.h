@@ -54,11 +54,11 @@ private:
 	/*
 	 *	Weapon
 	 */
-	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
+	UPROPERTY(ReplicatedUsing = OnRep_EquippingWeapon)
 	TObjectPtr<AWeapon> EquippingWeapon;
 
 	UFUNCTION()
-	void OnRep_EquippedWeapon();
+	void OnRep_EquippingWeapon();
 	
 	/*
 	 *	Aiming

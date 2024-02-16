@@ -92,6 +92,15 @@ void AWeapon::Fire(const FVector& HitTarget)
 	}
 }
 
+void AWeapon::Dropped()
+{
+	SetWeaponState(EWeaponState::EWS_Dropped);
+
+	const FDetachmentTransformRules DetachRule(EDetachmentRule::KeepWorld, true);
+	WeaponMesh->DetachFromComponent(DetachRule);
+	SetOwner(nullptr);
+}
+
 void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
@@ -138,6 +147,18 @@ void AWeapon::OnChangedWeaponState()
 		// 무기가 장착된 상태라면 Pickup Widget을 숨기고 Pickup Overlap 발생 중지
 		ShowPickupWidget(false);
 		AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		WeaponMesh->SetSimulatePhysics(false);
+		WeaponMesh->SetEnableGravity(false);
+		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		break;
+	case EWeaponState::EWS_Dropped:
+		if (HasAuthority())
+		{
+			AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		}
+		WeaponMesh->SetSimulatePhysics(true);
+		WeaponMesh->SetEnableGravity(true);
+		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		break;
 	}
 }
