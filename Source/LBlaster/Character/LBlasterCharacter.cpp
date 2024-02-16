@@ -166,6 +166,9 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 
 	/* Elim */
 	ElimDelay = 3.f;
+
+	/* Dissolve Effect */
+	DissolveTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(TEXT("Dissolve Timeline Component"));
 }
 
 void ALBlasterCharacter::Tick(float DeltaTime)
@@ -523,13 +526,50 @@ void ALBlasterCharacter::ElimTimerFinished()
 	}
 }
 
+void ALBlasterCharacter::UpdateDissolveMaterial(float DissolveValue)
+{
+	for (UMaterialInstanceDynamic* MID : DynamicDissolveMaterialInstances)
+	{
+		MID->SetScalarParameterValue(TEXT("Dissolve"), DissolveValue);
+	}
+}
+
+void ALBlasterCharacter::StartDissolve()
+{
+	// Dissolve Curve를 사용하기 위한 셋업
+	DissolveTrack.BindDynamic(this, &ThisClass::UpdateDissolveMaterial);
+	if (DissolveTimelineComponent && DissolveCurve)
+	{
+		// 매 프레임마다 Dissolve Track에 바인딩된 함수에 DissolveCurve의 값이 전달되며 호출된다.
+		DissolveTimelineComponent->AddInterpFloat(DissolveCurve, DissolveTrack);
+		DissolveTimelineComponent->Play();
+	}
+}
+
 void ALBlasterCharacter::MulticastElim_Implementation()
 {
 	PlayDeathMontage(LastHitNormal);
-    	
+
+	/* Ragdoll */
     const float RagdollDelay = FMath::FRandRange(0.1f, 0.6f);
     FTimerHandle RagdollDelayTimer;
     GetWorldTimerManager().SetTimer(RagdollDelayTimer, this, &ThisClass::Ragdoll, RagdollDelay);
+
+	/* Dissolve Effect */
+	for (int32 i = 0; i < DissolveMaterialInstances.Num(); ++i)
+	{
+		if (UMaterialInstance* MI = DissolveMaterialInstances[i])
+		{
+			DynamicDissolveMaterialInstances.Emplace(UMaterialInstanceDynamic::Create(MI, this));
+			if (UMaterialInstanceDynamic* MID = DynamicDissolveMaterialInstances[i])
+			{
+				GetMesh()->SetMaterial(i, MID);
+				MID->SetScalarParameterValue(TEXT("Dissolve"), 0.55f);
+				MID->SetScalarParameterValue(TEXT("Glow"), 200.f);
+			}
+		}
+	}
+	StartDissolve();
 }
 
 AController* ALBlasterCharacter::GetController()

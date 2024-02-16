@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
+#include "Components/TimelineComponent.h"
 #include "GameFramework/Character.h"
 #include "Interface/InteractWithCrosshairInterface.h"
 #include "Interface/LBCharacterWeaponInterface.h"
@@ -190,4 +191,25 @@ private:
 	
 	FTimerHandle ElimTimer;
 	void ElimTimerFinished();
+
+	/*
+	 *	Dissolve Effect
+	 */
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UTimelineComponent> DissolveTimelineComponent;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Dissolve Effect")
+	TObjectPtr<UCurveFloat> DissolveCurve;
+
+	FOnTimelineFloat DissolveTrack;
+
+	UFUNCTION()
+	void UpdateDissolveMaterial(float DissolveValue);
+	void StartDissolve();
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Dissolve Effect")
+	TArray<UMaterialInstance*> DissolveMaterialInstances;
+	
+	UPROPERTY(VisibleAnywhere, Category="LBlaster|Dissolve Effect")
+	TArray<UMaterialInstanceDynamic*> DynamicDissolveMaterialInstances;
 };
