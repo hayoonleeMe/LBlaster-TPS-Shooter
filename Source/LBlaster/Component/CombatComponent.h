@@ -36,14 +36,14 @@ private:
 	 *	Owner
 	 */
 	UPROPERTY()
-	TObjectPtr<class ALBlasterCharacter> Character;
+	TObjectPtr<class ALBlasterCharacter> OwnerCharacter;
 
-	bool IsValidCharacter();
+	bool IsValidOwnerCharacter();
 
 	UPROPERTY()
-	TObjectPtr<class ALBlasterPlayerController> PlayerController;
+	TObjectPtr<class ALBlasterPlayerController> OwnerController;
 
-	bool IsValidPlayerController();
+	bool IsValidOwnerController();
 
 	UPROPERTY()
 	TObjectPtr<class ALBlasterHUD> HUD;
