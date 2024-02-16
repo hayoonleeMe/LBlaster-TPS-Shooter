@@ -3,7 +3,9 @@
 
 #include "Component/HealthComponent.h"
 
+#include "Character/LBlasterCharacter.h"
 #include "GameFramework/Character.h"
+#include "GameMode/LBlasterGameMode.h"
 #include "Net/UnrealNetwork.h"
 #include "Player/LBlasterPlayerController.h"
 
@@ -24,19 +26,38 @@ void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(UHealthComponent, Health);
 }
 
-void UHealthComponent::ReceiveDamage(float InDamage)
+void UHealthComponent::ReceiveDamage(float InDamage, AController* InstigatorController)
 {
+	if (!IsValidOwnerCharacter())
+	{
+		return;
+	}
+	
 	Health = FMath::Clamp(Health - InDamage, 0.f, MaxHealth);
 	UpdateHUDHealth();
+
+	if (Health == 0.f)
+	{
+		if (ALBlasterGameMode* GameMode = GetWorld()->GetAuthGameMode<ALBlasterGameMode>())
+		{
+			if (ALBlasterPlayerController* VictimController = Cast<ALBlasterPlayerController>(OwnerCharacter->Controller))
+			{
+				if (ALBlasterPlayerController* AttackerController = Cast<ALBlasterPlayerController>(InstigatorController))
+				{
+					GameMode->PlayerEliminated(OwnerCharacter, VictimController, AttackerController);
+				}
+			}	
+		}
+	}
 }
 
-void UHealthComponent::UpdateHUDHealth() const
+void UHealthComponent::UpdateHUDHealth()
 {
-	if (ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner()))
+	if (IsValidOwnerCharacter())
 	{
-		if (ALBlasterPlayerController* PlayerController = Cast<ALBlasterPlayerController>(OwnerCharacter->Controller))
+		if (ALBlasterPlayerController* OwnerController = Cast<ALBlasterPlayerController>(OwnerCharacter->Controller))
 		{
-			PlayerController->SetHUDHealth(Health, MaxHealth);
+			OwnerController->SetHUDHealth(Health, MaxHealth);
 		}
 	}
 }
@@ -47,6 +68,15 @@ void UHealthComponent::BeginPlay()
 	Super::BeginPlay();
 
 	UpdateHUDHealth();
+}
+
+bool UHealthComponent::IsValidOwnerCharacter()
+{
+	if (!OwnerCharacter)
+	{
+		OwnerCharacter = Cast<ALBlasterCharacter>(GetOwner());
+	}
+	return OwnerCharacter != nullptr;
 }
 
 void UHealthComponent::OnRep_Health()

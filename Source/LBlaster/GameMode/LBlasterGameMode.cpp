@@ -4,7 +4,9 @@
 #include "LBlasterGameMode.h"
 
 #include "Character/LBlasterCharacter.h"
+#include "GameFramework/PlayerStart.h"
 #include "HUD/LBlasterHUD.h"
+#include "Kismet/GameplayStatics.h"
 #include "Player/LBlasterPlayerController.h"
 
 ALBlasterGameMode::ALBlasterGameMode()
@@ -25,5 +27,27 @@ ALBlasterGameMode::ALBlasterGameMode()
 	if (PlayerControllerClassRef.Class)
 	{
 		PlayerControllerClass = PlayerControllerClassRef.Class;
+	}
+}
+
+void ALBlasterGameMode::PlayerEliminated(ALBlasterCharacter* EliminatedCharacter, ALBlasterPlayerController* VictimController,
+	ALBlasterPlayerController* AttackerController)
+{
+	EliminatedCharacter->Elim();
+}
+
+void ALBlasterGameMode::RequestRespawn(ACharacter* EliminatedCharacter, AController* EliminatedController)
+{
+	if (EliminatedCharacter)
+	{
+		EliminatedCharacter->Reset();
+		EliminatedCharacter->Destroy();
+	}
+	if (EliminatedController)
+	{
+		TArray<AActor*> PlayerStarts;
+		UGameplayStatics::GetAllActorsOfClass(this, APlayerStart::StaticClass(), PlayerStarts);
+		const int32 Selection = FMath::RandRange(0, PlayerStarts.Num() - 1);
+		RestartPlayerAtPlayerStart(EliminatedController, PlayerStarts[Selection]);
 	}
 }

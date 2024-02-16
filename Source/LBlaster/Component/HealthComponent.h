@@ -16,13 +16,21 @@ public:
 	UHealthComponent();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	void ReceiveDamage(float InDamage);
-	void UpdateHUDHealth() const;
+	void ReceiveDamage(float InDamage, AController* InstigatorController);
+	void UpdateHUDHealth();
 
 protected:
 	virtual void BeginPlay() override;
 
 private:
+	/*
+	 *	Owner
+	 */
+	UPROPERTY()
+	TObjectPtr<class ALBlasterCharacter> OwnerCharacter;
+
+	bool IsValidOwnerCharacter();
+	
 	/*
 	 *	Health
 	 */

@@ -27,6 +27,7 @@ public:
 	void SetAiming(bool bInAiming);
 	void SetFiring(bool bInFiring);
 	UAnimMontage* SelectHitReactMontage(const FVector& HitNormal);
+	UAnimMontage* SelectDeathMontage(const FVector& HitNormal);
 
 protected:
 	virtual void BeginPlay() override;
@@ -134,4 +135,20 @@ private:
 	
 	void StartFireTimer();
 	void FireTimerFinished();
+
+	/*
+	 *	Death
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Death")
+	TArray<UAnimMontage*> FrontDeath;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Death")
+	TArray<UAnimMontage*> BackDeath;
+	
+	UPROPERTY(EditAnywhere, Category="LBlaster|Death")
+	TArray<UAnimMontage*> LeftDeath;
+	
+	UPROPERTY(EditAnywhere, Category="LBlaster|Death")
+	TArray<UAnimMontage*> RightDeath;
+	 
 };

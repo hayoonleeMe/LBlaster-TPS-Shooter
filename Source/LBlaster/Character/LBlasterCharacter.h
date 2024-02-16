@@ -56,7 +56,12 @@ public:
 	/*
 	 *	Camera
 	 */
-	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; } 
+	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+	/*
+	 *	Elimination
+	 */
+	void Elim();
 	
 protected:
 	/*
@@ -170,4 +175,19 @@ private:
 	 */
 	UPROPERTY(VisibleAnywhere, Category="LBlaster|Health")
 	TObjectPtr<class UHealthComponent> HealthComponent;
+
+	/*
+	 *	Elimination
+	 */
+	void PlayDeathMontage(const FVector& HitNormal);
+	void Ragdoll();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastElim();
+
+	UPROPERTY(EditDefaultsOnly, Category="LBlaster|Elim")
+	float ElimDelay;
+	
+	FTimerHandle ElimTimer;
+	void ElimTimerFinished();
 };

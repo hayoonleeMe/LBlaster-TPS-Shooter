@@ -110,6 +110,38 @@ UAnimMontage* UCombatComponent::SelectHitReactMontage(const FVector& HitNormal)
 	}
 }
 
+UAnimMontage* UCombatComponent::SelectDeathMontage(const FVector& HitNormal)
+{
+	const FVector& ActorForward = GetOwner()->GetActorForwardVector();
+	const FVector& ActorRight = GetOwner()->GetActorRightVector();
+
+	const float ForwardHit = FVector::DotProduct(ActorForward, HitNormal);
+	const float RightHit = FVector::DotProduct(ActorRight, HitNormal);
+
+	if (UKismetMathLibrary::InRange_FloatFloat(RightHit, -0.5f, 0.5f))
+	{
+		if (ForwardHit > 0.f)
+		{
+			return FrontDeath[FMath::RandRange(0, FrontDeath.Num() - 1)];
+		}
+		else
+		{
+			return BackDeath[FMath::RandRange(0, BackDeath.Num() - 1)];
+		}
+	}
+	else
+	{
+		if (RightHit > 0.f)
+		{
+			return RightDeath[FMath::RandRange(0, RightDeath.Num() - 1)];
+		}
+		else
+		{
+			return LeftDeath[FMath::RandRange(0, LeftDeath.Num() - 1)];
+		}
+	}
+}
+
 void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
