@@ -4,7 +4,6 @@
 #include "Component/HealthComponent.h"
 
 #include "Character/LBlasterCharacter.h"
-#include "GameFramework/Character.h"
 #include "GameMode/LBlasterGameMode.h"
 #include "Net/UnrealNetwork.h"
 #include "Player/LBlasterPlayerController.h"

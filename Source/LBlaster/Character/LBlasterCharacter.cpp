@@ -297,6 +297,14 @@ void ALBlasterCharacter::Elim()
 	MulticastElim();
 }
 
+void ALBlasterCharacter::UpdateHUDHealth() const
+{
+	if (HealthComponent)
+	{
+		HealthComponent->UpdateHUDHealth();
+	}
+}
+
 void ALBlasterCharacter::Move(const FInputActionValue& ActionValue)
 {
 	const FVector2D MovementVector = ActionValue.Get<FVector2D>();
