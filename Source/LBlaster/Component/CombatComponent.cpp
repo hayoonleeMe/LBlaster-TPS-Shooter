@@ -49,9 +49,9 @@ void UCombatComponent::SetAiming(bool bInAiming)
 	}
 	
 	bIsAiming = bInAiming;
-	if (IsValidCharacter())
+	if (IsValidOwnerCharacter())
 	{
-		Character->SetADSWalkSpeed(bInAiming, ADSMultiplier);
+		OwnerCharacter->SetADSWalkSpeed(bInAiming, ADSMultiplier);
 	}
 	
 	ServerSetAiming(bInAiming);
@@ -60,9 +60,9 @@ void UCombatComponent::SetAiming(bool bInAiming)
 void UCombatComponent::ServerSetAiming_Implementation(bool bInAiming)
 {
 	bIsAiming = bInAiming;
-	if (IsValidCharacter())
+	if (IsValidOwnerCharacter())
 	{
-		Character->SetADSWalkSpeed(bInAiming, ADSMultiplier);
+		OwnerCharacter->SetADSWalkSpeed(bInAiming, ADSMultiplier);
 	}
 }
 
@@ -114,40 +114,40 @@ void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (!IsValidCharacter())
+	if (!IsValidOwnerCharacter())
 	{
 		return;
 	}
-	if (Character->GetFollowCamera())
+	if (OwnerCharacter->GetFollowCamera())
 	{
-		DefaultFOV = Character->GetFollowCamera()->FieldOfView;
+		DefaultFOV = OwnerCharacter->GetFollowCamera()->FieldOfView;
 		CurrentFOV = DefaultFOV;
 	}
 }
 
-bool UCombatComponent::IsValidCharacter()
+bool UCombatComponent::IsValidOwnerCharacter()
 {
-	if (!Character)
+	if (!OwnerCharacter)
 	{
-		Character = Cast<ALBlasterCharacter>(GetOwner());
+		OwnerCharacter = Cast<ALBlasterCharacter>(GetOwner());
 	}
-	return Character != nullptr;
+	return OwnerCharacter != nullptr;
 }
 
-bool UCombatComponent::IsValidPlayerController()
+bool UCombatComponent::IsValidOwnerController()
 {
-	if (!PlayerController)
+	if (!OwnerController)
 	{
-		PlayerController = Cast<ALBlasterPlayerController>(Character->Controller);
+		OwnerController = Cast<ALBlasterPlayerController>(OwnerCharacter->Controller);
 	}
-	return PlayerController != nullptr;
+	return OwnerController != nullptr;
 }
 
 bool UCombatComponent::IsValidHUD()
 {
 	if (!HUD)
 	{
-		HUD = Cast<ALBlasterHUD>(PlayerController->GetHUD());
+		HUD = Cast<ALBlasterHUD>(OwnerController->GetHUD());
 	}
 	return HUD != nullptr;
 }
@@ -182,9 +182,9 @@ void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 	if (bScreenToWorld)
 	{
 		FVector Start = CrosshairWorldPosition;
-		if (IsValidCharacter())
+		if (IsValidOwnerCharacter())
 		{
-			const float DistanceToCharacter = (Character->GetActorLocation() - Start).Size();
+			const float DistanceToCharacter = (OwnerCharacter->GetActorLocation() - Start).Size();
 			Start += CrosshairWorldDirection * (DistanceToCharacter + 50.f);
 		}
 		const FVector End = Start + CrosshairWorldDirection * TRACE_LENGTH;
@@ -204,7 +204,7 @@ void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 
 void UCombatComponent::SetHUDCrosshair(float DeltaTime)
 {
-	if (!IsValidCharacter() || !IsValidPlayerController() || !IsValidHUD())
+	if (!IsValidOwnerCharacter() || !IsValidOwnerController() || !IsValidHUD())
 	{
 		return;
 	}
@@ -219,14 +219,14 @@ void UCombatComponent::SetHUDCrosshair(float DeltaTime)
 	}
 
 	// 이동 속도에 따른 Crosshair Spread
-	if (Character->GetCharacterMovement())
+	if (OwnerCharacter->GetCharacterMovement())
 	{
-		const FVector2D WalkSpeedRange(0.f, Character->GetCharacterMovement()->MaxWalkSpeed);
+		const FVector2D WalkSpeedRange(0.f, OwnerCharacter->GetCharacterMovement()->MaxWalkSpeed);
 		const FVector2D ClampRange(0.f, 1.f);
-		const FVector Velocity = Character->GetCharacterMovement()->Velocity;
+		const FVector Velocity = OwnerCharacter->GetCharacterMovement()->Velocity;
 		const float CrosshairSpreadVelocityFactor = FMath::GetMappedRangeValueClamped(WalkSpeedRange, ClampRange, Velocity.Size2D());
 
-		if (Character->GetCharacterMovement()->IsFalling())
+		if (OwnerCharacter->GetCharacterMovement()->IsFalling())
 		{
 			CrosshairInAirFactor = FMath::FInterpTo(CrosshairInAirFactor, 2.25f, DeltaTime, 2.25f);
 		}
@@ -253,12 +253,12 @@ void UCombatComponent::SetHUDCrosshair(float DeltaTime)
 
 void UCombatComponent::StartFireTimer()
 {
-	if (!IsValidCharacter() || !EquippingWeapon)
+	if (!IsValidOwnerCharacter() || !EquippingWeapon)
 	{
 		return;
 	}
 
-	Character->GetWorldTimerManager().SetTimer(FireTimer, this, &ThisClass::FireTimerFinished, EquippingWeapon->GetFireDelay());
+	OwnerCharacter->GetWorldTimerManager().SetTimer(FireTimer, this, &ThisClass::FireTimerFinished, EquippingWeapon->GetFireDelay());
 }
 
 void UCombatComponent::FireTimerFinished()
@@ -277,7 +277,7 @@ void UCombatComponent::FireTimerFinished()
 
 void UCombatComponent::InterpFOV(float DeltaTime)
 {
-	if (!EquippingWeapon || !IsValidCharacter())
+	if (!EquippingWeapon || !IsValidOwnerCharacter())
 	{
 		return;
 	}
@@ -291,9 +291,9 @@ void UCombatComponent::InterpFOV(float DeltaTime)
 		CurrentFOV = FMath::FInterpTo(CurrentFOV, DefaultFOV, DeltaTime, EquippingWeapon->GetZoomInterpSpeed());
 	}
 
-	if (Character->GetFollowCamera())
+	if (OwnerCharacter->GetFollowCamera())
 	{
-		Character->GetFollowCamera()->SetFieldOfView(CurrentFOV);
+		OwnerCharacter->GetFollowCamera()->SetFieldOfView(CurrentFOV);
 	}
 }
 
@@ -325,9 +325,9 @@ void UCombatComponent::OnRep_EquippedWeapon()
 {
 	if (EquippingWeapon)
 	{
-		if (IsValidCharacter())
+		if (IsValidOwnerCharacter())
 		{
-			Character->SetWeaponAnimLayers(EquippingWeapon->GetWeaponAnimLayer());
+			OwnerCharacter->SetWeaponAnimLayers(EquippingWeapon->GetWeaponAnimLayer());
 		}
 	}
 }
@@ -339,9 +339,9 @@ void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& Trac
 
 void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
-	if (IsValidCharacter())
+	if (IsValidOwnerCharacter())
 	{
-		Character->PlayFireMontage(FireMontages[EquippingWeapon->GetWeaponType()]);
+		OwnerCharacter->PlayFireMontage(FireMontages[EquippingWeapon->GetWeaponType()]);
 		EquippingWeapon->Fire(TraceHitTarget);
 	}	
 }
@@ -355,10 +355,10 @@ void UCombatComponent::EquipWeapon(AWeapon* InWeapon)
 	{
 		EquippingWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
 
-		if (IsValidCharacter())
+		if (IsValidOwnerCharacter())
 		{
-			Character->AttachWeapon(EquippingWeapon);
-			Character->SetWeaponAnimLayers(EquippingWeapon->GetWeaponAnimLayer());
+			OwnerCharacter->AttachWeapon(EquippingWeapon);
+			OwnerCharacter->SetWeaponAnimLayers(EquippingWeapon->GetWeaponAnimLayer());
 		}
 	}
 }
