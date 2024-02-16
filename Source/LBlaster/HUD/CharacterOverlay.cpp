@@ -17,3 +17,9 @@ void UCharacterOverlay::SetHealthText(float InHealth, float InMaxHealth)
 	const FString HealthString = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(InHealth), FMath::CeilToInt(InMaxHealth));
 	HealthText->SetText(FText::FromString(HealthString));
 }
+
+void UCharacterOverlay::SetScoreAmount(float InScore)
+{
+	const FString ScoreString = FString::Printf(TEXT("%d"), FMath::FloorToInt(InScore));
+	ScoreAmount->SetText(FText::FromString(ScoreString));
+}

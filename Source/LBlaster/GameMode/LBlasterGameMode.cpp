@@ -8,6 +8,7 @@
 #include "HUD/LBlasterHUD.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/LBlasterPlayerController.h"
+#include "Player/LBlasterPlayerState.h"
 
 ALBlasterGameMode::ALBlasterGameMode()
 {
@@ -28,12 +29,33 @@ ALBlasterGameMode::ALBlasterGameMode()
 	{
 		PlayerControllerClass = PlayerControllerClassRef.Class;
 	}
+
+	static ConstructorHelpers::FClassFinder<ALBlasterPlayerState> PlayerStateClassRef(TEXT("/Script/Engine.Blueprint'/Game/LBlaster/Core/States/Player/BP_LBlasterPlayerState.BP_LBlasterPlayerState_C'"));
+	if (PlayerStateClassRef.Class)
+	{
+		PlayerStateClass = PlayerStateClassRef.Class;
+	}
 }
 
 void ALBlasterGameMode::PlayerEliminated(ALBlasterCharacter* EliminatedCharacter, ALBlasterPlayerController* VictimController,
 	ALBlasterPlayerController* AttackerController)
 {
-	EliminatedCharacter->Elim();
+	// Attacker 점수 획득
+	if (ALBlasterPlayerState* AttackerPlayerState = Cast<ALBlasterPlayerState>(AttackerController->PlayerState))
+	{
+		if (ALBlasterPlayerState* VictimPlayerState = Cast<ALBlasterPlayerState>(VictimController->PlayerState))
+		{
+			if (AttackerPlayerState != VictimPlayerState)
+			{
+				AttackerPlayerState->AddToScore(1.f);
+			}
+		}
+	}	
+	
+	if (EliminatedCharacter)
+	{
+		EliminatedCharacter->Elim();
+	}
 }
 
 void ALBlasterGameMode::RequestRespawn(ACharacter* EliminatedCharacter, AController* EliminatedController)
