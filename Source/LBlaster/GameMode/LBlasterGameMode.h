@@ -16,4 +16,7 @@ class LBLASTER_API ALBlasterGameMode : public AGameMode
 
 public:
 	ALBlasterGameMode();
+
+	virtual void PlayerEliminated(class ALBlasterCharacter* EliminatedCharacter, class ALBlasterPlayerController* VictimController, ALBlasterPlayerController* AttackerController);
+	virtual void RequestRespawn(ACharacter* EliminatedCharacter, AController* EliminatedController);
 };

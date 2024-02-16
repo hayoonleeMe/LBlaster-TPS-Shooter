@@ -16,6 +16,7 @@
 #include "Components/WidgetComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameMode/LBlasterGameMode.h"
 #include "HUD/OverheadWidget.h"
 #include "Net/UnrealNetwork.h"
 #include "Weapon/Weapon.h"
@@ -28,6 +29,9 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 	/* Replication */
 	NetUpdateFrequency = 66.f;
 	MinNetUpdateFrequency = 33.f;
+
+	/* Actor */
+	SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 	
 	/* Movement */
 	GetCharacterMovement()->bOrientRotationToMovement = false;
@@ -159,6 +163,9 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 
 	/* Health */
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
+
+	/* Elim */
+	ElimDelay = 3.f;
 }
 
 void ALBlasterCharacter::Tick(float DeltaTime)
@@ -279,6 +286,12 @@ void ALBlasterCharacter::PlayFireMontage(UAnimMontage* InFireMontage)
 	{
 		AnimInstance->Montage_Play(InFireMontage);	
 	}
+}
+
+void ALBlasterCharacter::Elim()
+{
+	GetWorldTimerManager().SetTimer(ElimTimer, this, &ThisClass::ElimTimerFinished, ElimDelay);
+	MulticastElim();
 }
 
 void ALBlasterCharacter::Move(const FInputActionValue& ActionValue)
@@ -435,7 +448,7 @@ void ALBlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const
 {
 	if (HealthComponent)
 	{
-		HealthComponent->ReceiveDamage(Damage);
+		HealthComponent->ReceiveDamage(Damage, InstigatorController);
 	}
 }
 
@@ -476,6 +489,47 @@ void ALBlasterCharacter::SetLastHitNormal(const FVector& InHitNormal)
 void ALBlasterCharacter::OnRep_LastHitNormal()
 {
 	PlayHitReactMontage(LastHitNormal);
+}
+
+void ALBlasterCharacter::PlayDeathMontage(const FVector& HitNormal)
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (CombatComponent && AnimInstance)
+	{
+		if (UAnimMontage* MontageToPlay = CombatComponent->SelectDeathMontage(HitNormal))
+		{
+			AnimInstance->Montage_Play(MontageToPlay);
+		}
+	}
+}
+
+void ALBlasterCharacter::Ragdoll()
+{
+	CameraBoom->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+	
+	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->SetEnableGravity(true);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+	
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void ALBlasterCharacter::ElimTimerFinished()
+{
+	if (ALBlasterGameMode* GameMode = GetWorld()->GetAuthGameMode<ALBlasterGameMode>())
+	{
+		GameMode->RequestRespawn(this, Controller);
+	}
+}
+
+void ALBlasterCharacter::MulticastElim_Implementation()
+{
+	PlayDeathMontage(LastHitNormal);
+    	
+    const float RagdollDelay = FMath::FRandRange(0.1f, 0.6f);
+    FTimerHandle RagdollDelayTimer;
+    GetWorldTimerManager().SetTimer(RagdollDelayTimer, this, &ThisClass::Ragdoll, RagdollDelay);
 }
 
 AController* ALBlasterCharacter::GetController()
