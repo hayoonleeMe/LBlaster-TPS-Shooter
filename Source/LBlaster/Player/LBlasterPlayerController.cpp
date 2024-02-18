@@ -22,6 +22,14 @@ void ALBlasterPlayerController::SetHUDScore(float InScore)
 	}
 }
 
+void ALBlasterPlayerController::SetHUDDeath(int32 InDeath)
+{
+	if (IsValidHUD())
+	{
+		LBlasterHUD->SetHUDDeath(InDeath);
+	}
+}
+
 void ALBlasterPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);

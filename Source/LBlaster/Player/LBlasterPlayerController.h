@@ -17,6 +17,7 @@ class LBLASTER_API ALBlasterPlayerController : public APlayerController
 public:
 	void SetHUDHealth(float Health, float MaxHealth);
 	void SetHUDScore(float InScore);
+	void SetHUDDeath(int32 InDeath);
 
 protected:
 	virtual void OnPossess(APawn* InPawn) override;

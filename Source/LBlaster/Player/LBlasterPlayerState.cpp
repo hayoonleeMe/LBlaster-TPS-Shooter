@@ -5,6 +5,14 @@
 
 #include "LBlasterPlayerController.h"
 #include "Character/LBlasterCharacter.h"
+#include "Net/UnrealNetwork.h"
+
+void ALBlasterPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ALBlasterPlayerState, Death);
+}
 
 void ALBlasterPlayerState::OnRep_Score()
 {
@@ -13,6 +21,24 @@ void ALBlasterPlayerState::OnRep_Score()
 	if (IsValidOwnerCharacter() && IsValidOwnerController())
 	{
 		OwnerController->SetHUDScore(GetScore());
+	}
+}
+
+void ALBlasterPlayerState::OnRep_Death()
+{
+	if (IsValidOwnerCharacter() && IsValidOwnerController())
+	{
+		OwnerController->SetHUDDeath(Death);
+	}
+}
+
+void ALBlasterPlayerState::AddToDeath(int32 InDeathAmount)
+{
+	Death += InDeathAmount;
+
+	if (IsValidOwnerCharacter() && IsValidOwnerController())
+	{
+		OwnerController->SetHUDDeath(Death);
 	}
 }
 

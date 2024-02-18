@@ -15,8 +15,15 @@ class LBLASTER_API ALBlasterPlayerState : public APlayerState
 	GENERATED_BODY()
 
 public:
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void OnRep_Score() override;
+
+	UFUNCTION()
+	virtual void OnRep_Death();
+	
 	void AddToScore(float InScoreAmount);
+	void AddToDeath(int32 InDeathAmount);
+	
 
 private:
 	/*
@@ -31,4 +38,7 @@ private:
 	TObjectPtr<class ALBlasterPlayerController> OwnerController;
 	
 	bool IsValidOwnerController();
+
+	UPROPERTY(ReplicatedUsing=OnRep_Death)
+	int32 Death;
 };
