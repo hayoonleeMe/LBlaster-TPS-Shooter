@@ -300,9 +300,9 @@ void ALBlasterCharacter::PlayFireMontage(UAnimMontage* InFireMontage)
 
 void ALBlasterCharacter::Elim()
 {
-	if (CombatComponent && CombatComponent->GetEquippingWeapon())
+	if (CombatComponent)
 	{
-		CombatComponent->GetEquippingWeapon()->Dropped();
+		CombatComponent->DropWeapon();
 	}
 	
 	GetWorldTimerManager().SetTimer(ElimTimer, this, &ThisClass::ElimTimerFinished, ElimDelay);

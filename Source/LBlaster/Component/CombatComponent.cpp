@@ -143,6 +143,15 @@ UAnimMontage* UCombatComponent::SelectDeathMontage(const FVector& HitNormal)
 	}
 }
 
+void UCombatComponent::DropWeapon()
+{
+	if (EquippingWeapon)
+	{
+		EquippingWeapon->Dropped();
+		EquippingWeapon = nullptr;
+	}
+}
+
 void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
