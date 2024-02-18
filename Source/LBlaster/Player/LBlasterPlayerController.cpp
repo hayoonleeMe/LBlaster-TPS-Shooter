@@ -30,6 +30,14 @@ void ALBlasterPlayerController::SetHUDDeath(int32 InDeath)
 	}
 }
 
+void ALBlasterPlayerController::SetHUDAmmo(int32 InAmmo)
+{
+	if (IsValidHUD())
+	{
+		LBlasterHUD->SetHUDAmmo(InAmmo);
+	}
+}
+
 void ALBlasterPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);

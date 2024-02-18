@@ -48,6 +48,7 @@ public:
 	void SetHUDHealth(float InHealth, float InMaxHealth);
 	void SetHUDScore(float InScore);
 	void SetHUDDeath(int32 InDeath);
+	void SetHUDAmmo(int32 InAmmo);
 
 protected:
 	virtual void BeginPlay() override;

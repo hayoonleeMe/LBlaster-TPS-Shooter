@@ -19,6 +19,7 @@ public:
 	void SetHealthText(float InHealth, float InMaxHealth);
 	void SetScoreAmount(float InScore);
 	void SetDeathAmount(int32 InDeath);
+	void SetAmmoAmount(int32 InAmmo);
 	
 private:
 	UPROPERTY(meta = (BindWidget))
@@ -32,4 +33,7 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> DeathAmount;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> AmmoAmount;
 };

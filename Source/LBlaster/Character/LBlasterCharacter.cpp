@@ -19,6 +19,7 @@
 #include "GameMode/LBlasterGameMode.h"
 #include "HUD/OverheadWidget.h"
 #include "Net/UnrealNetwork.h"
+#include "Player/LBlasterPlayerController.h"
 #include "Weapon/Weapon.h"
 
 ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializer)
@@ -247,6 +248,14 @@ void ALBlasterCharacter::SetOverlappingWeapon(AWeapon* InWeapon)
 	if (IsLocallyControlled())
 	{
 		ShowOverlappingWeaponPickupWidget(LastOverlappingWeapon);
+	}
+}
+
+void ALBlasterCharacter::SetHUDAmmo(int32 InAmmo)
+{
+	if (ALBlasterPlayerController* PlayerController = Cast<ALBlasterPlayerController>(Controller))
+	{
+		PlayerController->SetHUDAmmo(InAmmo);
 	}
 }
 
