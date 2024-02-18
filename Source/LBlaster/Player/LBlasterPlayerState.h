@@ -15,6 +15,7 @@ class LBLASTER_API ALBlasterPlayerState : public APlayerState
 	GENERATED_BODY()
 
 public:
+	ALBlasterPlayerState();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void OnRep_Score() override;
 
