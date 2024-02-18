@@ -23,3 +23,9 @@ void UCharacterOverlay::SetScoreAmount(float InScore)
 	const FString ScoreString = FString::Printf(TEXT("%d"), FMath::FloorToInt(InScore));
 	ScoreAmount->SetText(FText::FromString(ScoreString));
 }
+
+void UCharacterOverlay::SetDeathAmount(int32 InDeath)
+{
+	const FString DeathString = FString::Printf(TEXT("%d"), InDeath);
+	DeathAmount->SetText(FText::FromString(DeathString));
+}

@@ -48,6 +48,7 @@ void ALBlasterGameMode::PlayerEliminated(ALBlasterCharacter* EliminatedCharacter
 			if (AttackerPlayerState != VictimPlayerState)
 			{
 				AttackerPlayerState->AddToScore(1.f);
+				VictimPlayerState->AddToDeath(1);
 			}
 		}
 	}	

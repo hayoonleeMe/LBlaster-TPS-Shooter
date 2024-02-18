@@ -68,6 +68,14 @@ void ALBlasterHUD::SetHUDScore(float InScore)
 	}
 }
 
+void ALBlasterHUD::SetHUDDeath(int32 InDeath)
+{
+	if (CharacterOverlay)
+	{
+		CharacterOverlay->SetDeathAmount(InDeath);
+	}
+}
+
 void ALBlasterHUD::BeginPlay()
 {
 	Super::BeginPlay();
