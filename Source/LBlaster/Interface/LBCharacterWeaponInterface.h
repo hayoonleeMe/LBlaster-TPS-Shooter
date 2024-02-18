@@ -24,4 +24,5 @@ class LBLASTER_API ILBCharacterWeaponInterface
 public:
 	// Weapon -> Character
 	virtual void SetOverlappingWeapon(class AWeapon* InWeapon) = 0;
+	virtual void SetHUDAmmo(int32 InAmmo) = 0;
 };

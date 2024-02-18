@@ -18,6 +18,7 @@ public:
 	
 	void ShowPickupWidget(bool bInShow) const;
 	void SetWeaponState(EWeaponState InWeaponState);
+	void SetHUDAmmo();
 
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 	FORCEINLINE TSubclassOf<UAnimInstance> GetWeaponAnimLayer() const { return WeaponAnimLayer; }
@@ -117,6 +118,20 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category="LBlaster|Auto Fire")
 	float FireDelay;
+
+	/*
+	 *	Ammo
+	 */
+	UPROPERTY(EditAnywhere, ReplicatedUsing=OnRep_Ammo, Category="LBlaster|Ammo")
+	int32 Ammo;
+
+	UFUNCTION()
+	void OnRep_Ammo();
+
+	void SpendRound();
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Ammo")
+	int32 MagCapacity;
 
 public:
 	/*

@@ -29,3 +29,9 @@ void UCharacterOverlay::SetDeathAmount(int32 InDeath)
 	const FString DeathString = FString::Printf(TEXT("%d"), InDeath);
 	DeathAmount->SetText(FText::FromString(DeathString));
 }
+
+void UCharacterOverlay::SetAmmoAmount(int32 InAmmo)
+{
+	const FString AmmoString = FString::Printf(TEXT("%d"), InAmmo);
+	AmmoAmount->SetText(FText::FromString(AmmoString));
+}

@@ -31,6 +31,7 @@ public:
 	 *	ULBCharacterWeaponInterface
 	 */
 	virtual void SetOverlappingWeapon(AWeapon* InWeapon) override;
+	virtual void SetHUDAmmo(int32 InAmmo) override;
 
 	/*
 	 *	ProjectileHitInterface

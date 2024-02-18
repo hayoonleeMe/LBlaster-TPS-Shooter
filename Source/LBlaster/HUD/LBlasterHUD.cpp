@@ -76,6 +76,14 @@ void ALBlasterHUD::SetHUDDeath(int32 InDeath)
 	}
 }
 
+void ALBlasterHUD::SetHUDAmmo(int32 InAmmo)
+{
+	if (CharacterOverlay)
+	{
+		CharacterOverlay->SetAmmoAmount(InAmmo);
+	}
+}
+
 void ALBlasterHUD::BeginPlay()
 {
 	Super::BeginPlay();
@@ -84,6 +92,7 @@ void ALBlasterHUD::BeginPlay()
 	
 	SetHUDScore(0.f);
 	SetHUDDeath(0);
+	SetHUDAmmo(0);
 }
 
 void ALBlasterHUD::AddCharacterOverlay()

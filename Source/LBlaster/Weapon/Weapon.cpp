@@ -71,6 +71,17 @@ void AWeapon::SetWeaponState(EWeaponState InWeaponState)
 	OnChangedWeaponState();
 }
 
+void AWeapon::SetHUDAmmo()
+{
+	if (GetOwner())
+	{
+		if (ILBCharacterWeaponInterface* Interface = Cast<ILBCharacterWeaponInterface>(GetOwner()))
+		{
+			Interface->SetHUDAmmo(Ammo);
+		}	
+	}
+}
+
 void AWeapon::Fire(const FVector& HitTarget)
 {
 	if (FireAnimation)
@@ -90,6 +101,8 @@ void AWeapon::Fire(const FVector& HitTarget)
 			}
 		}
 	}
+
+	SpendRound();
 }
 
 void AWeapon::Dropped()
@@ -161,6 +174,18 @@ void AWeapon::OnChangedWeaponState()
 		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		break;
 	}
+}
+
+void AWeapon::OnRep_Ammo()
+{
+	SetHUDAmmo();
+}
+
+void AWeapon::SpendRound()
+{
+	--Ammo;
+
+	SetHUDAmmo();
 }
 
 
