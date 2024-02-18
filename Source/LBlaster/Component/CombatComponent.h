@@ -151,5 +151,16 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category="LBlaster|Death")
 	TArray<UAnimMontage*> RightDeath;
-	 
+
+	/*
+	 *	Ammo
+	 */
+	UPROPERTY(ReplicatedUsing=OnRep_CarriedAmmo)
+	int32 CarriedAmmo;
+
+	UFUNCTION()
+	void OnRep_CarriedAmmo();
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Ammo")
+	TMap<EWeaponType, int32> CarriedAmmoMap;
 };

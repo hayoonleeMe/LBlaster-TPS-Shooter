@@ -38,6 +38,14 @@ void ALBlasterPlayerController::SetHUDAmmo(int32 InAmmo)
 	}
 }
 
+void ALBlasterPlayerController::SetHUDCarriedAmmo(int32 InCarriedAmmo)
+{
+	if (IsValidHUD())
+	{
+		LBlasterHUD->SetHUDCarriedAmmo(InCarriedAmmo);
+	}
+}
+
 void ALBlasterPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);

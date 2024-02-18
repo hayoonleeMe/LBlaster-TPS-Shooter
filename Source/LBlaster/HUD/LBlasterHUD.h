@@ -49,6 +49,7 @@ public:
 	void SetHUDScore(float InScore);
 	void SetHUDDeath(int32 InDeath);
 	void SetHUDAmmo(int32 InAmmo);
+	void SetHUDCarriedAmmo(int32 InCarriedAmmo);
 
 protected:
 	virtual void BeginPlay() override;

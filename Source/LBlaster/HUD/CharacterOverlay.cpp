@@ -35,3 +35,9 @@ void UCharacterOverlay::SetAmmoAmount(int32 InAmmo)
 	const FString AmmoString = FString::Printf(TEXT("%d"), InAmmo);
 	AmmoAmount->SetText(FText::FromString(AmmoString));
 }
+
+void UCharacterOverlay::SetCarriedAmmoAmount(int32 InCarriedAmmo)
+{
+	const FString CarriedAmmoString = FString::Printf(TEXT("%d"), InCarriedAmmo);
+	CarriedAmmoAmount->SetText(FText::FromString(CarriedAmmoString));
+}

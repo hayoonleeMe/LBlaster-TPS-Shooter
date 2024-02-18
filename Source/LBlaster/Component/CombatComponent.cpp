@@ -29,6 +29,7 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(UCombatComponent, EquippingWeapon);
 	DOREPLIFETIME(UCombatComponent, bIsAiming);
 	DOREPLIFETIME(UCombatComponent, bIsFiring);
+	DOREPLIFETIME_CONDITION(UCombatComponent, CarriedAmmo, COND_OwnerOnly);
 }
 
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -306,6 +307,14 @@ void UCombatComponent::FireTimerFinished()
 	}
 }
 
+void UCombatComponent::OnRep_CarriedAmmo()
+{
+	if (IsValidOwnerController())
+	{
+		OwnerController->SetHUDCarriedAmmo(CarriedAmmo);
+	}
+}
+
 void UCombatComponent::InterpFOV(float DeltaTime)
 {
 	if (!EquippingWeapon || !IsValidOwnerCharacter())
@@ -403,7 +412,17 @@ void UCombatComponent::EquipWeapon(AWeapon* InWeapon)
 		if (IsValidOwnerCharacter())
 		{
 			EquippingWeapon->SetOwner(OwnerCharacter);
+			
 			EquippingWeapon->SetHUDAmmo();
+			if (CarriedAmmoMap.Contains(EquippingWeapon->GetWeaponType()))
+			{
+				CarriedAmmo = CarriedAmmoMap[EquippingWeapon->GetWeaponType()];
+				if (IsValidOwnerController())
+				{
+					OwnerController->SetHUDCarriedAmmo(CarriedAmmo);
+				}
+			}
+			
 			OwnerCharacter->AttachWeapon(EquippingWeapon);
 			OwnerCharacter->SetWeaponAnimLayers(EquippingWeapon->GetWeaponAnimLayer());
 		}
