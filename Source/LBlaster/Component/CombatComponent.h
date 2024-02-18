@@ -28,6 +28,7 @@ public:
 	void SetFiring(bool bInFiring);
 	UAnimMontage* SelectHitReactMontage(const FVector& HitNormal);
 	UAnimMontage* SelectDeathMontage(const FVector& HitNormal);
+	void DropWeapon();
 
 protected:
 	virtual void BeginPlay() override;
@@ -59,7 +60,7 @@ private:
 
 	UFUNCTION()
 	void OnRep_EquippingWeapon();
-	
+
 	/*
 	 *	Aiming
 	 */
