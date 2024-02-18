@@ -81,6 +81,9 @@ void ALBlasterHUD::BeginPlay()
 	Super::BeginPlay();
 
 	AddCharacterOverlay();
+	
+	SetHUDScore(0.f);
+	SetHUDDeath(0);
 }
 
 void ALBlasterHUD::AddCharacterOverlay()

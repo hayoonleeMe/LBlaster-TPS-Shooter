@@ -7,6 +7,11 @@
 #include "Character/LBlasterCharacter.h"
 #include "Net/UnrealNetwork.h"
 
+ALBlasterPlayerState::ALBlasterPlayerState()
+{
+	NetUpdateFrequency = 10.f;
+}
+
 void ALBlasterPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
