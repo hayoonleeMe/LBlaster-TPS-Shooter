@@ -577,6 +577,7 @@ void ALBlasterCharacter::MulticastElim_Implementation()
 	if (ALBlasterPlayerController* PlayerController = Cast<ALBlasterPlayerController>(Controller))
 	{
 		PlayerController->SetHUDAmmo(0);
+		PlayerController->SetHUDCarriedAmmo(0);
 	}
 
 	/* Ragdoll */

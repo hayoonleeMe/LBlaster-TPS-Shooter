@@ -20,6 +20,7 @@ public:
 	void SetScoreAmount(float InScore);
 	void SetDeathAmount(int32 InDeath);
 	void SetAmmoAmount(int32 InAmmo);
+	void SetCarriedAmmoAmount(int32 InCarriedAmmo);
 	
 private:
 	UPROPERTY(meta = (BindWidget))
@@ -36,4 +37,7 @@ private:
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> AmmoAmount;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> CarriedAmmoAmount;
 };
