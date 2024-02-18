@@ -27,6 +27,7 @@ public:
 	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
 	FORCEINLINE float GetFireDelay() const { return FireDelay; }
 	FORCEINLINE bool IsAutomatic() const { return bAutomatic; }
+	FORCEINLINE bool IsAmmoEmpty() const { return Ammo <= 0.f; }
 
 	virtual void Fire(const FVector& HitTarget);
 	void Dropped();

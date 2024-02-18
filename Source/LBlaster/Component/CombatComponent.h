@@ -86,6 +86,7 @@ private:
 	UPROPERTY(Replicated)
 	uint8 bIsFiring : 1;
 
+	bool CanFire() const;	
 	void Fire();
 
 	UFUNCTION(Server, Reliable)
