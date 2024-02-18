@@ -258,7 +258,6 @@ void ALBlasterCharacter::AttachWeapon(AWeapon* InEquippedWeapon)
 		{
 			HandSocket->AttachActor(InEquippedWeapon, GetMesh());
 		}
-		InEquippedWeapon->SetOwner(this);
 	}
 }
 
