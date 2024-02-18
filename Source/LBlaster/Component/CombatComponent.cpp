@@ -398,6 +398,7 @@ void UCombatComponent::EquipWeapon(AWeapon* InWeapon)
 		if (IsValidOwnerCharacter())
 		{
 			EquippingWeapon->SetOwner(OwnerCharacter);
+			EquippingWeapon->SetHUDAmmo();
 			OwnerCharacter->AttachWeapon(EquippingWeapon);
 			OwnerCharacter->SetWeaponAnimLayers(EquippingWeapon->GetWeaponAnimLayer());
 		}
