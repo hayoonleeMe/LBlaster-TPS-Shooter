@@ -382,6 +382,12 @@ void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& T
 
 void UCombatComponent::EquipWeapon(AWeapon* InWeapon)
 {
+	// 이미 무기를 장착하고 있으면 기존 무기는 Drop
+	if (EquippingWeapon)
+	{
+		EquippingWeapon->Dropped();
+	}
+	
 	// From ServerRPC (Server Only)
 	EquippingWeapon = InWeapon;
 
