@@ -138,6 +138,12 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 	{
 		FireAction = FireActionRef.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> ReloadActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_Reload.IA_Reload'"));
+	if (ReloadActionRef.Object)
+	{
+		ReloadAction = ReloadActionRef.Object;
+	}
 	
 	/* Overhead Widget */
 	OverheadWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidgetComponent"));
@@ -194,6 +200,7 @@ void ALBlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Completed, this, &ThisClass::AimFinished);
 	EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &ThisClass::FireStarted);
 	EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Completed, this, &ThisClass::FireFinished);
+	EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Started, this, &ThisClass::Reload);
 }
 
 void ALBlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -295,6 +302,17 @@ void ALBlasterCharacter::PlayFireMontage(UAnimMontage* InFireMontage)
 	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
 	{
 		AnimInstance->Montage_Play(InFireMontage);	
+	}
+}
+
+void ALBlasterCharacter::PlayReloadMontage(UAnimMontage* InReloadMontage)
+{
+	if (InReloadMontage)
+	{
+		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+		{
+			AnimInstance->Montage_Play(InReloadMontage);
+		}	
 	}
 }
 
@@ -405,6 +423,14 @@ void ALBlasterCharacter::FireFinished(const FInputActionValue& ActionValue)
 	}
 }
 
+void ALBlasterCharacter::Reload(const FInputActionValue& ActionValue)
+{
+	if (CombatComponent)
+	{
+		CombatComponent->Reload();
+	}
+}
+
 void ALBlasterCharacter::HideMeshIfCameraClose()
 {
 	if (!IsLocallyControlled())
@@ -501,6 +527,15 @@ FTransform ALBlasterCharacter::GetLeftHandTransform() const
 		}	
 	}
 	return FTransform();
+}
+
+
+void ALBlasterCharacter::ReloadFinished()
+{
+	if (CombatComponent)
+	{
+		CombatComponent->ReloadFinished();
+	}
 }
 
 void ALBlasterCharacter::SetLastHitNormal(const FVector& InHitNormal)
