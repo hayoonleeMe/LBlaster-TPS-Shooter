@@ -33,6 +33,9 @@ void ULBlasterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	/* Left Hand */
 	LeftHandTransform = Character->GetLeftHandTransform();
+	bEnableFABRIK = Character->IsEquippingWeapon() && !Character->IsReloading();
+}
+
 void ULBlasterAnimInstance::AnimNotify_ReloadFinished()
 {
 	Montage_StopWithBlendOut(0.3f);

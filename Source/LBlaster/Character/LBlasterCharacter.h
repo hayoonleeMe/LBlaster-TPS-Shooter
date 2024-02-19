@@ -45,6 +45,8 @@ public:
     bool IsAiming() const;
     bool IsFiring() const;
     FTransform GetLeftHandTransform() const;
+	bool IsReloading() const;
+	bool IsEquippingWeapon() const;
 	void ReloadFinished();
 
 	/*
