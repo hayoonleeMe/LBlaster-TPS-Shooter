@@ -49,4 +49,7 @@ private:
 	 */
 	UPROPERTY(BlueprintReadOnly, Category="Left Hand", meta = (AllowPrivateAccess = "true"))
 	FTransform LeftHandTransform;
+
+	UPROPERTY(BlueprintReadOnly, Category="Left Hand", meta = (AllowPrivateAccess = "true"))
+	uint8 bEnableFABRIK : 1;
 };

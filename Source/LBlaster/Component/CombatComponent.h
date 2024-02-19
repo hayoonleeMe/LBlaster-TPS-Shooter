@@ -23,6 +23,7 @@ public:
 
 	FORCEINLINE bool IsAiming() const { return bIsAiming; }
 	FORCEINLINE bool IsFiring() const { return bIsFiring; }
+	FORCEINLINE bool IsReloading() const { return CombatState == ECombatState::ECS_Reloading; }
 	FORCEINLINE class AWeapon* GetEquippingWeapon() const { return EquippingWeapon; }
 	void EquipWeapon(AWeapon* InWeapon);	
 	void SetAiming(bool bInAiming);

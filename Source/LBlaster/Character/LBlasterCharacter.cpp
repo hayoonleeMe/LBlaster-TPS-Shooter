@@ -529,6 +529,15 @@ FTransform ALBlasterCharacter::GetLeftHandTransform() const
 	return FTransform();
 }
 
+bool ALBlasterCharacter::IsReloading() const
+{
+	return CombatComponent && CombatComponent->IsReloading();
+}
+
+bool ALBlasterCharacter::IsEquippingWeapon() const
+{
+	return CombatComponent && CombatComponent->GetEquippingWeapon();
+}
 
 void ALBlasterCharacter::ReloadFinished()
 {
