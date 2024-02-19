@@ -30,6 +30,7 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(UCombatComponent, bIsAiming);
 	DOREPLIFETIME(UCombatComponent, bIsFiring);
 	DOREPLIFETIME_CONDITION(UCombatComponent, CarriedAmmo, COND_OwnerOnly);
+	DOREPLIFETIME(UCombatComponent, CombatState);
 }
 
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -143,12 +144,51 @@ UAnimMontage* UCombatComponent::SelectDeathMontage(const FVector& HitNormal)
 	}
 }
 
+UAnimMontage* UCombatComponent::SelectReloadMontage()
+{
+	if (!EquippingWeapon || !ReloadMontages.Contains(EquippingWeapon->GetWeaponType()))
+	{
+		return nullptr;
+	}
+	return ReloadMontages[EquippingWeapon->GetWeaponType()];
+}
+
 void UCombatComponent::DropWeapon()
 {
 	if (EquippingWeapon)
 	{
 		EquippingWeapon->Dropped();
 		EquippingWeapon = nullptr;
+	}
+}
+
+void UCombatComponent::Reload()
+{
+	if (CarriedAmmo > 0 && CombatState != ECombatState::ECS_Reloading)
+	{
+		ServerReload();
+	}
+}
+
+void UCombatComponent::ServerReload_Implementation()
+{
+	CombatState = ECombatState::ECS_Reloading;
+	HandleReload();
+}
+
+void UCombatComponent::HandleReload()
+{
+	if (IsValidOwnerCharacter())
+	{
+		OwnerCharacter->PlayReloadMontage(SelectReloadMontage());
+	}
+}
+
+void UCombatComponent::ReloadFinished()
+{
+	if (IsValidOwnerCharacter() && OwnerCharacter->HasAuthority())
+	{
+		CombatState = ECombatState::ECS_Unoccupied;
 	}
 }
 
@@ -324,6 +364,17 @@ void UCombatComponent::OnRep_CarriedAmmo()
 	}
 }
 
+void UCombatComponent::OnRep_CombatState()
+{
+	// TODO: CombatState 모든 경우 처리
+	switch (CombatState)
+	{
+	case ECombatState::ECS_Reloading:
+		HandleReload();	
+		break;
+	}
+}
+
 void UCombatComponent::InterpFOV(float DeltaTime)
 {
 	if (!EquippingWeapon || !IsValidOwnerCharacter())
@@ -348,7 +399,7 @@ void UCombatComponent::InterpFOV(float DeltaTime)
 
 bool UCombatComponent::CanFire() const
 {
-	return EquippingWeapon != nullptr && !EquippingWeapon->IsAmmoEmpty() && bCanFire;
+	return EquippingWeapon != nullptr && !EquippingWeapon->IsAmmoEmpty() && bCanFire && CombatState != ECombatState::ECS_Reloading;
 }
 
 void UCombatComponent::Fire()

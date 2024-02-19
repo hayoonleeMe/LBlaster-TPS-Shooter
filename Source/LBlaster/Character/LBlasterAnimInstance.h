@@ -18,6 +18,9 @@ public:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
+	UFUNCTION()
+	void AnimNotify_ReloadFinished();
+
 protected:
 	bool IsValidCharacter();
 	bool IsValidMovement();

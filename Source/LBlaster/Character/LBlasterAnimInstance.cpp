@@ -33,6 +33,13 @@ void ULBlasterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	/* Left Hand */
 	LeftHandTransform = Character->GetLeftHandTransform();
+void ULBlasterAnimInstance::AnimNotify_ReloadFinished()
+{
+	Montage_StopWithBlendOut(0.3f);
+	if (IsValidCharacter())
+	{
+		Character->ReloadFinished();
+	}
 }
 
 bool ULBlasterAnimInstance::IsValidCharacter()

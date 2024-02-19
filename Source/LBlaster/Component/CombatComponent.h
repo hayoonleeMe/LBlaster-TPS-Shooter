@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "HUD/LBlasterHUD.h"
+#include "LBTypes/CombatState.h"
 #include "LBTypes/WeaponTypes.h"
 #include "CombatComponent.generated.h"
 
@@ -28,7 +29,10 @@ public:
 	void SetFiring(bool bInFiring);
 	UAnimMontage* SelectHitReactMontage(const FVector& HitNormal);
 	UAnimMontage* SelectDeathMontage(const FVector& HitNormal);
+	UAnimMontage* SelectReloadMontage();
 	void DropWeapon();
+	void Reload();
+	void ReloadFinished();
 
 protected:
 	virtual void BeginPlay() override;
@@ -164,4 +168,24 @@ private:
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Ammo")
 	TMap<EWeaponType, int32> CarriedAmmoMap;
+
+	/*
+	 *	Reload
+	 */
+	UFUNCTION(Server, Reliable)
+	void ServerReload();
+
+	void HandleReload();
+	
+	UPROPERTY(EditAnywhere, Category="LBlaster|Reload")
+	TMap<EWeaponType, UAnimMontage*> ReloadMontages;
+
+	/*
+	 *	Combat State
+	 */
+	UPROPERTY(ReplicatedUsing=OnRep_CombatState)
+	ECombatState CombatState;
+
+	UFUNCTION()
+	void OnRep_CombatState();
 };

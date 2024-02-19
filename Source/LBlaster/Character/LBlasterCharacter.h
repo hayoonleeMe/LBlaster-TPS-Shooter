@@ -45,6 +45,7 @@ public:
     bool IsAiming() const;
     bool IsFiring() const;
     FTransform GetLeftHandTransform() const;
+	void ReloadFinished();
 
 	/*
 	 *	Combat
@@ -53,6 +54,7 @@ public:
 	void SetADSWalkSpeed(bool bEnabled, float InADSMultiplier);
 	void SetWeaponAnimLayers(TSubclassOf<UAnimInstance> InWeaponAnimLayer);
 	void PlayFireMontage(UAnimMontage* InFireMontage);
+	void PlayReloadMontage(UAnimMontage* InReloadMontage);
 
 	/*
 	 *	Camera
@@ -96,6 +98,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
     TObjectPtr<UInputAction> FireAction;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
+	TObjectPtr<UInputAction> ReloadAction;
 	
 	void Move(const FInputActionValue& ActionValue);
 	void Look(const FInputActionValue& ActionValue);
@@ -106,6 +111,7 @@ protected:
 	void AimFinished(const FInputActionValue& ActionValue);
 	void FireStarted(const FInputActionValue& ActionValue);
 	void FireFinished(const FInputActionValue& ActionValue);
+	void Reload(const FInputActionValue& ActionValue);
 
 	/*
 	 *	Damage
