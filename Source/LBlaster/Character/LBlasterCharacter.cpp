@@ -622,6 +622,7 @@ void ALBlasterCharacter::MulticastElim_Implementation()
 	{
 		PlayerController->SetHUDAmmo(0);
 		PlayerController->SetHUDCarriedAmmo(0);
+		PlayerController->SetHUDWeaponTypeText();
 	}
 
 	/* Ragdoll */

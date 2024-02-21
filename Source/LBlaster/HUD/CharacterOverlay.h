@@ -21,6 +21,7 @@ public:
 	void SetDeathAmount(int32 InDeath);
 	void SetAmmoAmount(int32 InAmmo);
 	void SetCarriedAmmoAmount(int32 InCarriedAmmo);
+	void SetWeaponTypeText(const FString& InWeaponTypeString);
 	
 private:
 	UPROPERTY(meta = (BindWidget))
@@ -40,4 +41,7 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> CarriedAmmoAmount;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> WeaponTypeText;
 };

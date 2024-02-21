@@ -92,6 +92,14 @@ void ALBlasterHUD::SetHUDCarriedAmmo(int32 InCarriedAmmo)
 	}
 }
 
+void ALBlasterHUD::SetHUDWeaponTypeText(const FString& InWeaponTypeString)
+{
+	if (CharacterOverlay)
+	{
+		CharacterOverlay->SetWeaponTypeText(InWeaponTypeString);
+	}
+}
+
 void ALBlasterHUD::BeginPlay()
 {
 	Super::BeginPlay();
@@ -102,6 +110,7 @@ void ALBlasterHUD::BeginPlay()
 	SetHUDDeath(0);
 	SetHUDAmmo(0);
 	SetHUDCarriedAmmo(0);
+	SetHUDWeaponTypeText(FString());
 }
 
 void ALBlasterHUD::AddCharacterOverlay()

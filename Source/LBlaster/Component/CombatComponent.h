@@ -66,6 +66,8 @@ private:
 	UFUNCTION()
 	void OnRep_EquippingWeapon();
 
+	static FString GetWeaponTypeString(EWeaponType InWeaponType);
+
 	/*
 	 *	Aiming
 	 */
