@@ -390,6 +390,11 @@ void UCombatComponent::FireTimerFinished()
 	{
 		Fire();
 	}
+
+	if (EquippingWeapon->IsAmmoEmpty())
+	{
+		Reload();
+	}
 }
 
 void UCombatComponent::OnRep_CarriedAmmo()
@@ -523,6 +528,11 @@ void UCombatComponent::EquipWeapon(AWeapon* InWeapon)
 			OwnerCharacter->AttachWeapon(EquippingWeapon);
 			OwnerCharacter->SetWeaponAnimLayers(EquippingWeapon->GetWeaponAnimLayer());
 			UGameplayStatics::PlaySoundAtLocation(this, EquippingWeapon->GetEquipSound(), EquippingWeapon->GetActorLocation());
+		}
+
+		if (EquippingWeapon->IsAmmoEmpty())
+		{
+			Reload();
 		}
 	}
 }
