@@ -184,11 +184,42 @@ void UCombatComponent::HandleReload()
 	}
 }
 
+void UCombatComponent::UpdateAmmoValues()
+{
+	if (!IsValidOwnerCharacter() || !IsValidOwnerController() || !EquippingWeapon)
+	{
+		return;
+	}
+
+	const int32 ReloadAmount = AmountToReload();
+	if (CarriedAmmoMap.Contains(EquippingWeapon->GetWeaponType()))
+	{
+		CarriedAmmoMap[EquippingWeapon->GetWeaponType()] -= ReloadAmount;
+		CarriedAmmo = CarriedAmmoMap[EquippingWeapon->GetWeaponType()];
+	}
+	OwnerController->SetHUDCarriedAmmo(CarriedAmmo);
+	EquippingWeapon->AddAmmo(ReloadAmount);
+}
+
+int32 UCombatComponent::AmountToReload()
+{
+	if (EquippingWeapon)
+	{
+		int32 RoomInMag = EquippingWeapon->GetRoomInMag();
+		if (CarriedAmmoMap.Contains(EquippingWeapon->GetWeaponType()))
+		{
+			return FMath::Min(CarriedAmmoMap[EquippingWeapon->GetWeaponType()], RoomInMag);
+		}
+	}
+	return 0;
+}
+
 void UCombatComponent::ReloadFinished()
 {
 	if (IsValidOwnerCharacter() && OwnerCharacter->HasAuthority())
 	{
 		CombatState = ECombatState::ECS_Unoccupied;
+		UpdateAmmoValues();
 	}
 
 	if (bIsFiring)

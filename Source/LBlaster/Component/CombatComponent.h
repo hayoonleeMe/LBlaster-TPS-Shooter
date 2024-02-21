@@ -181,6 +181,9 @@ private:
 	UPROPERTY(EditAnywhere, Category="LBlaster|Reload")
 	TMap<EWeaponType, UAnimMontage*> ReloadMontages;
 
+	void UpdateAmmoValues();
+	int32 AmountToReload(); 
+
 	/*
 	 *	Combat State
 	 */
