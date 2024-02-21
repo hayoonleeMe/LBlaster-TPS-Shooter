@@ -29,7 +29,8 @@ public:
 	FORCEINLINE float GetFireDelay() const { return FireDelay; }
 	FORCEINLINE bool IsAutomatic() const { return bAutomatic; }
 	FORCEINLINE bool IsAmmoEmpty() const { return Ammo <= 0.f; }
-	FORCEINLINE int32 GetRoomInMag()const { return MagCapacity - Ammo; }
+	FORCEINLINE int32 GetRoomInMag() const { return MagCapacity - Ammo; }
+	FORCEINLINE USoundBase* GetEquipSound() const { return EquipSound; }
 
 	virtual void Fire(const FVector& HitTarget);
 	void Dropped();
@@ -136,6 +137,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Ammo")
 	int32 MagCapacity;
+
+	/*
+	 *	Sound
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Sound")
+	TObjectPtr<USoundBase> EquipSound;
 
 public:
 	/*
