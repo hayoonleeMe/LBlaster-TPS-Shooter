@@ -190,6 +190,11 @@ void UCombatComponent::ReloadFinished()
 	{
 		CombatState = ECombatState::ECS_Unoccupied;
 	}
+
+	if (bIsFiring)
+	{
+		Fire();
+	}
 }
 
 void UCombatComponent::BeginPlay()
@@ -399,7 +404,7 @@ void UCombatComponent::InterpFOV(float DeltaTime)
 
 bool UCombatComponent::CanFire() const
 {
-	return EquippingWeapon != nullptr && !EquippingWeapon->IsAmmoEmpty() && bCanFire && CombatState != ECombatState::ECS_Reloading;
+	return EquippingWeapon != nullptr && !EquippingWeapon->IsAmmoEmpty() && bCanFire && CombatState == ECombatState::ECS_Unoccupied;
 }
 
 void UCombatComponent::Fire()
