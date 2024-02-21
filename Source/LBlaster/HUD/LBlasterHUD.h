@@ -50,6 +50,7 @@ public:
 	void SetHUDDeath(int32 InDeath);
 	void SetHUDAmmo(int32 InAmmo);
 	void SetHUDCarriedAmmo(int32 InCarriedAmmo);
+	void SetHUDWeaponTypeText(const FString& InWeaponTypeString);
 
 protected:
 	virtual void BeginPlay() override;

@@ -46,6 +46,14 @@ void ALBlasterPlayerController::SetHUDCarriedAmmo(int32 InCarriedAmmo)
 	}
 }
 
+void ALBlasterPlayerController::SetHUDWeaponTypeText(const FString& InWeaponTypeString)
+{
+	if (IsValidHUD())
+	{
+		LBlasterHUD->SetHUDWeaponTypeText(InWeaponTypeString);
+	}
+}
+
 void ALBlasterPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);

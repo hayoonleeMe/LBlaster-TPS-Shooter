@@ -41,3 +41,16 @@ void UCharacterOverlay::SetCarriedAmmoAmount(int32 InCarriedAmmo)
 	const FString CarriedAmmoString = FString::Printf(TEXT("%d"), InCarriedAmmo);
 	CarriedAmmoAmount->SetText(FText::FromString(CarriedAmmoString));
 }
+
+void UCharacterOverlay::SetWeaponTypeText(const FString& InWeaponTypeString)
+{
+	if (InWeaponTypeString == FString())
+	{
+		WeaponTypeText->SetVisibility(ESlateVisibility::Hidden);
+	}
+	else
+	{
+		WeaponTypeText->SetVisibility(ESlateVisibility::Visible);
+		WeaponTypeText->SetText(FText::FromString(InWeaponTypeString));
+	}
+}

@@ -475,11 +475,33 @@ void UCombatComponent::OnRep_EquippingWeapon()
 		
 		if (IsValidOwnerCharacter())
 		{
+			if (IsValidOwnerController())
+			{
+				OwnerController->SetHUDWeaponTypeText(GetWeaponTypeString(EquippingWeapon->GetWeaponType()));
+			}
+			
 			OwnerCharacter->AttachWeapon(EquippingWeapon);
 			OwnerCharacter->SetWeaponAnimLayers(EquippingWeapon->GetWeaponAnimLayer());
 			UGameplayStatics::PlaySoundAtLocation(this, EquippingWeapon->GetEquipSound(), EquippingWeapon->GetActorLocation());
 		}	
 	}
+}
+
+FString UCombatComponent::GetWeaponTypeString (EWeaponType InWeaponType)
+{
+	if (InWeaponType == EWeaponType::EWT_Rifle)
+	{
+		return FString(TEXT("Assault Rifle"));
+	}
+	if (InWeaponType == EWeaponType::EWT_Pistol)
+	{
+		return FString(TEXT("Pistol"));
+	}
+	if (InWeaponType == EWeaponType::EWT_Pistol)
+	{
+		return FString(TEXT("Shotgun"));
+	}
+	return FString();
 }
 
 void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
@@ -522,6 +544,7 @@ void UCombatComponent::EquipWeapon(AWeapon* InWeapon)
 				if (IsValidOwnerController())
 				{
 					OwnerController->SetHUDCarriedAmmo(CarriedAmmo);
+					OwnerController->SetHUDWeaponTypeText(GetWeaponTypeString(EquippingWeapon->GetWeaponType()));
 				}
 			}
 			
