@@ -55,6 +55,7 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AWeapon, WeaponState);
+	DOREPLIFETIME(AWeapon, Ammo);
 }
 
 void AWeapon::ShowPickupWidget(bool bInShow) const
@@ -82,6 +83,12 @@ void AWeapon::SetHUDAmmo()
 	}
 }
 
+void AWeapon::AddAmmo(int32 InAmmo)
+{
+	Ammo = FMath::Clamp(Ammo + InAmmo, 0, MagCapacity);
+	SetHUDAmmo();
+}
+
 void AWeapon::Fire(const FVector& HitTarget)
 {
 	if (FireAnimation)
@@ -102,7 +109,10 @@ void AWeapon::Fire(const FVector& HitTarget)
 		}
 	}
 
-	SpendRound();
+	if (GetOwner()->HasAuthority())
+	{
+		SpendRound();
+	}
 }
 
 void AWeapon::Dropped()

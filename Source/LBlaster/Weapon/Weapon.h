@@ -19,6 +19,7 @@ public:
 	void ShowPickupWidget(bool bInShow) const;
 	void SetWeaponState(EWeaponState InWeaponState);
 	void SetHUDAmmo();
+	void AddAmmo(int32 InAmmo);
 
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 	FORCEINLINE TSubclassOf<UAnimInstance> GetWeaponAnimLayer() const { return WeaponAnimLayer; }
@@ -28,6 +29,7 @@ public:
 	FORCEINLINE float GetFireDelay() const { return FireDelay; }
 	FORCEINLINE bool IsAutomatic() const { return bAutomatic; }
 	FORCEINLINE bool IsAmmoEmpty() const { return Ammo <= 0.f; }
+	FORCEINLINE int32 GetRoomInMag()const { return MagCapacity - Ammo; }
 
 	virtual void Fire(const FVector& HitTarget);
 	void Dropped();
