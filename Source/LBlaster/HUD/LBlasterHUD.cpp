@@ -3,6 +3,7 @@
 
 #include "HUD/LBlasterHUD.h"
 
+#include "Announcement.h"
 #include "CharacterOverlay.h"
 #include "Blueprint/UserWidget.h"
 #include "Player/LBlasterPlayerController.h"
@@ -109,6 +110,14 @@ void ALBlasterHUD::SetHUDMatchCountdown(float InCountdownTime)
 	}
 }
 
+void ALBlasterHUD::SetHUDWarmupCountdown(float InCountdownTime)
+{
+	if (Announcement)
+	{
+		Announcement->SetWarmupCountdownText(InCountdownTime);
+	}
+}
+
 void ALBlasterHUD::AddCharacterOverlay()
 {
 	if (ALBlasterPlayerController* PlayerController = Cast<ALBlasterPlayerController>(GetOwningPlayerController()))
@@ -134,4 +143,24 @@ void ALBlasterHUD::DrawCrosshair(UTexture2D* InTexture, const FVector2D& InViewp
 	const float TextureHeight = InTexture->GetSizeY();
 	const FVector2D TextureDrawPoint(InViewportCenter.X - (TextureWidth / 2.f) + InSpread.X, InViewportCenter.Y - (TextureHeight / 2.f) + InSpread.Y);
 	DrawTexture(InTexture, TextureDrawPoint.X, TextureDrawPoint.Y, TextureWidth, TextureHeight, 0.f, 0.f, 1.f, 1.f, InLinearColor);	
+}
+
+void ALBlasterHUD::AddAnnouncement()
+{
+	if (APlayerController* PlayerController = GetOwningPlayerController())
+	{
+		if (AnnouncementClass)
+		{
+			Announcement = CreateWidget<UAnnouncement>(PlayerController, AnnouncementClass);
+			Announcement->AddToViewport();
+		}
+	}
+}
+
+void ALBlasterHUD::HideAnnouncement()
+{
+	if (Announcement)
+	{
+		Announcement->SetVisibility(ESlateVisibility::Hidden);
+	}
 }

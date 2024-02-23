@@ -32,8 +32,11 @@ public:
 	void SetHUDMatchCountdown(float InCountdownTime);
 	void OnMatchStateSet(FName InState);
 	void UpdateHUDHealth();
+	void HandleMatchHasStarted();
+	void SetHUDWarmupCountdown(float InCountdownTime);
 
 protected:
+	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* InPawn) override;
 	void SetHUDTime();
 
@@ -55,6 +58,12 @@ protected:
 
 	float TimeSyncRunningTime = 0.f;
 	void CheckTimeSync(float DeltaTime);
+
+	UFUNCTION(Server, Reliable)
+	void ServerCheckMatchState();
+
+	UFUNCTION(Client, Reliable)
+	void ClientJoinMidGame(FName StateOfMatch, float Warmup, float Match, float StartingTime);
 	
 private:
 	UPROPERTY()
@@ -65,7 +74,9 @@ private:
 	/*
      *	Match Countdown
      */
-    float MatchTime = 120.f;
+	float LevelStartingTime = 0.f;
+    float MatchTime = 0.f;
+	float WarmupTime = 0.f;
     uint8 CountdownInt = 0.f;
 
 	UPROPERTY(ReplicatedUsing=OnRep_MatchState)
