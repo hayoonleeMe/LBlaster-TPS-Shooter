@@ -15,7 +15,8 @@ class LBLASTER_API UAnnouncement : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void SetWarmupCountdownText(float InCountdownTime);
+	void SetHUDAnnouncementCountdown(float InCountdownTime);
+	void SetCooldownAnnouncement();
 	
 private:
 	UPROPERTY(meta = (BindWidget))

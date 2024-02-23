@@ -32,8 +32,10 @@ public:
 	void SetHUDMatchCountdown(float InCountdownTime);
 	void OnMatchStateSet(FName InState);
 	void UpdateHUDHealth();
+	void SetHUDAnnouncementCountdown(float InCountdownTime);
+	
 	void HandleMatchHasStarted();
-	void SetHUDWarmupCountdown(float InCountdownTime);
+	void HandleCooldown();
 
 protected:
 	virtual void BeginPlay() override;
@@ -63,7 +65,7 @@ protected:
 	void ServerCheckMatchState();
 
 	UFUNCTION(Client, Reliable)
-	void ClientJoinMidGame(FName StateOfMatch, float Warmup, float Match, float StartingTime);
+	void ClientJoinMidGame(FName StateOfMatch, float Warmup, float Match, float Cooldown, float StartingTime);
 	
 private:
 	UPROPERTY()
@@ -71,12 +73,18 @@ private:
 
 	bool IsValidHUD();
 
+	UPROPERTY()
+	TObjectPtr<class ALBlasterGameMode> LBlasterGameMode;
+
+	bool IsValidGameMode();
+
 	/*
      *	Match Countdown
      */
 	float LevelStartingTime = 0.f;
     float MatchTime = 0.f;
 	float WarmupTime = 0.f;
+	float CooldownTime = 0.f;
     uint8 CountdownInt = 0.f;
 
 	UPROPERTY(ReplicatedUsing=OnRep_MatchState)

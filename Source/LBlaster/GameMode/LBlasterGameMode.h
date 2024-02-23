@@ -6,6 +6,11 @@
 #include "GameFramework/GameMode.h"
 #include "LBlasterGameMode.generated.h"
 
+namespace MatchState
+{
+	const FName Cooldown = FName(TEXT("Cooldown"));
+}
+
 /**
  * 
  */
@@ -20,11 +25,16 @@ public:
 	virtual void PlayerEliminated(class ALBlasterCharacter* EliminatedCharacter, class ALBlasterPlayerController* VictimController, ALBlasterPlayerController* AttackerController);
 	virtual void RequestRespawn(ACharacter* EliminatedCharacter, AController* EliminatedController);
 
-	UPROPERTY(EditDefaultsOnly)
+	FORCEINLINE float GetCountdownTime() const { return CountdownTime; }
+
+	UPROPERTY(EditDefaultsOnly, Category="LBlaster|Time")
 	float WarmupTime;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category="LBlaster|Time")
 	float MatchTime;
+
+	UPROPERTY(EditDefaultsOnly, Category="LBlaster|Time")
+	float CooldownTime;
 
 	float LevelStartingTime = 0.f;
 

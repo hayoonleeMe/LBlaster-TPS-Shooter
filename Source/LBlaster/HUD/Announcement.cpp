@@ -5,10 +5,23 @@
 
 #include "Components/TextBlock.h"
 
-void UAnnouncement::SetWarmupCountdownText(float InCountdownTime)
+void UAnnouncement::SetHUDAnnouncementCountdown(float InCountdownTime)
 {
+	if (InCountdownTime < 0.f)
+	{
+		WarmupTimeText->SetText(FText());
+		return;
+	}		
+	
 	int32 Minutes = FMath::FloorToInt(InCountdownTime / 60.f);
 	int32 Seconds = InCountdownTime - Minutes * 60;
 	FString CountdownString = FString::Printf(TEXT("%02d : %02d"), Minutes, Seconds);
 	WarmupTimeText->SetText(FText::FromString(CountdownString));
+}
+
+void UAnnouncement::SetCooldownAnnouncement()
+{
+	FString AnnouncementString(TEXT("New Match Starts In :"));
+	AnnouncementText->SetText(FText::FromString(AnnouncementString));
+	InfoText->SetText(FText());
 }

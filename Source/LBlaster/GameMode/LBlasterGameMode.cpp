@@ -40,6 +40,7 @@ ALBlasterGameMode::ALBlasterGameMode()
 	bDelayedStart = true;
 	WarmupTime = 10.f;
 	MatchTime = 120.f;
+	CooldownTime = 10.f;
 }
 
 void ALBlasterGameMode::Tick(float DeltaSeconds)
@@ -53,6 +54,18 @@ void ALBlasterGameMode::Tick(float DeltaSeconds)
 		{
 			StartMatch();
 		}
+	}
+	else if (MatchState == MatchState::InProgress)
+	{
+		CountdownTime = WarmupTime + MatchTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
+		if (CountdownTime <= 0.f)
+		{
+			SetMatchState(MatchState::Cooldown);
+		}
+	}
+	else if (MatchState == MatchState::Cooldown)
+	{
+		CountdownTime = WarmupTime + MatchTime + CooldownTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
 	}
 }
 
