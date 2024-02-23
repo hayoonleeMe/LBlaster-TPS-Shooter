@@ -100,6 +100,14 @@ void ALBlasterHUD::SetHUDWeaponTypeText(const FString& InWeaponTypeString)
 	}
 }
 
+void ALBlasterHUD::SetHUDMatchCountdown(float InCountdownTime)
+{
+	if (CharacterOverlay)
+	{
+		CharacterOverlay->SetMatchCountdownText(InCountdownTime);
+	}
+}
+
 void ALBlasterHUD::BeginPlay()
 {
 	Super::BeginPlay();

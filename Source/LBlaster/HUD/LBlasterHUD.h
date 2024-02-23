@@ -44,6 +44,7 @@ class LBLASTER_API ALBlasterHUD : public AHUD
 public:
 	ALBlasterHUD();
 	virtual void DrawHUD() override;
+	
 	FORCEINLINE void SetHUDPackage(const FHUDPackage& InPackage) { HUDPackage = InPackage; }
 	void SetHUDHealth(float InHealth, float InMaxHealth);
 	void SetHUDScore(float InScore);
@@ -51,6 +52,7 @@ public:
 	void SetHUDAmmo(int32 InAmmo);
 	void SetHUDCarriedAmmo(int32 InCarriedAmmo);
 	void SetHUDWeaponTypeText(const FString& InWeaponTypeString);
+	void SetHUDMatchCountdown(float InCountdownTime);
 
 protected:
 	virtual void BeginPlay() override;

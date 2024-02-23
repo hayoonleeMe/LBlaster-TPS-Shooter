@@ -15,19 +15,53 @@ class LBLASTER_API ALBlasterPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
+	ALBlasterPlayerController();
+	virtual void Tick(float DeltaSeconds) override;
+	// Synced with Server world clock
+	virtual float GetServerTime();
+	// Sync with server clock as soon as possible (Called after this PlayerController's Viewport/net connection is associated with this player controller)
+	virtual void ReceivedPlayer() override;
+
 	void SetHUDHealth(float Health, float MaxHealth);
 	void SetHUDScore(float InScore);
 	void SetHUDDeath(int32 InDeath);
 	void SetHUDAmmo(int32 InAmmo);
 	void SetHUDCarriedAmmo(int32 InCarriedAmmo);
 	void SetHUDWeaponTypeText(const FString& InWeaponTypeString = FString());
+	void SetHUDMatchCountdown(float InCountdownTime);
 
 protected:
 	virtual void OnPossess(APawn* InPawn) override;
+	void SetHUDTime();
 
+	/*
+	 *	Sync time between server and client
+	 */
+	// current server time을 요청. 요청이 전달될 때의 client time을 전달.
+	UFUNCTION(Server, Reliable)
+	void ServerRequestServerTime(float TimeOfClientRequest);
+
+	// ServerRequestServerTime에 대한 응답으로 클라이언트로 current Server Time 전달.
+	UFUNCTION(Client, Reliable)
+	void ClientReportServerTime(float TimeOfClientRequest, float TimeServerReceivedClientRequest);
+
+	float ClientServerDelta = 0.f;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Time")
+	float TimeSyncFrequency;
+
+	float TimeSyncRunningTime = 0.f;
+	void CheckTimeSync(float DeltaTime);
+	
 private:
 	UPROPERTY()
 	TObjectPtr<class ALBlasterHUD> LBlasterHUD;
 
 	bool IsValidHUD();
+
+	/*
+     *	Match Countdown
+     */
+    float MatchTime = 120.f;
+    uint8 CountdownInt = 0.f;
 };
