@@ -110,11 +110,11 @@ void ALBlasterHUD::SetHUDMatchCountdown(float InCountdownTime)
 	}
 }
 
-void ALBlasterHUD::SetHUDWarmupCountdown(float InCountdownTime)
+void ALBlasterHUD::SetHUDAnnouncementCountdown(float InCountdownTime)
 {
 	if (Announcement)
 	{
-		Announcement->SetWarmupCountdownText(InCountdownTime);
+		Announcement->SetHUDAnnouncementCountdown(InCountdownTime);
 	}
 }
 
@@ -134,6 +134,14 @@ void ALBlasterHUD::AddCharacterOverlay()
 			SetHUDCarriedAmmo(0);
 			SetHUDWeaponTypeText(FString());
 		}
+	}
+}
+
+void ALBlasterHUD::RemoveCharacterOverlay()
+{
+	if (CharacterOverlay)
+	{
+		CharacterOverlay->RemoveFromParent();
 	}
 }
 
@@ -162,5 +170,14 @@ void ALBlasterHUD::HideAnnouncement()
 	if (Announcement)
 	{
 		Announcement->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
+void ALBlasterHUD::SetCooldownAnnouncement()
+{
+	if (Announcement)
+	{
+		Announcement->SetVisibility(ESlateVisibility::Visible);
+		Announcement->SetCooldownAnnouncement();
 	}
 }

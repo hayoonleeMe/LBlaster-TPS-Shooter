@@ -55,6 +55,11 @@ void ALBlasterPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 
 void ALBlasterPlayerController::SetHUDTime()
 {
+	if (HasAuthority() && IsValidGameMode())
+	{
+		LevelStartingTime = LBlasterGameMode->LevelStartingTime;
+	}
+	
 	float TimeLeft = 0.f;
 	if (MatchState == MatchState::WaitingToStart)
 	{
@@ -64,17 +69,29 @@ void ALBlasterPlayerController::SetHUDTime()
 	{
 		TimeLeft = WarmupTime + MatchTime - GetServerTime() + LevelStartingTime;	
 	}
+	else if (MatchState == MatchState::Cooldown)
+	{
+		TimeLeft = WarmupTime + MatchTime + CooldownTime - GetServerTime() + LevelStartingTime;
+	}
+	uint32 SecondsLeft = FMath::CeilToInt(TimeLeft);
+	if (HasAuthority() && IsValidGameMode())
+	{
+		SecondsLeft = FMath::CeilToInt(LBlasterGameMode->GetCountdownTime());
+	}
 	
-	const uint32 SecondsLeft = FMath::CeilToInt(TimeLeft);
 	if (CountdownInt != SecondsLeft)
 	{
 		if (MatchState == MatchState::WaitingToStart)
 		{
-			SetHUDWarmupCountdown(TimeLeft);
+			SetHUDAnnouncementCountdown(TimeLeft);
 		}
 		else if (MatchState == MatchState::InProgress)
 		{
 			SetHUDMatchCountdown(TimeLeft);
+		}
+		else if (MatchState == MatchState::Cooldown)
+		{
+			SetHUDAnnouncementCountdown(TimeLeft);
 		}
 	}
 	CountdownInt = SecondsLeft;
@@ -106,20 +123,22 @@ void ALBlasterPlayerController::CheckTimeSync(float DeltaTime)
 
 void ALBlasterPlayerController::ServerCheckMatchState_Implementation()
 {
-	if (ALBlasterGameMode* GameMode = Cast<ALBlasterGameMode>(UGameplayStatics::GetGameMode(this)))
+	if (IsValidGameMode())
 	{
-		WarmupTime = GameMode->WarmupTime;
-		MatchTime = GameMode->MatchTime;
-		LevelStartingTime = GameMode->LevelStartingTime;
-		MatchState = GameMode->GetMatchState();
-		ClientJoinMidGame(MatchState, WarmupTime, MatchTime, LevelStartingTime);
+		WarmupTime = LBlasterGameMode->WarmupTime;
+		MatchTime = LBlasterGameMode->MatchTime;
+		CooldownTime = LBlasterGameMode->CooldownTime;
+		LevelStartingTime = LBlasterGameMode->LevelStartingTime;
+		MatchState = LBlasterGameMode->GetMatchState();
+		ClientJoinMidGame(MatchState, WarmupTime, MatchTime, CooldownTime, LevelStartingTime);
 	}
 }
 
-void ALBlasterPlayerController::ClientJoinMidGame_Implementation(FName StateOfMatch, float Warmup, float Match, float StartingTime)
+void ALBlasterPlayerController::ClientJoinMidGame_Implementation(FName StateOfMatch, float Warmup, float Match, float Cooldown, float StartingTime)
 {
 	WarmupTime = Warmup;
 	MatchTime = Match;
+	CooldownTime = Cooldown;
 	LevelStartingTime = StartingTime;
 	MatchState = StateOfMatch;
 	OnMatchStateSet(MatchState);
@@ -186,12 +205,36 @@ void ALBlasterPlayerController::SetHUDMatchCountdown(float InCountdownTime)
 	}
 }
 
+void ALBlasterPlayerController::SetHUDAnnouncementCountdown(float InCountdownTime)
+{
+	if (IsValidHUD())
+	{
+		LBlasterHUD->SetHUDAnnouncementCountdown(InCountdownTime);
+	}
+}
+
 void ALBlasterPlayerController::OnMatchStateSet(FName InState)
 {
 	MatchState = InState;
 	if (MatchState == MatchState::InProgress)
 	{
 		HandleMatchHasStarted();
+	}
+	else if (MatchState == MatchState::Cooldown)
+	{
+		HandleCooldown();
+	}
+}
+
+void ALBlasterPlayerController::OnRep_MatchState()
+{
+	if (MatchState == MatchState::InProgress)
+	{
+		HandleMatchHasStarted();
+	}
+	else if (MatchState == MatchState::Cooldown)
+	{
+		HandleCooldown();
 	}
 }
 
@@ -212,11 +255,12 @@ void ALBlasterPlayerController::HandleMatchHasStarted()
 	}
 }
 
-void ALBlasterPlayerController::SetHUDWarmupCountdown(float InCountdownTime)
+void ALBlasterPlayerController::HandleCooldown()
 {
 	if (IsValidHUD())
 	{
-		LBlasterHUD->SetHUDWarmupCountdown(InCountdownTime);
+		LBlasterHUD->RemoveCharacterOverlay();
+		LBlasterHUD->SetCooldownAnnouncement();
 	}
 }
 
@@ -225,14 +269,6 @@ void ALBlasterPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	ServerCheckMatchState();
-}
-
-void ALBlasterPlayerController::OnRep_MatchState()
-{
-	if (MatchState == MatchState::InProgress)
-	{
-		HandleMatchHasStarted();
-	}
 }
 
 void ALBlasterPlayerController::OnPossess(APawn* InPawn)
@@ -250,4 +286,13 @@ bool ALBlasterPlayerController::IsValidHUD()
 		LBlasterHUD = Cast<ALBlasterHUD>(GetHUD());
 	}
 	return LBlasterHUD != nullptr;
+}
+
+bool ALBlasterPlayerController::IsValidGameMode()
+{
+	if (!LBlasterGameMode)
+	{
+		LBlasterGameMode = Cast<ALBlasterGameMode>(UGameplayStatics::GetGameMode(this));
+	}
+	return LBlasterGameMode != nullptr;
 }

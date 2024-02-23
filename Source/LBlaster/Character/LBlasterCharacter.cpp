@@ -517,10 +517,10 @@ FTransform ALBlasterCharacter::GetLeftHandTransform() const
 	{
 		if (USkeletalMeshComponent* EquippingWeaponMesh = CombatComponent->GetEquippingWeapon()->GetWeaponMesh())
 		{
-			FTransform LeftHandTransform = EquippingWeaponMesh->GetSocketTransform(FName("LeftHandSocket"), RTS_World);
+			FTransform LeftHandTransform = EquippingWeaponMesh->GetSocketTransform(FName(TEXT("LeftHandSocket")), RTS_World);
 			FVector OutPosition;
 			FRotator OutRotation;
-			GetMesh()->TransformToBoneSpace(FName("hand_r"), LeftHandTransform.GetLocation(), FRotator::ZeroRotator, OutPosition, OutRotation);
+			GetMesh()->TransformToBoneSpace(FName(TEXT("hand_r")), LeftHandTransform.GetLocation(), FRotator::ZeroRotator, OutPosition, OutRotation);
 			LeftHandTransform.SetLocation(OutPosition);
 			LeftHandTransform.SetRotation(FQuat(OutRotation));
 			return LeftHandTransform;

@@ -53,10 +53,12 @@ public:
 	void SetHUDCarriedAmmo(int32 InCarriedAmmo);
 	void SetHUDWeaponTypeText(const FString& InWeaponTypeString);
 	void SetHUDMatchCountdown(float InCountdownTime);
-	void SetHUDWarmupCountdown(float InCountdownTime);
+	void SetHUDAnnouncementCountdown(float InCountdownTime);
 	void AddCharacterOverlay();
+	void RemoveCharacterOverlay();
 	void AddAnnouncement();
 	void HideAnnouncement();
+	void SetCooldownAnnouncement();
 
 private:
 	/*
