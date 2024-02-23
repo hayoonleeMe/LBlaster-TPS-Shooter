@@ -54,3 +54,11 @@ void UCharacterOverlay::SetWeaponTypeText(const FString& InWeaponTypeString)
 		WeaponTypeText->SetText(FText::FromString(InWeaponTypeString));
 	}
 }
+
+void UCharacterOverlay::SetMatchCountdownText(float InCountdownTime)
+{
+	int32 Minutes = FMath::FloorToInt(InCountdownTime / 60.f);
+	int32 Seconds = InCountdownTime - Minutes * 60;
+	FString CountdownString = FString::Printf(TEXT("%02d : %02d"), Minutes, Seconds);
+	MatchCountdownText->SetText(FText::FromString(CountdownString));
+}
