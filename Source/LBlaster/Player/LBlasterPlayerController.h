@@ -21,6 +21,7 @@ public:
 	virtual float GetServerTime();
 	// Sync with server clock as soon as possible (Called after this PlayerController's Viewport/net connection is associated with this player controller)
 	virtual void ReceivedPlayer() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	void SetHUDHealth(float Health, float MaxHealth);
 	void SetHUDScore(float InScore);
@@ -29,6 +30,8 @@ public:
 	void SetHUDCarriedAmmo(int32 InCarriedAmmo);
 	void SetHUDWeaponTypeText(const FString& InWeaponTypeString = FString());
 	void SetHUDMatchCountdown(float InCountdownTime);
+	void OnMatchStateSet(FName InState);
+	void UpdateHUDHealth();
 
 protected:
 	virtual void OnPossess(APawn* InPawn) override;
@@ -64,4 +67,10 @@ private:
      */
     float MatchTime = 120.f;
     uint8 CountdownInt = 0.f;
+
+	UPROPERTY(ReplicatedUsing=OnRep_MatchState)
+	FName MatchState;
+
+	UFUNCTION()
+	void OnRep_MatchState();
 };

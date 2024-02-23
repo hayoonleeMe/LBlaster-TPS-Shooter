@@ -16,7 +16,19 @@ class LBLASTER_API ALBlasterGameMode : public AGameMode
 
 public:
 	ALBlasterGameMode();
-
+	virtual void Tick(float DeltaSeconds) override;
 	virtual void PlayerEliminated(class ALBlasterCharacter* EliminatedCharacter, class ALBlasterPlayerController* VictimController, ALBlasterPlayerController* AttackerController);
 	virtual void RequestRespawn(ACharacter* EliminatedCharacter, AController* EliminatedController);
+
+	UPROPERTY(EditDefaultsOnly)
+	float WarmupTime;
+
+	float LevelStartingTime = 0.f;
+
+protected:
+	virtual void BeginPlay() override;
+	virtual void OnMatchStateSet() override;
+
+private:
+	float CountdownTime = 0.f;
 };

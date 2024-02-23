@@ -5,6 +5,7 @@
 
 #include "CharacterOverlay.h"
 #include "Blueprint/UserWidget.h"
+#include "Player/LBlasterPlayerController.h"
 
 ALBlasterHUD::ALBlasterHUD()
 {
@@ -108,27 +109,21 @@ void ALBlasterHUD::SetHUDMatchCountdown(float InCountdownTime)
 	}
 }
 
-void ALBlasterHUD::BeginPlay()
-{
-	Super::BeginPlay();
-
-	AddCharacterOverlay();
-	
-	SetHUDScore(0.f);
-	SetHUDDeath(0);
-	SetHUDAmmo(0);
-	SetHUDCarriedAmmo(0);
-	SetHUDWeaponTypeText(FString());
-}
-
 void ALBlasterHUD::AddCharacterOverlay()
 {
-	if (APlayerController* PlayerController = GetOwningPlayerController())
+	if (ALBlasterPlayerController* PlayerController = Cast<ALBlasterPlayerController>(GetOwningPlayerController()))
 	{
 		if (CharacterOverlayClass)
 		{
 			CharacterOverlay = CreateWidget<UCharacterOverlay>(PlayerController, CharacterOverlayClass);
 			CharacterOverlay->AddToViewport();
+
+			PlayerController->UpdateHUDHealth();
+			SetHUDScore(0.f);
+			SetHUDDeath(0);
+			SetHUDAmmo(0);
+			SetHUDCarriedAmmo(0);
+			SetHUDWeaponTypeText(FString());
 		}
 	}
 }

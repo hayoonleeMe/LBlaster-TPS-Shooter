@@ -53,11 +53,8 @@ public:
 	void SetHUDCarriedAmmo(int32 InCarriedAmmo);
 	void SetHUDWeaponTypeText(const FString& InWeaponTypeString);
 	void SetHUDMatchCountdown(float InCountdownTime);
-
-protected:
-	virtual void BeginPlay() override;
 	void AddCharacterOverlay();
-	
+
 private:
 	/*
 	 *	Crosshair
