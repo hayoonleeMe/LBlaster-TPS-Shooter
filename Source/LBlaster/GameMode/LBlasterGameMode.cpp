@@ -12,6 +12,7 @@
 
 ALBlasterGameMode::ALBlasterGameMode()
 {
+	/* Default Class */
 	static ConstructorHelpers::FClassFinder<ALBlasterCharacter> LBlasterCharacterClassRef(TEXT("/Script/Engine.Blueprint'/Game/LBlaster/Actors/Manny/BP_LBlasterCharacter.BP_LBlasterCharacter_C'"));
 	if (LBlasterCharacterClassRef.Class)
 	{
@@ -35,10 +36,27 @@ ALBlasterGameMode::ALBlasterGameMode()
 	{
 		PlayerStateClass = PlayerStateClassRef.Class;
 	}
+
+	bDelayedStart = true;
+	WarmupTime = 10.f;
+}
+
+void ALBlasterGameMode::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (MatchState == MatchState::WaitingToStart)
+	{
+		CountdownTime = WarmupTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
+		if (CountdownTime <= 0.f)
+		{
+			StartMatch();
+		}
+	}
 }
 
 void ALBlasterGameMode::PlayerEliminated(ALBlasterCharacter* EliminatedCharacter, ALBlasterPlayerController* VictimController,
-	ALBlasterPlayerController* AttackerController)
+                                         ALBlasterPlayerController* AttackerController)
 {
 	// Attacker 점수 획득
 	if (ALBlasterPlayerState* AttackerPlayerState = Cast<ALBlasterPlayerState>(AttackerController->PlayerState))
@@ -72,5 +90,26 @@ void ALBlasterGameMode::RequestRespawn(ACharacter* EliminatedCharacter, AControl
 		UGameplayStatics::GetAllActorsOfClass(this, APlayerStart::StaticClass(), PlayerStarts);
 		const int32 Selection = FMath::RandRange(0, PlayerStarts.Num() - 1);
 		RestartPlayerAtPlayerStart(EliminatedController, PlayerStarts[Selection]);
+	}
+}
+
+void ALBlasterGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	LevelStartingTime = GetWorld()->GetTimeSeconds();
+}
+
+void ALBlasterGameMode::OnMatchStateSet()
+{
+	Super::OnMatchStateSet();
+
+	// 모든 Player Controller에 접근하는 Iterator
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		if (ALBlasterPlayerController* PlayerController = Cast<ALBlasterPlayerController>(*It))
+		{
+			PlayerController->OnMatchStateSet(MatchState);
+		}
 	}
 }

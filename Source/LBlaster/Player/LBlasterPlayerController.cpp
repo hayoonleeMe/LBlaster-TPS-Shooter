@@ -4,7 +4,9 @@
 #include "LBlasterPlayerController.h"
 
 #include "Character/LBlasterCharacter.h"
+#include "GameFramework/GameMode.h"
 #include "HUD/LBlasterHUD.h"
+#include "Net/UnrealNetwork.h"
 
 ALBlasterPlayerController::ALBlasterPlayerController()
 {
@@ -40,6 +42,13 @@ void ALBlasterPlayerController::ReceivedPlayer()
 	{
 		ServerRequestServerTime(GetWorld()->GetTimeSeconds());
 	}	
+}
+
+void ALBlasterPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ALBlasterPlayerController, MatchState);
 }
 
 void ALBlasterPlayerController::SetHUDTime()
@@ -132,15 +141,43 @@ void ALBlasterPlayerController::SetHUDMatchCountdown(float InCountdownTime)
 	}
 }
 
+void ALBlasterPlayerController::OnMatchStateSet(FName InState)
+{
+	MatchState = InState;
+	if (MatchState == MatchState::InProgress)
+	{
+		if (IsValidHUD())
+		{
+			LBlasterHUD->AddCharacterOverlay();
+		}
+	}
+}
+
+void ALBlasterPlayerController::UpdateHUDHealth()
+{
+	if (ALBlasterCharacter* LBlasterCharacter = Cast<ALBlasterCharacter>(GetPawn()))
+	{
+		LBlasterCharacter->UpdateHUDHealth();
+	}
+}
+
+void ALBlasterPlayerController::OnRep_MatchState()
+{
+	if (MatchState == MatchState::InProgress)
+	{
+		if (IsValidHUD())
+		{
+			LBlasterHUD->AddCharacterOverlay();
+		}
+	}
+}
+
 void ALBlasterPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
 	// Player Controller가 초기화될 때 Health HUD 업데이트
-	if (ALBlasterCharacter* PlayerCharacter = Cast<ALBlasterCharacter>(InPawn))
-	{
-		PlayerCharacter->UpdateHUDHealth();
-	}
+	UpdateHUDHealth();	
 }
 
 bool ALBlasterPlayerController::IsValidHUD()
