@@ -53,7 +53,10 @@ public:
 	void SetHUDCarriedAmmo(int32 InCarriedAmmo);
 	void SetHUDWeaponTypeText(const FString& InWeaponTypeString);
 	void SetHUDMatchCountdown(float InCountdownTime);
+	void SetHUDWarmupCountdown(float InCountdownTime);
 	void AddCharacterOverlay();
+	void AddAnnouncement();
+	void HideAnnouncement();
 
 private:
 	/*
@@ -74,4 +77,13 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<class UCharacterOverlay> CharacterOverlay;
+
+	/*
+	 *	Announcement Overlay
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Announcement Overlay")
+	TSubclassOf<UUserWidget> AnnouncementClass;
+
+	UPROPERTY()
+	TObjectPtr<class UAnnouncement> Announcement;
 };

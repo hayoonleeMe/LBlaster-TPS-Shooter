@@ -5,7 +5,9 @@
 
 #include "Character/LBlasterCharacter.h"
 #include "GameFramework/GameMode.h"
+#include "GameMode/LBlasterGameMode.h"
 #include "HUD/LBlasterHUD.h"
+#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
 ALBlasterPlayerController::ALBlasterPlayerController()
@@ -53,10 +55,27 @@ void ALBlasterPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 
 void ALBlasterPlayerController::SetHUDTime()
 {
-	const uint32 SecondsLeft = FMath::CeilToInt(MatchTime - GetServerTime());
+	float TimeLeft = 0.f;
+	if (MatchState == MatchState::WaitingToStart)
+	{
+		TimeLeft = WarmupTime - GetServerTime() + LevelStartingTime;
+	}
+	else if (MatchState == MatchState::InProgress)
+	{
+		TimeLeft = WarmupTime + MatchTime - GetServerTime() + LevelStartingTime;	
+	}
+	
+	const uint32 SecondsLeft = FMath::CeilToInt(TimeLeft);
 	if (CountdownInt != SecondsLeft)
 	{
-		SetHUDMatchCountdown(MatchTime - GetServerTime());
+		if (MatchState == MatchState::WaitingToStart)
+		{
+			SetHUDWarmupCountdown(TimeLeft);
+		}
+		else if (MatchState == MatchState::InProgress)
+		{
+			SetHUDMatchCountdown(TimeLeft);
+		}
 	}
 	CountdownInt = SecondsLeft;
 }
@@ -83,6 +102,32 @@ void ALBlasterPlayerController::CheckTimeSync(float DeltaTime)
 		ServerRequestServerTime(GetWorld()->GetTimeSeconds());
 		TimeSyncRunningTime = 0.f;
 	}
+}
+
+void ALBlasterPlayerController::ServerCheckMatchState_Implementation()
+{
+	if (ALBlasterGameMode* GameMode = Cast<ALBlasterGameMode>(UGameplayStatics::GetGameMode(this)))
+	{
+		WarmupTime = GameMode->WarmupTime;
+		MatchTime = GameMode->MatchTime;
+		LevelStartingTime = GameMode->LevelStartingTime;
+		MatchState = GameMode->GetMatchState();
+		ClientJoinMidGame(MatchState, WarmupTime, MatchTime, LevelStartingTime);
+	}
+}
+
+void ALBlasterPlayerController::ClientJoinMidGame_Implementation(FName StateOfMatch, float Warmup, float Match, float StartingTime)
+{
+	WarmupTime = Warmup;
+	MatchTime = Match;
+	LevelStartingTime = StartingTime;
+	MatchState = StateOfMatch;
+	OnMatchStateSet(MatchState);
+
+	if (IsValidHUD() && MatchState == MatchState::WaitingToStart)
+	{
+		LBlasterHUD->AddAnnouncement();
+	}	
 }
 
 void ALBlasterPlayerController::SetHUDHealth(float InHealth, float InMaxHealth)
@@ -146,10 +191,7 @@ void ALBlasterPlayerController::OnMatchStateSet(FName InState)
 	MatchState = InState;
 	if (MatchState == MatchState::InProgress)
 	{
-		if (IsValidHUD())
-		{
-			LBlasterHUD->AddCharacterOverlay();
-		}
+		HandleMatchHasStarted();
 	}
 }
 
@@ -161,14 +203,35 @@ void ALBlasterPlayerController::UpdateHUDHealth()
 	}
 }
 
+void ALBlasterPlayerController::HandleMatchHasStarted()
+{
+	if (IsValidHUD())
+	{
+		LBlasterHUD->AddCharacterOverlay();
+		LBlasterHUD->HideAnnouncement();
+	}
+}
+
+void ALBlasterPlayerController::SetHUDWarmupCountdown(float InCountdownTime)
+{
+	if (IsValidHUD())
+	{
+		LBlasterHUD->SetHUDWarmupCountdown(InCountdownTime);
+	}
+}
+
+void ALBlasterPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	ServerCheckMatchState();
+}
+
 void ALBlasterPlayerController::OnRep_MatchState()
 {
 	if (MatchState == MatchState::InProgress)
 	{
-		if (IsValidHUD())
-		{
-			LBlasterHUD->AddCharacterOverlay();
-		}
+		HandleMatchHasStarted();
 	}
 }
 

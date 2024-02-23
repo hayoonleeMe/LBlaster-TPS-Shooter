@@ -39,6 +39,7 @@ ALBlasterGameMode::ALBlasterGameMode()
 
 	bDelayedStart = true;
 	WarmupTime = 10.f;
+	MatchTime = 120.f;
 }
 
 void ALBlasterGameMode::Tick(float DeltaSeconds)
