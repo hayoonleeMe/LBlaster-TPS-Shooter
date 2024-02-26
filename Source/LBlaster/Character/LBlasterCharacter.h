@@ -57,11 +57,7 @@ public:
 	void SetWeaponAnimLayers(TSubclassOf<UAnimInstance> InWeaponAnimLayer);
 	void PlayFireMontage(UAnimMontage* InFireMontage);
 	void PlayReloadMontage(UAnimMontage* InReloadMontage);
-
-	/*
-	 *	Camera
-	 */
-	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	void SetBlendWeight(float InWeight) const;
 
 	/*
 	 *	Elimination
@@ -132,11 +128,6 @@ private:
 	 *	Camera and SpringArm
 	 */
 	UPROPERTY(VisibleAnywhere, Category="LBlaster|Camera")
-	TObjectPtr<class USpringArmComponent> CameraBoom;
-
-	UPROPERTY(VisibleAnywhere, Category="LBlaster|Camera")
-	TObjectPtr<class UCameraComponent> FollowCamera;
-
 	UPROPERTY(EditAnywhere, Category="LBlaster|Camera")
 	float MeshHideThreshold;
 	
