@@ -125,12 +125,14 @@ private:
 	float BaseMaxWalkSpeed;
 	
 	/*
-	 *	Camera and SpringArm
+	 *	Camera
 	 */
 	UPROPERTY(VisibleAnywhere, Category="LBlaster|Camera")
+	TObjectPtr<class ULBlasterCameraComponent> CameraComponent;
+	
 	UPROPERTY(EditAnywhere, Category="LBlaster|Camera")
 	float MeshHideThreshold;
-	
+
 	void HideMeshIfCameraClose();
 
 	/*
