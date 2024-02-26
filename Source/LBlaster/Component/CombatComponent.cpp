@@ -53,6 +53,7 @@ void UCombatComponent::SetAiming(bool bInAiming)
 	if (IsValidOwnerCharacter())
 	{
 		OwnerCharacter->SetADSWalkSpeed(bInAiming, ADSMultiplier);
+		OwnerCharacter->SetBlendWeight(0.f);
 	}
 	
 	ServerSetAiming(bInAiming);

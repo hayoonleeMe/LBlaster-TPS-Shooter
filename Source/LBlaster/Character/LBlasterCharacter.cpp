@@ -4,14 +4,13 @@
 #include "Character/LBlasterCharacter.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "Camera/CameraComponent.h"
-#include "GameFramework/SpringArmComponent.h"
 #include "InputAction.h"
 #include "InputMappingContext.h"
 #include "LBlaster.h"
 #include "Component/CombatComponent.h"
 #include "Component/HealthComponent.h"
 #include "Component/LBCharacterMovementComponent.h"
+#include "Component/LBlasterCameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
@@ -33,6 +32,8 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 
 	/* Actor */
 	SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	BaseEyeHeight = 80.f;
+	CrouchedEyeHeight = 50.f;
 	
 	/* Movement */
 	GetCharacterMovement()->bOrientRotationToMovement = false;
@@ -75,6 +76,9 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 		GetMesh()->SetAnimInstanceClass(AnimInstanceRef.Class);
 	}
 	
+	/* Camera */
+	CameraComponent = CreateDefaultSubobject<ULBlasterCameraComponent>(TEXT("Camera Component"));
+	CameraComponent->SetupAttachment(RootComponent);
 
 	/* Input */
 	static ConstructorHelpers::FObjectFinder<UInputMappingContext> InputMappingContextRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/LBlaster/Core/Inputs/IMC_LBContext.IMC_LBContext'"));
@@ -305,6 +309,14 @@ void ALBlasterCharacter::PlayReloadMontage(UAnimMontage* InReloadMontage)
 	}
 }
 
+void ALBlasterCharacter::SetBlendWeight(float InWeight) const
+{
+	if (CameraComponent)
+	{
+		CameraComponent->SetBlendWeight(InWeight);
+	}
+}
+
 void ALBlasterCharacter::Elim()
 {
 	if (CombatComponent)
@@ -428,7 +440,7 @@ void ALBlasterCharacter::HideMeshIfCameraClose()
 	}
 
 	// 캐릭터와 카메라가 임계값보다 가까워지면 캐릭터의 메시를 숨긴다.
-	if ((GetActorLocation() - FollowCamera->GetComponentLocation()).Size() < MeshHideThreshold)
+	if ((GetActorLocation() - CameraComponent->GetComponentLocation()).Size() < MeshHideThreshold)
 	{
 		GetMesh()->SetVisibility(false);
 		if (CombatComponent && CombatComponent->GetEquippingWeapon() && CombatComponent->GetEquippingWeapon()->GetWeaponMesh())
@@ -561,7 +573,10 @@ void ALBlasterCharacter::PlayDeathMontage(const FVector& HitNormal)
 
 void ALBlasterCharacter::Ragdoll()
 {
-	CameraBoom->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+	if (CameraComponent)
+	{
+		CameraComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+	}
 	
 	GetMesh()->SetSimulatePhysics(true);
 	GetMesh()->SetEnableGravity(true);
