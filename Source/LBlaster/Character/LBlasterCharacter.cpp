@@ -41,14 +41,16 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 	BaseMaxWalkSpeed = 600.f;
 	GetCharacterMovement()->MaxWalkSpeed = BaseMaxWalkSpeed;
 	GetCharacterMovement()->MaxWalkSpeedCrouched = 300.f;
+	GetCharacterMovement()->GravityScale = 1.f;
 	GetCharacterMovement()->MaxAcceleration = 2400.f;
-	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
-	GetCharacterMovement()->MaxWalkSpeedCrouched = 300.f;
-	GetCharacterMovement()->SetCrouchedHalfHeight(65.f);
 	GetCharacterMovement()->BrakingFrictionFactor = 1.f;
+	GetCharacterMovement()->BrakingFriction = 6.f;
+	GetCharacterMovement()->GroundFriction = 8.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 1400.f;
-	GetCharacterMovement()->bCanWalkOffLedgesWhenCrouching = true;
 	GetCharacterMovement()->RotationRate.Yaw = 720.f;
+	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
+	GetCharacterMovement()->bCanWalkOffLedgesWhenCrouching = true;
+	GetCharacterMovement()->SetCrouchedHalfHeight(65.f);
 	
 	/* Capsule Component */
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
