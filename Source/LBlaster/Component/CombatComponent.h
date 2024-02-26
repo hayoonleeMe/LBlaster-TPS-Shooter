@@ -35,9 +35,6 @@ public:
 	void Reload();
 	void ReloadFinished();
 
-protected:
-	virtual void BeginPlay() override;
-
 private:
 	/*
 	 *	Owner
@@ -80,14 +77,6 @@ private:
 	UFUNCTION(Server, Reliable)
 	void ServerSetAiming(bool bInAiming);
 	
-	/*
-	 *	ADS FOV
-	 */
-	float DefaultFOV;
-	float CurrentFOV;
-
-	void InterpFOV(float DeltaTime);
-
 	/*
 	 *	Firing
 	 */

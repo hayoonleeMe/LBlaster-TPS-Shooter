@@ -75,20 +75,6 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 		GetMesh()->SetAnimInstanceClass(AnimInstanceRef.Class);
 	}
 	
-	/* Camera and SpringArm */
-	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
-	CameraBoom->SetupAttachment(GetMesh());
-	CameraBoom->TargetArmLength = 600.f;
-	CameraBoom->bUsePawnControlRotation = true;		// SpringArm은 캐릭터의 회전 입력값을 따른다.
-	MeshHideThreshold = 200.f;
-
-	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
-	FollowCamera->bUsePawnControlRotation = false;	// 카메라는 항상 RelativeRotation을 유지해 캐릭터를 바라본다.
-	FollowCamera->PostProcessSettings.bOverride_DepthOfFieldFocalDistance = true;
-	FollowCamera->PostProcessSettings.DepthOfFieldFocalDistance = 10000.f;
-	FollowCamera->PostProcessSettings.bOverride_DepthOfFieldFstop = true;
-	FollowCamera->PostProcessSettings.DepthOfFieldFstop = 32.f;
 
 	/* Input */
 	static ConstructorHelpers::FObjectFinder<UInputMappingContext> InputMappingContextRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/LBlaster/Core/Inputs/IMC_LBContext.IMC_LBContext'"));
@@ -182,7 +168,7 @@ void ALBlasterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	HideMeshIfCameraClose();
+	//HideMeshIfCameraClose();
 }
 
 void ALBlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

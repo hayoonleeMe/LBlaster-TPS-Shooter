@@ -40,7 +40,6 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	FHitResult HitResult;
 	TraceUnderCrosshair(HitResult);
 	SetHUDCrosshair(DeltaTime);
-	InterpFOV(DeltaTime);
 }
 
 void UCombatComponent::SetAiming(bool bInAiming)
@@ -228,21 +227,6 @@ void UCombatComponent::ReloadFinished()
 	}
 }
 
-void UCombatComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	if (!IsValidOwnerCharacter())
-	{
-		return;
-	}
-	if (OwnerCharacter->GetFollowCamera())
-	{
-		DefaultFOV = OwnerCharacter->GetFollowCamera()->FieldOfView;
-		CurrentFOV = DefaultFOV;
-	}
-}
-
 bool UCombatComponent::IsValidOwnerCharacter()
 {
 	if (!OwnerCharacter)
@@ -413,28 +397,6 @@ void UCombatComponent::OnRep_CombatState()
 	case ECombatState::ECS_Reloading:
 		HandleReload();	
 		break;
-	}
-}
-
-void UCombatComponent::InterpFOV(float DeltaTime)
-{
-	if (!EquippingWeapon || !IsValidOwnerCharacter())
-	{
-		return;
-	}
-
-	if (bIsAiming)
-	{
-		CurrentFOV = FMath::FInterpTo(CurrentFOV, EquippingWeapon->GetZoomedFOV(), DeltaTime, EquippingWeapon->GetZoomInterpSpeed());
-	}
-	else
-	{
-		CurrentFOV = FMath::FInterpTo(CurrentFOV, DefaultFOV, DeltaTime, EquippingWeapon->GetZoomInterpSpeed());
-	}
-
-	if (OwnerCharacter->GetFollowCamera())
-	{
-		OwnerCharacter->GetFollowCamera()->SetFieldOfView(CurrentFOV);
 	}
 }
 
