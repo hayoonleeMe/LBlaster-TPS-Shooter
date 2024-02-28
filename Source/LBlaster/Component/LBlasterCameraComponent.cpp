@@ -9,7 +9,8 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-ULBlasterCameraComponent::ULBlasterCameraComponent()
+ULBlasterCameraComponent::ULBlasterCameraComponent(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	SetRelativeLocation(FVector(-300.0f, 0.0f, 75.0f));
 	bUsePawnControlRotation = false;	// 카메라는 항상 RelativeRotation을 유지해 캐릭터를 바라본다.
@@ -18,11 +19,13 @@ ULBlasterCameraComponent::ULBlasterCameraComponent()
 	PostProcessSettings.bOverride_DepthOfFieldFstop = true;
 	PostProcessSettings.DepthOfFieldFstop = 32.f;
 	FieldOfView = 80.f;
+
+	CameraMode = BaseMode;
 }
 
-void ULBlasterCameraComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void ULBlasterCameraComponent::GetCameraView(float DeltaTime, FMinimalViewInfo& DesiredView)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	Super::GetCameraView(DeltaTime, DesiredView);
 
 	if (!IsValidOwnerCharacter())
 	{
@@ -33,12 +36,12 @@ void ULBlasterCameraComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 	CameraMode = OwnerCharacter->IsAiming() ? ADSMode : BaseMode;
 
 	// Update Camera Mode
-	FCameraView DesiredView;
-	UpdateView(DeltaTime, DesiredView);
+	FCameraView UpdatedView;
+	UpdateView(DeltaTime, UpdatedView);
 	UpdateBlending(DeltaTime);
 
 	// Blend View
-	BlendView(DesiredView);
+	BlendView(UpdatedView);
 
 	// Apply View
 	ApplyView();
