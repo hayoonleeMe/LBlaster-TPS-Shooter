@@ -63,8 +63,8 @@ class LBLASTER_API ULBlasterCameraComponent : public UCameraComponent
 	GENERATED_BODY()
 
 public:
-	ULBlasterCameraComponent();
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	ULBlasterCameraComponent(const FObjectInitializer& ObjectInitializer);
+	virtual void GetCameraView(float DeltaTime, FMinimalViewInfo& DesiredView) override;
 
 	void SetBlendWeight(float Weight);
 
