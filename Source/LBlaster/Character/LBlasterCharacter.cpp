@@ -80,7 +80,7 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 	
 	/* Camera */
 	CameraComponent = CreateDefaultSubobject<ULBlasterCameraComponent>(TEXT("Camera Component"));
-	CameraComponent->SetupAttachment(RootComponent);
+	CameraComponent->SetupAttachment(GetMesh());
 
 	/* Input */
 	static ConstructorHelpers::FObjectFinder<UInputMappingContext> InputMappingContextRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/LBlaster/Core/Inputs/IMC_LBContext.IMC_LBContext'"));
