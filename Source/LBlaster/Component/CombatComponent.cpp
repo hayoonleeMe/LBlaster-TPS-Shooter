@@ -37,6 +37,10 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	// Tick에서 Trace를 통해 크로스헤어 색상 설정
+	FHitResult HitResult;
+	TraceUnderCrosshair(HitResult);
+	
 	// 크로스헤어 Draw
 	SetHUDCrosshair(DeltaTime);
 }
