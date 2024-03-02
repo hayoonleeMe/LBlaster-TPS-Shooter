@@ -292,6 +292,14 @@ void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 		const FVector End = Start + CrosshairWorldDirection * TRACE_LENGTH;
 
 		GetWorld()->LineTraceSingleByChannel(TraceHitResult, Start, End, ECC_Visibility);
+		
+		// HitTarget 보정
+		if (!TraceHitResult.bBlockingHit)
+		{
+			TraceHitResult.ImpactPoint = End;
+		}
+
+		// 캐릭터 조준 시 크로스 헤어 색상 변경
 		if (TraceHitResult.GetActor() && TraceHitResult.GetActor()->IsA(ALBlasterCharacter::StaticClass()))
 		{
 			HUDPackage.CrosshairColor = FLinearColor::Red;
