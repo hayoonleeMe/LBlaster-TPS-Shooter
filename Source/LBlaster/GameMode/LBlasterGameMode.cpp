@@ -76,6 +76,12 @@ void ALBlasterGameMode::Tick(float DeltaSeconds)
 void ALBlasterGameMode::PlayerEliminated(ALBlasterCharacter* EliminatedCharacter, ALBlasterPlayerController* VictimController,
                                          ALBlasterPlayerController* AttackerController)
 {
+	// 게임 중일 때만 Kill 가능
+	if (!IsMatchInProgress())
+	{
+		return;
+	}
+	
 	// Attacker 점수 획득
 	if (ALBlasterPlayerState* AttackerPlayerState = Cast<ALBlasterPlayerState>(AttackerController->PlayerState))
 	{
