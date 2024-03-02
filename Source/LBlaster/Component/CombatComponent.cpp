@@ -167,7 +167,7 @@ void UCombatComponent::DropWeapon()
 
 void UCombatComponent::Reload()
 {
-	if (CarriedAmmo > 0 && CombatState != ECombatState::ECS_Reloading)
+	if (EquippingWeapon && EquippingWeapon->NeedReload() && CarriedAmmo > 0 && CombatState != ECombatState::ECS_Reloading)
 	{
 		ServerReload();
 	}
