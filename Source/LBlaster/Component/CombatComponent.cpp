@@ -37,8 +37,7 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	FHitResult HitResult;
-	TraceUnderCrosshair(HitResult);
+	// 크로스헤어 Draw
 	SetHUDCrosshair(DeltaTime);
 }
 

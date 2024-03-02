@@ -30,7 +30,7 @@ struct FHUDPackage
 	float CrosshairSpread;
 
 	UPROPERTY()
-	FLinearColor CrosshairColor;
+	FLinearColor CrosshairColor = FLinearColor::White;
 };
 
 /**
