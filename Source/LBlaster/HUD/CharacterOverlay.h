@@ -25,6 +25,9 @@ public:
 	void SetMatchCountdownText(float InCountdownTime);
 	
 private:
+	/*
+	 *	Widget
+	 */
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UProgressBar> HealthBar;
 
@@ -48,4 +51,16 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> MatchCountdownText;
+
+	/*
+	 *	Widget Animation
+	 */
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	TObjectPtr<UWidgetAnimation> MatchCountdownBlink;
+
+	/*
+	 *	Miscellaneous
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Miscellaneous")
+	float ThresholdToPlayMatchCountdownBlinkAnim = 20.f;
 };
