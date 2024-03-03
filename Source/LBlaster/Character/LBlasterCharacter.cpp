@@ -34,11 +34,15 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 	SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 	BaseEyeHeight = 80.f;
 	CrouchedEyeHeight = 50.f;
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = true;
+	bUseControllerRotationRoll = false;
 	
 	/* Movement */
-	GetCharacterMovement()->bOrientRotationToMovement = false;
-	bUseControllerRotationYaw = true;
 	BaseMaxWalkSpeed = 600.f;
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+	GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	GetCharacterMovement()->bAllowPhysicsRotationDuringAnimRootMotion = false;
 	GetCharacterMovement()->MaxWalkSpeed = BaseMaxWalkSpeed;
 	GetCharacterMovement()->MaxWalkSpeedCrouched = 300.f;
 	GetCharacterMovement()->GravityScale = 1.f;
