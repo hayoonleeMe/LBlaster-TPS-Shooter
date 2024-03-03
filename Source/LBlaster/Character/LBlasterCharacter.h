@@ -37,7 +37,6 @@ public:
 	 *	ProjectileHitInterface
 	 */
 	virtual void SetLastHitNormal(const FVector& InHitNormal) override;
-	virtual AController* GetController() override;
 
 	/*
      *	LBlasterAnimInstance

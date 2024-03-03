@@ -22,8 +22,7 @@ class LBLASTER_API IHitReceiverInterface
 
 public:
 	/*
-	 *	ProjectileBullet <- LBlasterCharacter
+	 *	Projectile* -> LBlasterCharacter
 	 */
 	virtual void SetLastHitNormal(const FVector& InHitNormal) = 0;
-	virtual AController* GetController() = 0; 
 };
