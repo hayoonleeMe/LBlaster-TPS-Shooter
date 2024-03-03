@@ -467,6 +467,10 @@ FString UCombatComponent::GetWeaponTypeString (EWeaponType InWeaponType)
 	{
 		return FString(TEXT("Assault Rifle"));
 	}
+	if (InWeaponType == EWeaponType::EWT_RocketLauncher)
+	{
+		return FString(TEXT("Rocket Launcher"));
+	}
 	if (InWeaponType == EWeaponType::EWT_Pistol)
 	{
 		return FString(TEXT("Pistol"));
