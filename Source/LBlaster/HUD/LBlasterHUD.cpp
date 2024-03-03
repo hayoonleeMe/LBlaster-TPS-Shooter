@@ -120,6 +120,11 @@ void ALBlasterHUD::SetHUDAnnouncementCountdown(float InCountdownTime)
 
 void ALBlasterHUD::AddCharacterOverlay()
 {
+	if (CharacterOverlay)
+	{
+		return;
+	}
+	
 	if (ALBlasterPlayerController* PlayerController = Cast<ALBlasterPlayerController>(GetOwningPlayerController()))
 	{
 		if (CharacterOverlayClass)
