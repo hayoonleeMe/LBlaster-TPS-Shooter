@@ -657,11 +657,6 @@ void ALBlasterCharacter::MulticastElim_Implementation()
 	StartDissolve();
 }
 
-AController* ALBlasterCharacter::GetController()
-{
-	return Controller;
-}
-
 void ALBlasterCharacter::ServerEquipWeapon_Implementation()
 {
 	if (CombatComponent && OverlappingWeapon)

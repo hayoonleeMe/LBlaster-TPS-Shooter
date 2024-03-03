@@ -21,9 +21,12 @@ void AProjectileBullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 			HitInterface->SetLastHitNormal(Hit.ImpactNormal);
 		}
 		// Apply Damage
-		if (IHitReceiverInterface* OwnerInterface = Cast<IHitReceiverInterface>(GetOwner()))
+		if (const APawn* InstigatorPawn = GetInstigator())
 		{
-			UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerInterface->GetController(), this, UDamageType::StaticClass());
+			if (AController* InstigatorController = InstigatorPawn->Controller)
+			{
+				UGameplayStatics::ApplyDamage(OtherActor, Damage, InstigatorController, this, UDamageType::StaticClass());
+			}
 		}
 	}
 	
