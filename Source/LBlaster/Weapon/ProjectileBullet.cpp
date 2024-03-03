@@ -3,12 +3,22 @@
 
 #include "Weapon/ProjectileBullet.h"
 
+#include "Components/BoxComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "Interface/HitReceiverInterface.h"
 #include "Kismet/GameplayStatics.h"
 
 AProjectileBullet::AProjectileBullet()
 {
+	/* Damage */
 	Damage = 20.f;
+
+	/* Collision */
+	CollisionBox->SetBoxExtent(FVector(5.f, 2.5f, 2.5f));
+
+	/* Projectile Movement */
+	ProjectileMovementComponent->InitialSpeed = 15000.f;
+	ProjectileMovementComponent->MaxSpeed = 15000.f;
 }
 
 void AProjectileBullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)

@@ -13,7 +13,6 @@ class LBLASTER_API AProjectile : public AActor
 	
 public:	
 	AProjectile();
-	virtual void Tick(float DeltaTime) override;
 	virtual void Destroyed() override;
 
 protected:
