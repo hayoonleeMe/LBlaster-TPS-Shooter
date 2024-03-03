@@ -3,7 +3,6 @@
 
 #include "Component/CombatComponent.h"
 
-#include "Camera/CameraComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "Weapon/Weapon.h"
@@ -20,6 +19,24 @@ UCombatComponent::UCombatComponent()
 
 	/* Aiming */
 	ADSMultiplier = 0.5f;
+
+	/* Ammo */
+	CarriedAmmoMap.Emplace(EWeaponType::EWT_Rifle, 0);
+	CarriedAmmoMap.Emplace(EWeaponType::EWT_RocketLauncher, 0);
+	CarriedAmmoMap.Emplace(EWeaponType::EWT_Pistol, 0);
+	CarriedAmmoMap.Emplace(EWeaponType::EWT_Shotgun, 0);
+
+	/* Fire */
+	FireMontages.Emplace(EWeaponType::EWT_Rifle, nullptr);
+	FireMontages.Emplace(EWeaponType::EWT_RocketLauncher, nullptr);
+	FireMontages.Emplace(EWeaponType::EWT_Pistol, nullptr);
+	FireMontages.Emplace(EWeaponType::EWT_Shotgun, nullptr);
+
+	/* Reload */
+	ReloadMontages.Emplace(EWeaponType::EWT_Rifle, nullptr);
+	ReloadMontages.Emplace(EWeaponType::EWT_RocketLauncher, nullptr);
+	ReloadMontages.Emplace(EWeaponType::EWT_Pistol, nullptr);
+	ReloadMontages.Emplace(EWeaponType::EWT_Shotgun, nullptr);
 }
 
 void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -491,9 +508,15 @@ void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& T
 {
 	if (IsValidOwnerCharacter())
 	{
-		OwnerCharacter->PlayFireMontage(FireMontages[EquippingWeapon->GetWeaponType()]);
-		EquippingWeapon->Fire(TraceHitTarget);
-	}	
+		if (UAnimMontage* MontageToPlay = FireMontages[EquippingWeapon->GetWeaponType()])
+		{
+			OwnerCharacter->PlayFireMontage(MontageToPlay);
+		}
+		if (EquippingWeapon)
+		{
+			EquippingWeapon->Fire(TraceHitTarget);
+		}
+	}
 }
 
 void UCombatComponent::EquipWeapon(AWeapon* InWeapon)
