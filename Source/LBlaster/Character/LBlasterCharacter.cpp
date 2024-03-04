@@ -344,7 +344,7 @@ void ALBlasterCharacter::UpdateHUDHealth() const
 
 void ALBlasterCharacter::Move(const FInputActionValue& ActionValue)
 {
-	const FVector2D MovementVector = ActionValue.Get<FVector2D>();
+	MovementVector = ActionValue.Get<FVector2D>();
 
 	const FRotator YawRotation(0.f, GetController()->GetControlRotation().Yaw, 0.f);
 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
@@ -552,6 +552,15 @@ void ALBlasterCharacter::ReloadFinished()
 	{
 		CombatComponent->ReloadFinished();
 	}
+}
+
+const FRotator& ALBlasterCharacter::GetRightHandRotation() const
+{
+	if (CombatComponent)
+	{
+		return CombatComponent->GetRightHandRotation();
+	}
+	return FRotator::ZeroRotator;
 }
 
 void ALBlasterCharacter::SetLastHitNormal(const FVector& InHitNormal)
