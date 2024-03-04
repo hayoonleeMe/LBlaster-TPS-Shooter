@@ -57,6 +57,8 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	// Tick에서 Trace를 통해 크로스헤어 색상 설정
 	FHitResult HitResult;
 	TraceUnderCrosshair(HitResult);
+	// 총구 정렬
+	SetRightHandRotation(HitResult.ImpactPoint);
 	
 	// 크로스헤어 Draw
 	SetHUDCrosshair(DeltaTime);
@@ -445,11 +447,12 @@ void UCombatComponent::Fire()
 		ServerFire(HitResult.ImpactPoint);
 		CrosshairShootingFactor = 0.75f;
 		StartFireTimer();
-		/*// Debug Line
-		FTransform MuzzleTipTransform = EquippingWeapon->GetWeaponMesh()->GetSocketTransform(FName("MuzzleFlash"), RTS_World);
-		FVector MuzzleX(FRotationMatrix(MuzzleTipTransform.GetRotation().Rotator()).GetUnitAxis(EAxis::X));
-		DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), MuzzleTipTransform.GetLocation() + MuzzleX * 1000.f, FColor::Red, false, 20.f, 0, 2.f);
-		DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), HitResult.ImpactPoint, FColor::Orange, false, 20.f, 0, 2.f);*/
+		
+		// Debug Line
+		// FTransform MuzzleTipTransform = EquippingWeapon->GetWeaponMesh()->GetSocketTransform(FName("MuzzleFlash"), RTS_World);
+		// FVector MuzzleX(FRotationMatrix(MuzzleTipTransform.GetRotation().Rotator()).GetUnitAxis(EAxis::X));
+		// DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), MuzzleTipTransform.GetLocation() + MuzzleX * 1000.f, FColor::Red, false, 20.f, 0, 2.f);
+		// DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), HitResult.ImpactPoint, FColor::Orange, false, 20.f, 0, 2.f);
 	}
 }
 
@@ -497,6 +500,15 @@ FString UCombatComponent::GetWeaponTypeString (EWeaponType InWeaponType)
 		return FString(TEXT("Shotgun"));
 	}
 	return FString();
+}
+
+void UCombatComponent::SetRightHandRotation(const FVector& HitTarget)
+{
+	if (IsValidOwnerCharacter())
+	{
+		const FTransform RightHandTransform = OwnerCharacter->GetMesh()->GetSocketTransform(FName(TEXT("hand_r")), RTS_World);
+		RightHandRotation = UKismetMathLibrary::FindLookAtRotation(RightHandTransform.GetLocation(), RightHandTransform.GetLocation() + (RightHandTransform.GetLocation() - HitTarget));
+	}
 }
 
 void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& TraceHitTarget)

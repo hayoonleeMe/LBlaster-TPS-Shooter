@@ -47,6 +47,8 @@ public:
 	bool IsReloading() const;
 	bool IsEquippingWeapon() const;
 	void ReloadFinished();
+	const FRotator& GetRightHandRotation() const;
+	FORCEINLINE const FVector2D& GetMovementVector() const { return MovementVector; };
 
 	/*
 	 *	Combat
@@ -122,6 +124,8 @@ private:
 	 */
 	UPROPERTY(EditAnywhere, Category="LBlaster|Movement")
 	float BaseMaxWalkSpeed;
+
+	FVector2D MovementVector;
 	
 	/*
 	 *	Camera

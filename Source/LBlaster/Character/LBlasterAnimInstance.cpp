@@ -29,16 +29,22 @@ void ULBlasterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	const FLBlasterCharacterGroundInfo& GroundInfo = CharacterMovementComponent->GetGroundInfo();
 	GroundDistance = GroundInfo.GroundDistance;
 
+	if (bIsFiring && !Character->IsFiring())
+	{
+		bPreserveAlign = true;
+	}
 	bIsFiring = Character->IsFiring();
 
 	/* Left Hand */
 	LeftHandTransform = Character->GetLeftHandTransform();
 	bEnableFABRIK = Character->IsEquippingWeapon() && !Character->IsReloading();
+
+	/* Right Hand */
+	SetRightHandRotation();
 }
 
 void ULBlasterAnimInstance::AnimNotify_ReloadFinished()
 {
-	Montage_StopWithBlendOut(0.3f);
 	if (IsValidCharacter())
 	{
 		Character->ReloadFinished();
@@ -61,4 +67,54 @@ bool ULBlasterAnimInstance::IsValidMovement()
 		CharacterMovementComponent = CastChecked<ULBCharacterMovementComponent>(Character->GetCharacterMovement());
 	}
 	return CharacterMovementComponent != nullptr;
+}
+
+void ULBlasterAnimInstance::SetRightHandRotation()
+{
+	const FRotator TargetRot = Character->GetRightHandRotation();
+	RightHandRotation = FMath::Lerp(RightHandRotation, TargetRot, 0.2f);
+
+	if (!Character->IsLocallyControlled() || !Character->IsEquippingWeapon())
+	{
+		bEnableRightHandAlign = false;
+		return;
+	}
+	
+	if (Character->IsReloading())
+	{
+		bPreserveAlign = false;
+		bEnableRightHandAlign = false;
+		return;
+	}
+	
+	if (bIsAiming || bIsFiring)
+	{
+		bEnableRightHandAlign = true;
+		return;
+	}
+	
+	// 사격 멈추고 아주 약간의 시간 동안 Align 유지
+	if (bPreserveAlign)
+	{
+		if (UpperbodyDynamicAdditiveWeight >= 0.9f)
+		{
+			bEnableRightHandAlign = true;
+			return;
+		}
+		bPreserveAlign = false;
+		bEnableRightHandAlign = false;
+	}
+	
+	if (Character->GetCharacterMovement()->Velocity.Size() <= 0.f)
+	{
+		bEnableRightHandAlign = true;
+	}
+	else if (Character->bIsCrouched && Character->GetMovementVector().X == 1.f)
+	{
+		bEnableRightHandAlign = true;
+	}
+	else
+	{
+		bEnableRightHandAlign = false;
+	}
 }
