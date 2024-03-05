@@ -67,6 +67,7 @@ public:
 	virtual void GetCameraView(float DeltaTime, FMinimalViewInfo& DesiredView) override;
 
 	void SetBlendWeight(float Weight);
+	bool bIsDead = false;
 
 private:
 	/*

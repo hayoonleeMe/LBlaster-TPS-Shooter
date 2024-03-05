@@ -590,6 +590,7 @@ void ALBlasterCharacter::Ragdoll()
 {
 	if (CameraComponent)
 	{
+		CameraComponent->bIsDead = true;
 		CameraComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 	}
 	
