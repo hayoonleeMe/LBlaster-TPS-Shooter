@@ -27,7 +27,7 @@ void ULBlasterCameraComponent::GetCameraView(float DeltaTime, FMinimalViewInfo& 
 {
 	Super::GetCameraView(DeltaTime, DesiredView);
 
-	if (!IsValidOwnerCharacter())
+	if (!IsValidOwnerCharacter() || bIsDead)
 	{
 		return;
 	}
