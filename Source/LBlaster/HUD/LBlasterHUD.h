@@ -27,7 +27,7 @@ struct FHUDPackage
 	TObjectPtr<UTexture2D> CenterCrosshair;
 
 	UPROPERTY()
-	float CrosshairSpread;
+	float CrosshairSpread = 0.f;
 
 	UPROPERTY()
 	FLinearColor CrosshairColor = FLinearColor::White;
