@@ -24,18 +24,21 @@ UCombatComponent::UCombatComponent()
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_Rifle, 0);
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_RocketLauncher, 0);
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_Pistol, 0);
+	CarriedAmmoMap.Emplace(EWeaponType::EWT_SMG, 0);
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_Shotgun, 0);
 
 	/* Fire */
 	FireMontages.Emplace(EWeaponType::EWT_Rifle, nullptr);
 	FireMontages.Emplace(EWeaponType::EWT_RocketLauncher, nullptr);
 	FireMontages.Emplace(EWeaponType::EWT_Pistol, nullptr);
+	FireMontages.Emplace(EWeaponType::EWT_SMG, nullptr);
 	FireMontages.Emplace(EWeaponType::EWT_Shotgun, nullptr);
 
 	/* Reload */
 	ReloadMontages.Emplace(EWeaponType::EWT_Rifle, nullptr);
 	ReloadMontages.Emplace(EWeaponType::EWT_RocketLauncher, nullptr);
 	ReloadMontages.Emplace(EWeaponType::EWT_Pistol, nullptr);
+	ReloadMontages.Emplace(EWeaponType::EWT_SMG, nullptr);
 	ReloadMontages.Emplace(EWeaponType::EWT_Shotgun, nullptr);
 }
 
@@ -495,7 +498,11 @@ FString UCombatComponent::GetWeaponTypeString (EWeaponType InWeaponType)
 	{
 		return FString(TEXT("Pistol"));
 	}
-	if (InWeaponType == EWeaponType::EWT_Pistol)
+	if (InWeaponType == EWeaponType::EWT_SMG)
+	{
+		return FString(TEXT("SMG"));
+	}
+	if (InWeaponType == EWeaponType::EWT_Shotgun)
 	{
 		return FString(TEXT("Shotgun"));
 	}
