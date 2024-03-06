@@ -16,11 +16,40 @@ class LBLASTER_API AProjectileRocket : public AProjectile
 
 public:
 	AProjectileRocket();
+	virtual void Destroyed() override;
 	
 protected:
 	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) override;
+	virtual void BeginPlay() override;
+	void TrailDestroyTimerFinished();
 
 private:
+	/*
+	 *	Mesh
+	 */
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UStaticMeshComponent> RocketMesh;
+
+	/*
+	 *	Trail
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Trail")
+	TObjectPtr<class UNiagaraSystem> TrailSystem;
+
+	UPROPERTY()
+	TObjectPtr<class UNiagaraComponent> TrailSystemComponent;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Trail")
+	TObjectPtr<USoundBase> ProjectileLoop;
+
+	UPROPERTY()
+	TObjectPtr<UAudioComponent> ProjectileLoopComponent; 
+	
+	UPROPERTY(EditAnywhere, Category="LBlaster|Trail")
+	TObjectPtr<USoundAttenuation> LoopingSoundAttenuation; 
+
+	FTimerHandle TrailDestroyTimer;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Trail")
+	float TrailDestroyTime;
 };

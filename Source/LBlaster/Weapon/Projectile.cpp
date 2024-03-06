@@ -48,7 +48,7 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimi
 	Destroy();
 }
 
-void AProjectile::Destroyed()
+void AProjectile::SpawnImpactEffects()
 {
 	if (ImpactParticle)
 	{
@@ -58,6 +58,11 @@ void AProjectile::Destroyed()
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation());
 	}
+}
+
+void AProjectile::Destroyed()
+{
+	SpawnImpactEffects();
 	
 	Super::Destroyed();
 }

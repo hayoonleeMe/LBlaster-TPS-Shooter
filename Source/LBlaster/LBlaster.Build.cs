@@ -10,7 +10,7 @@ public class LBlaster : ModuleRules
 	
 		PublicIncludePaths.AddRange(new string[] { "LBlaster" });
         
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "AnimGraphRuntime" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "AnimGraphRuntime", "Niagara" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
