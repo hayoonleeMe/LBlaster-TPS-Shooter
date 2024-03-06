@@ -23,4 +23,10 @@ private:
 	 */
 	UPROPERTY(EditAnywhere, Category="LBlaster|Impact")
 	TObjectPtr<UParticleSystem> ImpactParticle;
+
+	/*
+	 *	Beam
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Beam")
+	TObjectPtr<UParticleSystem> BeamParticle;
 };

@@ -6,47 +6,61 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "Interface/HitReceiverInterface.h"
 #include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystemComponent.h"
 
 void AHitScanWeapon::Fire(const FVector& HitTarget)
 {
 	Super::Fire(HitTarget);
 
-	if (APawn* OwnerPawn = Cast<APawn>(GetOwner()))
+	if (const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(TEXT("MuzzleFlash")))
 	{
-		if (AController* InstigatorController = OwnerPawn->Controller)
+		const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
+		const FVector Start = SocketTransform.GetLocation();
+		const FVector End = Start + (HitTarget - Start) * 1.25f;
+
+		if (UWorld* World = GetWorld())
 		{
-			if (const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(TEXT("MuzzleFlash")))
-			{
-				const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
-				const FVector Start = SocketTransform.GetLocation();
-				const FVector End = Start + (HitTarget - Start) * 1.25f;
-
-				if (UWorld* World = GetWorld())
-				{
-					FHitResult FireHit;
-					World->LineTraceSingleByChannel(FireHit, Start, End, ECC_Visibility);
-					if (FireHit.bBlockingHit && FireHit.GetActor())
-					{
-						// Play HitReact Montage
-						if (IHitReceiverInterface* HitInterface = Cast<IHitReceiverInterface>(FireHit.GetActor()))
-						{
-							HitInterface->SetLastHitNormal(FireHit.ImpactNormal);
-						}
+			FHitResult FireHit;
+			World->LineTraceSingleByChannel(FireHit, Start, End, ECC_Visibility);
+			FVector BeamEnd = End;
 					
-						// Apply Damage
-						if (HasAuthority())
-						{
-							UGameplayStatics::ApplyDamage(FireHit.GetActor(), Damage, InstigatorController, this, UDamageType::StaticClass());
-						}
+			if (FireHit.bBlockingHit && FireHit.GetActor())
+			{
+				BeamEnd = FireHit.ImpactPoint;
+						
+				// Play HitReact Montage
+				if (IHitReceiverInterface* HitInterface = Cast<IHitReceiverInterface>(FireHit.GetActor()))
+				{
+					HitInterface->SetLastHitNormal(FireHit.ImpactNormal);
+				}
+					
+				// Apply Damage
+				if (APawn* OwnerPawn = Cast<APawn>(GetOwner()))
+                {
+                	if (AController* InstigatorController = OwnerPawn->Controller)
+                	{
+                		if (HasAuthority())
+                		{
+                			UGameplayStatics::ApplyDamage(FireHit.GetActor(), Damage, InstigatorController, this, UDamageType::StaticClass());
+                		}	
+                	}
+                }
 
-						// Impact Effect
-						if (ImpactParticle)
-						{
-							UGameplayStatics::SpawnEmitterAtLocation(World, ImpactParticle, FireHit.ImpactPoint, FireHit.ImpactNormal.Rotation());
-						}
+				// Impact Effect
+				if (ImpactParticle)
+				{
+					UGameplayStatics::SpawnEmitterAtLocation(World, ImpactParticle, FireHit.ImpactPoint, FireHit.ImpactNormal.Rotation());
+				}
+
+				// Beam Effect
+				if (BeamParticle)
+				{
+					if (UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(World, BeamParticle, SocketTransform))
+					{
+						Beam->SetVectorParameter(FName(TEXT("Target")), BeamEnd);
 					}
 				}
-			}		
+			}
 		}
 	}
 }
