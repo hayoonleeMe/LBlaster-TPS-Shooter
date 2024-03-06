@@ -433,7 +433,7 @@ void UCombatComponent::OnRep_CombatState()
 
 bool UCombatComponent::CanFire() const
 {
-	return EquippingWeapon != nullptr && !EquippingWeapon->IsAmmoEmpty() && bCanFire && CombatState == ECombatState::ECS_Unoccupied;
+	return EquippingWeapon != nullptr && !EquippingWeapon->IsAmmoEmpty() && bCanFire && bIsFiring && CombatState == ECombatState::ECS_Unoccupied;
 }
 
 void UCombatComponent::Fire()
