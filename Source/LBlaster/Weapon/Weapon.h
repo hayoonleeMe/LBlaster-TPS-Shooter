@@ -24,8 +24,6 @@ public:
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 	FORCEINLINE TSubclassOf<UAnimInstance> GetWeaponAnimLayer() const { return WeaponAnimLayer; }
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
-	FORCEINLINE float GetZoomedFOV() const { return ZoomedFOV; }
-	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
 	FORCEINLINE float GetFireDelay() const { return FireDelay; }
 	FORCEINLINE bool IsAutomatic() const { return bAutomatic; }
 	FORCEINLINE bool IsAmmoEmpty() const { return Ammo <= 0.f; }
@@ -107,15 +105,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category="LBlaster|Casing")
 	TSubclassOf<class ACasing> CasingClass;
 	
-	/*
-	 *	ADS FOV
-	 */
-	UPROPERTY(EditAnywhere, Category="LBlaster|ADS FOV")
-	float ZoomedFOV;
-
-	UPROPERTY(EditAnywhere, Category="LBlaster|ADS FOV")
-	float ZoomInterpSpeed;
-
 	/*
 	 *	Auto Fire
 	 */
