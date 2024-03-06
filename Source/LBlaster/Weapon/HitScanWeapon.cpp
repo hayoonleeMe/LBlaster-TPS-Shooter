@@ -51,14 +51,18 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 				{
 					UGameplayStatics::SpawnEmitterAtLocation(World, ImpactParticle, FireHit.ImpactPoint, FireHit.ImpactNormal.Rotation());
 				}
-
-				// Beam Effect
-				if (BeamParticle)
+				if (ImpactSound)
 				{
-					if (UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(World, BeamParticle, SocketTransform))
-					{
-						Beam->SetVectorParameter(FName(TEXT("Target")), BeamEnd);
-					}
+					UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, FireHit.ImpactPoint);
+				}
+			}
+
+			// Beam Effect
+			if (BeamParticle)
+			{
+				if (UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(World, BeamParticle, SocketTransform))
+				{
+					Beam->SetVectorParameter(FName(TEXT("Target")), BeamEnd);
 				}
 			}
 		}

@@ -24,6 +24,9 @@ private:
 	UPROPERTY(EditAnywhere, Category="LBlaster|Impact")
 	TObjectPtr<UParticleSystem> ImpactParticle;
 
+	UPROPERTY(EditAnywhere, Category="LBlaster|Impact")
+	TObjectPtr<USoundBase> ImpactSound;
+
 	/*
 	 *	Beam
 	 */
