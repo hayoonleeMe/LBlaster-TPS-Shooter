@@ -4,6 +4,7 @@
 #include "Weapon/Weapon.h"
 
 #include "Casing.h"
+#include "LBlaster.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
@@ -21,6 +22,8 @@ AWeapon::AWeapon()
 	SetRootComponent(WeaponMesh);
 	WeaponMesh->SetCollisionResponseToAllChannels(ECR_Block);
 	WeaponMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	WeaponMesh->SetCollisionResponseToChannel(ECC_SkeletalMesh, ECR_Ignore);
+	WeaponMesh->SetCollisionResponseToChannel(ECC_FootPlacement, ECR_Ignore);
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	AreaSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AreaSphere"));
