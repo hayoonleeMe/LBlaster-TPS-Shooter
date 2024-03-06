@@ -508,6 +508,15 @@ void UCombatComponent::SetRightHandRotation(const FVector& HitTarget)
 	{
 		const FTransform RightHandTransform = OwnerCharacter->GetMesh()->GetSocketTransform(FName(TEXT("hand_r")), RTS_World);
 		RightHandRotation = UKismetMathLibrary::FindLookAtRotation(RightHandTransform.GetLocation(), RightHandTransform.GetLocation() + (RightHandTransform.GetLocation() - HitTarget));
+
+		// TODO : RightHandRotation Clamp
+		// const FTransform RightHandSocketTransform = OwnerCharacter->GetMesh()->GetSocketTransform(FName(TEXT("RightHandSocket")), RTS_World);
+		// UE_LOG(LogTemp, Warning, TEXT("RHSTR %s"), *RightHandSocketTransform.Rotator().ToString());
+		// const FRotator BaseRot(0.f, RightHandSocketTransform.Rotator().Yaw - 90.f, 0.f);
+		// UE_LOG(LogTemp, Warning, TEXT("BaseRot %s"), *BaseRot.ToString());
+		// RightHandRotation.Pitch = FMath::Min(RightHandRotation.Pitch, BaseRot.Pitch + 30.f);
+		// RightHandRotation.Yaw = FMath::Clamp(RightHandRotation.Yaw, BaseRot.Yaw - 20.f, BaseRot.Yaw + 20.f);
+		// UE_LOG(LogTemp, Warning, TEXT("RHR %s"), *RightHandRotation.ToString());
 	}
 }
 

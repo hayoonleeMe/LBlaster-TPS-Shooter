@@ -51,6 +51,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category="LBlaster|Impact")
 	TObjectPtr<USoundBase> ImpactSound;
 
+	void SpawnImpactEffects();
+
 	/*
 	 *	Damage
 	 */
