@@ -41,10 +41,6 @@ AWeapon::AWeapon()
 		PickupWidgetComponent->SetWidgetClass(PickupWidgetClassRef.Class);
 	}
 
-	/* Zoom FOV */
-	ZoomedFOV = 45.f;
-	ZoomInterpSpeed = 15.f;
-
 	/* Auto Fire */
 	bAutomatic = true;
 	FireDelay = 0.15f;
