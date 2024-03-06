@@ -10,9 +10,6 @@
 
 AProjectileBullet::AProjectileBullet()
 {
-	/* Damage */
-	Damage = 20.f;
-
 	/* Collision */
 	CollisionBox->SetBoxExtent(FVector(5.f, 2.5f, 2.5f));
 
