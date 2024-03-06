@@ -10,6 +10,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
 #include "NiagaraSystemInstanceController.h"
+#include "RocketMovementComponent.h"
 #include "Components/AudioComponent.h"
 
 AProjectileRocket::AProjectileRocket()
@@ -21,9 +22,12 @@ AProjectileRocket::AProjectileRocket()
 	CollisionBox->SetBoxExtent(FVector(14.f, 3.f, 3.f));
 
 	/* Projectile Movement */
-	ProjectileMovementComponent->InitialSpeed = 2500.f;
-	ProjectileMovementComponent->MaxSpeed = 2500.f;
-	ProjectileMovementComponent->ProjectileGravityScale = 0.f;
+	RocketMovementComponent = CreateDefaultSubobject<URocketMovementComponent>(TEXT("Rocket MovementComponent"));
+	RocketMovementComponent->bRotationFollowsVelocity = true;;
+	RocketMovementComponent->SetIsReplicated(true);
+	RocketMovementComponent->InitialSpeed = 2500.f;
+	RocketMovementComponent->MaxSpeed = 2500.f;
+	RocketMovementComponent->ProjectileGravityScale = 0.f;
 	
 	/* Mesh */
 	RocketMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Rocket Mesh"));
@@ -36,7 +40,7 @@ AProjectileRocket::AProjectileRocket()
 
 void AProjectileRocket::Destroyed()
 {
-	
+	// Super::Destroyed() 호출 방지
 }
 
 void AProjectileRocket::BeginPlay()
@@ -65,6 +69,11 @@ void AProjectileRocket::TrailDestroyTimerFinished()
 
 void AProjectileRocket::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	if (OtherActor == GetOwner())
+	{
+		return;
+	}
+	
 	// ProjectileRocket은 클라이언트에서도 Hit Event가 발생하므로 데미지 로직은 서버에서만 수행
 	if (HasAuthority())
 	{
