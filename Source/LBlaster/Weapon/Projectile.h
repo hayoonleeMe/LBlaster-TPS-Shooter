@@ -15,6 +15,8 @@ public:
 	AProjectile();
 	virtual void Destroyed() override;
 
+	void SetDamage(float InDamage);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -56,6 +58,6 @@ protected:
 	/*
 	 *	Damage
 	 */
-	UPROPERTY(EditAnywhere, Category="LBlaster|Damage")
+	UPROPERTY(VisibleAnywhere)
 	float Damage;
 };

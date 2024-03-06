@@ -19,18 +19,18 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 	APawn* InstigatorPawn = Cast<APawn>(GetOwner());
 	if (const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(TEXT("MuzzleFlash")))
 	{
-		FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
-		FVector ToTarget = HitTarget - SocketTransform.GetLocation();
-		FRotator TargetRotation = ToTarget.Rotation();
+		const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
+		const FVector ToTarget = HitTarget - SocketTransform.GetLocation();
+		const FRotator TargetRotation = ToTarget.Rotation();
 
 		if (ProjectileClass && InstigatorPawn)
 		{
-			FActorSpawnParameters SpawnParams;
-			SpawnParams.Owner = GetOwner();
-			SpawnParams.Instigator = InstigatorPawn;
 			if (UWorld* World = GetWorld())
 			{
-				World->SpawnActor<AProjectile>(ProjectileClass, SocketTransform.GetLocation(), TargetRotation, SpawnParams);
+				const FTransform ProjectileTransform(TargetRotation, SocketTransform.GetLocation());
+				AProjectile* Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, ProjectileTransform, GetOwner(), InstigatorPawn);
+				Projectile->SetDamage(Damage);
+				Projectile->FinishSpawning(ProjectileTransform);
 			}
 		}
 	}

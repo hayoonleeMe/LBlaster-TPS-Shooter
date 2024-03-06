@@ -15,9 +15,6 @@
 
 AProjectileRocket::AProjectileRocket()
 {
-	/* Damage */
-	Damage = 120.f;
-
 	/* Collision */
 	CollisionBox->SetBoxExtent(FVector(14.f, 3.f, 3.f));
 

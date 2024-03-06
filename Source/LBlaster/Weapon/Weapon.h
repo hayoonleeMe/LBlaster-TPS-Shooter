@@ -137,6 +137,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category="LBlaster|Sound")
 	TObjectPtr<USoundBase> EquipSound;
 
+	/*
+	 *	Damage
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Damage")
+	float Damage;
+
 public:
 	/*
 	 *	Crosshair

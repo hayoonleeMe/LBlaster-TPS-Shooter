@@ -5,7 +5,6 @@
 
 #include "LBlaster.h"
 #include "Components/BoxComponent.h"
-#include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 AProjectile::AProjectile()
@@ -61,5 +60,10 @@ void AProjectile::Destroyed()
 	SpawnImpactEffects();
 	
 	Super::Destroyed();
+}
+
+void AProjectile::SetDamage(float InDamage)
+{
+	Damage = InDamage;
 }
 

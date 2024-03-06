@@ -49,6 +49,9 @@ AWeapon::AWeapon()
 	/* Auto Fire */
 	bAutomatic = true;
 	FireDelay = 0.15f;
+
+	/* Damage */
+	Damage = 20.f;
 }
 
 void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
