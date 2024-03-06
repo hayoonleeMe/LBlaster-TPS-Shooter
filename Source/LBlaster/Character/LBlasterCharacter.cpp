@@ -269,10 +269,9 @@ void ALBlasterCharacter::AttachWeapon(AWeapon* InEquippedWeapon)
 {
 	if (InEquippedWeapon)
 	{
-		if (const USkeletalMeshSocket* HandSocket = GetMesh()->GetSocketByName(FName(TEXT("RightHandSocket"))))
-		{
-			HandSocket->AttachActor(InEquippedWeapon, GetMesh());
-		}
+		const FTransform WeaponSocket = InEquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName(TEXT("RightHandSocket")), RTS_Component);
+		InEquippedWeapon->GetWeaponMesh()->SetRelativeTransform(WeaponSocket.Inverse());
+		InEquippedWeapon->GetWeaponMesh()->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "RightHandSocket");
 	}
 }
 
