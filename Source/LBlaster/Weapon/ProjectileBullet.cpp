@@ -17,6 +17,9 @@ AProjectileBullet::AProjectileBullet()
 	CollisionBox->SetBoxExtent(FVector(5.f, 2.5f, 2.5f));
 
 	/* Projectile Movement */
+	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement Component"));
+	ProjectileMovementComponent->bRotationFollowsVelocity = true;
+	ProjectileMovementComponent->SetIsReplicated(true);
 	ProjectileMovementComponent->InitialSpeed = 15000.f;
 	ProjectileMovementComponent->MaxSpeed = 15000.f;
 }

@@ -31,6 +31,12 @@ private:
 	TObjectPtr<UStaticMeshComponent> RocketMesh;
 
 	/*
+	 *	Projectile Movement
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Projectile Movement")
+	TObjectPtr<class URocketMovementComponent> RocketMovementComponent;
+
+	/*
 	 *	Trail
 	 */
 	UPROPERTY(EditAnywhere, Category="LBlaster|Trail")
