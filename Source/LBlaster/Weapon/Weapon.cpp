@@ -38,6 +38,7 @@ AWeapon::AWeapon()
 	PickupWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	PickupWidgetComponent->SetDrawAtDesiredSize(true);
 	PickupWidgetComponent->SetVisibility(false);
+	LocOffset = FVector(0.f, 20.f, 50.f);
 
 	static ConstructorHelpers::FClassFinder<UUserWidget> PickupWidgetClassRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/LBlaster/UI/HUD/WBP_PickupWidget.WBP_PickupWidget_C'"));
 	if (PickupWidgetClassRef.Class)
@@ -62,6 +63,9 @@ void AWeapon::ShowPickupWidget(bool bInShow) const
 {
 	if (PickupWidgetComponent)
 	{
+		// 항상 Weapon 위에 표시되도록 위치 보정
+		const FVector RelativeLocation = GetActorRotation().UnrotateVector(LocOffset);
+		PickupWidgetComponent->SetRelativeLocation(RelativeLocation);
 		PickupWidgetComponent->SetVisibility(bInShow);
 	}
 }

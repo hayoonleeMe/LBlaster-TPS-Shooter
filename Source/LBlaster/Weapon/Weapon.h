@@ -82,6 +82,9 @@ protected:
 	 */
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class UWidgetComponent> PickupWidgetComponent;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Pickup Widget")
+	FVector LocOffset;
 	
 	/*
 	 *	Weapon State
