@@ -148,6 +148,9 @@ public:
 	 *	Crosshair
 	 */
 	UPROPERTY(EditAnywhere, Category="LBlaster|Crosshair")
+	TObjectPtr<UTexture2D> CenterCrosshair;
+	
+	UPROPERTY(EditAnywhere, Category="LBlaster|Crosshair")
 	TObjectPtr<UTexture2D> TopCrosshair;
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Crosshair")
@@ -158,7 +161,4 @@ public:
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Crosshair")
 	TObjectPtr<UTexture2D> RightCrosshair;
-
-	UPROPERTY(EditAnywhere, Category="LBlaster|Crosshair")
-	TObjectPtr<UTexture2D> CenterCrosshair;
 };
