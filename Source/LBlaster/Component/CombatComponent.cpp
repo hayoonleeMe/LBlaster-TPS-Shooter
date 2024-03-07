@@ -106,7 +106,7 @@ void UCombatComponent::ServerSetAiming_Implementation(bool bInAiming)
 
 void UCombatComponent::SetFiring(bool bInFiring)
 {
-	if (!EquippingWeapon)
+	if (!EquippingWeapon || (bInFiring && !bCanFire))
 	{
 		return;
 	}
