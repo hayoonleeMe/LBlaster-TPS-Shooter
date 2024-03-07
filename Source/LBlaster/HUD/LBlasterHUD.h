@@ -59,6 +59,8 @@ public:
 	void AddAnnouncement();
 	void HideAnnouncement();
 	void SetCooldownAnnouncement();
+	void InitSniperScope(const TSubclassOf<UUserWidget>& InSniperScopeClass);
+	void ShowSniperScopeWidget(bool bShowScope);
 
 private:
 	/*
@@ -70,6 +72,14 @@ private:
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Crosshair")
 	float CrosshairSpreadMax;
+
+	bool bEnableCrosshair;
+	
+	/*
+	 *	Sniper Scope
+	 */
+	UPROPERTY()
+	TObjectPtr<class USniperScope> SniperScope;
 
 	/*
 	 *	Character Overlay

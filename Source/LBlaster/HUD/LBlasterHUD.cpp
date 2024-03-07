@@ -5,6 +5,7 @@
 
 #include "Announcement.h"
 #include "CharacterOverlay.h"
+#include "SniperScope.h"
 #include "Blueprint/UserWidget.h"
 #include "Player/LBlasterPlayerController.h"
 
@@ -12,13 +13,14 @@ ALBlasterHUD::ALBlasterHUD()
 {
 	/* Crosshair */
 	CrosshairSpreadMax = 16.f;
+	bEnableCrosshair = true;
 }
 
 void ALBlasterHUD::DrawHUD()
 {
 	Super::DrawHUD();
 
-	if (GEngine)
+	if (GEngine && bEnableCrosshair)
 	{
 		FVector2D ViewportSize;
 		GEngine->GameViewport->GetViewportSize(ViewportSize);
@@ -184,5 +186,46 @@ void ALBlasterHUD::SetCooldownAnnouncement()
 	{
 		Announcement->SetVisibility(ESlateVisibility::Visible);
 		Announcement->SetCooldownAnnouncement();
+	}
+}
+
+void ALBlasterHUD::InitSniperScope(const TSubclassOf<UUserWidget>& InSniperScopeClass)
+{
+	if (SniperScope || !InSniperScopeClass)
+	{
+		return;
+	}
+
+	if (APlayerController* PlayerController = GetOwningPlayerController())
+	{
+		SniperScope = CreateWidget<USniperScope>(PlayerController, InSniperScopeClass);
+		SniperScope->AddToViewport();
+		SniperScope->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
+void ALBlasterHUD::ShowSniperScopeWidget(bool bShowScope)
+{
+	if (SniperScope)
+	{
+		if (bShowScope)
+		{
+			bEnableCrosshair = false;
+			if (CharacterOverlay)
+			{
+				CharacterOverlay->SetVisibility(ESlateVisibility::Hidden);
+			}
+			SniperScope->SetVisibility(ESlateVisibility::Visible);
+			SniperScope->ShowSniperScopeWidget();
+		}
+		else
+		{
+			bEnableCrosshair = true;
+			if (CharacterOverlay)
+			{
+				CharacterOverlay->SetVisibility(ESlateVisibility::Visible);
+			}
+			SniperScope->SetVisibility(ESlateVisibility::Hidden);
+		}
 	}
 }

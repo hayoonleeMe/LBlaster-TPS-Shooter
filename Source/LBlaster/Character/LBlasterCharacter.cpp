@@ -644,6 +644,12 @@ void ALBlasterCharacter::MulticastElim_Implementation()
 		PlayerController->SetHUDWeaponTypeText();
 	}
 
+	// Sniper Scope 없애기
+	if (CombatComponent)
+	{
+		CombatComponent->ShowSniperScopeWidget(false);
+	}
+
 	/* Ragdoll */
     const float RagdollDelay = FMath::FRandRange(0.1f, 0.6f);
     FTimerHandle RagdollDelayTimer;

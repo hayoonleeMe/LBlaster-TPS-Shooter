@@ -34,6 +34,7 @@ public:
 	void DropWeapon();
 	void Reload();
 	void ReloadFinished();
+	void ShowSniperScopeWidget(bool bShowScope);
 
 private:
 	/*
@@ -112,6 +113,17 @@ private:
 	float CrosshairInAirFactor;
 	float CrosshairAimFactor;
 	float CrosshairShootingFactor;
+
+	/*
+	 *	Sniper Scope
+	 */
+	void InitSniperScope();
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Sniper Scope")
+	TObjectPtr<USoundBase> SniperScopeZoomInSound;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Sniper Scope")
+	TObjectPtr<USoundBase> SniperScopeZoomOutSound;
 
 	/*
 	 *	HitReact
