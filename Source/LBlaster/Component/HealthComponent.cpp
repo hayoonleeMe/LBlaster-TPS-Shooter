@@ -71,7 +71,7 @@ void UHealthComponent::BeginPlay()
 
 bool UHealthComponent::IsValidOwnerCharacter()
 {
-	if (!OwnerCharacter)
+	if (GetOwner() && !OwnerCharacter)
 	{
 		OwnerCharacter = Cast<ALBlasterCharacter>(GetOwner());
 	}
