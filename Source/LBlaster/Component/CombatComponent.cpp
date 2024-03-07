@@ -530,6 +530,10 @@ FString UCombatComponent::GetWeaponTypeString (EWeaponType InWeaponType)
 	{
 		return FString(TEXT("Shotgun"));
 	}
+	if (InWeaponType == EWeaponType::EWT_SniperRifle)
+	{
+		return FString(TEXT("Sniper Rifle"));
+	}
 	return FString();
 }
 
