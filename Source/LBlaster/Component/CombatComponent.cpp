@@ -26,6 +26,7 @@ UCombatComponent::UCombatComponent()
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_Pistol, 0);
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_SMG, 0);
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_Shotgun, 0);
+	CarriedAmmoMap.Emplace(EWeaponType::EWT_SniperRifle, 0);
 
 	/* Fire */
 	FireMontages.Emplace(EWeaponType::EWT_Rifle, nullptr);
@@ -33,6 +34,7 @@ UCombatComponent::UCombatComponent()
 	FireMontages.Emplace(EWeaponType::EWT_Pistol, nullptr);
 	FireMontages.Emplace(EWeaponType::EWT_SMG, nullptr);
 	FireMontages.Emplace(EWeaponType::EWT_Shotgun, nullptr);
+	FireMontages.Emplace(EWeaponType::EWT_SniperRifle, nullptr);
 
 	/* Reload */
 	ReloadMontages.Emplace(EWeaponType::EWT_Rifle, nullptr);
@@ -40,6 +42,7 @@ UCombatComponent::UCombatComponent()
 	ReloadMontages.Emplace(EWeaponType::EWT_Pistol, nullptr);
 	ReloadMontages.Emplace(EWeaponType::EWT_SMG, nullptr);
 	ReloadMontages.Emplace(EWeaponType::EWT_Shotgun, nullptr);
+	ReloadMontages.Emplace(EWeaponType::EWT_SniperRifle, nullptr);
 }
 
 void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
