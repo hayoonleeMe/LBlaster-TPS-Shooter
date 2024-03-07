@@ -6,21 +6,30 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "Interface/HitReceiverInterface.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Particles/ParticleSystemComponent.h"
+
+AHitScanWeapon::AHitScanWeapon()
+{
+	/* Weapon Scatter */
+	DistanceToSphere = 800.f;
+	SphereRadius = 60.f;
+	bUseScatter = false;
+}
 
 void AHitScanWeapon::Fire(const FVector& HitTarget)
 {
 	Super::Fire(HitTarget);
 
-	if (const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(TEXT("MuzzleFlash")))
+	if (const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(FName(TEXT("MuzzleFlash"))))
 	{
 		const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
 		const FVector Start = SocketTransform.GetLocation();
-		const FVector End = Start + (HitTarget - Start) * 1.25f;
 
 		if (UWorld* World = GetWorld())
 		{
 			FHitResult FireHit;
+			const FVector End = bUseScatter ? TraceEndWithScatter(Start, HitTarget) : Start + (HitTarget - Start) * 1.25f;
 			World->LineTraceSingleByChannel(FireHit, Start, End, ECC_Visibility);
 			FVector BeamEnd = End;
 					
@@ -47,14 +56,7 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
                 }
 
 				// Impact Effect
-				if (ImpactParticle)
-				{
-					UGameplayStatics::SpawnEmitterAtLocation(World, ImpactParticle, FireHit.ImpactPoint, FireHit.ImpactNormal.Rotation());
-				}
-				if (ImpactSound)
-				{
-					UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, FireHit.ImpactPoint);
-				}
+				SpawnImpactEffects(World, FireHit);
 			}
 
 			// Beam Effect
@@ -66,5 +68,28 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 				}
 			}
 		}
+	}
+}
+
+FVector AHitScanWeapon::TraceEndWithScatter(const FVector& TraceStart, const FVector& HitTarget)
+{
+	const FVector ToTargetNormalized = (HitTarget - TraceStart).GetSafeNormal();
+	const FVector SphereCenter = TraceStart + ToTargetNormalized * DistanceToSphere;
+	const FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, SphereRadius);
+	const FVector EndLoc = SphereCenter + RandVec;
+	const FVector ToEndLoc = EndLoc - TraceStart;
+	
+	return TraceStart + ToEndLoc / ToEndLoc.Size() * TRACE_LENGTH;
+}
+
+void AHitScanWeapon::SpawnImpactEffects(UWorld* World, const FHitResult& HitResult)
+{
+	if (ImpactParticle)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(World, ImpactParticle, HitResult.ImpactPoint, HitResult.ImpactNormal.Rotation());
+	}
+	if (ImpactSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, HitResult.ImpactPoint);
 	}
 }
