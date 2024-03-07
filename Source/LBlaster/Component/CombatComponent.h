@@ -176,7 +176,10 @@ private:
 	TMap<EWeaponType, UAnimMontage*> ReloadMontages;
 
 	void UpdateAmmoValues();
-	int32 AmountToReload(); 
+	int32 AmountToReload();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastInterruptReload();
 
 	/*
 	 *	Combat State
