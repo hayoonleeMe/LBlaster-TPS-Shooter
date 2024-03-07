@@ -31,6 +31,7 @@ public:
 	FORCEINLINE USoundBase* GetEquipSound() const { return EquipSound; }
 	FORCEINLINE bool NeedReload() const { return Ammo < MagCapacity; }
 	FORCEINLINE float GetADSFOV() const { return ADSFOV; }
+	FORCEINLINE USoundBase* GetDryFireSound() const { return DryFireSound; }
 
 	virtual void Fire(const FVector& HitTarget);
 	void Dropped();
@@ -137,6 +138,9 @@ protected:
 	 */
 	UPROPERTY(EditAnywhere, Category="LBlaster|Sound")
 	TObjectPtr<USoundBase> EquipSound;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Sound")
+	TObjectPtr<USoundBase> DryFireSound;
 
 	/*
 	 *	Damage

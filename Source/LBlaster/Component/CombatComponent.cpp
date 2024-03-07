@@ -369,6 +369,25 @@ void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 	}
 }
 
+void UCombatComponent::StartDryFireTimer()
+{
+	if (!IsValidOwnerCharacter() || !EquippingWeapon)
+	{
+		return;
+	}
+
+	bCanFire = false;
+
+	FTimerHandle Timer;
+	OwnerCharacter->GetWorldTimerManager().SetTimer(Timer, FTimerDelegate::CreateLambda([&]() { bCanFire = true; }), EquippingWeapon->GetFireDelay(), false);
+}
+
+bool UCombatComponent::CanDryFire() const
+{
+	// 탄약 부족으로 발사할 수 없는 상태
+	return EquippingWeapon != nullptr && bCanFire && bIsFiring && CombatState == ECombatState::ECS_Unoccupied && EquippingWeapon->IsAmmoEmpty() && CarriedAmmoMap[EquippingWeapon->GetWeaponType()] == 0;
+}
+
 void UCombatComponent::SetHUDCrosshair(float DeltaTime)
 {
 	if (!IsValidOwnerCharacter() || !IsValidOwnerController() || !IsValidHUD())
@@ -509,12 +528,14 @@ void UCombatComponent::Fire()
 		ServerFire(HitResult.ImpactPoint);
 		CrosshairShootingFactor = 0.75f;
 		StartFireTimer();
-		
-		// Debug Line
-		// FTransform MuzzleTipTransform = EquippingWeapon->GetWeaponMesh()->GetSocketTransform(FName("MuzzleFlash"), RTS_World);
-		// FVector MuzzleX(FRotationMatrix(MuzzleTipTransform.GetRotation().Rotator()).GetUnitAxis(EAxis::X));
-		// DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), MuzzleTipTransform.GetLocation() + MuzzleX * 1000.f, FColor::Red, false, 20.f, 0, 2.f);
-		// DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), HitResult.ImpactPoint, FColor::Orange, false, 20.f, 0, 2.f);
+	}
+	else if (CanDryFire())
+	{
+		if (USoundBase* DryFireSound = EquippingWeapon->GetDryFireSound())
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, DryFireSound, EquippingWeapon->GetActorLocation());
+		}
+		StartDryFireTimer();
 	}
 }
 

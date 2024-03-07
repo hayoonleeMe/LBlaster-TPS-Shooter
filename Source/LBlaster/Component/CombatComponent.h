@@ -104,6 +104,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "LBlaster|Firing")
 	TMap<EWeaponType, UAnimMontage*> FireMontages;
 
+	void StartDryFireTimer();
+	bool CanDryFire() const;
+
 	/*
 	 *	Crosshair
 	 */
