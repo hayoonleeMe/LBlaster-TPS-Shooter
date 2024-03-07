@@ -3,6 +3,7 @@
 
 #include "Component/CombatComponent.h"
 
+#include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "Weapon/Weapon.h"
@@ -11,6 +12,7 @@
 #include "HUD/LBlasterHUD.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Player/LBlasterPlayerController.h"
+#include "Weapon/SniperRifle.h"
 
 UCombatComponent::UCombatComponent()
 {
@@ -82,6 +84,12 @@ void UCombatComponent::SetAiming(bool bInAiming)
 	{
 		OwnerCharacter->SetADSWalkSpeed(bInAiming, ADSMultiplier);
 		OwnerCharacter->SetBlendWeight(0.f);
+
+		// Sniper Scope
+		if (OwnerCharacter->IsLocallyControlled() && EquippingWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle)
+		{
+			ShowSniperScopeWidget(bInAiming);
+		}
 	}
 	
 	ServerSetAiming(bInAiming);
@@ -458,6 +466,33 @@ void UCombatComponent::OnRep_CombatState()
 	}
 }
 
+void UCombatComponent::InitSniperScope()
+{
+	if (IsValidHUD() && EquippingWeapon && EquippingWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle)
+	{
+		if (const ASniperRifle* SniperRifle = Cast<ASniperRifle>(EquippingWeapon))
+		{
+			if (SniperRifle->GetSniperScopeClass())
+			{
+				HUD->InitSniperScope(SniperRifle->GetSniperScopeClass());
+			}
+		}
+	}
+}
+
+void UCombatComponent::ShowSniperScopeWidget(bool bShowScope)
+{
+	if (IsValidHUD() && EquippingWeapon && EquippingWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle)
+	{
+		if (USoundBase* ZoomSound = bShowScope ? SniperScopeZoomInSound : SniperScopeZoomOutSound)
+		{
+			UGameplayStatics::PlaySound2D(this, ZoomSound);
+		}
+		
+		HUD->ShowSniperScopeWidget(bShowScope);
+	}
+}
+
 bool UCombatComponent::CanFire() const
 {
 	return EquippingWeapon != nullptr && !EquippingWeapon->IsAmmoEmpty() && bCanFire && bIsFiring && CombatState == ECombatState::ECS_Unoccupied;
@@ -504,6 +539,9 @@ void UCombatComponent::OnRep_EquippingWeapon()
 			OwnerCharacter->AttachWeapon(EquippingWeapon);
 			OwnerCharacter->SetWeaponAnimLayers(EquippingWeapon->GetWeaponAnimLayer());
 			UGameplayStatics::PlaySoundAtLocation(this, EquippingWeapon->GetEquipSound(), EquippingWeapon->GetActorLocation());
+			
+			/* Sniper Scope */
+			InitSniperScope();
 		}	
 	}
 }
@@ -609,6 +647,9 @@ void UCombatComponent::EquipWeapon(AWeapon* InWeapon)
 			OwnerCharacter->AttachWeapon(EquippingWeapon);
 			OwnerCharacter->SetWeaponAnimLayers(EquippingWeapon->GetWeaponAnimLayer());
 			UGameplayStatics::PlaySoundAtLocation(this, EquippingWeapon->GetEquipSound(), EquippingWeapon->GetActorLocation());
+			
+			/* Sniper Scope */
+			InitSniperScope();
 		}
 
 		if (EquippingWeapon->IsAmmoEmpty())
