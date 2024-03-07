@@ -239,6 +239,22 @@ int32 UCombatComponent::AmountToReload()
 	return 0;
 }
 
+void UCombatComponent::MulticastInterruptReload_Implementation()
+{
+	if (CombatState == ECombatState::ECS_Reloading)
+	{
+		if (IsValidOwnerCharacter())
+		{
+			if (OwnerCharacter->GetMesh()->GetAnimInstance()->IsAnyMontagePlaying())
+			{
+				OwnerCharacter->GetMesh()->GetAnimInstance()->StopAllMontages(0.1f);
+			}
+		}
+		
+		CombatState = ECombatState::ECS_Unoccupied;
+	}
+}
+
 void UCombatComponent::ReloadFinished()
 {
 	if (IsValidOwnerCharacter() && OwnerCharacter->HasAuthority())
@@ -552,6 +568,7 @@ void UCombatComponent::EquipWeapon(AWeapon* InWeapon)
 	// 이미 무기를 장착하고 있으면 기존 무기는 Drop
 	if (EquippingWeapon)
 	{
+		MulticastInterruptReload();
 		EquippingWeapon->Dropped();
 	}
 	
