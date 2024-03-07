@@ -539,6 +539,9 @@ void UCombatComponent::OnRep_EquippingWeapon()
 			OwnerCharacter->AttachWeapon(EquippingWeapon);
 			OwnerCharacter->SetWeaponAnimLayers(EquippingWeapon->GetWeaponAnimLayer());
 			UGameplayStatics::PlaySoundAtLocation(this, EquippingWeapon->GetEquipSound(), EquippingWeapon->GetActorLocation());
+
+			/* ADS FOV */
+			OwnerCharacter->SetADSFOV(EquippingWeapon->GetADSFOV());
 			
 			/* Sniper Scope */
 			InitSniperScope();
@@ -647,6 +650,9 @@ void UCombatComponent::EquipWeapon(AWeapon* InWeapon)
 			OwnerCharacter->AttachWeapon(EquippingWeapon);
 			OwnerCharacter->SetWeaponAnimLayers(EquippingWeapon->GetWeaponAnimLayer());
 			UGameplayStatics::PlaySoundAtLocation(this, EquippingWeapon->GetEquipSound(), EquippingWeapon->GetActorLocation());
+
+			/* ADS FOV */
+			OwnerCharacter->SetADSFOV(EquippingWeapon->GetADSFOV());
 			
 			/* Sniper Scope */
 			InitSniperScope();

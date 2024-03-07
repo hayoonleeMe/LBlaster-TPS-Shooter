@@ -79,6 +79,9 @@ AWeapon::AWeapon()
 
 	/* Damage */
 	Damage = 20.f;
+
+	/* ADS FOV */
+	ADSFOV = 70.f;
 }
 
 void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

@@ -59,6 +59,7 @@ public:
 	void PlayFireMontage(UAnimMontage* InFireMontage);
 	void PlayReloadMontage(UAnimMontage* InReloadMontage);
 	void SetBlendWeight(float InWeight) const;
+	void SetADSFOV(float InADSFOV);
 
 	/*
 	 *	Elimination
