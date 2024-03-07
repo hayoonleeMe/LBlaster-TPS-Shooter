@@ -287,7 +287,7 @@ void UCombatComponent::ReloadFinished()
 
 bool UCombatComponent::IsValidOwnerCharacter()
 {
-	if (!OwnerCharacter)
+	if (GetOwner() && !OwnerCharacter)
 	{
 		OwnerCharacter = Cast<ALBlasterCharacter>(GetOwner());
 	}
@@ -296,7 +296,7 @@ bool UCombatComponent::IsValidOwnerCharacter()
 
 bool UCombatComponent::IsValidOwnerController()
 {
-	if (!OwnerController)
+	if (IsValidOwnerCharacter() && OwnerCharacter->Controller && !OwnerController)
 	{
 		OwnerController = Cast<ALBlasterPlayerController>(OwnerCharacter->Controller);
 	}
@@ -305,7 +305,7 @@ bool UCombatComponent::IsValidOwnerController()
 
 bool UCombatComponent::IsValidHUD()
 {
-	if (!HUD)
+	if (IsValidOwnerController() && OwnerController->GetHUD() && !HUD)
 	{
 		HUD = Cast<ALBlasterHUD>(OwnerController->GetHUD());
 	}

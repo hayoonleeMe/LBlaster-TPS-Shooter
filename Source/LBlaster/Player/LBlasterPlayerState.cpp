@@ -59,7 +59,7 @@ void ALBlasterPlayerState::AddToScore(float InScoreAmount)
 
 bool ALBlasterPlayerState::IsValidOwnerCharacter()
 {
-	if (!OwnerCharacter)
+	if (GetPawn() && !OwnerCharacter)
 	{
 		OwnerCharacter = Cast<ALBlasterCharacter>(GetPawn());
 	}
@@ -68,7 +68,7 @@ bool ALBlasterPlayerState::IsValidOwnerCharacter()
 
 bool ALBlasterPlayerState::IsValidOwnerController()
 {
-	if (!OwnerController)
+	if (IsValidOwnerCharacter() && OwnerCharacter->Controller && !OwnerController)
 	{
 		OwnerController = Cast<ALBlasterPlayerController>(OwnerCharacter->Controller);
 	}
