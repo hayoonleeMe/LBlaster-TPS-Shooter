@@ -257,13 +257,18 @@ void UCombatComponent::MulticastInterruptReload_Implementation()
 
 void UCombatComponent::ReloadFinished()
 {
-	if (IsValidOwnerCharacter() && OwnerCharacter->HasAuthority())
+	if (!IsValidOwnerCharacter())
 	{
-		CombatState = ECombatState::ECS_Unoccupied;
+		return;
+	}
+
+	CombatState = ECombatState::ECS_Unoccupied;
+	if (OwnerCharacter->HasAuthority())
+	{
 		UpdateAmmoValues();
 	}
 
-	if (bIsFiring)
+	if (OwnerCharacter->IsLocallyControlled() && bIsFiring)
 	{
 		Fire();
 	}
