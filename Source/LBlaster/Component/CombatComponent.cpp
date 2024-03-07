@@ -23,12 +23,12 @@ UCombatComponent::UCombatComponent()
 	ADSMultiplier = 0.5f;
 
 	/* Ammo */
-	CarriedAmmoMap.Emplace(EWeaponType::EWT_Rifle, 0);
-	CarriedAmmoMap.Emplace(EWeaponType::EWT_RocketLauncher, 0);
-	CarriedAmmoMap.Emplace(EWeaponType::EWT_Pistol, 0);
-	CarriedAmmoMap.Emplace(EWeaponType::EWT_SMG, 0);
-	CarriedAmmoMap.Emplace(EWeaponType::EWT_Shotgun, 0);
-	CarriedAmmoMap.Emplace(EWeaponType::EWT_SniperRifle, 0);
+	CarriedAmmoMap.Emplace(EWeaponType::EWT_Rifle, 60);
+	CarriedAmmoMap.Emplace(EWeaponType::EWT_RocketLauncher, 4);
+	CarriedAmmoMap.Emplace(EWeaponType::EWT_Pistol, 30);
+	CarriedAmmoMap.Emplace(EWeaponType::EWT_SMG, 40);
+	CarriedAmmoMap.Emplace(EWeaponType::EWT_Shotgun, 8);
+	CarriedAmmoMap.Emplace(EWeaponType::EWT_SniperRifle, 4);
 
 	/* Fire */
 	FireMontages.Emplace(EWeaponType::EWT_Rifle, nullptr);
