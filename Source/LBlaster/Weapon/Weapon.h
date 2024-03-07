@@ -30,6 +30,7 @@ public:
 	FORCEINLINE int32 GetRoomInMag() const { return MagCapacity - Ammo; }
 	FORCEINLINE USoundBase* GetEquipSound() const { return EquipSound; }
 	FORCEINLINE bool NeedReload() const { return Ammo < MagCapacity; }
+	FORCEINLINE float GetADSFOV() const { return ADSFOV; }
 
 	virtual void Fire(const FVector& HitTarget);
 	void Dropped();
@@ -142,6 +143,12 @@ protected:
 	 */
 	UPROPERTY(EditAnywhere, Category="LBlaster|Damage")
 	float Damage;
+
+	/*
+	 *	ADS FOV
+	 */
+	UPROPERTY(EditDefaultsOnly, Category="LBlaster|ADS FOV")
+	float ADSFOV;
 
 public:
 	/*

@@ -322,6 +322,14 @@ void ALBlasterCharacter::SetBlendWeight(float InWeight) const
 	}
 }
 
+void ALBlasterCharacter::SetADSFOV(float InADSFOV)
+{
+	if (CameraComponent)
+	{
+		CameraComponent->SetADSFOV(InADSFOV);
+	}
+}
+
 void ALBlasterCharacter::Elim()
 {
 	if (CombatComponent)
