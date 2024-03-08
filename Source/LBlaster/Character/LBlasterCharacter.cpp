@@ -265,14 +265,13 @@ void ALBlasterCharacter::SetHUDAmmo(int32 InAmmo)
 	}
 }
 
-void ALBlasterCharacter::AttachWeapon(AWeapon* InEquippedWeapon)
+FTransform ALBlasterCharacter::GetWeaponLeftHandTransform() const
 {
-	if (InEquippedWeapon)
+	if (CombatComponent)
 	{
-		const FTransform WeaponSocket = InEquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName(TEXT("RightHandSocket")), RTS_Component);
-		InEquippedWeapon->GetWeaponMesh()->SetRelativeTransform(WeaponSocket.Inverse());
-		InEquippedWeapon->GetWeaponMesh()->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "RightHandSocket");
+		return CombatComponent->GetWeaponLeftHandTransform();
 	}
+	return FTransform::Identity;
 }
 
 void ALBlasterCharacter::SetADSWalkSpeed(bool bEnabled, float InADSMultiplier)
@@ -525,24 +524,6 @@ bool ALBlasterCharacter::IsFiring() const
 	return CombatComponent && CombatComponent->IsFiring();
 }
 
-FTransform ALBlasterCharacter::GetLeftHandTransform() const
-{
-	if (CombatComponent->GetEquippingWeapon() && GetMesh())
-	{
-		if (USkeletalMeshComponent* EquippingWeaponMesh = CombatComponent->GetEquippingWeapon()->GetWeaponMesh())
-		{
-			FTransform LeftHandTransform = EquippingWeaponMesh->GetSocketTransform(FName(TEXT("LeftHandSocket")), RTS_World);
-			FVector OutPosition;
-			FRotator OutRotation;
-			GetMesh()->TransformToBoneSpace(FName(TEXT("hand_r")), LeftHandTransform.GetLocation(), LeftHandTransform.Rotator(), OutPosition, OutRotation);
-			LeftHandTransform.SetLocation(OutPosition);
-			LeftHandTransform.SetRotation(FQuat(OutRotation));
-			return LeftHandTransform;
-		}	
-	}
-	return FTransform();
-}
-
 bool ALBlasterCharacter::IsReloading() const
 {
 	return CombatComponent && CombatComponent->IsReloading();
@@ -559,15 +540,6 @@ void ALBlasterCharacter::ReloadFinished()
 	{
 		CombatComponent->ReloadFinished();
 	}
-}
-
-const FRotator& ALBlasterCharacter::GetRightHandRotation() const
-{
-	if (CombatComponent)
-	{
-		return CombatComponent->GetRightHandRotation();
-	}
-	return FRotator::ZeroRotator;
 }
 
 void ALBlasterCharacter::SetLastHitNormal(const FVector& InHitNormal)

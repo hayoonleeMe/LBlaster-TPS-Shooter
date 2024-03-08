@@ -44,31 +44,12 @@ private:
 	UPROPERTY(BlueprintReadOnly, Category="Character State", meta = (AllowPrivateAccess = "true"))
 	uint8 bIsFiring : 1;
 
-	bool bPreserveAlign = false;
-
 	/*
 	 *	Left Hand
 	 */
 	UPROPERTY(BlueprintReadOnly, Category="Left Hand", meta = (AllowPrivateAccess = "true"))
-	FTransform LeftHandTransform;
+	FTransform WeaponLeftHandTransform;
 
 	UPROPERTY(BlueprintReadOnly, Category="Left Hand", meta = (AllowPrivateAccess = "true"))
-	uint8 bEnableFABRIK : 1;
-
-	/*
-	 *	Right Hand
-	 */
-	UPROPERTY(BlueprintReadOnly, Category="Right Hand", meta = (AllowPrivateAccess = "true"))
-	FRotator RightHandRotation;
-
-	UPROPERTY(BlueprintReadOnly, Category="Right Hand", meta = (AllowPrivateAccess = "true"))
-	uint8 bEnableRightHandAlign : 1;
-
-	void SetRightHandRotation();
-
-	/*
-	 *	Blend Weight
-	 */
-	UPROPERTY(BlueprintReadWrite, Category="Blend Weight", meta = (AllowPrivateAccess = "true"))
-	float UpperbodyDynamicAdditiveWeight;
+	uint8 bEnableModifyLeftHand : 1;
 };

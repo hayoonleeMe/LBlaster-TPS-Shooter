@@ -43,17 +43,15 @@ public:
      */
     bool IsAiming() const;
     bool IsFiring() const;
-    FTransform GetLeftHandTransform() const;
 	bool IsReloading() const;
 	bool IsEquippingWeapon() const;
 	void ReloadFinished();
-	const FRotator& GetRightHandRotation() const;
 	FORCEINLINE const FVector2D& GetMovementVector() const { return MovementVector; };
+	FTransform GetWeaponLeftHandTransform() const;
 
 	/*
 	 *	Combat
 	 */
-	void AttachWeapon(AWeapon* InEquippedWeapon);
 	void SetADSWalkSpeed(bool bEnabled, float InADSMultiplier);
 	void SetWeaponAnimLayers(TSubclassOf<UAnimInstance> InWeaponAnimLayer);
 	void PlayFireMontage(UAnimMontage* InFireMontage);

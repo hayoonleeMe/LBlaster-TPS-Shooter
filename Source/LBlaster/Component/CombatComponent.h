@@ -23,7 +23,7 @@ public:
 	FORCEINLINE bool IsFiring() const { return bIsFiring; }
 	FORCEINLINE bool IsReloading() const { return CombatState == ECombatState::ECS_Reloading; }
 	FORCEINLINE class AWeapon* GetEquippingWeapon() const { return EquippingWeapon; }
-	FORCEINLINE const FRotator& GetRightHandRotation() const { return RightHandRotation; }
+	FTransform GetWeaponLeftHandTransform() const;
 	
 	void EquipWeapon(AWeapon* InWeapon);	
 	void SetAiming(bool bInAiming);
@@ -65,9 +65,7 @@ private:
 	void OnRep_EquippingWeapon();
 
 	static FString GetWeaponTypeString(EWeaponType InWeaponType);
-
-	void SetRightHandRotation(const FVector& HitTarget);
-	FRotator RightHandRotation;
+	void AttachWeapon();
 
 	/*
 	 *	Aiming

@@ -82,6 +82,9 @@ AWeapon::AWeapon()
 
 	/* ADS FOV */
 	ADSFOV = 70.f;
+
+	/* Attach Transform */
+	AttachTransform = FTransform::Identity;
 }
 
 void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
