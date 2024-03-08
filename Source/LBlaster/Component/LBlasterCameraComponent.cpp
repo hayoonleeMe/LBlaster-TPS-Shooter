@@ -49,7 +49,7 @@ void ULBlasterCameraComponent::GetCameraView(float DeltaTime, FMinimalViewInfo& 
 
 bool ULBlasterCameraComponent::IsValidOwnerCharacter()
 {
-	if (GetOwner() && !OwnerCharacter)
+	if (!OwnerCharacter && GetOwner())
 	{
 		OwnerCharacter = Cast<ALBlasterCharacter>(GetOwner());
 	}
