@@ -281,7 +281,7 @@ void ALBlasterPlayerController::OnPossess(APawn* InPawn)
 
 bool ALBlasterPlayerController::IsValidHUD()
 {
-	if (GetHUD() && !LBlasterHUD)
+	if (!LBlasterHUD && GetHUD())
 	{
 		LBlasterHUD = Cast<ALBlasterHUD>(GetHUD());
 	}
@@ -290,7 +290,7 @@ bool ALBlasterPlayerController::IsValidHUD()
 
 bool ALBlasterPlayerController::IsValidGameMode()
 {
-	if (UGameplayStatics::GetGameMode(this) && !LBlasterGameMode)
+	if (!LBlasterGameMode && UGameplayStatics::GetGameMode(this))
 	{
 		LBlasterGameMode = Cast<ALBlasterGameMode>(UGameplayStatics::GetGameMode(this));
 	}

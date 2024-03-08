@@ -53,7 +53,7 @@ void ULBlasterAnimInstance::AnimNotify_ReloadFinished()
 
 bool ULBlasterAnimInstance::IsValidCharacter()
 {
-	if (TryGetPawnOwner() && !Character)
+	if (!Character && TryGetPawnOwner())
 	{
 		Character = Cast<ALBlasterCharacter>(TryGetPawnOwner());
 	}
@@ -62,7 +62,7 @@ bool ULBlasterAnimInstance::IsValidCharacter()
 
 bool ULBlasterAnimInstance::IsValidMovement()
 {
-	if (IsValidCharacter() && !CharacterMovementComponent)
+	if (!CharacterMovementComponent && IsValidCharacter() && Character->GetCharacterMovement())
 	{
 		CharacterMovementComponent = CastChecked<ULBCharacterMovementComponent>(Character->GetCharacterMovement());
 	}
