@@ -32,6 +32,7 @@ public:
 	FORCEINLINE bool NeedReload() const { return Ammo < MagCapacity; }
 	FORCEINLINE float GetADSFOV() const { return ADSFOV; }
 	FORCEINLINE USoundBase* GetDryFireSound() const { return DryFireSound; }
+	FORCEINLINE const FTransform& GetAttachTransform() const { return AttachTransform; }
 
 	virtual void Fire(const FVector& HitTarget);
 	void Dropped();
@@ -151,9 +152,15 @@ protected:
 	/*
 	 *	ADS FOV
 	 */
-	UPROPERTY(EditDefaultsOnly, Category="LBlaster|ADS FOV")
+	UPROPERTY(EditAnywhere, Category="LBlaster|ADS FOV")
 	float ADSFOV;
 
+	/*
+	 *	Attach Transform
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Attach Transform")
+	FTransform AttachTransform;
+	
 public:
 	/*
 	 *	Crosshair

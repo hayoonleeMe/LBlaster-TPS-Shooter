@@ -65,8 +65,6 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	// Tick에서 Trace를 통해 크로스헤어 색상 설정
 	FHitResult HitResult;
 	TraceUnderCrosshair(HitResult);
-	// 총구 정렬
-	SetRightHandRotation(HitResult.ImpactPoint);
 	
 	// 크로스헤어 Draw
 	SetHUDCrosshair(DeltaTime);
@@ -556,8 +554,8 @@ void UCombatComponent::OnRep_EquippingWeapon()
 			{
 				OwnerController->SetHUDWeaponTypeText(GetWeaponTypeString(EquippingWeapon->GetWeaponType()));
 			}
-			
-			OwnerCharacter->AttachWeapon(EquippingWeapon);
+
+			AttachWeapon();
 			OwnerCharacter->SetWeaponAnimLayers(EquippingWeapon->GetWeaponAnimLayer());
 			UGameplayStatics::PlaySoundAtLocation(this, EquippingWeapon->GetEquipSound(), EquippingWeapon->GetActorLocation());
 
@@ -599,21 +597,15 @@ FString UCombatComponent::GetWeaponTypeString (EWeaponType InWeaponType)
 	return FString();
 }
 
-void UCombatComponent::SetRightHandRotation(const FVector& HitTarget)
+void UCombatComponent::AttachWeapon()
 {
-	if (IsValidOwnerCharacter())
+	if (IsValidOwnerCharacter() && EquippingWeapon)
 	{
-		const FTransform RightHandTransform = OwnerCharacter->GetMesh()->GetSocketTransform(FName(TEXT("hand_r")), RTS_World);
-		RightHandRotation = UKismetMathLibrary::FindLookAtRotation(RightHandTransform.GetLocation(), RightHandTransform.GetLocation() + (RightHandTransform.GetLocation() - HitTarget));
-
-		// TODO : RightHandRotation Clamp
-		// const FTransform RightHandSocketTransform = OwnerCharacter->GetMesh()->GetSocketTransform(FName(TEXT("RightHandSocket")), RTS_World);
-		// UE_LOG(LogTemp, Warning, TEXT("RHSTR %s"), *RightHandSocketTransform.Rotator().ToString());
-		// const FRotator BaseRot(0.f, RightHandSocketTransform.Rotator().Yaw - 90.f, 0.f);
-		// UE_LOG(LogTemp, Warning, TEXT("BaseRot %s"), *BaseRot.ToString());
-		// RightHandRotation.Pitch = FMath::Min(RightHandRotation.Pitch, BaseRot.Pitch + 30.f);
-		// RightHandRotation.Yaw = FMath::Clamp(RightHandRotation.Yaw, BaseRot.Yaw - 20.f, BaseRot.Yaw + 20.f);
-		// UE_LOG(LogTemp, Warning, TEXT("RHR %s"), *RightHandRotation.ToString());
+		if (USkeletalMeshComponent* OwnerMesh = OwnerCharacter->GetMesh())
+		{
+			EquippingWeapon->SetActorRelativeTransform(EquippingWeapon->GetAttachTransform());
+			EquippingWeapon->AttachToComponent(OwnerMesh, FAttachmentTransformRules::KeepRelativeTransform, FName(TEXT("weapon_r")));
+		}
 	}
 }
 
@@ -635,6 +627,15 @@ void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& T
 			EquippingWeapon->Fire(TraceHitTarget);
 		}
 	}
+}
+
+FTransform UCombatComponent::GetWeaponLeftHandTransform() const
+{
+	if (EquippingWeapon)
+	{
+		return EquippingWeapon->GetWeaponMesh()->GetSocketTransform(FName(TEXT("LeftHandSocket")), RTS_ParentBoneSpace);
+	}
+	return FTransform::Identity;
 }
 
 void UCombatComponent::EquipWeapon(AWeapon* InWeapon)
@@ -668,7 +669,7 @@ void UCombatComponent::EquipWeapon(AWeapon* InWeapon)
 				}
 			}
 			
-			OwnerCharacter->AttachWeapon(EquippingWeapon);
+			AttachWeapon();
 			OwnerCharacter->SetWeaponAnimLayers(EquippingWeapon->GetWeaponAnimLayer());
 			UGameplayStatics::PlaySoundAtLocation(this, EquippingWeapon->GetEquipSound(), EquippingWeapon->GetActorLocation());
 
