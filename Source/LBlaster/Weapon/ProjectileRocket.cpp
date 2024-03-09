@@ -3,15 +3,10 @@
 
 #include "Weapon/ProjectileRocket.h"
 
+#include "RocketMovementComponent.h"
 #include "Components/BoxComponent.h"
-#include "GameFramework/ProjectileMovementComponent.h"
 #include "Interface/HitReceiverInterface.h"
 #include "Kismet/GameplayStatics.h"
-#include "NiagaraFunctionLibrary.h"
-#include "NiagaraComponent.h"
-#include "NiagaraSystemInstanceController.h"
-#include "RocketMovementComponent.h"
-#include "Components/AudioComponent.h"
 
 AProjectileRocket::AProjectileRocket()
 {
@@ -25,14 +20,9 @@ AProjectileRocket::AProjectileRocket()
 	RocketMovementComponent->InitialSpeed = 2500.f;
 	RocketMovementComponent->MaxSpeed = 2500.f;
 	RocketMovementComponent->ProjectileGravityScale = 0.f;
-	
-	/* Mesh */
-	RocketMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Rocket Mesh"));
-	RocketMesh->SetupAttachment(RootComponent);
-	RocketMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	/* Trail */
-	TrailDestroyTime = 3.f;
+	/* Destroy */
+	DestroyTime = 3.f;
 }
 
 void AProjectileRocket::Destroyed()
@@ -44,24 +34,12 @@ void AProjectileRocket::BeginPlay()
 {
 	Super::BeginPlay();
 
+	SpawnTrailSystem();
+	
 	if (!HasAuthority())
 	{
 		CollisionBox->OnComponentHit.AddDynamic(this, &ThisClass::OnHit);
 	}
-	
-	if (TrailSystem)
-	{
-		TrailSystemComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(TrailSystem, RootComponent, FName(), GetActorLocation(), GetActorRotation(), EAttachLocation::KeepWorldPosition, false);
-	}
-	if (ProjectileLoop && LoopingSoundAttenuation)
-	{
-		ProjectileLoopComponent = UGameplayStatics::SpawnSoundAttached(ProjectileLoop, RootComponent, FName(), GetActorLocation(), EAttachLocation::KeepWorldPosition, false, 1.f, 1.f, 0.f, LoopingSoundAttenuation, nullptr, false);
-	}
-}
-
-void AProjectileRocket::TrailDestroyTimerFinished()
-{
-	Destroy();
 }
 
 void AProjectileRocket::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
@@ -93,26 +71,19 @@ void AProjectileRocket::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 		}
 	}
 
-	/* Trail */
-	GetWorldTimerManager().SetTimer(TrailDestroyTimer, this, &ThisClass::TrailDestroyTimerFinished, TrailDestroyTime);
+	/* Destroy */
+	StartDestroyTimer();
 
-	// Impact Effect를 표시하기 위해 Projectile 액터를 제거하는 Super::OnHit을 호출하는 대신 직접 수행
+	// Impact Effect를 표시하기 위해 Projectile 액터를 제거하는 AProjectile::OnHit을 호출하는 대신 직접 수행
 	SpawnImpactEffects();
 	
-	if (RocketMesh)
+	if (ProjectileMesh)
 	{
-		RocketMesh->SetVisibility(false);
+		ProjectileMesh->SetVisibility(false);
 	}
 	if (CollisionBox)
 	{
 		CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
-	if (TrailSystemComponent && TrailSystemComponent->GetSystemInstanceController())
-	{
-		TrailSystemComponent->GetSystemInstanceController()->Deactivate();
-	}
-	if (ProjectileLoopComponent && ProjectileLoopComponent->IsPlaying())
-	{
-		ProjectileLoopComponent->Stop();
-	}
+	DeactivateTrailSystem();
 }

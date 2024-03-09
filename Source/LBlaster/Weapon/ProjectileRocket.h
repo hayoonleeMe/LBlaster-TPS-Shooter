@@ -3,59 +3,29 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Weapon/Projectile.h"
+#include "Weapon/ProjectileExplosive.h"
 #include "ProjectileRocket.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class LBLASTER_API AProjectileRocket : public AProjectile
+class LBLASTER_API AProjectileRocket : public AProjectileExplosive
 {
 	GENERATED_BODY()
 
 public:
 	AProjectileRocket();
 	virtual void Destroyed() override;
-	
+
 protected:
-	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) override;
 	virtual void BeginPlay() override;
-	void TrailDestroyTimerFinished();
-
+	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) override;
+	
 private:
-	/*
-	 *	Mesh
-	 */
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UStaticMeshComponent> RocketMesh;
-
 	/*
 	 *	Projectile Movement
 	 */
 	UPROPERTY(EditAnywhere, Category="LBlaster|Projectile Movement")
 	TObjectPtr<class URocketMovementComponent> RocketMovementComponent;
-
-	/*
-	 *	Trail
-	 */
-	UPROPERTY(EditAnywhere, Category="LBlaster|Trail")
-	TObjectPtr<class UNiagaraSystem> TrailSystem;
-
-	UPROPERTY()
-	TObjectPtr<class UNiagaraComponent> TrailSystemComponent;
-
-	UPROPERTY(EditAnywhere, Category="LBlaster|Trail")
-	TObjectPtr<USoundBase> ProjectileLoop;
-
-	UPROPERTY()
-	TObjectPtr<UAudioComponent> ProjectileLoopComponent; 
-	
-	UPROPERTY(EditAnywhere, Category="LBlaster|Trail")
-	TObjectPtr<USoundAttenuation> LoopingSoundAttenuation; 
-
-	FTimerHandle TrailDestroyTimer;
-
-	UPROPERTY(EditAnywhere, Category="LBlaster|Trail")
-	float TrailDestroyTime;
 };
