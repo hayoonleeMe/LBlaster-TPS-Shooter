@@ -29,6 +29,7 @@ UCombatComponent::UCombatComponent()
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_SMG, 40);
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_Shotgun, 8);
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_SniperRifle, 4);
+	CarriedAmmoMap.Emplace(EWeaponType::EWT_GrenadeLauncher, 4);
 
 	/* Fire */
 	FireMontages.Emplace(EWeaponType::EWT_Rifle, nullptr);
@@ -37,6 +38,7 @@ UCombatComponent::UCombatComponent()
 	FireMontages.Emplace(EWeaponType::EWT_SMG, nullptr);
 	FireMontages.Emplace(EWeaponType::EWT_Shotgun, nullptr);
 	FireMontages.Emplace(EWeaponType::EWT_SniperRifle, nullptr);
+	FireMontages.Emplace(EWeaponType::EWT_GrenadeLauncher, nullptr);
 
 	/* Reload */
 	ReloadMontages.Emplace(EWeaponType::EWT_Rifle, nullptr);
@@ -45,6 +47,7 @@ UCombatComponent::UCombatComponent()
 	ReloadMontages.Emplace(EWeaponType::EWT_SMG, nullptr);
 	ReloadMontages.Emplace(EWeaponType::EWT_Shotgun, nullptr);
 	ReloadMontages.Emplace(EWeaponType::EWT_SniperRifle, nullptr);
+	ReloadMontages.Emplace(EWeaponType::EWT_GrenadeLauncher, nullptr);
 }
 
 void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -593,6 +596,10 @@ FString UCombatComponent::GetWeaponTypeString (EWeaponType InWeaponType)
 	if (InWeaponType == EWeaponType::EWT_SniperRifle)
 	{
 		return FString(TEXT("Sniper Rifle"));
+	}
+	if (InWeaponType == EWeaponType::EWT_GrenadeLauncher)
+	{
+		return FString(TEXT("Grenade Launcher"));
 	}
 	return FString();
 }
