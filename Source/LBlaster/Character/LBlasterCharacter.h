@@ -171,7 +171,7 @@ private:
 	/*
 	 *	HitReact
 	 */
-	void PlayHitReactMontage(const FVector& HitNormal);
+	void PlayHitReactMontage(const FVector& HitNormal) const;
 
 	UPROPERTY(ReplicatedUsing=OnRep_LastHitNormal)
 	FVector LastHitNormal;
