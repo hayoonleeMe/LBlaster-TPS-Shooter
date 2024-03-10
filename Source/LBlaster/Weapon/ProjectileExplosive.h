@@ -55,4 +55,15 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Trail")
 	float DestroyTime;
+
+	/*
+	 *	Explosive Damage
+	 */
+	void ExplodeDamage();
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Explosive Damage")
+	float DamageInnerRadius;
+	
+	UPROPERTY(EditAnywhere, Category="LBlaster|Explosive Damage")
+	float DamageOuterRadius;
 };

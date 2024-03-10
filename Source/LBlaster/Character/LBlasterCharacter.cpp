@@ -20,6 +20,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Player/LBlasterPlayerController.h"
 #include "Weapon/Weapon.h"
+#include "Weapon/DamageType/DamageType_Explosive.h"
 
 ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<ULBCharacterMovementComponent>(CharacterMovementComponentName))
@@ -493,7 +494,7 @@ void ALBlasterCharacter::ShowOverlappingWeaponPickupWidget(AWeapon* LastOverlapp
 	}
 }
 
-void ALBlasterCharacter::PlayHitReactMontage(const FVector& HitNormal)
+void ALBlasterCharacter::PlayHitReactMontage(const FVector& HitNormal) const
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (CombatComponent && AnimInstance)
@@ -508,6 +509,12 @@ void ALBlasterCharacter::PlayHitReactMontage(const FVector& HitNormal)
 void ALBlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController,
                                        AActor* DamageCauser)
 {
+	// 폭발 데미지면 랜덤한 HitReact Montage 재생
+	if (DamageType->IsA(UDamageType_Explosive::StaticClass()))
+	{
+		SetLastHitNormal(FVector(FMath::FRandRange(0.f, 1.f), FMath::FRandRange(0.f, 1.f), FMath::FRandRange(0.f, 1.f)).GetSafeNormal());
+	}
+	
 	if (HealthComponent)
 	{
 		HealthComponent->ReceiveDamage(Damage, InstigatorController);

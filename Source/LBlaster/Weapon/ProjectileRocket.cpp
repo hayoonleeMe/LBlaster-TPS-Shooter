@@ -48,28 +48,9 @@ void AProjectileRocket::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 	{
 		return;
 	}
-	
-	// ProjectileRocket은 클라이언트에서도 Hit Event가 발생하므로 데미지 로직은 서버에서만 수행
-	if (HasAuthority())
-	{
-		if (OtherActor)
-		{
-			// Play HitReact Montage
-			if (IHitReceiverInterface* HitInterface = Cast<IHitReceiverInterface>(OtherActor))
-			{
-				HitInterface->SetLastHitNormal(Hit.ImpactNormal);
-			}
-		}
-	
-		// Apply Damage
-		if (const APawn* InstigatorPawn = GetInstigator())
-		{
-			if (AController* InstigatorController = InstigatorPawn->Controller)
-			{
-				UGameplayStatics::ApplyRadialDamageWithFalloff(this, Damage, 10.f, GetActorLocation(), 200.f, 500.f, 1.f, UDamageType::StaticClass(), TArray<AActor*>(), this, InstigatorController);
-			}
-		}
-	}
+
+	/* Explosive Damage */
+	ExplodeDamage();
 
 	/* Destroy */
 	StartDestroyTimer();
