@@ -18,7 +18,7 @@ public:
 	
 	void ShowPickupWidget(bool bInShow) const;
 	void SetWeaponState(EWeaponState InWeaponState);
-	void SetHUDAmmo();
+	void SetHUDAmmo() const;
 	void AddAmmo(int32 InAmmo);
 
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
@@ -36,6 +36,7 @@ public:
 
 	virtual void Fire(const FVector& HitTarget);
 	void Dropped();
+	void EnableCustomDepth(bool bEnable) const;
 
 protected:
 	virtual void BeginPlay() override;
@@ -127,7 +128,7 @@ protected:
 	int32 Ammo;
 
 	UFUNCTION()
-	void OnRep_Ammo();
+	void OnRep_Ammo() const;
 
 	void SpendRound();
 
