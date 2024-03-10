@@ -26,6 +26,11 @@ AWeapon::AWeapon()
 	WeaponMesh->SetCollisionResponseToChannel(ECC_FootPlacement, ECR_Ignore);
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+	/* Custom Depth */
+	WeaponMesh->SetCustomDepthStencilValue(CUSTOM_DEPTH_BLUE);
+    WeaponMesh->MarkRenderStateDirty();	// 변경 사항을 Refresh
+	EnableCustomDepth(true);
+
 	AreaSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AreaSphere"));
 	AreaSphere->SetupAttachment(RootComponent);
 	AreaSphere->SetCollisionResponseToAllChannels(ECR_Ignore);
@@ -112,7 +117,7 @@ void AWeapon::SetWeaponState(EWeaponState InWeaponState)
 	OnChangedWeaponState();
 }
 
-void AWeapon::SetHUDAmmo()
+void AWeapon::SetHUDAmmo() const
 {
 	if (GetOwner())
 	{
@@ -140,7 +145,7 @@ void AWeapon::Fire(const FVector& HitTarget)
 	{
 		if (const USkeletalMeshSocket* Socket = WeaponMesh->GetSocketByName(TEXT("AmmoEject")))
 		{
-			FTransform SocketTransform = Socket->GetSocketTransform(WeaponMesh);
+			const FTransform SocketTransform = Socket->GetSocketTransform(WeaponMesh);
 			
 			if (UWorld* World = GetWorld())
 			{
@@ -162,6 +167,14 @@ void AWeapon::Dropped()
 	const FDetachmentTransformRules DetachRule(EDetachmentRule::KeepWorld, true);
 	WeaponMesh->DetachFromComponent(DetachRule);
 	SetOwner(nullptr);
+}
+
+void AWeapon::EnableCustomDepth(bool bEnable) const
+{
+	if (WeaponMesh)
+	{
+		WeaponMesh->SetRenderCustomDepth(bEnable);
+	}
 }
 
 void AWeapon::BeginPlay()
@@ -220,7 +233,9 @@ void AWeapon::OnChangedWeaponState()
 		WeaponMesh->SetSimulatePhysics(false);
 		WeaponMesh->SetEnableGravity(false);
 		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		EnableCustomDepth(false);
 		break;
+		
 	case EWeaponState::EWS_Dropped:
 		if (HasAuthority())
 		{
@@ -229,11 +244,12 @@ void AWeapon::OnChangedWeaponState()
 		WeaponMesh->SetSimulatePhysics(true);
 		WeaponMesh->SetEnableGravity(true);
 		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		EnableCustomDepth(true);
 		break;
 	}
 }
 
-void AWeapon::OnRep_Ammo()
+void AWeapon::OnRep_Ammo() const
 {
 	SetHUDAmmo();
 }
