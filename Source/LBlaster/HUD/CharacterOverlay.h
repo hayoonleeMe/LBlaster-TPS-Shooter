@@ -23,6 +23,7 @@ public:
 	void SetCarriedAmmoAmount(int32 InCarriedAmmo);
 	void SetWeaponTypeText(const FString& InWeaponTypeString);
 	void SetMatchCountdownText(float InCountdownTime);
+	void SetGrenadeAmount(int32 InGrenadeAmount) const;
 	
 private:
 	/*
@@ -51,6 +52,9 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> MatchCountdownText;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> GrenadeAmount;
 
 	/*
 	 *	Widget Animation

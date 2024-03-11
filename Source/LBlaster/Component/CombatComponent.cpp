@@ -8,7 +8,6 @@
 #include "Net/UnrealNetwork.h"
 #include "Weapon/Weapon.h"
 #include "Character/LBlasterCharacter.h"
-#include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "HUD/LBlasterHUD.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -50,6 +49,10 @@ UCombatComponent::UCombatComponent()
 	ReloadMontages.Emplace(EWeaponType::EWT_Shotgun, nullptr);
 	ReloadMontages.Emplace(EWeaponType::EWT_SniperRifle, nullptr);
 	ReloadMontages.Emplace(EWeaponType::EWT_GrenadeLauncher, nullptr);
+
+	/* Grenade */
+	MaxGrenadeAmount = 4;
+	GrenadeAmount = 4;
 }
 
 void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -61,6 +64,7 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(UCombatComponent, bIsFiring);
 	DOREPLIFETIME_CONDITION(UCombatComponent, CarriedAmmo, COND_OwnerOnly);
 	DOREPLIFETIME(UCombatComponent, CombatState);
+	DOREPLIFETIME(UCombatComponent, GrenadeAmount);
 }
 
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -508,6 +512,14 @@ void UCombatComponent::ServerLaunchGrenade_Implementation(const FVector_NetQuant
 	}
 }
 
+void UCombatComponent::UpdateHUDGrenadeAmount()
+{
+	if (IsValidOwnerController())
+	{
+		OwnerController->UpdateHUDGrenadeAmount(GrenadeAmount);
+	}
+}
+
 void UCombatComponent::HandleTossGrenade()
 {
 	if (IsValidOwnerCharacter())
@@ -515,6 +527,7 @@ void UCombatComponent::HandleTossGrenade()
 		OwnerCharacter->PlayTossGrenadeMontage(TossGrenadeMontage);
 		AttachWeaponToLeftHand();
 		ShowAttachedGrenade(true);
+		UpdateHUDGrenadeAmount();
 	}
 }
 
@@ -529,6 +542,7 @@ void UCombatComponent::ShowAttachedGrenade(bool bShow)
 void UCombatComponent::ServerTossGrenade_Implementation()
 {
 	CombatState = ECombatState::ECS_TossingGrenade;
+	GrenadeAmount = FMath::Clamp(GrenadeAmount - 1, 0, MaxGrenadeAmount);
 	HandleTossGrenade();
 }
 
@@ -561,7 +575,7 @@ void UCombatComponent::ShowSniperScopeWidget(bool bShowScope)
 
 void UCombatComponent::TossGrenade()
 {
-	if (CombatState == ECombatState::ECS_Unoccupied)
+	if (EquippingWeapon && CombatState == ECombatState::ECS_Unoccupied && GrenadeAmount > 0)
 	{
 		ServerTossGrenade();
 	}
