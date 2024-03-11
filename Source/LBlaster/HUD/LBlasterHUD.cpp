@@ -120,6 +120,14 @@ void ALBlasterHUD::SetHUDAnnouncementCountdown(float InCountdownTime)
 	}
 }
 
+void ALBlasterHUD::SetHUDGrenadeAmount(int32 InGrenadeAmount)
+{
+	if (CharacterOverlay)
+	{
+		CharacterOverlay->SetGrenadeAmount(InGrenadeAmount);
+	}
+}
+
 void ALBlasterHUD::AddCharacterOverlay()
 {
 	if (CharacterOverlay)
@@ -140,6 +148,7 @@ void ALBlasterHUD::AddCharacterOverlay()
 			SetHUDAmmo(0);
 			SetHUDCarriedAmmo(0);
 			SetHUDWeaponTypeText(FString());
+			PlayerController->UpdateHUDGrenadeAmount();
 		}
 	}
 }

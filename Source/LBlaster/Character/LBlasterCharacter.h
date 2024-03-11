@@ -52,6 +52,12 @@ public:
 	FTransform GetWeaponLeftHandTransform() const;
 
 	/*
+	 *	LBlasterPlayerController
+	 */
+	void UpdateHUDHealth() const;
+	int32 GetGrenadeAmount() const;
+	
+	/*
 	 *	Combat
 	 */
 	void SetADSWalkSpeed(bool bEnabled, float InADSMultiplier);
@@ -67,11 +73,6 @@ public:
 	 *	Elimination
 	 */
 	void Elim();
-
-	/*
-	 *	Health
-	 */
-	void UpdateHUDHealth() const;
 
 protected:
 	/*

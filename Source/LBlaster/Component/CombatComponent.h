@@ -24,6 +24,7 @@ public:
 	FORCEINLINE bool IsReloading() const { return CombatState == ECombatState::ECS_Reloading; }
 	FORCEINLINE class AWeapon* GetEquippingWeapon() const { return EquippingWeapon; }
 	FTransform GetWeaponLeftHandTransform() const;
+	FORCEINLINE int32 GetGrenadeAmount() const { return GrenadeAmount; }
 	
 	void EquipWeapon(AWeapon* InWeapon);	
 	void SetAiming(bool bInAiming);
@@ -38,6 +39,7 @@ public:
 	void TossGrenade();
 	void TossGrenadeFinished();
 	void LaunchGrenade();
+	void UpdateHUDGrenadeAmount();
 
 private:
 	/*
@@ -54,7 +56,7 @@ private:
 	bool IsValidOwnerController();
 
 	UPROPERTY()
-	TObjectPtr<class ALBlasterHUD> HUD;
+	TObjectPtr<ALBlasterHUD> HUD;
 
 	bool IsValidHUD();
 	
@@ -215,6 +217,12 @@ private:
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Grenade")
 	TSubclassOf<class AProjectile> GrenadeClass;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Grenade")
+	int32 MaxGrenadeAmount;
+
+	UPROPERTY(Replicated)
+	int32 GrenadeAmount;
 
 	UFUNCTION(Server, Reliable)
 	void ServerTossGrenade();

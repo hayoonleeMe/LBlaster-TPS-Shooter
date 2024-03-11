@@ -74,3 +74,9 @@ void UCharacterOverlay::SetMatchCountdownText(float InCountdownTime)
 		PlayAnimation(MatchCountdownBlink);
 	}
 }
+
+void UCharacterOverlay::SetGrenadeAmount(int32 InGrenadeAmount) const
+{
+	const FString GrenadeAmountString = FString::Printf(TEXT("%d"), InGrenadeAmount);
+	GrenadeAmount->SetText(FText::FromString(GrenadeAmountString));
+}

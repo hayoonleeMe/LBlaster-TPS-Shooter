@@ -33,6 +33,8 @@ public:
 	void OnMatchStateSet(FName InState);
 	void UpdateHUDHealth();
 	void SetHUDAnnouncementCountdown(float InCountdownTime);
+	void UpdateHUDGrenadeAmount();
+	void UpdateHUDGrenadeAmount(int32 InGrenadeAmount);
 	
 	void HandleMatchHasStarted();
 	void HandleCooldown();

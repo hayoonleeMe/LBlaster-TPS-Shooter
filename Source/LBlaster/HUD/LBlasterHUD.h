@@ -54,6 +54,7 @@ public:
 	void SetHUDWeaponTypeText(const FString& InWeaponTypeString);
 	void SetHUDMatchCountdown(float InCountdownTime);
 	void SetHUDAnnouncementCountdown(float InCountdownTime);
+	void SetHUDGrenadeAmount(int32 InGrenadeAmount);
 	void AddCharacterOverlay();
 	void RemoveCharacterOverlay();
 	void AddAnnouncement();

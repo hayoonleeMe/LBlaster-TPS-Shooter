@@ -213,6 +213,22 @@ void ALBlasterPlayerController::SetHUDAnnouncementCountdown(float InCountdownTim
 	}
 }
 
+void ALBlasterPlayerController::UpdateHUDGrenadeAmount()
+{
+	if (ALBlasterCharacter* LBlasterCharacter = Cast<ALBlasterCharacter>(GetPawn()))
+	{
+		UpdateHUDGrenadeAmount(LBlasterCharacter->GetGrenadeAmount());
+	}
+}
+
+void ALBlasterPlayerController::UpdateHUDGrenadeAmount(int32 InGrenadeAmount)
+{
+	if (IsValidHUD())
+	{
+		LBlasterHUD->SetHUDGrenadeAmount(InGrenadeAmount);
+	}
+}
+
 void ALBlasterPlayerController::OnMatchStateSet(FName InState)
 {
 	MatchState = InState;
@@ -275,8 +291,9 @@ void ALBlasterPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
-	// Player Controller가 초기화될 때 Health HUD 업데이트
-	UpdateHUDHealth();	
+	// Player Controller가 초기화될 때 HUD 업데이트
+	UpdateHUDHealth();
+	UpdateHUDGrenadeAmount();
 }
 
 bool ALBlasterPlayerController::IsValidHUD()

@@ -376,6 +376,15 @@ void ALBlasterCharacter::UpdateHUDHealth() const
 	}
 }
 
+int32 ALBlasterCharacter::GetGrenadeAmount() const
+{
+	if (CombatComponent)
+	{
+		return CombatComponent->GetGrenadeAmount();
+	}
+	return 0;
+}
+
 void ALBlasterCharacter::Move(const FInputActionValue& ActionValue)
 {
 	MovementVector = ActionValue.Get<FVector2D>();
