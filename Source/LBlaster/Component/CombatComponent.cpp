@@ -8,10 +8,12 @@
 #include "Net/UnrealNetwork.h"
 #include "Weapon/Weapon.h"
 #include "Character/LBlasterCharacter.h"
+#include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "HUD/LBlasterHUD.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Player/LBlasterPlayerController.h"
+#include "Weapon/Projectile.h"
 #include "Weapon/SniperRifle.h"
 
 UCombatComponent::UCombatComponent()
@@ -201,7 +203,7 @@ void UCombatComponent::DropWeapon()
 
 void UCombatComponent::Reload()
 {
-	if (EquippingWeapon && EquippingWeapon->NeedReload() && CarriedAmmo > 0 && CombatState != ECombatState::ECS_Reloading)
+	if (EquippingWeapon && EquippingWeapon->NeedReload() && CarriedAmmo > 0 && CombatState == ECombatState::ECS_Unoccupied)
 	{
 		ServerReload();
 	}
@@ -251,9 +253,9 @@ int32 UCombatComponent::AmountToReload()
 	return 0;
 }
 
-void UCombatComponent::MulticastInterruptReload_Implementation()
+void UCombatComponent::MulticastInterruptMontage_Implementation()
 {
-	if (CombatState == ECombatState::ECS_Reloading)
+	if (CombatState != ECombatState::ECS_Unoccupied)
 	{
 		if (IsValidOwnerCharacter())
 		{
@@ -483,7 +485,51 @@ void UCombatComponent::OnRep_CombatState()
 	case ECombatState::ECS_Reloading:
 		HandleReload();	
 		break;
+
+	case ECombatState::ECS_TossingGrenade:
+		HandleTossGrenade();
+		break;
 	}
+}
+
+void UCombatComponent::ServerLaunchGrenade_Implementation(const FVector_NetQuantize& HitTarget)
+{
+	if (IsValidOwnerCharacter() && OwnerCharacter->HasAuthority() && GrenadeClass && OwnerCharacter->GetAttachedGrenade())
+	{
+		const FVector StartingLocation = OwnerCharacter->GetAttachedGrenade()->GetComponentLocation();
+		const FVector ToTarget = HitTarget - StartingLocation;
+
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = SpawnParams.Instigator = OwnerCharacter;
+		if (UWorld* World = GetWorld())
+		{
+			World->SpawnActor<AProjectile>(GrenadeClass, StartingLocation, ToTarget.Rotation(), SpawnParams);
+		}
+	}
+}
+
+void UCombatComponent::HandleTossGrenade()
+{
+	if (IsValidOwnerCharacter())
+	{
+		OwnerCharacter->PlayTossGrenadeMontage(TossGrenadeMontage);
+		AttachWeaponToLeftHand();
+		ShowAttachedGrenade(true);
+	}
+}
+
+void UCombatComponent::ShowAttachedGrenade(bool bShow)
+{
+	if (IsValidOwnerCharacter() && OwnerCharacter->GetAttachedGrenade())
+	{
+		OwnerCharacter->GetAttachedGrenade()->SetVisibility(bShow);
+	}
+}
+
+void UCombatComponent::ServerTossGrenade_Implementation()
+{
+	CombatState = ECombatState::ECS_TossingGrenade;
+	HandleTossGrenade();
 }
 
 void UCombatComponent::InitSniperScope()
@@ -510,6 +556,32 @@ void UCombatComponent::ShowSniperScopeWidget(bool bShowScope)
 		}
 		
 		HUD->ShowSniperScopeWidget(bShowScope);
+	}
+}
+
+void UCombatComponent::TossGrenade()
+{
+	if (CombatState == ECombatState::ECS_Unoccupied)
+	{
+		ServerTossGrenade();
+	}
+}
+
+void UCombatComponent::TossGrenadeFinished()
+{
+	CombatState = ECombatState::ECS_Unoccupied;
+	AttachWeapon();
+}
+
+void UCombatComponent::LaunchGrenade()
+{
+	ShowAttachedGrenade(false);
+
+	if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled())
+	{
+		FHitResult TraceHitResult;
+		TraceUnderCrosshair(TraceHitResult);
+		ServerLaunchGrenade(TraceHitResult.ImpactPoint);	
 	}
 }
 
@@ -616,6 +688,19 @@ void UCombatComponent::AttachWeapon()
 	}
 }
 
+void UCombatComponent::AttachWeaponToLeftHand()
+{
+	if (IsValidOwnerCharacter() && EquippingWeapon)
+	{
+		if (USkeletalMeshComponent* OwnerMesh = OwnerCharacter->GetMesh())
+		{
+			EquippingWeapon->GetWeaponMesh()->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+			EquippingWeapon->SetActorRelativeTransform(FTransform::Identity);
+			EquippingWeapon->AttachToComponent(OwnerMesh, FAttachmentTransformRules::KeepRelativeTransform, FName(TEXT("LeftHandSocket")));
+		}
+	}
+}
+
 void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
 	MulticastFire(TraceHitTarget);
@@ -650,7 +735,7 @@ void UCombatComponent::EquipWeapon(AWeapon* InWeapon)
 	// 이미 무기를 장착하고 있으면 기존 무기는 Drop
 	if (EquippingWeapon)
 	{
-		MulticastInterruptReload();
+		MulticastInterruptMontage();
 		EquippingWeapon->Dropped();
 	}
 	
@@ -687,6 +772,7 @@ void UCombatComponent::EquipWeapon(AWeapon* InWeapon)
 			InitSniperScope();
 		}
 
+		// Reload Empty Weapon
 		if (EquippingWeapon->IsAmmoEmpty())
 		{
 			Reload();

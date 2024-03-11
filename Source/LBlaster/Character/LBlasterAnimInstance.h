@@ -21,6 +21,12 @@ public:
 	UFUNCTION()
 	void AnimNotify_ReloadFinished();
 
+	UFUNCTION()
+	void AnimNotify_TossGrenadeFinished();
+
+	UFUNCTION()
+	void AnimNotify_GrenadeLaunch();
+	
 protected:
 	bool IsValidCharacter();
 	bool IsValidMovement();

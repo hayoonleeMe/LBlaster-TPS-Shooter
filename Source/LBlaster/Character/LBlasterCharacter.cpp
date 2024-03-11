@@ -141,6 +141,12 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 	{
 		ReloadAction = ReloadActionRef.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> TossGrenadeActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_Toss_Grenade.IA_Toss_Grenade'"));
+	if (TossGrenadeActionRef.Object)
+	{
+		TossGrenadeAction = TossGrenadeActionRef.Object;
+	}
 	
 	/* Overhead Widget */
 	OverheadWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidgetComponent"));
@@ -154,6 +160,11 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 	{
 		OverheadWidgetComponent->SetWidgetClass(OverheadWidgetClassRef.Class);
 	}
+
+	/* Grenade */
+	AttachedGrenade = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Attached Grenade"));
+	AttachedGrenade->SetupAttachment(GetMesh(), FName(TEXT("GrenadeSocket")));
+	AttachedGrenade->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	/* Combat Component */
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>(TEXT("Combat Component"));
@@ -198,6 +209,7 @@ void ALBlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &ThisClass::FireStarted);
 	EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Completed, this, &ThisClass::FireFinished);
 	EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Started, this, &ThisClass::Reload);
+	EnhancedInputComponent->BindAction(TossGrenadeAction, ETriggerEvent::Started, this, &ThisClass::TossGrenade);
 }
 
 void ALBlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -212,10 +224,14 @@ void ALBlasterCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
+	/* Animation */
 	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
 	{
 		AnimInstance->LinkAnimClassLayers(BaseAnimLayerClass);
 	}
+
+	/* Grenade */
+	AttachedGrenade->SetVisibility(false);
 }
 
 void ALBlasterCharacter::BeginPlay()
@@ -311,6 +327,17 @@ void ALBlasterCharacter::PlayReloadMontage(UAnimMontage* InReloadMontage)
 		{
 			AnimInstance->Montage_Play(InReloadMontage);
 		}	
+	}
+}
+
+void ALBlasterCharacter::PlayTossGrenadeMontage(UAnimMontage* InTossGrenadeMontage)
+{
+	if (InTossGrenadeMontage)
+	{
+		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+		{
+			AnimInstance->Montage_Play(InTossGrenadeMontage);
+		}
 	}
 }
 
@@ -445,6 +472,14 @@ void ALBlasterCharacter::Reload(const FInputActionValue& ActionValue)
 	}
 }
 
+void ALBlasterCharacter::TossGrenade(const FInputActionValue& ActionValue)
+{
+	if (CombatComponent)
+	{
+		CombatComponent->TossGrenade();
+	}
+}
+
 void ALBlasterCharacter::HideMeshIfCameraClose()
 {
 	if (!IsLocallyControlled())
@@ -541,11 +576,27 @@ bool ALBlasterCharacter::IsEquippingWeapon() const
 	return CombatComponent && CombatComponent->GetEquippingWeapon();
 }
 
-void ALBlasterCharacter::ReloadFinished()
+void ALBlasterCharacter::ReloadFinished() const
 {
 	if (CombatComponent)
 	{
 		CombatComponent->ReloadFinished();
+	}
+}
+
+void ALBlasterCharacter::TossGrenadeFinished() const
+{
+	if (CombatComponent)
+	{
+		CombatComponent->TossGrenadeFinished();
+	}
+}
+
+void ALBlasterCharacter::LaunchGrenade() const
+{
+	if (CombatComponent)
+	{
+		CombatComponent->LaunchGrenade();
 	}
 }
 

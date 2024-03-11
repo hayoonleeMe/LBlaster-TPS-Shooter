@@ -39,6 +39,22 @@ void ULBlasterAnimInstance::AnimNotify_ReloadFinished()
 	}
 }
 
+void ULBlasterAnimInstance::AnimNotify_TossGrenadeFinished()
+{
+	if (IsValidCharacter())
+	{
+		Character->TossGrenadeFinished();
+	}
+}
+
+void ULBlasterAnimInstance::AnimNotify_GrenadeLaunch()
+{
+	if (IsValidCharacter())
+	{
+		Character->LaunchGrenade();
+	}
+}
+
 bool ULBlasterAnimInstance::IsValidCharacter()
 {
 	if (!Character && TryGetPawnOwner())
