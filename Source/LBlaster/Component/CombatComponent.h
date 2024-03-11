@@ -35,6 +35,9 @@ public:
 	void Reload();
 	void ReloadFinished();
 	void ShowSniperScopeWidget(bool bShowScope);
+	void TossGrenade();
+	void TossGrenadeFinished();
+	void LaunchGrenade();
 
 private:
 	/*
@@ -66,6 +69,7 @@ private:
 
 	static FString GetWeaponTypeString(EWeaponType InWeaponType);
 	void AttachWeapon();
+	void AttachWeaponToLeftHand();
 
 	/*
 	 *	Aiming
@@ -192,7 +196,7 @@ private:
 	int32 AmountToReload();
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastInterruptReload();
+	void MulticastInterruptMontage();
 
 	/*
 	 *	Combat State
@@ -202,4 +206,22 @@ private:
 
 	UFUNCTION()
 	void OnRep_CombatState();
+
+	/*
+	 *	Grenade
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Grenade")
+	TObjectPtr<UAnimMontage> TossGrenadeMontage;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Grenade")
+	TSubclassOf<class AProjectile> GrenadeClass;
+
+	UFUNCTION(Server, Reliable)
+	void ServerTossGrenade();
+
+	UFUNCTION(Server, Reliable)
+	void ServerLaunchGrenade(const FVector_NetQuantize& HitTarget);
+
+	void HandleTossGrenade();
+	void ShowAttachedGrenade(bool bShow);
 };

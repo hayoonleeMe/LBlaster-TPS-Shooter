@@ -3,6 +3,7 @@
 
 #include "Weapon/ProjectileGrenade.h"
 
+#include "LBlaster.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -11,6 +12,8 @@ AProjectileGrenade::AProjectileGrenade()
 {
 	/* Collision Box */
 	CollisionBox->SetBoxExtent(FVector(5.f, 2.f, 2.f));
+	CollisionBox->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	CollisionBox->SetCollisionResponseToChannel(ECC_SkeletalMesh, ECR_Ignore);
 	
 	/* Projectile Movement */
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile MovementComponent"));

@@ -45,7 +45,9 @@ public:
     bool IsFiring() const;
 	bool IsReloading() const;
 	bool IsEquippingWeapon() const;
-	void ReloadFinished();
+	void ReloadFinished() const;
+	void TossGrenadeFinished() const;
+	void LaunchGrenade() const;
 	FORCEINLINE const FVector2D& GetMovementVector() const { return MovementVector; };
 	FTransform GetWeaponLeftHandTransform() const;
 
@@ -56,8 +58,10 @@ public:
 	void SetWeaponAnimLayers(TSubclassOf<UAnimInstance> InWeaponAnimLayer);
 	void PlayFireMontage(UAnimMontage* InFireMontage);
 	void PlayReloadMontage(UAnimMontage* InReloadMontage);
+	void PlayTossGrenadeMontage(UAnimMontage* InTossGrenadeMontage);
 	void SetBlendWeight(float InWeight) const;
 	void SetADSFOV(float InADSFOV);
+	FORCEINLINE UStaticMeshComponent* GetAttachedGrenade() const { return AttachedGrenade; }
 
 	/*
 	 *	Elimination
@@ -100,6 +104,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
 	TObjectPtr<UInputAction> ReloadAction;
 	
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
+	TObjectPtr<UInputAction> TossGrenadeAction;
+	
 	void Move(const FInputActionValue& ActionValue);
 	void Look(const FInputActionValue& ActionValue);
 	void DoJump(const FInputActionValue& ActionValue);
@@ -110,6 +117,7 @@ protected:
 	void FireStarted(const FInputActionValue& ActionValue);
 	void FireFinished(const FInputActionValue& ActionValue);
 	void Reload(const FInputActionValue& ActionValue);
+	void TossGrenade(const FInputActionValue& ActionValue);
 
 	/*
 	 *	Damage
@@ -152,6 +160,12 @@ private:
 	UFUNCTION()
 	void OnRep_OverlappingWeapon(AWeapon* LastOverlappingWeapon) const;
 	void ShowOverlappingWeaponPickupWidget(AWeapon* LastOverlappingWeapon) const;
+
+	/*
+	 *	Grenade
+	 */
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UStaticMeshComponent> AttachedGrenade;
 
 	/*
 	 *	Combat
