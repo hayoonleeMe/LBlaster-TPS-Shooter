@@ -371,11 +371,6 @@ void ALBlasterCharacter::SetADSFOV(float InADSFOV)
 
 void ALBlasterCharacter::Elim()
 {
-	if (CombatComponent)
-	{
-		CombatComponent->DropWeapon();
-	}
-	
 	GetWorldTimerManager().SetTimer(ElimTimer, this, &ThisClass::ElimTimerFinished, ElimDelay);
 	MulticastElim();
 }
@@ -703,6 +698,16 @@ void ALBlasterCharacter::StartDissolve()
 
 void ALBlasterCharacter::MulticastElim_Implementation()
 {
+	if (CombatComponent)
+	{
+		// Aiming 상태 해제
+		CombatComponent->SetAiming(false);
+		if (HasAuthority())
+		{
+			CombatComponent->DropWeapon();
+		}
+	}
+	
 	PlayDeathMontage(LastHitNormal);
 	
 	// 죽는 중에 중복 타격되지 않도록 충돌 제거
@@ -714,12 +719,6 @@ void ALBlasterCharacter::MulticastElim_Implementation()
 		PlayerController->SetHUDAmmo(0);
 		PlayerController->SetHUDCarriedAmmo(0);
 		PlayerController->SetHUDWeaponTypeText();
-	}
-
-	// Sniper Scope 없애기
-	if (CombatComponent)
-	{
-		CombatComponent->ShowSniperScopeWidget(false);
 	}
 
 	/* Ragdoll */
