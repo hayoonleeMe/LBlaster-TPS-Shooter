@@ -22,6 +22,7 @@ public:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
+	virtual void OnRep_PlayerState() override;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -151,6 +152,11 @@ private:
 	 */
 	UPROPERTY(VisibleAnywhere, Category="LBlaster|Widget")
 	TObjectPtr<class UWidgetComponent> OverheadWidgetComponent;
+
+	void UpdatePlayerNameToOverheadWidget();
+
+	UFUNCTION(Server, Reliable)
+	void ServerUpdatePlayerNameToOverheadWidget();
 
 	/*
 	 *	Weapon

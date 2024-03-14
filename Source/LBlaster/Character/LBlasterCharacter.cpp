@@ -251,15 +251,27 @@ void ALBlasterCharacter::BeginPlay()
 	}
 
 	/* Overhead Widget */
-	if (UOverheadWidget* OverheadWidget = Cast<UOverheadWidget>(OverheadWidgetComponent->GetUserWidgetObject()))
+	if (IsLocallyControlled())
 	{
-		OverheadWidget->ShowPlayerName(this);
+		UpdatePlayerNameToOverheadWidget();
 	}
 
 	/* Damage */
 	if (HasAuthority())
 	{
 		OnTakeAnyDamage.AddDynamic(this, &ThisClass::ReceiveDamage);
+	}
+}
+
+void ALBlasterCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	// 클라이언트의 PlayerState가 유효해지면 OverheadWidget을 업데이트하고 Server에도 전송해 업데이트한다.
+	UpdatePlayerNameToOverheadWidget();
+	if (IsLocallyControlled())
+	{
+		ServerUpdatePlayerNameToOverheadWidget();
 	}
 }
 
@@ -519,6 +531,19 @@ void ALBlasterCharacter::HideMeshIfCameraClose()
 			CombatComponent->GetEquippingWeapon()->GetWeaponMesh()->bOwnerNoSee = false;
 		}
 	}
+}
+
+void ALBlasterCharacter::UpdatePlayerNameToOverheadWidget()
+{
+	if (UOverheadWidget* OverheadWidget = Cast<UOverheadWidget>(OverheadWidgetComponent->GetUserWidgetObject()))
+	{
+		OverheadWidget->ShowPlayerName(this);
+	}
+}
+
+void ALBlasterCharacter::ServerUpdatePlayerNameToOverheadWidget_Implementation()
+{
+	UpdatePlayerNameToOverheadWidget();
 }
 
 void ALBlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastOverlappingWeapon) const
