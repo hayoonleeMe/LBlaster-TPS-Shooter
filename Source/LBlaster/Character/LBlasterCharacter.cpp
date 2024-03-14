@@ -701,7 +701,10 @@ void ALBlasterCharacter::MulticastElim_Implementation()
 	if (CombatComponent)
 	{
 		// Aiming 상태 해제
-		CombatComponent->SetAiming(false);
+		if (IsLocallyControlled())
+		{
+			CombatComponent->SetAiming(false);
+		}
 		if (HasAuthority())
 		{
 			CombatComponent->DropWeapon();
