@@ -97,9 +97,12 @@ void UCombatComponent::SetAiming(bool bInAiming)
 		{
 			ShowSniperScopeWidget(bInAiming);
 		}
+
+		if (!OwnerCharacter->HasAuthority())
+		{
+			ServerSetAiming(bInAiming);
+		}
 	}
-	
-	ServerSetAiming(bInAiming);
 }
 
 void UCombatComponent::ServerSetAiming_Implementation(bool bInAiming)
