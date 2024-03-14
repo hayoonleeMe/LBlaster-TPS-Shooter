@@ -41,6 +41,9 @@ public:
 	void LaunchGrenade();
 	void UpdateHUDGrenadeAmount();
 
+protected:
+	virtual void BeginPlay() override;
+
 private:
 	/*
 	 *	Owner
