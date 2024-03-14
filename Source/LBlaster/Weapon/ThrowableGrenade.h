@@ -14,6 +14,9 @@ class LBLASTER_API AThrowableGrenade : public AProjectileGrenade
 {
 	GENERATED_BODY()
 
+public:
+	AThrowableGrenade();
+	
 protected:
 	virtual void BeginPlay() override;
 	
