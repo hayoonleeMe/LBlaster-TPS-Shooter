@@ -291,7 +291,6 @@ void ALBlasterPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
-	// Player Controller가 초기화될 때 HUD 업데이트
 	UpdateHUDHealth();
 	UpdateHUDGrenadeAmount();
 }

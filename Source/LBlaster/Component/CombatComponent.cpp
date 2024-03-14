@@ -523,6 +523,13 @@ void UCombatComponent::UpdateHUDGrenadeAmount()
 	}
 }
 
+void UCombatComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	UpdateHUDGrenadeAmount();
+}
+
 void UCombatComponent::HandleTossGrenade()
 {
 	if (IsValidOwnerCharacter())

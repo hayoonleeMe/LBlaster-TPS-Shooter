@@ -142,12 +142,12 @@ void ALBlasterHUD::AddCharacterOverlay()
 			CharacterOverlay = CreateWidget<UCharacterOverlay>(PlayerController, CharacterOverlayClass);
 			CharacterOverlay->AddToViewport();
 
-			PlayerController->UpdateHUDHealth();
 			SetHUDScore(0.f);
 			SetHUDDeath(0);
 			SetHUDAmmo(0);
 			SetHUDCarriedAmmo(0);
 			SetHUDWeaponTypeText(FString());
+			PlayerController->UpdateHUDHealth();
 			PlayerController->UpdateHUDGrenadeAmount();
 		}
 	}
