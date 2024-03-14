@@ -17,11 +17,13 @@ AWeapon::AWeapon()
 	bReplicates = true;
 	SetReplicatingMovement(true);
 
-	/* Mesh & Overlap Sphere */
+	/* Mesh */
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	SetRootComponent(WeaponMesh);
 	WeaponMesh->SetCollisionResponseToAllChannels(ECR_Block);
 	WeaponMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	WeaponMesh->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
+	WeaponMesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 	WeaponMesh->SetCollisionResponseToChannel(ECC_SkeletalMesh, ECR_Ignore);
 	WeaponMesh->SetCollisionResponseToChannel(ECC_FootPlacement, ECR_Ignore);
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -31,6 +33,7 @@ AWeapon::AWeapon()
     WeaponMesh->MarkRenderStateDirty();	// 변경 사항을 Refresh
 	EnableCustomDepth(true);
 
+	/* Overlap Sphere */
 	AreaSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AreaSphere"));
 	AreaSphere->SetupAttachment(RootComponent);
 	AreaSphere->SetCollisionResponseToAllChannels(ECR_Ignore);
