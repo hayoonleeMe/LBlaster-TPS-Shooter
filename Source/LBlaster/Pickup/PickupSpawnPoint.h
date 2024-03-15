@@ -13,6 +13,7 @@ class LBLASTER_API APickupSpawnPoint : public AActor
 	
 public:	
 	APickupSpawnPoint();
+	virtual void Tick(float DeltaSeconds) override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -32,7 +33,7 @@ protected:
 	void StartSpawnPickupTimer(AActor* DestroyedActor);
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Spawn Pickup")
-	float SpawnTime;
+	float SpawnCooldownTime;
 
 private:
 	FTimerHandle SpawnPickupTimer;
@@ -42,4 +43,28 @@ private:
 	 */
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UStaticMeshComponent> PadMesh;
+
+	/*
+	 *	Pad Particle
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Pad Particle")
+	TObjectPtr<class UNiagaraSystem> PadParticle;
+
+	UPROPERTY()
+	TObjectPtr<class UNiagaraComponent> PadParticleComponent;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Pad Particle")
+	TObjectPtr<UNiagaraSystem> PadLoadingParticle;
+
+	UPROPERTY()
+	TObjectPtr<UNiagaraComponent> PadLoadingParticleComponent;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Pad Particle")
+	TObjectPtr<UNiagaraSystem> PadPickupParticle;
+
+	UPROPERTY()
+	TObjectPtr<UNiagaraComponent> PadPickupParticleComponent;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Pad Particle")
+	FLinearColor PadColor;
 };

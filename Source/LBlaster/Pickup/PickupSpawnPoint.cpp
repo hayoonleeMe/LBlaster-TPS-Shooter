@@ -3,19 +3,21 @@
 
 #include "Pickup/PickupSpawnPoint.h"
 
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Pickup.h"
 
 APickupSpawnPoint::APickupSpawnPoint()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 
 	/* Spawn Pickup */
-	SpawnTime = 5.f;
+	SpawnCooldownTime = 5.f;
 
 	/* Pad Mesh */
 	PadMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Pad Mesh"));
-	PadMesh->SetupAttachment(RootComponent);
+	SetRootComponent(PadMesh);
 	PadMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> PadMeshRef(TEXT("/Script/Engine.StaticMesh'/Game/LBlaster/Items/Pickups/Mesh/SM_launchpad_Round.SM_launchpad_Round'"));
@@ -23,12 +25,61 @@ APickupSpawnPoint::APickupSpawnPoint()
 	{
 		PadMesh->SetStaticMesh(PadMeshRef.Object);
 	}
+
+	/* Pad Particle */
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> PadParticleRef(TEXT("/Script/Niagara.NiagaraSystem'/Game/LBlaster/Items/Pickups/FX/Particles/Item/NS_GunPad.NS_GunPad'"));
+	if (PadParticleRef.Object)
+	{
+		PadParticle = PadParticleRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> PadPickupParticleRef(TEXT("/Script/Niagara.NiagaraSystem'/Game/LBlaster/Items/Pickups/FX/Particles/Item/NS_GunPad_Pickup.NS_GunPad_Pickup'"));
+	if (PadPickupParticleRef.Object)
+	{
+		PadPickupParticle = PadPickupParticleRef.Object;
+	}
+	
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> PadLoadingParticleRef(TEXT("/Script/Niagara.NiagaraSystem'/Game/LBlaster/Items/Pickups/FX/Particles/Item/NS_GunPad_Loading.NS_GunPad_Loading'"));
+	if (PadLoadingParticleRef.Object)
+	{
+		PadLoadingParticle = PadLoadingParticleRef.Object;
+	}
+
+	PadColor = FLinearColor(1.f, 0.8f, 0.3f, 0.1f);
+}
+
+void APickupSpawnPoint::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	// Update Cooldown Timer Particle
+	if (PadLoadingParticleComponent && PadLoadingParticleComponent->IsActive())
+	{
+		const float CooldownRate = 1 - GetWorld()->GetTimerManager().GetTimerRemaining(SpawnPickupTimer) / SpawnCooldownTime;
+		PadLoadingParticleComponent->SetFloatParameter(FName(TEXT("RibbonProgression")), CooldownRate);
+	}
 }
 
 void APickupSpawnPoint::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (PadParticle)
+    {
+    	PadParticleComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(PadParticle, RootComponent, FName(), GetActorLocation(), GetActorRotation(), EAttachLocation::KeepWorldPosition, false);
+		PadParticleComponent->SetColorParameter(FName(TEXT("GunPad_Color")), PadColor);
+    }
+	if (PadPickupParticle)
+	{
+		PadPickupParticleComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(PadPickupParticle, RootComponent, FName(), GetActorLocation(), GetActorRotation(), EAttachLocation::KeepWorldPosition, false);
+		PadPickupParticleComponent->SetColorParameter(FName(TEXT("GunPad_Color")), PadColor);
+	}
+	if (PadLoadingParticle)
+	{
+		PadLoadingParticleComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(PadLoadingParticle, RootComponent, FName(), GetActorLocation(), GetActorRotation(), EAttachLocation::KeepWorldPosition, false, false);
+		PadLoadingParticleComponent->SetColorParameter(FName(TEXT("GunPad_Color")), PadColor);
+	}
+	
 	// 서버에서만 생성
 	if (HasAuthority())
 	{
@@ -44,12 +95,15 @@ void APickupSpawnPoint::SpawnPickup()
 		SpawnedPickup = GetWorld()->SpawnActorDeferred<APickup>(PickupClasses[Index], GetActorTransform());
 		SpawnedPickup->OnDestroyed.AddDynamic(this, &ThisClass::StartSpawnPickupTimer);
 		SpawnedPickup->FinishSpawning(GetActorTransform());
+
+		PadLoadingParticleComponent->Deactivate();
 	}
 }
 
 void APickupSpawnPoint::StartSpawnPickupTimer(AActor* DestroyedActor)
 {
-	GetWorld()->GetTimerManager().SetTimer(SpawnPickupTimer, this, &ThisClass::SpawnPickup, SpawnTime);
+	PadLoadingParticleComponent->Activate();
+	GetWorld()->GetTimerManager().SetTimer(SpawnPickupTimer, this, &ThisClass::SpawnPickup, SpawnCooldownTime);
 }
 
 
