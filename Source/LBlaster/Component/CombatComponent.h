@@ -40,6 +40,7 @@ public:
 	void TossGrenadeFinished();
 	void LaunchGrenade();
 	void UpdateHUDGrenadeAmount();
+	void PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount);
 
 protected:
 	virtual void BeginPlay() override;
@@ -185,6 +186,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Ammo")
 	TMap<EWeaponType, int32> CarriedAmmoMap;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Ammo")
+	TMap<EWeaponType, int32> MaxCarriedAmmoMap;
 
 	/*
 	 *	Reload

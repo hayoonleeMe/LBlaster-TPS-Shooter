@@ -32,6 +32,14 @@ UCombatComponent::UCombatComponent()
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_SniperRifle, 4);
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_GrenadeLauncher, 4);
 
+	MaxCarriedAmmoMap.Emplace(EWeaponType::EWT_Rifle, 180);
+    MaxCarriedAmmoMap.Emplace(EWeaponType::EWT_RocketLauncher, 24);
+    MaxCarriedAmmoMap.Emplace(EWeaponType::EWT_Pistol, 90);
+    MaxCarriedAmmoMap.Emplace(EWeaponType::EWT_SMG, 240);
+    MaxCarriedAmmoMap.Emplace(EWeaponType::EWT_Shotgun, 32);
+    MaxCarriedAmmoMap.Emplace(EWeaponType::EWT_SniperRifle, 24);
+    MaxCarriedAmmoMap.Emplace(EWeaponType::EWT_GrenadeLauncher, 24);
+
 	/* Fire */
 	FireMontages.Emplace(EWeaponType::EWT_Rifle, nullptr);
 	FireMontages.Emplace(EWeaponType::EWT_RocketLauncher, nullptr);
@@ -232,7 +240,7 @@ void UCombatComponent::HandleReload()
 
 void UCombatComponent::UpdateAmmoValues()
 {
-	if (!IsValidOwnerCharacter() || !IsValidOwnerController() || !EquippingWeapon)
+	if (!IsValidOwnerController() || !EquippingWeapon)
 	{
 		return;
 	}
@@ -520,6 +528,30 @@ void UCombatComponent::UpdateHUDGrenadeAmount()
 	if (IsValidOwnerController())
 	{
 		OwnerController->UpdateHUDGrenadeAmount(GrenadeAmount);
+	}
+}
+
+void UCombatComponent::PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount)
+{
+	if (!IsValidOwnerController())
+	{
+		return;
+	}
+	
+	if (CarriedAmmoMap.Contains(InWeaponType) && MaxCarriedAmmoMap.Contains(InWeaponType))
+	{
+		CarriedAmmoMap[InWeaponType] = FMath::Clamp(CarriedAmmoMap[InWeaponType] + InAmmoAmount, 0, MaxCarriedAmmoMap[InWeaponType]);
+
+		if (EquippingWeapon && EquippingWeapon->GetWeaponType() == InWeaponType)
+		{
+			CarriedAmmo = CarriedAmmoMap[InWeaponType];
+			OwnerController->SetHUDCarriedAmmo(CarriedAmmo);	
+		}
+	}
+
+	if (EquippingWeapon && EquippingWeapon->GetWeaponType() == InWeaponType && EquippingWeapon->IsAmmoEmpty())
+	{
+		Reload();
 	}
 }
 
