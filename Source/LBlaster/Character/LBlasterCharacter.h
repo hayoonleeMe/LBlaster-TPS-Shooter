@@ -8,10 +8,11 @@
 #include "GameFramework/Character.h"
 #include "Interface/LBCharacterWeaponInterface.h"
 #include "Interface/HitReceiverInterface.h"
+#include "Interface/LBCharacterPickupInterface.h"
 #include "LBlasterCharacter.generated.h"
 
 UCLASS()
-class LBLASTER_API ALBlasterCharacter : public ACharacter, public ILBCharacterWeaponInterface, public IHitReceiverInterface
+class LBLASTER_API ALBlasterCharacter : public ACharacter, public ILBCharacterWeaponInterface, public IHitReceiverInterface, public ILBCharacterPickupInterface
 {
 	GENERATED_BODY()
 
@@ -29,7 +30,7 @@ protected:
 
 public:
 	/*
-	 *	ULBCharacterWeaponInterface
+	 *	ILBCharacterWeaponInterface
 	 */
 	virtual void SetOverlappingWeapon(AWeapon* InWeapon) override;
 	virtual void SetHUDAmmo(int32 InAmmo) override;
@@ -38,6 +39,11 @@ public:
 	 *	ProjectileHitInterface
 	 */
 	virtual void SetLastHitNormal(const FVector& InHitNormal) override;
+
+	/*
+	 *	ILBCharacterPickupInterface
+	 */
+	virtual void PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount) override;
 
 	/*
      *	LBlasterAnimInstance

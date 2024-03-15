@@ -635,6 +635,14 @@ void ALBlasterCharacter::SetLastHitNormal(const FVector& InHitNormal)
 	PlayHitReactMontage(LastHitNormal);
 }
 
+void ALBlasterCharacter::PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount)
+{
+	if (CombatComponent)
+	{
+		CombatComponent->PickupAmmo(InWeaponType, InAmmoAmount);
+	}
+}
+
 void ALBlasterCharacter::OnRep_LastHitNormal()
 {
 	PlayHitReactMontage(LastHitNormal);
