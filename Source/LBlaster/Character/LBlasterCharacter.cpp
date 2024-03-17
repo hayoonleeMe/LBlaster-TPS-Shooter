@@ -147,6 +147,24 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 	{
 		TossGrenadeAction = TossGrenadeActionRef.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> FirstWeaponSlotActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_FirstWeaponSlot.IA_FirstWeaponSlot'"));
+	if (FirstWeaponSlotActionRef.Object)
+	{
+		FirstWeaponSlotAction = FirstWeaponSlotActionRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> SecondWeaponSlotActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_SecondWeaponSlot.IA_SecondWeaponSlot'"));
+	if (SecondWeaponSlotActionRef.Object)
+	{
+		SecondWeaponSlotAction = SecondWeaponSlotActionRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> ThirdWeaponSlotActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_ThirdWeaponSlot.IA_ThirdWeaponSlot'"));
+	if (ThirdWeaponSlotActionRef.Object)
+	{
+		ThirdWeaponSlotAction = ThirdWeaponSlotActionRef.Object;
+	}
 	
 	/* Overhead Widget */
 	OverheadWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidgetComponent"));
@@ -210,6 +228,9 @@ void ALBlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Completed, this, &ThisClass::FireFinished);
 	EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Started, this, &ThisClass::Reload);
 	EnhancedInputComponent->BindAction(TossGrenadeAction, ETriggerEvent::Started, this, &ThisClass::TossGrenade);
+	EnhancedInputComponent->BindAction(FirstWeaponSlotAction, ETriggerEvent::Started, this, &ThisClass::ChooseFirstWeaponSlot);
+	EnhancedInputComponent->BindAction(SecondWeaponSlotAction, ETriggerEvent::Started, this, &ThisClass::ChooseSecondWeaponSlot);
+	EnhancedInputComponent->BindAction(ThirdWeaponSlotAction, ETriggerEvent::Started, this, &ThisClass::ChooseThirdWeaponSlot);
 }
 
 void ALBlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -317,9 +338,14 @@ void ALBlasterCharacter::SetADSWalkSpeed(bool bEnabled, float InADSMultiplier)
 
 void ALBlasterCharacter::SetWeaponAnimLayers(TSubclassOf<UAnimInstance> InWeaponAnimLayer)
 {
-	if (::IsValid(InWeaponAnimLayer))
+	if (InWeaponAnimLayer)
 	{
 		GetMesh()->LinkAnimClassLayers(InWeaponAnimLayer);
+	}
+	// BaseAnimLayerClass
+	else
+	{
+		GetMesh()->LinkAnimClassLayers(BaseAnimLayerClass);
 	}
 }
 
@@ -432,8 +458,11 @@ void ALBlasterCharacter::EquipWeapon(const FInputActionValue& ActionValue)
 	{
 		return;
 	}
-	
-	ServerEquipWeapon();
+
+	if (CombatComponent)
+	{
+		CombatComponent->ServerEquipOverlappingWeapon();
+	}
 }
 
 void ALBlasterCharacter::DoCrouch(const FInputActionValue& ActionValue)
@@ -496,6 +525,30 @@ void ALBlasterCharacter::TossGrenade(const FInputActionValue& ActionValue)
 	}
 }
 
+void ALBlasterCharacter::ChooseFirstWeaponSlot(const FInputActionValue& ActionValue)
+{
+	if (CombatComponent)
+	{
+		CombatComponent->ServerChooseWeaponSlot(EEquipSlot::EES_FirstSlot);
+	}
+}
+
+void ALBlasterCharacter::ChooseSecondWeaponSlot(const FInputActionValue& ActionValue)
+{
+	if (CombatComponent)
+	{
+		CombatComponent->ServerChooseWeaponSlot(EEquipSlot::EES_SecondSlot);
+	}
+}
+
+void ALBlasterCharacter::ChooseThirdWeaponSlot(const FInputActionValue& ActionValue)
+{
+	if (CombatComponent)
+	{
+		CombatComponent->ServerChooseWeaponSlot(EEquipSlot::EES_ThirdSlot);
+	}
+}
+
 void ALBlasterCharacter::HideMeshIfCameraClose()
 {
 	if (!IsLocallyControlled())
@@ -536,9 +589,12 @@ void ALBlasterCharacter::UpdatePlayerNameToOverheadWidget()
 	}
 }
 
-void ALBlasterCharacter::ServerUpdatePlayerNameToOverheadWidget_Implementation()
+void ALBlasterCharacter::EquipDefaultWeapon() const
 {
-	UpdatePlayerNameToOverheadWidget();
+	if (CombatComponent)
+	{
+		CombatComponent->ServerEquipDefaultWeapon();
+	}
 }
 
 void ALBlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastOverlappingWeapon) const
@@ -713,9 +769,10 @@ void ALBlasterCharacter::MulticastElim_Implementation()
 		{
 			CombatComponent->SetAiming(false);
 		}
+		// 소지 중인 무기 모두 해제
 		if (HasAuthority())
 		{
-			CombatComponent->DropWeapon();
+			CombatComponent->ElimWeapon();
 		}
 	}
 	
@@ -752,13 +809,5 @@ void ALBlasterCharacter::MulticastElim_Implementation()
 		}
 	}
 	StartDissolve();
-}
-
-void ALBlasterCharacter::ServerEquipWeapon_Implementation()
-{
-	if (CombatComponent && OverlappingWeapon)
-	{
-		CombatComponent->EquipWeapon(OverlappingWeapon);
-	}
 }
 

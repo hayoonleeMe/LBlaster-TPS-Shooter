@@ -9,6 +9,15 @@
 #include "LBTypes/WeaponTypes.h"
 #include "CombatComponent.generated.h"
 
+UENUM(BlueprintType)
+enum class EEquipSlot : uint8
+{
+	EES_FirstSlot UMETA(DisplayName = "First Slot"),
+	EES_SecondSlot UMETA(DisplayName = "Second Slot"),
+	EES_ThirdSlot UMETA(DisplayName = "Third Slot"),
+	EES_MAX UMETA(DisplayName = "DefaultMax")
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class LBLASTER_API UCombatComponent : public UActorComponent
 {
@@ -22,17 +31,23 @@ public:
 	FORCEINLINE bool IsAiming() const { return bIsAiming; }
 	FORCEINLINE bool IsFiring() const { return bIsFiring; }
 	FORCEINLINE bool IsReloading() const { return CombatState == ECombatState::ECS_Reloading; }
-	FORCEINLINE class AWeapon* GetEquippingWeapon() const { return EquippingWeapon; }
-	FTransform GetWeaponLeftHandTransform() const;
+	FORCEINLINE class AWeapon* GetEquippingWeapon() { return EquipSlots[static_cast<int8>(EquipSlotType)]; }
+	FTransform GetWeaponLeftHandTransform();
 	FORCEINLINE int32 GetGrenadeAmount() const { return GrenadeAmount; }
+
+	UFUNCTION(Server, Reliable)
+	void ServerEquipOverlappingWeapon();
+
+	UFUNCTION(Server, Reliable)
+	void ServerEquipDefaultWeapon();
 	
-	void EquipWeapon(AWeapon* InWeapon);	
 	void SetAiming(bool bInAiming);
 	void SetFiring(bool bInFiring);
 	UAnimMontage* SelectHitReactMontage(const FVector& HitNormal);
 	UAnimMontage* SelectDeathMontage(const FVector& HitNormal);
 	UAnimMontage* SelectReloadMontage();
 	void DropWeapon();
+	void ElimWeapon();
 	void Reload();
 	void ReloadFinished();
 	void ShowSniperScopeWidget(bool bShowScope);
@@ -41,6 +56,9 @@ public:
 	void LaunchGrenade();
 	void UpdateHUDGrenadeAmount();
 	void PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount);
+
+	UFUNCTION(Server, Reliable)
+	void ServerChooseWeaponSlot(EEquipSlot InEquipSlotType);
 
 protected:
 	virtual void BeginPlay() override;
@@ -67,15 +85,30 @@ private:
 	/*
 	 *	Weapon
 	 */
-	UPROPERTY(ReplicatedUsing = OnRep_EquippingWeapon)
-	TObjectPtr<AWeapon> EquippingWeapon;
+	void EquipWeapon(AWeapon* InWeapon);
+	void SwapWeapon(AWeapon* InWeapon);
+	void HolsterWeapon();
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastSwitchToUnarmedState();
 
-	UFUNCTION()
-	void OnRep_EquippingWeapon();
-
-	static FString GetWeaponTypeString(EWeaponType InWeaponType);
+	static FString GetWeaponTypeString(EWeaponType InWeaponType = EWeaponType::EWT_Unarmed);
 	void AttachWeapon();
 	void AttachWeaponToLeftHand();
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Weapon")
+	TSubclassOf<AWeapon> DefaultWeaponClass;
+
+	UPROPERTY(Replicated)
+	EEquipSlot EquipSlotType;
+
+	UPROPERTY(ReplicatedUsing="OnRep_EquipSlots")
+	TArray<AWeapon*> EquipSlots;
+
+	UFUNCTION()
+    void OnRep_EquipSlots();
+
+	void SetEquippingWeapon(AWeapon* InWeapon);
 
 	/*
 	 *	Aiming
@@ -95,7 +128,7 @@ private:
 	UPROPERTY(Replicated)
 	uint8 bIsFiring : 1;
 
-	bool CanFire() const;	
+	bool CanFire();	
 	void Fire();
 
 	UFUNCTION(Server, Reliable)
@@ -113,7 +146,7 @@ private:
 	TMap<EWeaponType, UAnimMontage*> FireMontages;
 
 	void StartDryFireTimer();
-	bool CanDryFire() const;
+	bool CanDryFire();
 
 	/*
 	 *	Crosshair

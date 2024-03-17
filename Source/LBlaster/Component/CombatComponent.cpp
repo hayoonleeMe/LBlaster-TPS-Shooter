@@ -3,6 +3,7 @@
 
 #include "Component/CombatComponent.h"
 
+#include "LBlaster.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
@@ -24,6 +25,7 @@ UCombatComponent::UCombatComponent()
 	ADSMultiplier = 0.5f;
 
 	/* Ammo */
+	CarriedAmmoMap.Emplace(EWeaponType::EWT_Unarmed, 0);
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_Rifle, 60);
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_RocketLauncher, 4);
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_Pistol, 30);
@@ -32,6 +34,7 @@ UCombatComponent::UCombatComponent()
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_SniperRifle, 4);
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_GrenadeLauncher, 4);
 
+	MaxCarriedAmmoMap.Emplace(EWeaponType::EWT_Unarmed, 0);
 	MaxCarriedAmmoMap.Emplace(EWeaponType::EWT_Rifle, 180);
     MaxCarriedAmmoMap.Emplace(EWeaponType::EWT_RocketLauncher, 24);
     MaxCarriedAmmoMap.Emplace(EWeaponType::EWT_Pistol, 90);
@@ -41,6 +44,7 @@ UCombatComponent::UCombatComponent()
     MaxCarriedAmmoMap.Emplace(EWeaponType::EWT_GrenadeLauncher, 24);
 
 	/* Fire */
+	FireMontages.Emplace(EWeaponType::EWT_Unarmed, nullptr);
 	FireMontages.Emplace(EWeaponType::EWT_Rifle, nullptr);
 	FireMontages.Emplace(EWeaponType::EWT_RocketLauncher, nullptr);
 	FireMontages.Emplace(EWeaponType::EWT_Pistol, nullptr);
@@ -50,6 +54,7 @@ UCombatComponent::UCombatComponent()
 	FireMontages.Emplace(EWeaponType::EWT_GrenadeLauncher, nullptr);
 
 	/* Reload */
+	ReloadMontages.Emplace(EWeaponType::EWT_Unarmed, nullptr);
 	ReloadMontages.Emplace(EWeaponType::EWT_Rifle, nullptr);
 	ReloadMontages.Emplace(EWeaponType::EWT_RocketLauncher, nullptr);
 	ReloadMontages.Emplace(EWeaponType::EWT_Pistol, nullptr);
@@ -57,6 +62,13 @@ UCombatComponent::UCombatComponent()
 	ReloadMontages.Emplace(EWeaponType::EWT_Shotgun, nullptr);
 	ReloadMontages.Emplace(EWeaponType::EWT_SniperRifle, nullptr);
 	ReloadMontages.Emplace(EWeaponType::EWT_GrenadeLauncher, nullptr);
+
+	/* Weapon */
+	EquipSlotType = EEquipSlot::EES_ThirdSlot;
+	EquipSlots.Add(nullptr);
+	EquipSlots.Add(nullptr);
+	EquipSlots.Add(nullptr);
+	EquipSlots.Add(nullptr);	// dummy
 
 	/* Grenade */
 	MaxGrenadeAmount = 4;
@@ -67,7 +79,8 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(UCombatComponent, EquippingWeapon);
+	DOREPLIFETIME(UCombatComponent, EquipSlotType);
+	DOREPLIFETIME(UCombatComponent, EquipSlots);
 	DOREPLIFETIME(UCombatComponent, bIsAiming);
 	DOREPLIFETIME(UCombatComponent, bIsFiring);
 	DOREPLIFETIME_CONDITION(UCombatComponent, CarriedAmmo, COND_OwnerOnly);
@@ -89,7 +102,7 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 void UCombatComponent::SetAiming(bool bInAiming)
 {
-	if (!EquippingWeapon)
+	if (!GetEquippingWeapon())
 	{
 		return;
 	}
@@ -101,7 +114,7 @@ void UCombatComponent::SetAiming(bool bInAiming)
 		OwnerCharacter->SetBlendWeight(0.f);
 
 		// Sniper Scope
-		if (OwnerCharacter->IsLocallyControlled() && EquippingWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle)
+		if (OwnerCharacter->IsLocallyControlled() && GetEquippingWeapon()->GetWeaponType() == EWeaponType::EWT_SniperRifle)
 		{
 			ShowSniperScopeWidget(bInAiming);
 		}
@@ -124,7 +137,7 @@ void UCombatComponent::ServerSetAiming_Implementation(bool bInAiming)
 
 void UCombatComponent::SetFiring(bool bInFiring)
 {
-	if (!EquippingWeapon || (bInFiring && !bCanFire))
+	if (!GetEquippingWeapon() || (bInFiring && !bCanFire))
 	{
 		return;
 	}
@@ -200,25 +213,42 @@ UAnimMontage* UCombatComponent::SelectDeathMontage(const FVector& HitNormal)
 
 UAnimMontage* UCombatComponent::SelectReloadMontage()
 {
-	if (!EquippingWeapon || !ReloadMontages.Contains(EquippingWeapon->GetWeaponType()))
+	if (!GetEquippingWeapon() || !ReloadMontages.Contains(GetEquippingWeapon()->GetWeaponType()))
 	{
 		return nullptr;
 	}
-	return ReloadMontages[EquippingWeapon->GetWeaponType()];
+	return ReloadMontages[GetEquippingWeapon()->GetWeaponType()];
 }
 
 void UCombatComponent::DropWeapon()
 {
-	if (EquippingWeapon)
+	if (GetEquippingWeapon())
 	{
-		EquippingWeapon->Dropped();
-		EquippingWeapon = nullptr;
+		GetEquippingWeapon()->Dropped();
+		SetEquippingWeapon(nullptr);
+	}
+}
+
+void UCombatComponent::ElimWeapon()
+{
+	// Default Weapon을 제외한 착용 중인 무기는 Drop, 나머지는 Destroy
+	if (EquipSlotType != EEquipSlot::EES_ThirdSlot)
+	{
+		DropWeapon();
+	}
+	for (int8 Index = 0; Index < EquipSlots.Num() - 1; ++Index)
+	{
+		if (AWeapon* WeaponInSlot = EquipSlots[Index])
+		{
+			WeaponInSlot->Destroy();
+			EquipSlots[Index] = nullptr;
+		}
 	}
 }
 
 void UCombatComponent::Reload()
 {
-	if (EquippingWeapon && EquippingWeapon->NeedReload() && CarriedAmmo > 0 && CombatState == ECombatState::ECS_Unoccupied)
+	if (GetEquippingWeapon() && GetEquippingWeapon()->NeedReload() && CarriedAmmo > 0 && CombatState == ECombatState::ECS_Unoccupied)
 	{
 		ServerReload();
 	}
@@ -240,29 +270,29 @@ void UCombatComponent::HandleReload()
 
 void UCombatComponent::UpdateAmmoValues()
 {
-	if (!IsValidOwnerController() || !EquippingWeapon)
+	if (!IsValidOwnerController() || !GetEquippingWeapon())
 	{
 		return;
 	}
 
 	const int32 ReloadAmount = AmountToReload();
-	if (CarriedAmmoMap.Contains(EquippingWeapon->GetWeaponType()))
+	if (CarriedAmmoMap.Contains(GetEquippingWeapon()->GetWeaponType()))
 	{
-		CarriedAmmoMap[EquippingWeapon->GetWeaponType()] -= ReloadAmount;
-		CarriedAmmo = CarriedAmmoMap[EquippingWeapon->GetWeaponType()];
+		CarriedAmmoMap[GetEquippingWeapon()->GetWeaponType()] -= ReloadAmount;
+		CarriedAmmo = CarriedAmmoMap[GetEquippingWeapon()->GetWeaponType()];
 	}
 	OwnerController->SetHUDCarriedAmmo(CarriedAmmo);
-	EquippingWeapon->AddAmmo(ReloadAmount);
+	GetEquippingWeapon()->AddAmmo(ReloadAmount);
 }
 
 int32 UCombatComponent::AmountToReload()
 {
-	if (EquippingWeapon)
+	if (GetEquippingWeapon())
 	{
-		int32 RoomInMag = EquippingWeapon->GetRoomInMag();
-		if (CarriedAmmoMap.Contains(EquippingWeapon->GetWeaponType()))
+		const int32 RoomInMag = GetEquippingWeapon()->GetRoomInMag();
+		if (CarriedAmmoMap.Contains(GetEquippingWeapon()->GetWeaponType()))
 		{
-			return FMath::Min(CarriedAmmoMap[EquippingWeapon->GetWeaponType()], RoomInMag);
+			return FMath::Min(CarriedAmmoMap[GetEquippingWeapon()->GetWeaponType()], RoomInMag);
 		}
 	}
 	return 0;
@@ -332,7 +362,7 @@ bool UCombatComponent::IsValidHUD()
 
 void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 {
-	if (!EquippingWeapon)
+	if (!GetEquippingWeapon())
 	{
 		return;
 	}
@@ -389,7 +419,7 @@ void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 
 void UCombatComponent::StartDryFireTimer()
 {
-	if (!IsValidOwnerCharacter() || !EquippingWeapon)
+	if (!IsValidOwnerCharacter() || !GetEquippingWeapon())
 	{
 		return;
 	}
@@ -397,13 +427,13 @@ void UCombatComponent::StartDryFireTimer()
 	bCanFire = false;
 
 	FTimerHandle Timer;
-	OwnerCharacter->GetWorldTimerManager().SetTimer(Timer, FTimerDelegate::CreateLambda([&]() { bCanFire = true; }), EquippingWeapon->GetFireDelay(), false);
+	OwnerCharacter->GetWorldTimerManager().SetTimer(Timer, FTimerDelegate::CreateLambda([&]() { bCanFire = true; }), GetEquippingWeapon()->GetFireDelay(), false);
 }
 
-bool UCombatComponent::CanDryFire() const
+bool UCombatComponent::CanDryFire()
 {
 	// 탄약 부족으로 발사할 수 없는 상태
-	return EquippingWeapon != nullptr && bCanFire && bIsFiring && CombatState == ECombatState::ECS_Unoccupied && EquippingWeapon->IsAmmoEmpty() && CarriedAmmoMap[EquippingWeapon->GetWeaponType()] == 0;
+	return GetEquippingWeapon() != nullptr && bCanFire && bIsFiring && CombatState == ECombatState::ECS_Unoccupied && GetEquippingWeapon()->IsAmmoEmpty() && CarriedAmmoMap[GetEquippingWeapon()->GetWeaponType()] == 0;
 }
 
 void UCombatComponent::SetHUDCrosshair(float DeltaTime)
@@ -413,13 +443,13 @@ void UCombatComponent::SetHUDCrosshair(float DeltaTime)
 		return;
 	}
 
-	if (EquippingWeapon)
+	if (GetEquippingWeapon())
 	{
-		HUDPackage.TopCrosshair = EquippingWeapon->TopCrosshair;
-		HUDPackage.BottomCrosshair = EquippingWeapon->BottomCrosshair;
-		HUDPackage.LeftCrosshair = EquippingWeapon->LeftCrosshair;
-		HUDPackage.RightCrosshair = EquippingWeapon->RightCrosshair;
-		HUDPackage.CenterCrosshair = EquippingWeapon->CenterCrosshair;
+		HUDPackage.TopCrosshair = GetEquippingWeapon()->TopCrosshair;
+		HUDPackage.BottomCrosshair = GetEquippingWeapon()->BottomCrosshair;
+		HUDPackage.LeftCrosshair = GetEquippingWeapon()->LeftCrosshair;
+		HUDPackage.RightCrosshair = GetEquippingWeapon()->RightCrosshair;
+		HUDPackage.CenterCrosshair = GetEquippingWeapon()->CenterCrosshair;
 	}
 
 	// 이동 속도에 따른 Crosshair Spread
@@ -457,28 +487,28 @@ void UCombatComponent::SetHUDCrosshair(float DeltaTime)
 
 void UCombatComponent::StartFireTimer()
 {
-	if (!IsValidOwnerCharacter() || !EquippingWeapon)
+	if (!IsValidOwnerCharacter() || !GetEquippingWeapon())
 	{
 		return;
 	}
 
-	OwnerCharacter->GetWorldTimerManager().SetTimer(FireTimer, this, &ThisClass::FireTimerFinished, EquippingWeapon->GetFireDelay());
+	OwnerCharacter->GetWorldTimerManager().SetTimer(FireTimer, this, &ThisClass::FireTimerFinished, GetEquippingWeapon()->GetFireDelay());
 }
 
 void UCombatComponent::FireTimerFinished()
 {
-	if (!EquippingWeapon)
+	if (!GetEquippingWeapon())
 	{
 		return;
 	}
 
 	bCanFire = true;
-	if (bIsFiring && EquippingWeapon->IsAutomatic())
+	if (bIsFiring && GetEquippingWeapon()->IsAutomatic())
 	{
 		Fire();
 	}
 
-	if (EquippingWeapon->IsAmmoEmpty())
+	if (GetEquippingWeapon()->IsAmmoEmpty())
 	{
 		Reload();
 	}
@@ -542,16 +572,41 @@ void UCombatComponent::PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount)
 	{
 		CarriedAmmoMap[InWeaponType] = FMath::Clamp(CarriedAmmoMap[InWeaponType] + InAmmoAmount, 0, MaxCarriedAmmoMap[InWeaponType]);
 
-		if (EquippingWeapon && EquippingWeapon->GetWeaponType() == InWeaponType)
+		if (GetEquippingWeapon() && GetEquippingWeapon()->GetWeaponType() == InWeaponType)
 		{
 			CarriedAmmo = CarriedAmmoMap[InWeaponType];
 			OwnerController->SetHUDCarriedAmmo(CarriedAmmo);	
 		}
 	}
 
-	if (EquippingWeapon && EquippingWeapon->GetWeaponType() == InWeaponType && EquippingWeapon->IsAmmoEmpty())
+	if (GetEquippingWeapon() && GetEquippingWeapon()->GetWeaponType() == InWeaponType && GetEquippingWeapon()->IsAmmoEmpty())
 	{
 		Reload();
+	}
+}
+
+void UCombatComponent::ServerChooseWeaponSlot_Implementation(EEquipSlot InEquipSlotType)
+{
+	if (EquipSlotType == InEquipSlotType)
+	{
+		return;
+	}
+
+	// 슬롯 바꾸기 전에 들고 있던 무기 손에서 떼야함.
+	HolsterWeapon();
+
+	// 바꾼 슬롯에 있는 무기 장착
+	EquipSlotType = InEquipSlotType;
+	if (GetEquippingWeapon())
+	{
+		GetEquippingWeapon()->SetActorEnableCollision(true);
+		GetEquippingWeapon()->SetActorHiddenInGame(false);
+		EquipWeapon(GetEquippingWeapon());
+	}
+	// 슬롯에 무기가 없으므로 Unarmed
+	else
+	{
+		MulticastSwitchToUnarmedState();
 	}
 }
 
@@ -559,7 +614,17 @@ void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UpdateHUDGrenadeAmount();
+	if (!IsValidOwnerCharacter())
+	{
+		return;
+	}
+
+	if (!OwnerCharacter->HasAuthority() && OwnerCharacter->IsLocallyControlled())
+	{
+		OwnerCharacter->UpdateHUDHealth();
+		UpdateHUDGrenadeAmount();
+		ServerEquipDefaultWeapon();
+	}
 }
 
 void UCombatComponent::HandleTossGrenade()
@@ -590,9 +655,9 @@ void UCombatComponent::ServerTossGrenade_Implementation()
 
 void UCombatComponent::InitSniperScope()
 {
-	if (IsValidHUD() && EquippingWeapon && EquippingWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle)
+	if (IsValidHUD() && GetEquippingWeapon() && GetEquippingWeapon()->GetWeaponType() == EWeaponType::EWT_SniperRifle)
 	{
-		if (const ASniperRifle* SniperRifle = Cast<ASniperRifle>(EquippingWeapon))
+		if (const ASniperRifle* SniperRifle = Cast<ASniperRifle>(GetEquippingWeapon()))
 		{
 			if (SniperRifle->GetSniperScopeClass())
 			{
@@ -604,7 +669,7 @@ void UCombatComponent::InitSniperScope()
 
 void UCombatComponent::ShowSniperScopeWidget(bool bShowScope)
 {
-	if (IsValidHUD() && EquippingWeapon && EquippingWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle)
+	if (IsValidHUD() && GetEquippingWeapon() && GetEquippingWeapon()->GetWeaponType() == EWeaponType::EWT_SniperRifle)
 	{
 		if (USoundBase* ZoomSound = bShowScope ? SniperScopeZoomInSound : SniperScopeZoomOutSound)
 		{
@@ -617,7 +682,7 @@ void UCombatComponent::ShowSniperScopeWidget(bool bShowScope)
 
 void UCombatComponent::TossGrenade()
 {
-	if (EquippingWeapon && CombatState == ECombatState::ECS_Unoccupied && GrenadeAmount > 0)
+	if (GetEquippingWeapon() && CombatState == ECombatState::ECS_Unoccupied && GrenadeAmount > 0)
 	{
 		ServerTossGrenade();
 	}
@@ -641,9 +706,9 @@ void UCombatComponent::LaunchGrenade()
 	}
 }
 
-bool UCombatComponent::CanFire() const
+bool UCombatComponent::CanFire()
 {
-	return EquippingWeapon != nullptr && !EquippingWeapon->IsAmmoEmpty() && bCanFire && bIsFiring && CombatState == ECombatState::ECS_Unoccupied;
+	return GetEquippingWeapon() != nullptr && !GetEquippingWeapon()->IsAmmoEmpty() && bCanFire && bIsFiring && CombatState == ECombatState::ECS_Unoccupied;
 }
 
 void UCombatComponent::Fire()
@@ -660,9 +725,9 @@ void UCombatComponent::Fire()
 	}
 	else if (CanDryFire())
 	{
-		if (USoundBase* DryFireSound = EquippingWeapon->GetDryFireSound())
+		if (USoundBase* DryFireSound = GetEquippingWeapon()->GetDryFireSound())
 		{
-			UGameplayStatics::PlaySoundAtLocation(this, DryFireSound, EquippingWeapon->GetActorLocation());
+			UGameplayStatics::PlaySoundAtLocation(this, DryFireSound, GetEquippingWeapon()->GetActorLocation());
 		}
 		StartDryFireTimer();
 	}
@@ -671,32 +736,6 @@ void UCombatComponent::Fire()
 void UCombatComponent::ServerSetFiring_Implementation(bool bInFiring)
 {
 	bIsFiring = bInFiring;
-}
-
-void UCombatComponent::OnRep_EquippingWeapon()
-{
-	if (EquippingWeapon)
-	{
-		EquippingWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
-		
-		if (IsValidOwnerCharacter())
-		{
-			if (IsValidOwnerController())
-			{
-				OwnerController->SetHUDWeaponTypeText(GetWeaponTypeString(EquippingWeapon->GetWeaponType()));
-			}
-
-			AttachWeapon();
-			OwnerCharacter->SetWeaponAnimLayers(EquippingWeapon->GetWeaponAnimLayer());
-			UGameplayStatics::PlaySoundAtLocation(this, EquippingWeapon->GetEquipSound(), EquippingWeapon->GetActorLocation());
-
-			/* ADS FOV */
-			OwnerCharacter->SetADSFOV(EquippingWeapon->GetADSFOV());
-			
-			/* Sniper Scope */
-			InitSniperScope();
-		}	
-	}
 }
 
 FString UCombatComponent::GetWeaponTypeString (EWeaponType InWeaponType)
@@ -734,25 +773,50 @@ FString UCombatComponent::GetWeaponTypeString (EWeaponType InWeaponType)
 
 void UCombatComponent::AttachWeapon()
 {
-	if (IsValidOwnerCharacter() && EquippingWeapon)
+	if (IsValidOwnerCharacter() && GetEquippingWeapon())
 	{
 		if (USkeletalMeshComponent* OwnerMesh = OwnerCharacter->GetMesh())
 		{
-			EquippingWeapon->SetActorRelativeTransform(EquippingWeapon->GetAttachTransform());
-			EquippingWeapon->AttachToComponent(OwnerMesh, FAttachmentTransformRules::KeepRelativeTransform, FName(TEXT("weapon_r")));
+			GetEquippingWeapon()->SetActorRelativeTransform(GetEquippingWeapon()->GetAttachTransform());
+			GetEquippingWeapon()->AttachToComponent(OwnerMesh, FAttachmentTransformRules::KeepRelativeTransform, FName(TEXT("weapon_r")));
 		}
 	}
 }
 
 void UCombatComponent::AttachWeaponToLeftHand()
 {
-	if (IsValidOwnerCharacter() && EquippingWeapon)
+	if (IsValidOwnerCharacter() && GetEquippingWeapon())
 	{
 		if (USkeletalMeshComponent* OwnerMesh = OwnerCharacter->GetMesh())
 		{
-			EquippingWeapon->GetWeaponMesh()->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
-			EquippingWeapon->SetActorRelativeTransform(FTransform::Identity);
-			EquippingWeapon->AttachToComponent(OwnerMesh, FAttachmentTransformRules::KeepRelativeTransform, FName(TEXT("LeftHandSocket")));
+			GetEquippingWeapon()->GetWeaponMesh()->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+			GetEquippingWeapon()->SetActorRelativeTransform(FTransform::Identity);
+			GetEquippingWeapon()->AttachToComponent(OwnerMesh, FAttachmentTransformRules::KeepRelativeTransform, FName(TEXT("LeftHandSocket")));
+		}
+	}
+}
+
+void UCombatComponent::SetEquippingWeapon(AWeapon* InWeapon)
+{
+	EquipSlots[static_cast<int8>(EquipSlotType)] = InWeapon;
+
+	// Rep Notify 호출을 위한 dummy
+	EquipSlots[static_cast<int8>(EEquipSlot::EES_MAX)] = EquipSlots[static_cast<int8>(EEquipSlot::EES_MAX)] ? nullptr : InWeapon;
+}
+
+void UCombatComponent::ServerEquipDefaultWeapon_Implementation()
+{
+	if (EquipSlotType != EEquipSlot::EES_ThirdSlot)
+	{
+		return;
+	}
+	
+	if (!GetEquippingWeapon() && DefaultWeaponClass)
+	{
+		if (AWeapon* DefaultWeapon = GetWorld()->SpawnActor<AWeapon>(DefaultWeaponClass))
+		{
+			SetEquippingWeapon(DefaultWeapon);
+			EquipWeapon(GetEquippingWeapon());
 		}
 	}
 }
@@ -766,73 +830,152 @@ void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& T
 {
 	if (IsValidOwnerCharacter())
 	{
-		if (UAnimMontage* MontageToPlay = FireMontages[EquippingWeapon->GetWeaponType()])
+		if (UAnimMontage* MontageToPlay = FireMontages[GetEquippingWeapon()->GetWeaponType()])
 		{
 			OwnerCharacter->PlayFireMontage(MontageToPlay);
 		}
-		if (EquippingWeapon)
+		if (GetEquippingWeapon())
 		{
-			EquippingWeapon->Fire(TraceHitTarget);
+			GetEquippingWeapon()->Fire(TraceHitTarget);
 		}
 	}
 }
 
-FTransform UCombatComponent::GetWeaponLeftHandTransform() const
+FTransform UCombatComponent::GetWeaponLeftHandTransform()
 {
-	if (EquippingWeapon)
+	if (GetEquippingWeapon())
 	{
-		return EquippingWeapon->GetWeaponMesh()->GetSocketTransform(FName(TEXT("LeftHandSocket")), RTS_ParentBoneSpace);
+		return GetEquippingWeapon()->GetWeaponMesh()->GetSocketTransform(FName(TEXT("LeftHandSocket")), RTS_ParentBoneSpace);
 	}
 	return FTransform::Identity;
 }
 
+void UCombatComponent::ServerEquipOverlappingWeapon_Implementation()
+{
+	// 1 or 2번 슬롯일 때 비었으면 바로 착용, 안 비었으면 무기 변경
+	// 3번 기본 슬롯이면 TODO : overlapping text도 안띄움 -> 해당 함수 호출하는 경우X
+	if (EquipSlotType == EEquipSlot::EES_ThirdSlot)
+	{
+		return;
+	}
+
+	if (IsValidOwnerCharacter() && OwnerCharacter->GetOverlappingWeapon())
+	{
+		// 무기 스왑
+		if (GetEquippingWeapon())
+		{
+			SwapWeapon(OwnerCharacter->GetOverlappingWeapon());
+		}
+		// 새로 장착
+		else
+		{
+			EquipWeapon(OwnerCharacter->GetOverlappingWeapon());
+		}	
+	}
+}
+
 void UCombatComponent::EquipWeapon(AWeapon* InWeapon)
 {
-	// 이미 무기를 장착하고 있으면 기존 무기는 Drop
-	if (EquippingWeapon)
-	{
-		MulticastInterruptMontage();
-		EquippingWeapon->Dropped();
-	}
-	
 	// From ServerRPC (Server Only)
-	EquippingWeapon = InWeapon;
+	// TODO : EquipMontage 등 추가되면 다시 고려해보기
+	MulticastInterruptMontage();
+	
+	SetEquippingWeapon(InWeapon);
 
-	if (EquippingWeapon)
+	if (GetEquippingWeapon())
 	{
-		EquippingWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
+		GetEquippingWeapon()->SetWeaponState(EWeaponState::EWS_Equipped);
 
 		if (IsValidOwnerCharacter())
 		{
-			EquippingWeapon->SetOwner(OwnerCharacter);
+			GetEquippingWeapon()->SetOwner(OwnerCharacter);
 			
-			EquippingWeapon->SetHUDAmmo();
-			if (CarriedAmmoMap.Contains(EquippingWeapon->GetWeaponType()))
+			GetEquippingWeapon()->SetHUDAmmo();
+			if (CarriedAmmoMap.Contains(GetEquippingWeapon()->GetWeaponType()))
 			{
-				CarriedAmmo = CarriedAmmoMap[EquippingWeapon->GetWeaponType()];
-				if (IsValidOwnerController())
+				CarriedAmmo = CarriedAmmoMap[GetEquippingWeapon()->GetWeaponType()];
+				if (IsValidOwnerController() && OwnerCharacter->IsLocallyControlled())
 				{
 					OwnerController->SetHUDCarriedAmmo(CarriedAmmo);
-					OwnerController->SetHUDWeaponTypeText(GetWeaponTypeString(EquippingWeapon->GetWeaponType()));
+					OwnerController->SetHUDWeaponTypeText(GetWeaponTypeString(GetEquippingWeapon()->GetWeaponType()));
 				}
 			}
 			
 			AttachWeapon();
-			OwnerCharacter->SetWeaponAnimLayers(EquippingWeapon->GetWeaponAnimLayer());
-			UGameplayStatics::PlaySoundAtLocation(this, EquippingWeapon->GetEquipSound(), EquippingWeapon->GetActorLocation());
+			OwnerCharacter->SetWeaponAnimLayers(GetEquippingWeapon()->GetWeaponAnimLayer());
+			UGameplayStatics::PlaySoundAtLocation(this, GetEquippingWeapon()->GetEquipSound(), GetEquippingWeapon()->GetActorLocation());
 
 			/* ADS FOV */
-			OwnerCharacter->SetADSFOV(EquippingWeapon->GetADSFOV());
+			OwnerCharacter->SetADSFOV(GetEquippingWeapon()->GetADSFOV());
 			
 			/* Sniper Scope */
 			InitSniperScope();
 		}
 
 		// Reload Empty Weapon
-		if (EquippingWeapon->IsAmmoEmpty())
+		if (GetEquippingWeapon()->IsAmmoEmpty())
 		{
 			Reload();
 		}
 	}
 }
 
+void UCombatComponent::OnRep_EquipSlots()
+{
+	MulticastInterruptMontage();
+	
+	if (GetEquippingWeapon())
+	{
+		GetEquippingWeapon()->SetWeaponState(EWeaponState::EWS_Equipped);
+		
+		if (IsValidOwnerCharacter())
+		{
+			if (IsValidOwnerController() /* 클라이언트에서 PlayerController가 유효하면 Local Controller */)
+			{
+				OwnerController->SetHUDCarriedAmmo(CarriedAmmo);
+				OwnerController->SetHUDWeaponTypeText(GetWeaponTypeString(GetEquippingWeapon()->GetWeaponType()));
+			}
+
+			AttachWeapon();
+			OwnerCharacter->SetWeaponAnimLayers(GetEquippingWeapon()->GetWeaponAnimLayer());
+			UGameplayStatics::PlaySoundAtLocation(this, GetEquippingWeapon()->GetEquipSound(), GetEquippingWeapon()->GetActorLocation());
+
+			/* ADS FOV */
+			OwnerCharacter->SetADSFOV(GetEquippingWeapon()->GetADSFOV());
+			
+			/* Sniper Scope */
+			InitSniperScope();
+		}	
+	}
+}
+
+void UCombatComponent::SwapWeapon(AWeapon* InWeapon)
+{
+	// 기존 무기 떨구고 새 무기 장착
+	DropWeapon();
+	EquipWeapon(InWeapon);
+}
+
+void UCombatComponent::HolsterWeapon()
+{
+	if (GetEquippingWeapon())
+	{
+		GetEquippingWeapon()->SetActorEnableCollision(false);
+		GetEquippingWeapon()->SetActorHiddenInGame(true);
+		GetEquippingWeapon()->Holstered();
+	}
+}
+
+void UCombatComponent::MulticastSwitchToUnarmedState_Implementation()
+{
+	if (IsValidOwnerCharacter())
+	{
+		if (IsValidOwnerController() && OwnerCharacter->IsLocallyControlled())
+		{
+			OwnerCharacter->SetHUDAmmo(0);
+			OwnerController->SetHUDCarriedAmmo(0);
+			OwnerController->SetHUDWeaponTypeText(GetWeaponTypeString());	
+		}
+		OwnerCharacter->SetWeaponAnimLayers();
+	}
+}

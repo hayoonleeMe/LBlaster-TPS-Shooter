@@ -63,18 +63,22 @@ public:
 	 */
 	void UpdateHUDHealth() const;
 	int32 GetGrenadeAmount() const;
+	void UpdatePlayerNameToOverheadWidget();
+	void EquipDefaultWeapon() const;
 	
 	/*
 	 *	Combat
 	 */
 	void SetADSWalkSpeed(bool bEnabled, float InADSMultiplier);
-	void SetWeaponAnimLayers(TSubclassOf<UAnimInstance> InWeaponAnimLayer);
+	void SetWeaponAnimLayers(TSubclassOf<UAnimInstance> InWeaponAnimLayer = nullptr);
 	void PlayFireMontage(UAnimMontage* InFireMontage);
 	void PlayReloadMontage(UAnimMontage* InReloadMontage);
 	void PlayTossGrenadeMontage(UAnimMontage* InTossGrenadeMontage);
 	void SetBlendWeight(float InWeight) const;
+	// TODO : naming 변경
 	void SetADSFOV(float InADSFOV);
 	FORCEINLINE UStaticMeshComponent* GetAttachedGrenade() const { return AttachedGrenade; }
+	FORCEINLINE class AWeapon* GetOverlappingWeapon() const { return OverlappingWeapon; }
 
 	/*
 	 *	Elimination
@@ -115,6 +119,15 @@ protected:
 	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
 	TObjectPtr<UInputAction> TossGrenadeAction;
 	
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
+	TObjectPtr<UInputAction> FirstWeaponSlotAction;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
+	TObjectPtr<UInputAction> SecondWeaponSlotAction;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
+    TObjectPtr<UInputAction> ThirdWeaponSlotAction;
+	
 	void Move(const FInputActionValue& ActionValue);
 	void Look(const FInputActionValue& ActionValue);
 	void DoJump(const FInputActionValue& ActionValue);
@@ -126,6 +139,9 @@ protected:
 	void FireFinished(const FInputActionValue& ActionValue);
 	void Reload(const FInputActionValue& ActionValue);
 	void TossGrenade(const FInputActionValue& ActionValue);
+	void ChooseFirstWeaponSlot(const FInputActionValue& ActionValue);
+	void ChooseSecondWeaponSlot(const FInputActionValue& ActionValue);
+	void ChooseThirdWeaponSlot(const FInputActionValue& ActionValue);
 
 	/*
 	 *	Damage
@@ -159,11 +175,6 @@ private:
 	UPROPERTY(VisibleAnywhere, Category="LBlaster|Widget")
 	TObjectPtr<class UWidgetComponent> OverheadWidgetComponent;
 
-	void UpdatePlayerNameToOverheadWidget();
-
-	UFUNCTION(Server, Reliable)
-	void ServerUpdatePlayerNameToOverheadWidget();
-
 	/*
 	 *	Weapon
 	 */
@@ -185,9 +196,6 @@ private:
 	 */
 	UPROPERTY(VisibleAnywhere, Category="LBlaster|Combat")
 	TObjectPtr<class UCombatComponent> CombatComponent;
-
-	UFUNCTION(Server, Reliable)
-	void ServerEquipWeapon();
 
 	/*
 	 *	Animation
