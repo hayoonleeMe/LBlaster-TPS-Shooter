@@ -613,6 +613,8 @@ void UCombatComponent::ServerChooseWeaponSlot_Implementation(EEquipSlot InEquipS
 	// 슬롯 바꾸기 전에 들고 있던 무기 손에서 떼야함.
 	HolsterWeapon();
 
+	EEquipSlot PrevType = EquipSlotType;
+	
 	// 바꾼 슬롯에 있는 무기 장착
 	EquipSlotType = InEquipSlotType;
 	if (GetEquippingWeapon())
@@ -624,7 +626,12 @@ void UCombatComponent::ServerChooseWeaponSlot_Implementation(EEquipSlot InEquipS
 	// 슬롯에 무기가 없으므로 Unarmed
 	else
 	{
-		MulticastSwitchToUnarmedState();
+		bool bSkipUnEquipMontage = false;
+		if (!EquipSlots[static_cast<uint8>(PrevType)])
+		{
+			bSkipUnEquipMontage = true;
+		}
+		MulticastSwitchToUnarmedState(bSkipUnEquipMontage);
 	}
 }
 
@@ -984,7 +991,7 @@ void UCombatComponent::HolsterWeapon()
 	}
 }
 
-void UCombatComponent::MulticastSwitchToUnarmedState_Implementation()
+void UCombatComponent::MulticastSwitchToUnarmedState_Implementation(bool bSkipUnEquipMontage)
 {
 	if (IsValidOwnerCharacter())
 	{
@@ -994,6 +1001,10 @@ void UCombatComponent::MulticastSwitchToUnarmedState_Implementation()
 			OwnerController->SetHUDCarriedAmmo(0);
 			OwnerController->SetHUDWeaponTypeText(GetWeaponTypeString());	
 		}
-		OwnerCharacter->SetWeaponAnimLayers();
+		
+		if (!bSkipUnEquipMontage)
+		{
+			OwnerCharacter->SetWeaponAnimLayers(EWeaponType::EWT_Unarmed);
+		}
 	}
 }
