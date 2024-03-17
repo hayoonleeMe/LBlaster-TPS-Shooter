@@ -238,3 +238,11 @@ void ALBlasterHUD::ShowSniperScopeWidget(bool bShowScope)
 		}
 	}
 }
+
+void ALBlasterHUD::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	AddCharacterOverlay();
+	HideAnnouncement();
+}

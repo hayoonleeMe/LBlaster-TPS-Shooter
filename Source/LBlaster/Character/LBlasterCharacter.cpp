@@ -272,10 +272,7 @@ void ALBlasterCharacter::BeginPlay()
 	}
 
 	/* Overhead Widget */
-	if (IsLocallyControlled())
-	{
-		UpdatePlayerNameToOverheadWidget();
-	}
+	UpdatePlayerNameToOverheadWidget();
 
 	/* Damage */
 	if (HasAuthority())
@@ -288,12 +285,8 @@ void ALBlasterCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
-	// 클라이언트의 PlayerState가 유효해지면 OverheadWidget을 업데이트하고 Server에도 전송해 업데이트한다.
+	// 클라이언트 캐릭터의 PlayerName 표시
 	UpdatePlayerNameToOverheadWidget();
-	if (IsLocallyControlled())
-	{
-		ServerUpdatePlayerNameToOverheadWidget();
-	}
 }
 
 void ALBlasterCharacter::SetOverlappingWeapon(AWeapon* InWeapon)

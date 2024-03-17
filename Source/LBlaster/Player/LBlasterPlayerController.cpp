@@ -3,6 +3,7 @@
 
 #include "LBlasterPlayerController.h"
 
+#include "LBlaster.h"
 #include "Character/LBlasterCharacter.h"
 #include "GameFramework/GameMode.h"
 #include "GameMode/LBlasterGameMode.h"
@@ -291,8 +292,19 @@ void ALBlasterPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
-	UpdateHUDHealth();
-	UpdateHUDGrenadeAmount();
+	if (ALBlasterCharacter* OwningCharacter = Cast<ALBlasterCharacter>(GetCharacter()))
+    {
+		if (HasAuthority())
+		{
+    		OwningCharacter->UpdatePlayerNameToOverheadWidget();
+			if (IsLocalController())
+			{
+				UpdateHUDHealth();
+				UpdateHUDGrenadeAmount();
+				OwningCharacter->EquipDefaultWeapon();
+			}	
+		}
+    }
 }
 
 bool ALBlasterPlayerController::IsValidHUD()
