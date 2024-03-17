@@ -70,10 +70,11 @@ public:
 	 *	Combat
 	 */
 	void SetADSWalkSpeed(bool bEnabled, float InADSMultiplier);
-	void SetWeaponAnimLayers(TSubclassOf<UAnimInstance> InWeaponAnimLayer = nullptr);
+	void SetWeaponAnimLayers(EWeaponType InWeaponType, TSubclassOf<UAnimInstance> InWeaponAnimLayer = nullptr);
 	void PlayFireMontage(UAnimMontage* InFireMontage);
 	void PlayReloadMontage(UAnimMontage* InReloadMontage);
 	void PlayTossGrenadeMontage(UAnimMontage* InTossGrenadeMontage);
+	void PlayEquipMontage(UAnimMontage* InEquipMontage);
 	void SetBlendWeight(float InWeight) const;
 	// TODO : naming 변경
 	void SetADSFOV(float InADSFOV);

@@ -329,16 +329,27 @@ void ALBlasterCharacter::SetADSWalkSpeed(bool bEnabled, float InADSMultiplier)
 	}
 }
 
-void ALBlasterCharacter::SetWeaponAnimLayers(TSubclassOf<UAnimInstance> InWeaponAnimLayer)
+void ALBlasterCharacter::SetWeaponAnimLayers(EWeaponType InWeaponType, TSubclassOf<UAnimInstance> InWeaponAnimLayer)
 {
-	if (InWeaponAnimLayer)
+	// BaseAnimLayerClass
+	if (InWeaponType == EWeaponType::EWT_Unarmed)
+	{
+		if (BaseAnimLayerClass)
+		{
+			GetMesh()->LinkAnimClassLayers(BaseAnimLayerClass);
+		}
+	}
+	else if (InWeaponAnimLayer)
 	{
 		GetMesh()->LinkAnimClassLayers(InWeaponAnimLayer);
 	}
-	// BaseAnimLayerClass
-	else
+	
+	if (CombatComponent)
 	{
-		GetMesh()->LinkAnimClassLayers(BaseAnimLayerClass);
+		if (UAnimMontage* MontageToPlay = CombatComponent->GetEquipMontage(InWeaponType))
+		{
+			PlayEquipMontage(MontageToPlay);
+		}
 	}
 }
 
@@ -368,6 +379,17 @@ void ALBlasterCharacter::PlayTossGrenadeMontage(UAnimMontage* InTossGrenadeMonta
 		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
 		{
 			AnimInstance->Montage_Play(InTossGrenadeMontage);
+		}
+	}
+}
+
+void ALBlasterCharacter::PlayEquipMontage(UAnimMontage* InEquipMontage)
+{
+	if (InEquipMontage)
+	{
+		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+		{
+			AnimInstance->Montage_Play(InEquipMontage);
 		}
 	}
 }

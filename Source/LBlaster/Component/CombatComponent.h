@@ -46,6 +46,7 @@ public:
 	UAnimMontage* SelectHitReactMontage(const FVector& HitNormal);
 	UAnimMontage* SelectDeathMontage(const FVector& HitNormal);
 	UAnimMontage* SelectReloadMontage();
+	UAnimMontage* GetEquipMontage(EWeaponType InWeaponType);
 	void DropWeapon();
 	void ElimWeapon();
 	void Reload();
@@ -98,6 +99,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Weapon")
 	TSubclassOf<AWeapon> DefaultWeaponClass;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Weapon")
+	TMap<EWeaponType, UAnimMontage*> EquipMontages;
 
 	UPROPERTY(Replicated)
 	EEquipSlot EquipSlotType;

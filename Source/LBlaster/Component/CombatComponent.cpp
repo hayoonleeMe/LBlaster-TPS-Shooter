@@ -70,6 +70,15 @@ UCombatComponent::UCombatComponent()
 	EquipSlots.Add(nullptr);
 	EquipSlots.Add(nullptr);	// dummy
 
+	EquipMontages.Emplace(EWeaponType::EWT_Unarmed, nullptr);
+	EquipMontages.Emplace(EWeaponType::EWT_Rifle, nullptr);
+	EquipMontages.Emplace(EWeaponType::EWT_RocketLauncher, nullptr);
+	EquipMontages.Emplace(EWeaponType::EWT_Pistol, nullptr);
+	EquipMontages.Emplace(EWeaponType::EWT_SMG, nullptr);
+	EquipMontages.Emplace(EWeaponType::EWT_Shotgun, nullptr);
+	EquipMontages.Emplace(EWeaponType::EWT_SniperRifle, nullptr);
+	EquipMontages.Emplace(EWeaponType::EWT_GrenadeLauncher, nullptr);
+
 	/* Grenade */
 	MaxGrenadeAmount = 4;
 	GrenadeAmount = 4;
@@ -218,6 +227,15 @@ UAnimMontage* UCombatComponent::SelectReloadMontage()
 		return nullptr;
 	}
 	return ReloadMontages[GetEquippingWeapon()->GetWeaponType()];
+}
+
+UAnimMontage* UCombatComponent::GetEquipMontage(EWeaponType InWeaponType)
+{
+	if (EquipMontages.Contains(InWeaponType))
+	{
+		return EquipMontages[InWeaponType];
+	}
+	return nullptr;
 }
 
 void UCombatComponent::DropWeapon()
@@ -902,7 +920,7 @@ void UCombatComponent::EquipWeapon(AWeapon* InWeapon)
 			}
 			
 			AttachWeapon();
-			OwnerCharacter->SetWeaponAnimLayers(GetEquippingWeapon()->GetWeaponAnimLayer());
+			OwnerCharacter->SetWeaponAnimLayers(GetEquippingWeapon()->GetWeaponType(), GetEquippingWeapon()->GetWeaponAnimLayer());
 			UGameplayStatics::PlaySoundAtLocation(this, GetEquippingWeapon()->GetEquipSound(), GetEquippingWeapon()->GetActorLocation());
 
 			/* ADS FOV */
@@ -937,7 +955,7 @@ void UCombatComponent::OnRep_EquipSlots()
 			}
 
 			AttachWeapon();
-			OwnerCharacter->SetWeaponAnimLayers(GetEquippingWeapon()->GetWeaponAnimLayer());
+			OwnerCharacter->SetWeaponAnimLayers(GetEquippingWeapon()->GetWeaponType(), GetEquippingWeapon()->GetWeaponAnimLayer());
 			UGameplayStatics::PlaySoundAtLocation(this, GetEquippingWeapon()->GetEquipSound(), GetEquippingWeapon()->GetActorLocation());
 
 			/* ADS FOV */
