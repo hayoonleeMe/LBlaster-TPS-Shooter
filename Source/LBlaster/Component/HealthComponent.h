@@ -19,9 +19,6 @@ public:
 	void ReceiveDamage(float InDamage, AController* InstigatorController);
 	void UpdateHUDHealth();
 
-protected:
-	virtual void BeginPlay() override;
-
 private:
 	/*
 	 *	Owner

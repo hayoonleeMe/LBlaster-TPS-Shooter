@@ -61,14 +61,6 @@ void UHealthComponent::UpdateHUDHealth()
 	}
 }
 
-
-void UHealthComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	UpdateHUDHealth();
-}
-
 bool UHealthComponent::IsValidOwnerCharacter()
 {
 	if (!OwnerCharacter && GetOwner())

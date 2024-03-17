@@ -63,6 +63,9 @@ public:
 	void InitSniperScope(const TSubclassOf<UUserWidget>& InSniperScopeClass);
 	void ShowSniperScopeWidget(bool bShowScope);
 
+protected:
+	virtual void PostInitializeComponents() override;
+	
 private:
 	/*
 	 *	Crosshair
