@@ -172,6 +172,15 @@ void AWeapon::Dropped()
 	SetOwner(nullptr);
 }
 
+void AWeapon::Holstered()
+{
+	SetWeaponState(EWeaponState::EWS_Initial);
+
+	const FDetachmentTransformRules DetachRule(EDetachmentRule::KeepWorld, true);
+	WeaponMesh->DetachFromComponent(DetachRule);
+	SetOwner(nullptr);
+}
+
 void AWeapon::EnableCustomDepth(bool bEnable) const
 {
 	if (WeaponMesh)

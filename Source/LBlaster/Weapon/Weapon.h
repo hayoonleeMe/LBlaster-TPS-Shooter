@@ -36,6 +36,7 @@ public:
 
 	virtual void Fire(const FVector& HitTarget);
 	void Dropped();
+	void Holstered();
 	void EnableCustomDepth(bool bEnable) const;
 
 protected:
