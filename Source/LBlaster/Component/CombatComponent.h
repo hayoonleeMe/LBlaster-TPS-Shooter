@@ -31,7 +31,7 @@ public:
 	FORCEINLINE bool IsAiming() const { return bIsAiming; }
 	FORCEINLINE bool IsFiring() const { return bIsFiring; }
 	FORCEINLINE bool IsReloading() const { return CombatState == ECombatState::ECS_Reloading; }
-	FORCEINLINE class AWeapon* GetEquippingWeapon() { return EquipSlots[static_cast<int8>(EquipSlotType)]; }
+	FORCEINLINE class AWeapon* GetEquippingWeapon() { return EquipSlots[static_cast<uint8>(EquipSlotType)]; }
 	FTransform GetWeaponLeftHandTransform();
 	FORCEINLINE int32 GetGrenadeAmount() const { return GrenadeAmount; }
 

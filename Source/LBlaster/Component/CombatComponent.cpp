@@ -823,10 +823,10 @@ void UCombatComponent::AttachWeaponToLeftHand()
 
 void UCombatComponent::SetEquippingWeapon(AWeapon* InWeapon)
 {
-	EquipSlots[static_cast<int8>(EquipSlotType)] = InWeapon;
+	EquipSlots[static_cast<uint8>(EquipSlotType)] = InWeapon;
 
 	// Rep Notify 호출을 위한 dummy
-	EquipSlots[static_cast<int8>(EEquipSlot::EES_MAX)] = EquipSlots[static_cast<int8>(EEquipSlot::EES_MAX)] ? nullptr : InWeapon;
+	EquipSlots[static_cast<uint8>(EEquipSlot::EES_MAX)] = EquipSlots[static_cast<uint8>(EEquipSlot::EES_MAX)] ? nullptr : InWeapon;
 }
 
 void UCombatComponent::ServerEquipDefaultWeapon_Implementation()
