@@ -91,7 +91,7 @@ private:
 	void HolsterWeapon();
 	
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastSwitchToUnarmedState();
+	void MulticastSwitchToUnarmedState(bool bSkipUnEquipMontage);
 
 	static FString GetWeaponTypeString(EWeaponType InWeaponType = EWeaponType::EWT_Unarmed);
 	void AttachWeapon();
