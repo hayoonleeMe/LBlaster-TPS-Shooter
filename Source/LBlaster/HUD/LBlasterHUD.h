@@ -62,6 +62,7 @@ public:
 	void SetCooldownAnnouncement();
 	void InitSniperScope(const TSubclassOf<UUserWidget>& InSniperScopeClass);
 	void ShowSniperScopeWidget(bool bShowScope);
+	void HighPingWarning(float InDuration) const;
 
 protected:
 	virtual void PostInitializeComponents() override;

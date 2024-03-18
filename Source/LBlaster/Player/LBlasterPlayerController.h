@@ -94,4 +94,20 @@ private:
 
 	UFUNCTION()
 	void OnRep_MatchState();
+
+	/*
+	 *	High Ping
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|High Ping")
+	float HighPingThreshold;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|High Ping")
+	float WarningDuration;
+	
+	UPROPERTY(EditAnywhere, Category="LBlaster|High Ping")
+	float CheckPingFrequency;
+
+	FTimerHandle CheckPingHandle;
+	void StartCheckPing();
+	void CheckPing();
 };
