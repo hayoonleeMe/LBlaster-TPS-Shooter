@@ -34,6 +34,7 @@ public:
 	FORCEINLINE class AWeapon* GetEquippingWeapon() { return EquipSlots[static_cast<uint8>(EquipSlotType)]; }
 	FTransform GetWeaponLeftHandTransform();
 	FORCEINLINE int32 GetGrenadeAmount() const { return GrenadeAmount; }
+	FORCEINLINE EEquipSlot GetEquipSlotType() const { return EquipSlotType; }
 
 	UFUNCTION(Server, Reliable)
 	void ServerEquipOverlappingWeapon();
