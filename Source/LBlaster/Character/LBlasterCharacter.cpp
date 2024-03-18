@@ -291,6 +291,11 @@ void ALBlasterCharacter::OnRep_PlayerState()
 
 void ALBlasterCharacter::SetOverlappingWeapon(AWeapon* InWeapon)
 {
+	if (!CombatComponent || CombatComponent->GetEquipSlotType() == EEquipSlot::EES_ThirdSlot)
+	{
+		return;
+	}
+
 	AWeapon* LastOverlappingWeapon = OverlappingWeapon;
 	OverlappingWeapon = InWeapon;
 

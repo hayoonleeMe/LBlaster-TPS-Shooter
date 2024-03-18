@@ -886,12 +886,6 @@ FTransform UCombatComponent::GetWeaponLeftHandTransform()
 void UCombatComponent::ServerEquipOverlappingWeapon_Implementation()
 {
 	// 1 or 2번 슬롯일 때 비었으면 바로 착용, 안 비었으면 무기 변경
-	// 3번 기본 슬롯이면 TODO : overlapping text도 안띄움 -> 해당 함수 호출하는 경우X
-	if (EquipSlotType == EEquipSlot::EES_ThirdSlot)
-	{
-		return;
-	}
-
 	if (IsValidOwnerCharacter() && OwnerCharacter->GetOverlappingWeapon())
 	{
 		// 무기 스왑
