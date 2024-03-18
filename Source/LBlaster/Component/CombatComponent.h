@@ -59,6 +59,7 @@ public:
 	void UpdateHUDGrenadeAmount();
 	void PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount);
 	void ShowWeapon();
+	void StartTossGrenade();
 
 	UFUNCTION(Server, Reliable)
 	void ServerChooseWeaponSlot(EEquipSlot InEquipSlotType);
@@ -97,7 +98,6 @@ private:
 
 	static FString GetWeaponTypeString(EWeaponType InWeaponType = EWeaponType::EWT_Unarmed);
 	void AttachWeapon();
-	void AttachWeaponToLeftHand();
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Weapon")
 	TSubclassOf<AWeapon> DefaultWeaponClass;
@@ -259,6 +259,9 @@ private:
 	 *	Grenade
 	 */
 	UPROPERTY(EditAnywhere, Category="LBlaster|Grenade")
+	TObjectPtr<UAnimMontage> UnEquipBeforeTossGrenadeMontage;
+	
+	UPROPERTY(EditAnywhere, Category="LBlaster|Grenade")
 	TObjectPtr<UAnimMontage> TossGrenadeMontage;
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Grenade")
@@ -277,5 +280,6 @@ private:
 	void ServerLaunchGrenade(const FVector_NetQuantize& HitTarget);
 
 	void HandleTossGrenade();
+	void HandleUnEquipBeforeTossGrenade();
 	void ShowAttachedGrenade(bool bShow);
 };
