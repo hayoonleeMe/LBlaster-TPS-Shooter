@@ -29,6 +29,9 @@ public:
 
 	UFUNCTION()
 	void AnimNotify_ShowWeapon();
+
+	UFUNCTION()
+	void AnimNotify_StartTossGrenade();
 	
 protected:
 	bool IsValidCharacter();

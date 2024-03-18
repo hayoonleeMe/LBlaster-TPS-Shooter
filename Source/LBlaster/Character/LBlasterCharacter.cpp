@@ -330,6 +330,14 @@ void ALBlasterCharacter::ShowWeapon() const
 	}
 }
 
+void ALBlasterCharacter::StartTossGrenade() const
+{
+	if (CombatComponent)
+	{
+		CombatComponent->StartTossGrenade();
+	}
+}
+
 void ALBlasterCharacter::SetADSWalkSpeed(bool bEnabled, float InADSMultiplier)
 {
 	if (bEnabled)

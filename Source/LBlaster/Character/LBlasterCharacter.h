@@ -58,6 +58,7 @@ public:
 	FORCEINLINE const FVector2D& GetMovementVector() const { return MovementVector; };
 	FTransform GetWeaponLeftHandTransform() const;
 	void ShowWeapon() const;
+	void StartTossGrenade() const;
 
 	/*
 	 *	LBlasterPlayerController

@@ -561,7 +561,7 @@ void UCombatComponent::OnRep_CombatState()
 		break;
 
 	case ECombatState::ECS_TossingGrenade:
-		HandleTossGrenade();
+		HandleUnEquipBeforeTossGrenade();
 		break;
 	}
 }
@@ -671,17 +671,6 @@ void UCombatComponent::BeginPlay()
 	}
 }
 
-void UCombatComponent::HandleTossGrenade()
-{
-	if (IsValidOwnerCharacter())
-	{
-		OwnerCharacter->PlayTossGrenadeMontage(TossGrenadeMontage);
-		AttachWeaponToLeftHand();
-		ShowAttachedGrenade(true);
-		UpdateHUDGrenadeAmount();
-	}
-}
-
 void UCombatComponent::ShowAttachedGrenade(bool bShow)
 {
 	if (IsValidOwnerCharacter() && OwnerCharacter->GetAttachedGrenade())
@@ -692,8 +681,35 @@ void UCombatComponent::ShowAttachedGrenade(bool bShow)
 
 void UCombatComponent::ServerTossGrenade_Implementation()
 {
+	// 무기 숨김
+	GetEquippingWeapon()->SetActorEnableCollision(false);
+	GetEquippingWeapon()->SetActorHiddenInGame(true);
+	
 	CombatState = ECombatState::ECS_TossingGrenade;
 	GrenadeAmount = FMath::Clamp(GrenadeAmount - 1, 0, MaxGrenadeAmount);
+	HandleUnEquipBeforeTossGrenade();
+}
+
+void UCombatComponent::HandleTossGrenade()
+{
+	if (IsValidOwnerCharacter() && TossGrenadeMontage)
+	{
+		OwnerCharacter->PlayTossGrenadeMontage(TossGrenadeMontage);
+		ShowAttachedGrenade(true);
+		UpdateHUDGrenadeAmount();
+	}
+}
+
+void UCombatComponent::HandleUnEquipBeforeTossGrenade()
+{
+	if (IsValidOwnerCharacter() && UnEquipBeforeTossGrenadeMontage)
+	{
+		OwnerCharacter->PlayTossGrenadeMontage(UnEquipBeforeTossGrenadeMontage);
+	}
+}
+
+void UCombatComponent::StartTossGrenade()
+{
 	HandleTossGrenade();
 }
 
@@ -735,7 +751,11 @@ void UCombatComponent::TossGrenade()
 void UCombatComponent::TossGrenadeFinished()
 {
 	CombatState = ECombatState::ECS_Unoccupied;
-	AttachWeapon();
+	
+	if (IsValidOwnerCharacter())
+	{
+		OwnerCharacter->PlayEquipMontage(GetEquipMontage(GetEquippingWeapon()->GetWeaponType()));
+	}
 }
 
 void UCombatComponent::LaunchGrenade()
@@ -823,19 +843,6 @@ void UCombatComponent::AttachWeapon()
 		{
 			GetEquippingWeapon()->SetActorRelativeTransform(GetEquippingWeapon()->GetAttachTransform());
 			GetEquippingWeapon()->AttachToComponent(OwnerMesh, FAttachmentTransformRules::KeepRelativeTransform, FName(TEXT("weapon_r")));
-		}
-	}
-}
-
-void UCombatComponent::AttachWeaponToLeftHand()
-{
-	if (IsValidOwnerCharacter() && GetEquippingWeapon())
-	{
-		if (USkeletalMeshComponent* OwnerMesh = OwnerCharacter->GetMesh())
-		{
-			GetEquippingWeapon()->GetWeaponMesh()->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
-			GetEquippingWeapon()->SetActorRelativeTransform(FTransform::Identity);
-			GetEquippingWeapon()->AttachToComponent(OwnerMesh, FAttachmentTransformRules::KeepRelativeTransform, FName(TEXT("LeftHandSocket")));
 		}
 	}
 }
