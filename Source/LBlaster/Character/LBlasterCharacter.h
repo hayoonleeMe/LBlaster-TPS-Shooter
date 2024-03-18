@@ -136,10 +136,8 @@ protected:
 	void DoJump(const FInputActionValue& ActionValue);
 	void EquipWeapon(const FInputActionValue& ActionValue);
 	void DoCrouch(const FInputActionValue& ActionValue);
-	void AimStarted(const FInputActionValue& ActionValue);
-	void AimFinished(const FInputActionValue& ActionValue);
-	void FireStarted(const FInputActionValue& ActionValue);
-	void FireFinished(const FInputActionValue& ActionValue);
+	void DoADS(const FInputActionValue& ActionValue);
+	void DoFire(const FInputActionValue& ActionValue);
 	void Reload(const FInputActionValue& ActionValue);
 	void TossGrenade(const FInputActionValue& ActionValue);
 	void ChooseFirstWeaponSlot(const FInputActionValue& ActionValue);

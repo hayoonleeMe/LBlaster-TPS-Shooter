@@ -218,19 +218,16 @@ void ALBlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ThisClass::Move);
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ThisClass::Look);
-	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ThisClass::DoJump);
-	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ThisClass::DoJump);
 	EnhancedInputComponent->BindAction(EquipAction, ETriggerEvent::Triggered, this, &ThisClass::EquipWeapon);
-	EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &ThisClass::DoCrouch);
-	EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Started, this, &ThisClass::AimStarted);
-	EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Completed, this, &ThisClass::AimFinished);
-	EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &ThisClass::FireStarted);
-	EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Completed, this, &ThisClass::FireFinished);
-	EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Started, this, &ThisClass::Reload);
-	EnhancedInputComponent->BindAction(TossGrenadeAction, ETriggerEvent::Started, this, &ThisClass::TossGrenade);
-	EnhancedInputComponent->BindAction(FirstWeaponSlotAction, ETriggerEvent::Started, this, &ThisClass::ChooseFirstWeaponSlot);
-	EnhancedInputComponent->BindAction(SecondWeaponSlotAction, ETriggerEvent::Started, this, &ThisClass::ChooseSecondWeaponSlot);
-	EnhancedInputComponent->BindAction(ThirdWeaponSlotAction, ETriggerEvent::Started, this, &ThisClass::ChooseThirdWeaponSlot);
+	EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &ThisClass::DoCrouch);
+	EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Triggered, this, &ThisClass::DoADS);
+	EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &ThisClass::DoFire);
+	EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Triggered, this, &ThisClass::Reload);
+	EnhancedInputComponent->BindAction(TossGrenadeAction, ETriggerEvent::Triggered, this, &ThisClass::TossGrenade);
+	EnhancedInputComponent->BindAction(FirstWeaponSlotAction, ETriggerEvent::Triggered, this, &ThisClass::ChooseFirstWeaponSlot);
+	EnhancedInputComponent->BindAction(SecondWeaponSlotAction, ETriggerEvent::Triggered, this, &ThisClass::ChooseSecondWeaponSlot);
+	EnhancedInputComponent->BindAction(ThirdWeaponSlotAction, ETriggerEvent::Triggered, this, &ThisClass::ChooseThirdWeaponSlot);
 }
 
 void ALBlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -475,16 +472,23 @@ void ALBlasterCharacter::Look(const FInputActionValue& ActionValue)
 
 void ALBlasterCharacter::DoJump(const FInputActionValue& ActionValue)
 {
-	if (GetCharacterMovement()->IsMovingOnGround())
+	if (ActionValue.Get<bool>())
 	{
-		if (bIsCrouched)
+		if (GetCharacterMovement()->IsMovingOnGround())
 		{
-			UnCrouch();
+			if (bIsCrouched)
+			{
+				UnCrouch();
+			}
+			else
+			{
+				Jump();
+			}
 		}
-		else
-		{
-			Jump();
-		}
+	}
+	else
+	{
+		StopJumping();
 	}
 }
 
@@ -514,35 +518,19 @@ void ALBlasterCharacter::DoCrouch(const FInputActionValue& ActionValue)
 	}
 }
 
-void ALBlasterCharacter::AimStarted(const FInputActionValue& ActionValue)
+void ALBlasterCharacter::DoADS(const FInputActionValue& ActionValue)
 {
 	if (CombatComponent)
 	{
-		CombatComponent->SetAiming(true);
-	}	
-}
-
-void ALBlasterCharacter::AimFinished(const FInputActionValue& ActionValue)
-{
-	if (CombatComponent)
-	{
-		CombatComponent->SetAiming(false);
+		CombatComponent->SetAiming(ActionValue.Get<bool>());
 	}
 }
 
-void ALBlasterCharacter::FireStarted(const FInputActionValue& ActionValue)
+void ALBlasterCharacter::DoFire(const FInputActionValue& ActionValue)
 {
 	if (CombatComponent)
 	{
-		CombatComponent->SetFiring(true);
-	}
-}
-
-void ALBlasterCharacter::FireFinished(const FInputActionValue& ActionValue)
-{
-	if (CombatComponent)
-	{
-		CombatComponent->SetFiring(false);
+		CombatComponent->SetFiring(ActionValue.Get<bool>());
 	}
 }
 
