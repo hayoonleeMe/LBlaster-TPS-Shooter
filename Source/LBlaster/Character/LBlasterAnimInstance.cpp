@@ -55,6 +55,14 @@ void ULBlasterAnimInstance::AnimNotify_GrenadeLaunch()
 	}
 }
 
+void ULBlasterAnimInstance::AnimNotify_ShowWeapon()
+{
+	if (IsValidCharacter() && Character->HasAuthority())
+	{
+		Character->ShowWeapon();
+	}
+}
+
 bool ULBlasterAnimInstance::IsValidCharacter()
 {
 	if (!Character && TryGetPawnOwner())

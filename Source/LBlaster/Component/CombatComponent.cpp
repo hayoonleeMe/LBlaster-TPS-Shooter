@@ -603,6 +603,16 @@ void UCombatComponent::PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount)
 	}
 }
 
+void UCombatComponent::ShowWeapon()
+{
+	// 무기를 변경할 때 숨겼던 무기를 다시 보이게 설정
+	if (GetEquippingWeapon())
+	{
+		GetEquippingWeapon()->SetActorEnableCollision(true);
+		GetEquippingWeapon()->SetActorHiddenInGame(false);
+	}
+}
+
 void UCombatComponent::ServerChooseWeaponSlot_Implementation(EEquipSlot InEquipSlotType)
 {
 	if (EquipSlotType == InEquipSlotType)
@@ -619,8 +629,6 @@ void UCombatComponent::ServerChooseWeaponSlot_Implementation(EEquipSlot InEquipS
 	EquipSlotType = InEquipSlotType;
 	if (GetEquippingWeapon())
 	{
-		GetEquippingWeapon()->SetActorEnableCollision(true);
-		GetEquippingWeapon()->SetActorHiddenInGame(false);
 		EquipWeapon(GetEquippingWeapon());
 	}
 	// 슬롯에 무기가 없으므로 Unarmed
