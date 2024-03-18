@@ -489,6 +489,7 @@ void ALBlasterCharacter::EquipWeapon(const FInputActionValue& ActionValue)
 
 	if (CombatComponent)
 	{
+		CombatComponent->SetAiming(false);
 		CombatComponent->ServerEquipOverlappingWeapon();
 	}
 }
@@ -557,6 +558,7 @@ void ALBlasterCharacter::ChooseFirstWeaponSlot(const FInputActionValue& ActionVa
 {
 	if (CombatComponent)
 	{
+		CombatComponent->SetAiming(false);
 		CombatComponent->ServerChooseWeaponSlot(EEquipSlot::EES_FirstSlot);
 	}
 }
@@ -565,6 +567,7 @@ void ALBlasterCharacter::ChooseSecondWeaponSlot(const FInputActionValue& ActionV
 {
 	if (CombatComponent)
 	{
+		CombatComponent->SetAiming(false);
 		CombatComponent->ServerChooseWeaponSlot(EEquipSlot::EES_SecondSlot);
 	}
 }
@@ -573,6 +576,7 @@ void ALBlasterCharacter::ChooseThirdWeaponSlot(const FInputActionValue& ActionVa
 {
 	if (CombatComponent)
 	{
+		CombatComponent->SetAiming(false);
 		CombatComponent->ServerChooseWeaponSlot(EEquipSlot::EES_ThirdSlot);
 	}
 }
