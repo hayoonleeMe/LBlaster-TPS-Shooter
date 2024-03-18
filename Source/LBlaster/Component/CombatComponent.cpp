@@ -469,6 +469,17 @@ void UCombatComponent::SetHUDCrosshair(float DeltaTime)
 		HUDPackage.RightCrosshair = GetEquippingWeapon()->RightCrosshair;
 		HUDPackage.CenterCrosshair = GetEquippingWeapon()->CenterCrosshair;
 	}
+	else
+	{
+		// early return for unarmed state
+		HUDPackage.TopCrosshair = nullptr;
+		HUDPackage.BottomCrosshair = nullptr;
+		HUDPackage.LeftCrosshair = nullptr;
+		HUDPackage.RightCrosshair = nullptr;
+		HUDPackage.CenterCrosshair = nullptr;
+		HUD->SetHUDPackage(HUDPackage);
+		return;
+	}
 
 	// 이동 속도에 따른 Crosshair Spread
 	if (OwnerCharacter->GetCharacterMovement())
