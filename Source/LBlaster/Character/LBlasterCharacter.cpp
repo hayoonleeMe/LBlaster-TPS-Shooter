@@ -317,6 +317,14 @@ FTransform ALBlasterCharacter::GetWeaponLeftHandTransform() const
 	return FTransform::Identity;
 }
 
+void ALBlasterCharacter::ShowWeapon() const
+{
+	if (CombatComponent)
+	{
+		CombatComponent->ShowWeapon();
+	}
+}
+
 void ALBlasterCharacter::SetADSWalkSpeed(bool bEnabled, float InADSMultiplier)
 {
 	if (bEnabled)

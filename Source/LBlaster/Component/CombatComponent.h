@@ -57,6 +57,7 @@ public:
 	void LaunchGrenade();
 	void UpdateHUDGrenadeAmount();
 	void PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount);
+	void ShowWeapon();
 
 	UFUNCTION(Server, Reliable)
 	void ServerChooseWeaponSlot(EEquipSlot InEquipSlotType);
