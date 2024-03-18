@@ -24,6 +24,7 @@ public:
 	void SetWeaponTypeText(const FString& InWeaponTypeString);
 	void SetMatchCountdownText(float InCountdownTime);
 	void SetGrenadeAmount(int32 InGrenadeAmount) const;
+	void HighPingWarning(float InDuration);
 	
 private:
 	/*
@@ -56,11 +57,17 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> GrenadeAmount;
 
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UImage> HighPingImage;
+
 	/*
 	 *	Widget Animation
 	 */
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	TObjectPtr<UWidgetAnimation> MatchCountdownBlink;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	TObjectPtr<UWidgetAnimation> HighPingImageBlink;
 
 	/*
 	 *	Miscellaneous

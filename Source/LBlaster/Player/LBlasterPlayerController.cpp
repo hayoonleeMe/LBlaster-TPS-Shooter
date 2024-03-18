@@ -6,6 +6,7 @@
 #include "LBlaster.h"
 #include "Character/LBlasterCharacter.h"
 #include "GameFramework/GameMode.h"
+#include "GameFramework/PlayerState.h"
 #include "GameMode/LBlasterGameMode.h"
 #include "HUD/LBlasterHUD.h"
 #include "Kismet/GameplayStatics.h"
@@ -13,7 +14,13 @@
 
 ALBlasterPlayerController::ALBlasterPlayerController()
 {
+	/* Time */
 	TimeSyncFrequency = 5.f;
+
+	/* High Ping */
+	HighPingThreshold = 50.f;
+	WarningDuration = 5.f;
+	CheckPingFrequency = 15.f;;
 }
 
 void ALBlasterPlayerController::Tick(float DeltaSeconds)
@@ -255,6 +262,29 @@ void ALBlasterPlayerController::OnRep_MatchState()
 	}
 }
 
+void ALBlasterPlayerController::StartCheckPing()
+{
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().SetTimer(CheckPingHandle, this, &ThisClass::CheckPing, CheckPingFrequency, true);
+
+		// 초반에 Ping 체크 한번 수행
+		FTimerHandle TempTimer;
+		GetWorld()->GetTimerManager().SetTimer(TempTimer, this, &ThisClass::CheckPing, 2.f);
+	}
+}
+
+void ALBlasterPlayerController::CheckPing()
+{
+	if (GetPlayerState<APlayerState>() && GetPlayerState<APlayerState>()->GetCompressedPing() * 4 > HighPingThreshold)
+	{
+		if (IsValidHUD())
+		{
+			LBlasterHUD->HighPingWarning(WarningDuration);
+		}
+	}
+}
+
 void ALBlasterPlayerController::UpdateHUDHealth()
 {
 	if (ALBlasterCharacter* LBlasterCharacter = Cast<ALBlasterCharacter>(GetPawn()))
@@ -286,6 +316,12 @@ void ALBlasterPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	ServerCheckMatchState();
+
+	// 핑은 클라에서만 체크
+	if (!HasAuthority() && IsLocalController())
+	{
+		StartCheckPing();
+	}
 }
 
 void ALBlasterPlayerController::OnPossess(APawn* InPawn)

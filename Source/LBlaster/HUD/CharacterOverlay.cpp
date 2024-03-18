@@ -3,6 +3,8 @@
 
 #include "HUD/CharacterOverlay.h"
 
+#include "Animation/WidgetAnimation.h"
+#include "Components/Image.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 
@@ -79,4 +81,12 @@ void UCharacterOverlay::SetGrenadeAmount(int32 InGrenadeAmount) const
 {
 	const FString GrenadeAmountString = FString::Printf(TEXT("%d"), InGrenadeAmount);
 	GrenadeAmount->SetText(FText::FromString(GrenadeAmountString));
+}
+
+void UCharacterOverlay::HighPingWarning(float InDuration)
+{
+	if (HighPingImage && HighPingImageBlink)
+	{
+		PlayAnimation(HighPingImageBlink, 0.f, FMath::CeilToInt32(InDuration / HighPingImageBlink->GetEndTime()));
+	}
 }

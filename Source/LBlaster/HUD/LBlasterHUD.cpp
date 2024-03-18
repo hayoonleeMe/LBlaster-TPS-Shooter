@@ -5,6 +5,7 @@
 
 #include "Announcement.h"
 #include "CharacterOverlay.h"
+#include "LBlaster.h"
 #include "SniperScope.h"
 #include "Blueprint/UserWidget.h"
 #include "Player/LBlasterPlayerController.h"
@@ -236,6 +237,14 @@ void ALBlasterHUD::ShowSniperScopeWidget(bool bShowScope)
 			}
 			SniperScope->SetVisibility(ESlateVisibility::Hidden);
 		}
+	}
+}
+
+void ALBlasterHUD::HighPingWarning(float InDuration) const
+{
+	if (CharacterOverlay)
+	{
+		CharacterOverlay->HighPingWarning(InDuration);
 	}
 }
 
