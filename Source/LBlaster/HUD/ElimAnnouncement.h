@@ -24,4 +24,7 @@ private:
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UTextBlock> AnnouncementText;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	TObjectPtr<UWidgetAnimation> TextFadeOut;
 };
