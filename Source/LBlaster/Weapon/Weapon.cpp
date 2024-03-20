@@ -157,7 +157,7 @@ void AWeapon::Fire(const FVector& HitTarget)
 		}
 	}
 
-	if (GetOwner()->HasAuthority())
+	if (HasAuthority())
 	{
 		SpendRound();
 	}

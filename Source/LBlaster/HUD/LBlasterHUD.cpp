@@ -6,6 +6,7 @@
 #include "Announcement.h"
 #include "CharacterOverlay.h"
 #include "LBlaster.h"
+#include "PauseMenu.h"
 #include "SniperScope.h"
 #include "Blueprint/UserWidget.h"
 #include "Player/LBlasterPlayerController.h"
@@ -245,6 +246,30 @@ void ALBlasterHUD::HighPingWarning(float InDuration) const
 	if (CharacterOverlay)
 	{
 		CharacterOverlay->HighPingWarning(InDuration);
+	}
+}
+
+void ALBlasterHUD::ShowPauseMenu()
+{
+	if (PauseMenuClass && !PauseMenu)
+	{
+		if (APlayerController* PlayerController = GetOwningPlayerController())
+		{
+			PauseMenu = CreateWidget<UPauseMenu>(PlayerController, PauseMenuClass);
+		}
+	}
+
+	if (PauseMenu)
+	{
+		if (!bShowedPauseMenu)
+		{
+			PauseMenu->MenuSetup();
+		}
+		else
+		{
+			PauseMenu->MenuTearDown();
+		}
+		bShowedPauseMenu = !bShowedPauseMenu;
 	}
 }
 

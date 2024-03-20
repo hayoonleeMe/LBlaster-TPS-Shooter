@@ -63,6 +63,7 @@ public:
 	void InitSniperScope(const TSubclassOf<UUserWidget>& InSniperScopeClass);
 	void ShowSniperScopeWidget(bool bShowScope);
 	void HighPingWarning(float InDuration) const;
+	void ShowPauseMenu();
 
 protected:
 	virtual void PostInitializeComponents() override;
@@ -103,4 +104,15 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<class UAnnouncement> Announcement;
+
+	/*
+	 *	Pause Menu
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Pause Menu")
+	TSubclassOf<UUserWidget> PauseMenuClass;
+
+	UPROPERTY()
+	TObjectPtr<class UPauseMenu> PauseMenu;
+
+	bool bShowedPauseMenu = false;
 };

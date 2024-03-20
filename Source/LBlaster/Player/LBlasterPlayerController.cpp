@@ -3,6 +3,10 @@
 
 #include "LBlasterPlayerController.h"
 
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
+#include "InputAction.h"
+#include "InputMappingContext.h"
 #include "LBlaster.h"
 #include "Character/LBlasterCharacter.h"
 #include "GameFramework/GameMode.h"
@@ -20,7 +24,26 @@ ALBlasterPlayerController::ALBlasterPlayerController()
 	/* High Ping */
 	HighPingThreshold = 50.f;
 	WarningDuration = 5.f;
-	CheckPingFrequency = 15.f;;
+	CheckPingFrequency = 15.f;
+
+	/* Input */
+	static ConstructorHelpers::FObjectFinder<UInputMappingContext> DefaultMappingContextRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/LBlaster/Core/Inputs/IMC_LBContext.IMC_LBContext'"));
+	if (DefaultMappingContextRef.Object)
+	{
+		DefaultMappingContext = DefaultMappingContextRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputMappingContext> PauseMenuMappingContextRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/LBlaster/Core/Inputs/IMC_PauseMenuContext.IMC_PauseMenuContext'"));
+	if (PauseMenuMappingContextRef.Object)
+	{
+		PauseMenuMappingContext = PauseMenuMappingContextRef.Object;
+	}
+	
+	static ConstructorHelpers::FObjectFinder<UInputAction> PauseMenuActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_PauseMenu.IA_PauseMenu'"));
+	if (PauseMenuActionRef.Object)
+	{
+		PauseMenuAction = PauseMenuActionRef.Object;
+	}
 }
 
 void ALBlasterPlayerController::Tick(float DeltaSeconds)
@@ -29,6 +52,14 @@ void ALBlasterPlayerController::Tick(float DeltaSeconds)
 
 	SetHUDTime();
 	CheckTimeSync(DeltaSeconds);
+}
+
+void ALBlasterPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
+	EnhancedInputComponent->BindAction(PauseMenuAction, ETriggerEvent::Triggered, this, &ThisClass::ShowPauseMenu);
 }
 
 float ALBlasterPlayerController::GetServerTime()
@@ -309,6 +340,44 @@ void ALBlasterPlayerController::HandleCooldown()
 		LBlasterHUD->RemoveCharacterOverlay();
 		LBlasterHUD->SetCooldownAnnouncement();
 	}
+}
+
+void ALBlasterPlayerController::EnablePauseMenuMappingContext() const
+{
+	if (GEngine && GetWorld() && DefaultMappingContext && PauseMenuMappingContext)
+	{
+		if (const ULocalPlayer* LocalPlayer = GEngine->GetFirstGamePlayer(GetWorld()))
+		{
+			if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
+			{
+				Subsystem->RemoveMappingContext(DefaultMappingContext);
+				Subsystem->AddMappingContext(PauseMenuMappingContext, 0);
+			}	
+		}
+	}
+}
+
+void ALBlasterPlayerController::DisablePauseMenuMappingContext() const
+{
+	if (GEngine && GetWorld() && DefaultMappingContext && PauseMenuMappingContext)
+	{
+		if (const ULocalPlayer* LocalPlayer = GEngine->GetFirstGamePlayer(GetWorld()))
+		{
+			if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
+			{
+				Subsystem->RemoveMappingContext(PauseMenuMappingContext);
+				Subsystem->AddMappingContext(DefaultMappingContext, 0);
+			}	
+		}
+	}
+}
+
+void ALBlasterPlayerController::ShowPauseMenu()
+{
+	if (IsValidHUD())
+	{
+		LBlasterHUD->ShowPauseMenu();
+	}		
 }
 
 void ALBlasterPlayerController::BeginPlay()

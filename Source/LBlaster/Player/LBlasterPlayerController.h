@@ -39,7 +39,28 @@ public:
 	void HandleMatchHasStarted();
 	void HandleCooldown();
 
+	void EnablePauseMenuMappingContext() const;
+	void DisablePauseMenuMappingContext() const;
+
 protected:
+	/*
+	 *	Input
+	 */
+	virtual void SetupInputComponent() override;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
+	TObjectPtr<class UInputMappingContext> DefaultMappingContext;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
+	TObjectPtr<UInputMappingContext> PauseMenuMappingContext;
+	
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
+	TObjectPtr<class UInputAction> PauseMenuAction;
+
+	void ShowPauseMenu();
+
+protected:
+
 	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* InPawn) override;
 	void SetHUDTime();

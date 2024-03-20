@@ -257,7 +257,7 @@ void ALBlasterCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	/* Input */
-	if (GEngine && GetWorld())
+	if (GEngine && GetWorld() && IsLocallyControlled())
 	{
 		if (const ULocalPlayer* Player = GEngine->GetFirstGamePlayer(GetWorld()))
 		{
