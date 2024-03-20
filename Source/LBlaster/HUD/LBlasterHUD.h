@@ -70,6 +70,14 @@ protected:
 	
 private:
 	/*
+	 *	Owner
+	 */
+	UPROPERTY()
+	TObjectPtr<class ALBlasterPlayerController> OwnerController;
+
+	bool IsValidOwnerController();
+	
+	/*
 	 *	Crosshair
 	 */
 	FHUDPackage HUDPackage;

@@ -137,11 +137,11 @@ void ALBlasterHUD::AddCharacterOverlay()
 		return;
 	}
 	
-	if (ALBlasterPlayerController* PlayerController = Cast<ALBlasterPlayerController>(GetOwningPlayerController()))
+	if (IsValidOwnerController())
 	{
 		if (CharacterOverlayClass)
 		{
-			CharacterOverlay = CreateWidget<UCharacterOverlay>(PlayerController, CharacterOverlayClass);
+			CharacterOverlay = CreateWidget<UCharacterOverlay>(OwnerController, CharacterOverlayClass);
 			CharacterOverlay->AddToViewport();
 
 			SetHUDScore(0.f);
@@ -149,8 +149,8 @@ void ALBlasterHUD::AddCharacterOverlay()
 			SetHUDAmmo(0);
 			SetHUDCarriedAmmo(0);
 			SetHUDWeaponTypeText(FString());
-			PlayerController->UpdateHUDHealth();
-			PlayerController->UpdateHUDGrenadeAmount();
+			OwnerController->UpdateHUDHealth();
+			OwnerController->UpdateHUDGrenadeAmount();
 		}
 	}
 }
@@ -173,11 +173,11 @@ void ALBlasterHUD::DrawCrosshair(UTexture2D* InTexture, const FVector2D& InViewp
 
 void ALBlasterHUD::AddAnnouncement()
 {
-	if (APlayerController* PlayerController = GetOwningPlayerController())
+	if (IsValidOwnerController())
 	{
 		if (AnnouncementClass)
 		{
-			Announcement = CreateWidget<UAnnouncement>(PlayerController, AnnouncementClass);
+			Announcement = CreateWidget<UAnnouncement>(OwnerController, AnnouncementClass);
 			Announcement->AddToViewport();
 		}
 	}
@@ -207,9 +207,9 @@ void ALBlasterHUD::InitSniperScope(const TSubclassOf<UUserWidget>& InSniperScope
 		return;
 	}
 
-	if (APlayerController* PlayerController = GetOwningPlayerController())
+	if (IsValidOwnerController())
 	{
-		SniperScope = CreateWidget<USniperScope>(PlayerController, InSniperScopeClass);
+		SniperScope = CreateWidget<USniperScope>(OwnerController, InSniperScopeClass);
 		SniperScope->AddToViewport();
 		SniperScope->SetVisibility(ESlateVisibility::Hidden);
 	}
@@ -253,9 +253,9 @@ bool ALBlasterHUD::ShowPauseMenu()
 {
 	if (PauseMenuClass && !PauseMenu)
 	{
-		if (APlayerController* PlayerController = GetOwningPlayerController())
+		if (IsValidOwnerController())
 		{
-			PauseMenu = CreateWidget<UPauseMenu>(PlayerController, PauseMenuClass);
+			PauseMenu = CreateWidget<UPauseMenu>(OwnerController, PauseMenuClass);
 		}
 	}
 
@@ -280,4 +280,13 @@ void ALBlasterHUD::PostInitializeComponents()
 
 	AddCharacterOverlay();
 	HideAnnouncement();
+}
+
+bool ALBlasterHUD::IsValidOwnerController()
+{
+	if (!OwnerController && GetOwningPlayerController())
+	{
+		OwnerController = Cast<ALBlasterPlayerController>(GetOwningPlayerController());
+	}
+	return OwnerController != nullptr;
 }
