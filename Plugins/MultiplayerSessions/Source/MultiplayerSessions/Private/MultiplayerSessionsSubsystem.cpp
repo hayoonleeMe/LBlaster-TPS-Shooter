@@ -202,11 +202,14 @@ void UMultiplayerSessionsSubsystem::DestroySession()
 	if (!SessionInterface->DestroySession(NAME_GameSession))
 	{
 		SessionInterface->ClearOnDestroySessionCompleteDelegate_Handle(OnDestroySessionCompleteDelegateHandle);
+		MultiplayerOnDestroySessionCompleteDelegate.Broadcast(false);
 	}
 }
 
 void UMultiplayerSessionsSubsystem::OnDestroySessionComplete(FName SessionName, bool bWasSuccessful)
 {
+	MultiplayerOnDestroySessionCompleteDelegate.Broadcast(bWasSuccessful);
+	
 	if (IsValidSessionInterface())
 	{
 		SessionInterface->ClearOnDestroySessionCompleteDelegate_Handle(OnDestroySessionCompleteDelegateHandle);
