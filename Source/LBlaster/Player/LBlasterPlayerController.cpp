@@ -376,7 +376,13 @@ void ALBlasterPlayerController::ShowPauseMenu()
 {
 	if (IsValidHUD())
 	{
-		LBlasterHUD->ShowPauseMenu();
+		if (LBlasterHUD->ShowPauseMenu())
+		{
+			if (const ALBlasterCharacter* OwningCharacter = Cast<ALBlasterCharacter>(GetCharacter()))
+			{
+				OwningCharacter->ReleaseCombatState();
+			}
+		}
 	}		
 }
 

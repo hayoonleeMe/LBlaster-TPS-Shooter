@@ -63,7 +63,7 @@ public:
 	void InitSniperScope(const TSubclassOf<UUserWidget>& InSniperScopeClass);
 	void ShowSniperScopeWidget(bool bShowScope);
 	void HighPingWarning(float InDuration) const;
-	void ShowPauseMenu();
+	bool ShowPauseMenu();
 
 protected:
 	virtual void PostInitializeComponents() override;

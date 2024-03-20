@@ -249,7 +249,7 @@ void ALBlasterHUD::HighPingWarning(float InDuration) const
 	}
 }
 
-void ALBlasterHUD::ShowPauseMenu()
+bool ALBlasterHUD::ShowPauseMenu()
 {
 	if (PauseMenuClass && !PauseMenu)
 	{
@@ -271,6 +271,7 @@ void ALBlasterHUD::ShowPauseMenu()
 		}
 		bShowedPauseMenu = !bShowedPauseMenu;
 	}
+	return bShowedPauseMenu;
 }
 
 void ALBlasterHUD::PostInitializeComponents()

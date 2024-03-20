@@ -67,6 +67,7 @@ public:
 	int32 GetGrenadeAmount() const;
 	void UpdatePlayerNameToOverheadWidget();
 	void EquipDefaultWeapon() const;
+	void ReleaseCombatState() const;
 	
 	/*
 	 *	Combat
