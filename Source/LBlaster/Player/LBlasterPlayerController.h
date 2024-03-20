@@ -42,6 +42,8 @@ public:
 	void EnablePauseMenuMappingContext() const;
 	void DisablePauseMenuMappingContext() const;
 
+	void BroadcastElim(APlayerState* AttackerState, APlayerState* VictimState);
+
 protected:
 	/*
 	 *	Input
@@ -60,7 +62,6 @@ protected:
 	void ShowPauseMenu();
 
 protected:
-
 	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* InPawn) override;
 	void SetHUDTime();
@@ -131,4 +132,10 @@ private:
 	FTimerHandle CheckPingHandle;
 	void StartCheckPing();
 	void CheckPing();
+
+	/*
+	 *	Elim Announcement
+	 */
+	UFUNCTION(Client, Reliable)
+	void ClientElimAnnouncement(APlayerState* AttackerState, APlayerState* VictimState);
 };

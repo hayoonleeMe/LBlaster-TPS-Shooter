@@ -92,6 +92,14 @@ void ALBlasterGameMode::PlayerEliminated(ALBlasterCharacter* EliminatedCharacter
 				AttackerPlayerState->AddToScore(1.f);
 				VictimPlayerState->AddToDeath(1);
 			}
+			
+			for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+			{
+				if (ALBlasterPlayerController* PlayerController = Cast<ALBlasterPlayerController>(*It))
+				{
+					PlayerController->BroadcastElim(AttackerPlayerState, VictimPlayerState);
+				}
+			}
 		}
 	}	
 	

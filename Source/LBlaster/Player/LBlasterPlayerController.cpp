@@ -316,6 +316,34 @@ void ALBlasterPlayerController::CheckPing()
 	}
 }
 
+void ALBlasterPlayerController::ClientElimAnnouncement_Implementation(APlayerState* AttackerState, APlayerState* VictimState)
+{
+	if (const APlayerState* SelfState = GetPlayerState<APlayerState>(); AttackerState && VictimState && IsValidHUD())
+	{
+		if (AttackerState == SelfState && VictimState != SelfState)
+		{
+			LBlasterHUD->AddElimAnnouncement(TEXT("You"), VictimState->GetPlayerName());
+			return;
+		}
+		if (VictimState == SelfState && AttackerState != SelfState)
+		{
+			LBlasterHUD->AddElimAnnouncement(AttackerState->GetPlayerName(), TEXT("You"));
+			return;
+		}
+		if (AttackerState == VictimState && AttackerState == SelfState)
+		{
+			LBlasterHUD->AddElimAnnouncement(TEXT("You"), TEXT("Yourself"));
+			return;
+		}
+		if (AttackerState == VictimState && AttackerState != SelfState)
+		{
+			LBlasterHUD->AddElimAnnouncement(AttackerState->GetPlayerName(), AttackerState->GetPlayerName());
+			return;
+		}
+		LBlasterHUD->AddElimAnnouncement(AttackerState->GetPlayerName(), VictimState->GetPlayerName());
+	}
+}
+
 void ALBlasterPlayerController::UpdateHUDHealth()
 {
 	if (ALBlasterCharacter* LBlasterCharacter = Cast<ALBlasterCharacter>(GetPawn()))
@@ -370,6 +398,11 @@ void ALBlasterPlayerController::DisablePauseMenuMappingContext() const
 			}	
 		}
 	}
+}
+
+void ALBlasterPlayerController::BroadcastElim(APlayerState* AttackerState, APlayerState* VictimState)
+{
+	ClientElimAnnouncement(AttackerState, VictimState);
 }
 
 void ALBlasterPlayerController::ShowPauseMenu()

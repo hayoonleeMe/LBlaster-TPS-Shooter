@@ -5,17 +5,24 @@
 
 #include "Announcement.h"
 #include "CharacterOverlay.h"
+#include "ElimAnnouncement.h"
 #include "LBlaster.h"
 #include "PauseMenu.h"
 #include "SniperScope.h"
 #include "Blueprint/UserWidget.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
+#include "Components/CanvasPanelSlot.h"
 #include "Player/LBlasterPlayerController.h"
+#include "Components/HorizontalBox.h"
 
 ALBlasterHUD::ALBlasterHUD()
 {
 	/* Crosshair */
 	CrosshairSpreadMax = 16.f;
 	bEnableCrosshair = true;
+
+	/* Elim Announcement */
+	ElimAnnouncementTime = 3.5f;
 }
 
 void ALBlasterHUD::DrawHUD()
@@ -171,6 +178,19 @@ void ALBlasterHUD::DrawCrosshair(UTexture2D* InTexture, const FVector2D& InViewp
 	DrawTexture(InTexture, TextureDrawPoint.X, TextureDrawPoint.Y, TextureWidth, TextureHeight, 0.f, 0.f, 1.f, 1.f, InLinearColor);	
 }
 
+void ALBlasterHUD::ElimAnnouncementTimerFinished(UElimAnnouncement* MessageToRemove)
+{
+	if (MessageToRemove)
+	{
+		MessageToRemove->RemoveFromParent();
+
+		if (ElimMessages.Contains(MessageToRemove))
+		{
+			ElimMessages.Remove(MessageToRemove);
+		}
+	}
+}
+
 void ALBlasterHUD::AddAnnouncement()
 {
 	if (IsValidOwnerController())
@@ -188,6 +208,39 @@ void ALBlasterHUD::HideAnnouncement()
 	if (Announcement)
 	{
 		Announcement->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
+void ALBlasterHUD::AddElimAnnouncement(const FString& AttackerName, const FString& VictimName)
+{
+	if (IsValidOwnerController() && ElimAnnouncementClass)
+	{
+		if (UElimAnnouncement* ElimAnnouncement = CreateWidget<UElimAnnouncement>(OwnerController, ElimAnnouncementClass))
+		{
+			ElimAnnouncement->SetElimAnnouncementText(AttackerName, VictimName);
+			ElimAnnouncement->AddToViewport();
+
+			// 한칸 씩 밑으로 내림
+			for (const UElimAnnouncement* Message : ElimMessages)
+			{
+				if (Message && Message->GetAnnouncementBox())
+				{
+					if (UCanvasPanelSlot* CanvasSlot = UWidgetLayoutLibrary::SlotAsCanvasSlot(Message->GetAnnouncementBox()))
+					{
+						const FVector2D Position = CanvasSlot->GetPosition();
+						const FVector2D NewPosition(Position.X, Position.Y + CanvasSlot->GetSize().Y);
+						CanvasSlot->SetPosition(NewPosition);
+					}
+				}
+			}
+			ElimMessages.Add(ElimAnnouncement);
+
+			FTimerHandle Timer;
+			FTimerDelegate Delegate;
+			// 파라미터가 있는 함수를 바인딩
+			Delegate.BindUFunction(this, FName(TEXT("ElimAnnouncementTimerFinished")), ElimAnnouncement);
+			GetWorld()->GetTimerManager().SetTimer(Timer, Delegate, ElimAnnouncementTime, false);
+		}
 	}
 }
 
