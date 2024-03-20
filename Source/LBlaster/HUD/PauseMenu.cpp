@@ -4,6 +4,7 @@
 #include "HUD/PauseMenu.h"
 
 #include "../../../Plugins/MultiplayerSessions/Source/MultiplayerSessions/Public/MultiplayerSessionsSubsystem.h"
+#include "Character/LBlasterCharacter.h"
 #include "Components/Button.h"
 #include "GameFramework/GameModeBase.h"
 #include "Player/LBlasterPlayerController.h"
@@ -84,6 +85,14 @@ void UPauseMenu::OnDestroySession(bool bWasSuccessful)
 	}
 }
 
+void UPauseMenu::OnPlayerLeftGame()
+{
+	if (MultiplayerSessionsSubsystem)
+	{
+		MultiplayerSessionsSubsystem->DestroySession();
+	}
+}
+
 bool UPauseMenu::IsValidPlayerController()
 {
 	if (!PlayerController && GetWorld())
@@ -97,9 +106,18 @@ void UPauseMenu::MainMenuButtonClicked()
 {
 	MainMenuButton->SetIsEnabled(false);
 
-	if (MultiplayerSessionsSubsystem)
+	if (IsValidPlayerController())
 	{
-		MultiplayerSessionsSubsystem->DestroySession();
+		if (ALBlasterCharacter* LBCharacter = Cast<ALBlasterCharacter>(PlayerController->GetCharacter()))
+		{
+			LBCharacter->OnLeftGame.AddUObject(this, &ThisClass::OnPlayerLeftGame);
+			LBCharacter->ServerLeaveGame();
+		}
+		else
+		{
+			// 다시 시도할 수 있게 버튼 활성화
+			MainMenuButton->SetIsEnabled(true);
+		}
 	}
 }
 
