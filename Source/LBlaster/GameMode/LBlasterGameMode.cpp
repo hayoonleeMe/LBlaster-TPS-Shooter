@@ -97,7 +97,7 @@ void ALBlasterGameMode::PlayerEliminated(ALBlasterCharacter* EliminatedCharacter
 	
 	if (EliminatedCharacter)
 	{
-		EliminatedCharacter->Elim();
+		EliminatedCharacter->Elim(false);
 	}
 }
 
@@ -114,6 +114,14 @@ void ALBlasterGameMode::RequestRespawn(ACharacter* EliminatedCharacter, AControl
 		UGameplayStatics::GetAllActorsOfClass(this, APlayerStart::StaticClass(), PlayerStarts);
 		const int32 Selection = FMath::RandRange(0, PlayerStarts.Num() - 1);
 		RestartPlayerAtPlayerStart(EliminatedController, PlayerStarts[Selection]);
+	}
+}
+
+void ALBlasterGameMode::PlayerLeftGame(ALBlasterCharacter* LeftCharacter)
+{
+	if (LeftCharacter)
+	{
+		LeftCharacter->Elim(true);
 	}
 }
 

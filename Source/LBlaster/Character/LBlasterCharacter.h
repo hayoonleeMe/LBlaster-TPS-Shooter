@@ -11,6 +11,8 @@
 #include "Interface/LBCharacterPickupInterface.h"
 #include "LBlasterCharacter.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FOnLeftGame);
+
 UCLASS()
 class LBLASTER_API ALBlasterCharacter : public ACharacter, public ILBCharacterWeaponInterface, public IHitReceiverInterface, public ILBCharacterPickupInterface
 {
@@ -61,6 +63,14 @@ public:
 	void StartTossGrenade() const;
 
 	/*
+	 *	Leave Game
+	 */
+	UFUNCTION(Server, Reliable)
+	void ServerLeaveGame();
+
+	FOnLeftGame OnLeftGame;
+
+	/*
 	 *	LBlasterPlayerController
 	 */
 	void UpdateHUDHealth() const;
@@ -87,7 +97,7 @@ public:
 	/*
 	 *	Elimination
 	 */
-	void Elim();
+	void Elim(bool bPlayerLeftGame);
 
 protected:
 	/*
@@ -229,7 +239,7 @@ private:
 	void Ragdoll();
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastElim();
+	void MulticastElim(bool bPlayerLeftGame);
 
 	UPROPERTY(EditDefaultsOnly, Category="LBlaster|Elim")
 	float ElimDelay;
@@ -257,4 +267,9 @@ private:
 	
 	UPROPERTY(VisibleAnywhere, Category="LBlaster|Dissolve Effect")
 	TArray<UMaterialInstanceDynamic*> DynamicDissolveMaterialInstances;
+
+	/*
+	 *	Leave Game
+	 */
+	bool bLeftGame = false;
 };

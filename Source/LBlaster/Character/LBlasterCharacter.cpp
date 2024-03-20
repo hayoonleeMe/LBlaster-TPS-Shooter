@@ -335,6 +335,17 @@ void ALBlasterCharacter::StartTossGrenade() const
 	}
 }
 
+void ALBlasterCharacter::ServerLeaveGame_Implementation()
+{
+	if (GetWorld())
+	{
+		if (ALBlasterGameMode* GameMode = GetWorld()->GetAuthGameMode<ALBlasterGameMode>())
+		{
+			GameMode->PlayerLeftGame(this);
+		}	
+	}
+}
+
 void ALBlasterCharacter::SetADSWalkSpeed(bool bEnabled, float InADSMultiplier)
 {
 	if (bEnabled)
@@ -428,10 +439,9 @@ void ALBlasterCharacter::SetADSFOV(float InADSFOV)
 	}
 }
 
-void ALBlasterCharacter::Elim()
+void ALBlasterCharacter::Elim(bool bPlayerLeftGame)
 {
-	GetWorldTimerManager().SetTimer(ElimTimer, this, &ThisClass::ElimTimerFinished, ElimDelay);
-	MulticastElim();
+	MulticastElim(bPlayerLeftGame);
 }
 
 void ALBlasterCharacter::UpdateHUDHealth() const
@@ -773,7 +783,15 @@ void ALBlasterCharacter::ElimTimerFinished()
 {
 	if (ALBlasterGameMode* GameMode = GetWorld()->GetAuthGameMode<ALBlasterGameMode>())
 	{
-		GameMode->RequestRespawn(this, Controller);
+		if (!bLeftGame)
+		{
+			GameMode->RequestRespawn(this, Controller);
+		}
+	}
+
+	if (bLeftGame && IsLocallyControlled())
+	{
+		OnLeftGame.Broadcast();
 	}
 }
 
@@ -797,7 +815,7 @@ void ALBlasterCharacter::StartDissolve()
 	}
 }
 
-void ALBlasterCharacter::MulticastElim_Implementation()
+void ALBlasterCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
 {
 	if (CombatComponent)
 	{
@@ -846,5 +864,8 @@ void ALBlasterCharacter::MulticastElim_Implementation()
 		}
 	}
 	StartDissolve();
+
+	bLeftGame = bPlayerLeftGame;
+	GetWorldTimerManager().SetTimer(ElimTimer, this, &ThisClass::ElimTimerFinished, ElimDelay);
 }
 

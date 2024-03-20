@@ -24,6 +24,7 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void PlayerEliminated(class ALBlasterCharacter* EliminatedCharacter, class ALBlasterPlayerController* VictimController, ALBlasterPlayerController* AttackerController);
 	virtual void RequestRespawn(ACharacter* EliminatedCharacter, AController* EliminatedController);
+	void PlayerLeftGame(class ALBlasterCharacter* LeftCharacter);
 
 	FORCEINLINE float GetCountdownTime() const { return CountdownTime; }
 
