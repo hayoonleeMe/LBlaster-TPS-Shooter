@@ -625,6 +625,15 @@ void ALBlasterCharacter::EquipDefaultWeapon() const
 	}
 }
 
+void ALBlasterCharacter::ReleaseCombatState() const
+{
+	if (CombatComponent)
+	{
+		CombatComponent->SetAiming(false);
+		CombatComponent->SetFiring(false);
+	}
+}
+
 void ALBlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastOverlappingWeapon) const
 {
 	ShowOverlappingWeaponPickupWidget(LastOverlappingWeapon);
