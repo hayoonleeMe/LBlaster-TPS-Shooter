@@ -60,11 +60,15 @@ public:
 	void AddAnnouncement();
 	void HideAnnouncement();
 	void AddElimAnnouncement(const FString& AttackerName, const FString& VictimName);
+	void AddChatUI();
 	void SetCooldownAnnouncement();
 	void InitSniperScope(const TSubclassOf<UUserWidget>& InSniperScopeClass);
 	void ShowSniperScopeWidget(bool bShowScope);
 	void HighPingWarning(float InDuration) const;
 	bool ShowPauseMenu();
+	void FocusChat() const;
+	void AddChatMessage(const FText& InText) const;
+	void ScrollChatBox(float InScrollValue) const;
 
 protected:
 	virtual void PostInitializeComponents() override;
@@ -139,4 +143,13 @@ private:
 
 	UPROPERTY()
 	TArray<UElimAnnouncement*> ElimMessages;
+
+	/*
+	 *	Chat
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Chat")
+	TSubclassOf<class UChatUI> ChatUIClass;
+
+	UPROPERTY()
+	TObjectPtr<UChatUI> ChatUI;
 };
