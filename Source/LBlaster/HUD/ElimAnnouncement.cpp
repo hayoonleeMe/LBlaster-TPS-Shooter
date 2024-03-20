@@ -12,5 +12,9 @@ void UElimAnnouncement::SetElimAnnouncementText(const FString& InAttackerName, c
 		const FString Text = FString::Printf(TEXT("%s elimmed %s"), *InAttackerName, *InVictimName);
 		AnnouncementText->SetText(FText::FromString(Text));
 	}
-	
+
+	if (TextFadeOut)
+	{
+		PlayAnimation(TextFadeOut);
+	}
 }
