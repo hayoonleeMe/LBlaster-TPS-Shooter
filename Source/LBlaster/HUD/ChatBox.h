@@ -15,8 +15,8 @@ class LBLASTER_API UChatBox : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void FocusChatEdit() const;
-	void ExitChatEdit() const;
+	void FocusChatEdit();
+	void ExitChatEdit();
 	void AddChatMessage(const FText& InText);
 	void Scroll(float InScrollValue) const;
 
@@ -49,4 +49,17 @@ private:
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Chat")
 	float ScrollModifier = 60.f;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	TObjectPtr<UWidgetAnimation> ChatBoxFadeOut;
+	
+	UPROPERTY(EditAnywhere, Category="LBlaster|Chat")
+	float ChatBoxFadeOutWaitTime = 3.f;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Chat")
+	float ChatBoxFadeOutDuration = 3.f;
+	
+	FTimerHandle ChatBoxFadeOutTimer;
+
+	void StartChatBoxFadeOutTimer();
 };

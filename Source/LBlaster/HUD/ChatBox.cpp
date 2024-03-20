@@ -4,27 +4,36 @@
 #include "HUD/ChatBox.h"
 
 #include "ChatEntry.h"
+#include "LBlasterHUD.h"
 #include "Components/EditableText.h"
 #include "Components/ScrollBox.h"
 #include "GameFramework/PlayerState.h"
 #include "Player/LBlasterPlayerController.h"
 
-void UChatBox::FocusChatEdit() const
+void UChatBox::FocusChatEdit()
 {
 	if (ChatEditText)
-	{
+	{	
 		ChatEditText->SetIsEnabled(true);
 		ChatEditText->SetFocus();
 	}
+	if (ChatBoxFadeOut)
+	{
+		StopAnimation(ChatBoxFadeOut);
+	}
+	GetWorld()->GetTimerManager().ClearTimer(ChatBoxFadeOutTimer);
+	SetRenderOpacity(1.f);
 }
 
-void UChatBox::ExitChatEdit() const
+void UChatBox::ExitChatEdit()
 {
 	if (ChatEditText)
 	{
 		ChatEditText->SetText(FText::GetEmpty());
 		ChatEditText->SetIsEnabled(false);
 	}
+
+	StartChatBoxFadeOutTimer();
 }
 
 void UChatBox::AddChatMessage(const FText& InText)
@@ -36,6 +45,13 @@ void UChatBox::AddChatMessage(const FText& InText)
 			ChatEntry->SetChatEntryText(InText);
 			ScrollBox->AddChild(ChatEntry);
 			ScrollBox->ScrollToEnd();
+
+			if (ChatBoxFadeOut)
+			{
+				StopAnimation(ChatBoxFadeOut);
+			}
+			SetRenderOpacity(1.f);
+			StartChatBoxFadeOutTimer();
 		}
 	}
 }
@@ -67,6 +83,21 @@ bool UChatBox::IsValidPlayerController()
 		PlayerController = GetWorld()->GetFirstPlayerController<ALBlasterPlayerController>();
 	}
 	return PlayerController != nullptr;
+}
+
+void UChatBox::StartChatBoxFadeOutTimer()
+{
+	// Wait Time을 기다리고 Fade Out 애니메이션 재생
+	GetWorld()->GetTimerManager().SetTimer(ChatBoxFadeOutTimer, FTimerDelegate::CreateLambda([&]()
+	{
+		GetWorld()->GetTimerManager().SetTimer(ChatBoxFadeOutTimer, FTimerDelegate::CreateLambda([&]()
+		{
+			if (ChatBoxFadeOut)
+			{
+				PlayAnimation(ChatBoxFadeOut);
+			}
+		}), ChatBoxFadeOutDuration, false);
+	}), ChatBoxFadeOutWaitTime, false);
 }
 
 void UChatBox::OnTextCommitted(const FText& Text, ETextCommit::Type CommitMethod)
