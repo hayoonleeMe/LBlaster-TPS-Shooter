@@ -59,6 +59,7 @@ public:
 	void RemoveCharacterOverlay();
 	void AddAnnouncement();
 	void HideAnnouncement();
+	void AddElimAnnouncement(const FString& AttackerName, const FString& VictimName);
 	void SetCooldownAnnouncement();
 	void InitSniperScope(const TSubclassOf<UUserWidget>& InSniperScopeClass);
 	void ShowSniperScopeWidget(bool bShowScope);
@@ -123,4 +124,19 @@ private:
 	TObjectPtr<class UPauseMenu> PauseMenu;
 
 	bool bShowedPauseMenu = false;
+
+	/*
+	 *	Elim Announcement
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Elim Announcement")
+	TSubclassOf<class UElimAnnouncement> ElimAnnouncementClass;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Elim Announcement")
+	float ElimAnnouncementTime;
+
+	UFUNCTION()
+	void ElimAnnouncementTimerFinished(class UElimAnnouncement* MessageToRemove);
+
+	UPROPERTY()
+	TArray<UElimAnnouncement*> ElimMessages;
 };
