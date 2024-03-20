@@ -44,6 +44,18 @@ ALBlasterPlayerController::ALBlasterPlayerController()
 	{
 		PauseMenuAction = PauseMenuActionRef.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> FocusChatActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_FocusChat.IA_FocusChat'"));
+	if (FocusChatActionRef.Object)
+	{
+		FocusChatAction = FocusChatActionRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> ChatScrollActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_ChatScroll.IA_ChatScroll'"));
+	if (ChatScrollActionRef.Object)
+	{
+		ChatScrollAction = ChatScrollActionRef.Object;
+	}
 }
 
 void ALBlasterPlayerController::Tick(float DeltaSeconds)
@@ -60,6 +72,8 @@ void ALBlasterPlayerController::SetupInputComponent()
 
 	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
 	EnhancedInputComponent->BindAction(PauseMenuAction, ETriggerEvent::Triggered, this, &ThisClass::ShowPauseMenu);
+	EnhancedInputComponent->BindAction(FocusChatAction, ETriggerEvent::Triggered, this, &ThisClass::FocusChat);
+	EnhancedInputComponent->BindAction(ChatScrollAction, ETriggerEvent::Triggered, this, &ThisClass::ChatScroll);
 }
 
 float ALBlasterPlayerController::GetServerTime()
@@ -316,6 +330,14 @@ void ALBlasterPlayerController::CheckPing()
 	}
 }
 
+void ALBlasterPlayerController::ClientAddChatText_Implementation(const FText& InText)
+{
+	if (IsValidHUD())
+	{
+		LBlasterHUD->AddChatMessage(InText);
+	}
+}
+
 void ALBlasterPlayerController::ClientElimAnnouncement_Implementation(APlayerState* AttackerState, APlayerState* VictimState)
 {
 	if (const APlayerState* SelfState = GetPlayerState<APlayerState>(); AttackerState && VictimState && IsValidHUD())
@@ -405,6 +427,19 @@ void ALBlasterPlayerController::BroadcastElim(APlayerState* AttackerState, APlay
 	ClientElimAnnouncement(AttackerState, VictimState);
 }
 
+void ALBlasterPlayerController::BroadcastChatText(const FText& InText)
+{
+	ClientAddChatText(InText);
+}
+
+void ALBlasterPlayerController::ServerSendChatText_Implementation(const FText& InText)
+{
+	if (IsValidGameMode())
+	{
+		LBlasterGameMode->SendChatText(InText);
+	}
+}
+
 void ALBlasterPlayerController::ShowPauseMenu()
 {
 	if (IsValidHUD())
@@ -417,6 +452,22 @@ void ALBlasterPlayerController::ShowPauseMenu()
 			}
 		}
 	}		
+}
+
+void ALBlasterPlayerController::FocusChat()
+{
+	if (IsValidHUD())
+	{
+		LBlasterHUD->FocusChat();
+	}
+}
+
+void ALBlasterPlayerController::ChatScroll(const FInputActionValue& ActionValue)
+{
+	if (IsValidHUD())
+	{
+		LBlasterHUD->ScrollChatBox(ActionValue.Get<float>());
+	}
 }
 
 void ALBlasterPlayerController::BeginPlay()

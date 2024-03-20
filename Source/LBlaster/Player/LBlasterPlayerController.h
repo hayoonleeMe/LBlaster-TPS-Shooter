@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "InputActionValue.h"
 #include "GameFramework/PlayerController.h"
 #include "LBlasterPlayerController.generated.h"
 
@@ -43,6 +44,10 @@ public:
 	void DisablePauseMenuMappingContext() const;
 
 	void BroadcastElim(APlayerState* AttackerState, APlayerState* VictimState);
+	void BroadcastChatText(const FText& InText);
+
+	UFUNCTION(Server, Reliable)
+	void ServerSendChatText(const FText& InText);
 
 protected:
 	/*
@@ -59,7 +64,15 @@ protected:
 	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
 	TObjectPtr<class UInputAction> PauseMenuAction;
 
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
+	TObjectPtr<UInputAction> FocusChatAction;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
+	TObjectPtr<UInputAction> ChatScrollAction;
+
 	void ShowPauseMenu();
+	void FocusChat();
+	void ChatScroll(const FInputActionValue& ActionValue);
 
 protected:
 	virtual void BeginPlay() override;
@@ -138,4 +151,10 @@ private:
 	 */
 	UFUNCTION(Client, Reliable)
 	void ClientElimAnnouncement(APlayerState* AttackerState, APlayerState* VictimState);
+
+	/*
+	 *	Chat
+	 */
+	UFUNCTION(Client, Reliable)
+	void ClientAddChatText(const FText& InText);
 };

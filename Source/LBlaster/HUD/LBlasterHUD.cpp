@@ -5,6 +5,7 @@
 
 #include "Announcement.h"
 #include "CharacterOverlay.h"
+#include "ChatBox.h"
 #include "ElimAnnouncement.h"
 #include "LBlaster.h"
 #include "PauseMenu.h"
@@ -14,6 +15,7 @@
 #include "Components/CanvasPanelSlot.h"
 #include "Player/LBlasterPlayerController.h"
 #include "Components/HorizontalBox.h"
+#include "HUD/ChatUI.h"
 
 ALBlasterHUD::ALBlasterHUD()
 {
@@ -244,6 +246,19 @@ void ALBlasterHUD::AddElimAnnouncement(const FString& AttackerName, const FStrin
 	}
 }
 
+void ALBlasterHUD::AddChatUI()
+{
+	if (IsValidOwnerController() && ChatUIClass)
+	{
+		ChatUI = CreateWidget<UChatUI>(OwnerController, ChatUIClass);
+		if (ChatUI)
+		{
+			ChatUI->AddToViewport();
+		}
+	}
+		
+}
+
 void ALBlasterHUD::SetCooldownAnnouncement()
 {
 	if (Announcement)
@@ -327,12 +342,37 @@ bool ALBlasterHUD::ShowPauseMenu()
 	return bShowedPauseMenu;
 }
 
+void ALBlasterHUD::FocusChat() const
+{
+	if (ChatUI)
+	{
+		ChatUI->ChatBox->FocusChatEdit();
+	}
+}
+
+void ALBlasterHUD::AddChatMessage(const FText& InText) const
+{
+	if (ChatUI)
+	{
+		ChatUI->ChatBox->AddChatMessage(InText);
+	}
+}
+
+void ALBlasterHUD::ScrollChatBox(float InScrollValue) const
+{
+	if (ChatUI)
+	{
+		ChatUI->ChatBox->Scroll(InScrollValue);
+	}
+}
+
 void ALBlasterHUD::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
 	AddCharacterOverlay();
 	HideAnnouncement();
+	AddChatUI();
 }
 
 bool ALBlasterHUD::IsValidOwnerController()

@@ -39,6 +39,8 @@ public:
 
 	float LevelStartingTime = 0.f;
 
+	void SendChatText(const FText& InText) const;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void OnMatchStateSet() override;

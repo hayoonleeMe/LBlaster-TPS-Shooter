@@ -133,6 +133,17 @@ void ALBlasterGameMode::PlayerLeftGame(ALBlasterCharacter* LeftCharacter)
 	}
 }
 
+void ALBlasterGameMode::SendChatText(const FText& InText) const
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		if (ALBlasterPlayerController* PlayerController = Cast<ALBlasterPlayerController>(*It))
+		{
+			PlayerController->BroadcastChatText(InText);
+		}
+	}
+}
+
 void ALBlasterGameMode::BeginPlay()
 {
 	Super::BeginPlay();
