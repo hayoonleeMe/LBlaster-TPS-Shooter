@@ -21,65 +21,69 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 {
 	Super::Fire(HitTarget);
 
-	if (const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(FName(TEXT("MuzzleFlash"))))
+	if (UWorld* World = GetWorld(); const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(FName(TEXT("MuzzleFlash"))))
 	{
 		const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
-		const FVector Start = SocketTransform.GetLocation();
+		const FVector TraceStart = SocketTransform.GetLocation();
+		const FVector TraceEnd = TraceStart + (HitTarget - TraceStart) * 1.25f;
+			
+		FHitResult FireHit;
+		World->LineTraceSingleByChannel(FireHit, TraceStart, TraceEnd, ECC_Visibility);
+		FVector BeamEnd = TraceEnd;
 
-		if (UWorld* World = GetWorld())
+		if (FireHit.bBlockingHit && FireHit.GetActor())
 		{
-			FHitResult FireHit;
-			const FVector End = bUseScatter ? TraceEndWithScatter(Start, HitTarget) : Start + (HitTarget - Start) * 1.25f;
-			World->LineTraceSingleByChannel(FireHit, Start, End, ECC_Visibility);
-			FVector BeamEnd = End;
-					
-			if (FireHit.bBlockingHit && FireHit.GetActor())
-			{
-				BeamEnd = FireHit.ImpactPoint;
+			BeamEnd = FireHit.ImpactPoint;
 						
-				// Play HitReact Montage
-				if (IHitReceiverInterface* HitInterface = Cast<IHitReceiverInterface>(FireHit.GetActor()))
-				{
-					HitInterface->SetLastHitNormal(FireHit.ImpactNormal);
-				}
+			// Play HitReact Montage
+			if (IHitReceiverInterface* HitInterface = Cast<IHitReceiverInterface>(FireHit.GetActor()))
+			{
+				HitInterface->SetLastHitNormal(FireHit.ImpactNormal);
+			}
 					
-				// Apply Damage
-				if (APawn* OwnerPawn = Cast<APawn>(GetOwner()))
-                {
-                	if (AController* InstigatorController = OwnerPawn->Controller)
-                	{
-                		if (HasAuthority())
-                		{
-                			UGameplayStatics::ApplyDamage(FireHit.GetActor(), Damage, InstigatorController, this, UDamageType::StaticClass());
-                		}	
-                	}
-                }
-
-				// Impact Effect
-				SpawnImpactEffects(World, FireHit);
+			// Apply Damage
+			if (APawn* OwnerPawn = Cast<APawn>(GetOwner()))
+			{
+				if (AController* InstigatorController = OwnerPawn->Controller)
+				{
+					if (HasAuthority())
+					{
+						UGameplayStatics::ApplyDamage(FireHit.GetActor(), Damage, InstigatorController, this, UDamageType::StaticClass());
+					}	
+				}
 			}
 
-			// Beam Effect
-			if (BeamParticle)
+			// Impact Effect
+			SpawnImpactEffects(World, FireHit);
+		}
+
+		// Beam Effect
+		if (BeamParticle)
+		{
+			if (UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(World, BeamParticle, SocketTransform))
 			{
-				if (UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(World, BeamParticle, SocketTransform))
-				{
-					Beam->SetVectorParameter(FName(TEXT("Target")), BeamEnd);
-				}
+				Beam->SetVectorParameter(FName(TEXT("Target")), BeamEnd);
 			}
 		}
 	}
 }
 
-FVector AHitScanWeapon::TraceEndWithScatter(const FVector& TraceStart, const FVector& HitTarget)
+FVector AHitScanWeapon::TraceEndWithScatter(const FVector& HitTarget) const
 {
-	const FVector ToTargetNormalized = (HitTarget - TraceStart).GetSafeNormal();
-	const FVector SphereCenter = TraceStart + ToTargetNormalized * DistanceToSphere;
-	const FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, SphereRadius);
-	const FVector EndLoc = SphereCenter + RandVec;
-	const FVector ToEndLoc = EndLoc - TraceStart;
-	
-	return TraceStart + ToEndLoc / ToEndLoc.Size() * TRACE_LENGTH;
+	if (const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(FName(TEXT("MuzzleFlash"))))
+	{
+		const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
+		const FVector TraceStart = SocketTransform.GetLocation();
+
+		const FVector ToTargetNormalized = (HitTarget - TraceStart).GetSafeNormal();
+		const FVector SphereCenter = TraceStart + ToTargetNormalized * DistanceToSphere;
+		const FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, SphereRadius);
+		const FVector EndLoc = SphereCenter + RandVec;
+		const FVector ToEndLoc = EndLoc - TraceStart;
+
+		return TraceStart + ToEndLoc / ToEndLoc.Size() * TRACE_LENGTH;
+	}
+	return Super::TraceEndWithScatter(HitTarget);
 }
 
 void AHitScanWeapon::SpawnImpactEffects(UWorld* World, const FHitResult& HitResult)

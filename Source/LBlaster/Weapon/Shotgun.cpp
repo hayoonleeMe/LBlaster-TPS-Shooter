@@ -24,69 +24,67 @@ void AShotgun::Fire(const FVector& HitTarget)
 {
 	AWeapon::Fire(HitTarget);
 	
-	if (const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(FName(TEXT("MuzzleFlash"))))
+	if (UWorld* World = GetWorld(); const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(FName(TEXT("MuzzleFlash"))))
 	{
 		const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
-		const FVector Start = SocketTransform.GetLocation();
+		const FVector TraceStart = SocketTransform.GetLocation();
 
-		if (UWorld* World = GetWorld())
+		TMap<IHitReceiverInterface*, FHitInfo> HitMap;
+		for (uint32 Index = 0; Index < NumberOfPellets; ++Index)
 		{
-			TMap<IHitReceiverInterface*, FHitInfo> HitMap;
-			for (uint32 i = 0; i < NumberOfPellets; ++i)
+			const FVector TraceEnd = TraceStart + (HitTarget - TraceStart) * 1.25f;
+			
+			FHitResult FireHit;
+			World->LineTraceSingleByChannel(FireHit, TraceStart, TraceEnd, ECC_Visibility);
+			FVector BeamEnd = TraceEnd;
+
+			if (FireHit.bBlockingHit && FireHit.GetActor())
 			{
-				FHitResult FireHit;
-				const FVector End = bUseScatter ? TraceEndWithScatter(Start, HitTarget) : Start + (HitTarget - Start) * 1.25f;
-				World->LineTraceSingleByChannel(FireHit, Start, End, ECC_Visibility);
-				FVector BeamEnd = End;
-
-				if (FireHit.bBlockingHit && FireHit.GetActor())
-				{
-					BeamEnd = FireHit.ImpactPoint;
+				BeamEnd = FireHit.ImpactPoint;
 						
-					// Caching Hit Info
-					if (IHitReceiverInterface* HitInterface = Cast<IHitReceiverInterface>(FireHit.GetActor()))
-					{
-						if (HitMap.Contains(HitInterface))
-						{
-							++HitMap[HitInterface].HitCount;
-						}
-						else
-						{
-							HitMap.Emplace(HitInterface, { 1, FireHit.ImpactNormal, FireHit.GetActor() });
-						}
-					}
-
-					// Impact Effect
-					SpawnImpactEffects(World, FireHit);
-				}
-
-				// Beam Effect
-				if (BeamParticle)
+				// Caching Hit Info
+				if (IHitReceiverInterface* HitInterface = Cast<IHitReceiverInterface>(FireHit.GetActor()))
 				{
-					if (UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(World, BeamParticle, SocketTransform))
+					if (HitMap.Contains(HitInterface))
 					{
-						Beam->SetVectorParameter(FName(TEXT("Target")), BeamEnd);
+						++HitMap[HitInterface].HitCount;
+					}
+					else
+					{
+						HitMap.Emplace(HitInterface, { 1, FireHit.ImpactNormal, FireHit.GetActor() });
 					}
 				}
+
+				// Impact Effect
+				SpawnImpactEffects(World, FireHit);
 			}
 
-			for (const auto& HitPair : HitMap)
+			// Beam Effect
+			if (BeamParticle)
 			{
-				const FHitInfo& HitInfo = HitPair.Value; 
-				
-				// Play HitReact Montage
-				HitPair.Key->SetLastHitNormal(HitInfo.ImpactNormal);
-					
-				// Apply Damage
-				if (APawn* OwnerPawn = Cast<APawn>(GetOwner()))
+				if (UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(World, BeamParticle, SocketTransform))
 				{
-					if (AController* InstigatorController = OwnerPawn->Controller)
+					Beam->SetVectorParameter(FName(TEXT("Target")), BeamEnd);
+				}
+			}
+		}
+
+		for (const auto& HitPair : HitMap)
+		{
+			const FHitInfo& HitInfo = HitPair.Value; 
+				
+			// Play HitReact Montage
+			HitPair.Key->SetLastHitNormal(HitInfo.ImpactNormal);
+					
+			// Apply Damage
+			if (APawn* OwnerPawn = Cast<APawn>(GetOwner()))
+			{
+				if (AController* InstigatorController = OwnerPawn->Controller)
+				{
+					if (HasAuthority() && HitInfo.HitActor)
 					{
-						if (HasAuthority() && HitInfo.HitActor)
-						{
-							UGameplayStatics::ApplyDamage(HitInfo.HitActor, Damage * HitInfo.HitCount, InstigatorController, this, UDamageType::StaticClass());
-						}	
-					}
+						UGameplayStatics::ApplyDamage(HitInfo.HitActor, Damage * HitInfo.HitCount, InstigatorController, this, UDamageType::StaticClass());
+					}	
 				}
 			}
 		}
