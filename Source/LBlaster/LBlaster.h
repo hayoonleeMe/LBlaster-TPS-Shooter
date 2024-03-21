@@ -13,6 +13,11 @@
 /*
  * Custom Log Category
  */
+DECLARE_LOG_CATEGORY_EXTERN(LogLB, Log, All);
+
+/*
+ * Custom Log Macro
+ */
 
 // 현재 액터의 ENetRole 타입의 Local Network Role 값을 가져온다.
 // ENetRole은 UEnum()으로 지정되어 있으므로 UEnum::GetValueAsString를 통해 값을 가져올 수 있다.
@@ -36,5 +41,3 @@
 
 // 액터에 소속된 서브오브젝트들이 사용
 #define LB_SUBLOG(LogCat, Verbosity, Format, ...) UE_LOG(LogCat, Verbosity, TEXT("[%s][%s/%s] %s %s"), LOG_NETMODEINFO, LOG_SUBLOCALROLEINFO, LOG_SUBREMOTEROLEINFO, LOG_CALLINFO, *FString::Printf(Format, ##__VA_ARGS__))
-
-DECLARE_LOG_CATEGORY_EXTERN(LogNetwork, Log, All);
