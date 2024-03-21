@@ -431,11 +431,11 @@ void ALBlasterCharacter::SetBlendWeight(float InWeight) const
 	}
 }
 
-void ALBlasterCharacter::SetADSFOV(float InADSFOV)
+void ALBlasterCharacter::SetAdsFov(float InAdsFov) const
 {
 	if (CameraComponent)
 	{
-		CameraComponent->SetADSFOV(InADSFOV);
+		CameraComponent->SetAdsFov(InAdsFov);
 	}
 }
 

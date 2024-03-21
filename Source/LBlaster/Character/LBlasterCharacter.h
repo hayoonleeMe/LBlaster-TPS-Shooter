@@ -89,8 +89,7 @@ public:
 	void PlayTossGrenadeMontage(UAnimMontage* InTossGrenadeMontage);
 	void PlayEquipMontage(UAnimMontage* InEquipMontage);
 	void SetBlendWeight(float InWeight) const;
-	// TODO : naming 변경
-	void SetADSFOV(float InADSFOV);
+	void SetAdsFov(float InAdsFov) const;
 	FORCEINLINE UStaticMeshComponent* GetAttachedGrenade() const { return AttachedGrenade; }
 	FORCEINLINE class AWeapon* GetOverlappingWeapon() const { return OverlappingWeapon; }
 
