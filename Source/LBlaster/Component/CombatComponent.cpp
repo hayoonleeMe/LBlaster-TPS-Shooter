@@ -399,13 +399,7 @@ void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 	FVector CrosshairWorldPosition;
 	FVector CrosshairWorldDirection;
 	
-	const bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(
-		UGameplayStatics::GetPlayerController(this, 0),
-		CrosshairLocation,
-		CrosshairWorldPosition,
-		CrosshairWorldDirection
-	);
-	if (bScreenToWorld)
+	if (UGameplayStatics::DeprojectScreenToWorld(UGameplayStatics::GetPlayerController(this, 0), CrosshairLocation,CrosshairWorldPosition, CrosshairWorldDirection))
 	{
 		FVector Start = CrosshairWorldPosition;
 		if (IsValidOwnerCharacter())
@@ -422,6 +416,8 @@ void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 		{
 			TraceHitResult.ImpactPoint = End;
 		}
+		// ImpactPoint Caching
+		TraceHitTarget = TraceHitResult.ImpactPoint;
 
 		// 캐릭터 조준 시 크로스 헤어 색상 변경
 		if (TraceHitResult.GetActor() && TraceHitResult.GetActor()->IsA(ALBlasterCharacter::StaticClass()))
@@ -452,6 +448,15 @@ bool UCombatComponent::CanDryFire()
 {
 	// 탄약 부족으로 발사할 수 없는 상태
 	return GetEquippingWeapon() != nullptr && bCanFire && bIsFiring && CombatState == ECombatState::ECS_Unoccupied && GetEquippingWeapon()->IsAmmoEmpty() && CarriedAmmoMap[GetEquippingWeapon()->GetWeaponType()] == 0;
+}
+
+void UCombatComponent::DryFire()
+{
+	if (USoundBase* DryFireSound = GetEquippingWeapon()->GetDryFireSound())
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, DryFireSound, GetEquippingWeapon()->GetActorLocation());
+	}
+	StartDryFireTimer();
 }
 
 void UCombatComponent::SetHUDCrosshair(float DeltaTime)
@@ -764,9 +769,7 @@ void UCombatComponent::LaunchGrenade()
 
 	if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled())
 	{
-		FHitResult TraceHitResult;
-		TraceUnderCrosshair(TraceHitResult);
-		ServerLaunchGrenade(TraceHitResult.ImpactPoint);	
+		ServerLaunchGrenade(TraceHitTarget);	
 	}
 }
 
@@ -781,24 +784,16 @@ void UCombatComponent::Fire()
 	{
 		bCanFire = false;
 		
-		FHitResult HitResult;
-		TraceUnderCrosshair(HitResult);
-		LocalFire(HitResult.ImpactPoint);	// Fire Montage등 cosmetic effect는 로컬에서 먼저 수행
-		ServerFire(HitResult.ImpactPoint);
 		CrosshairShootingFactor = 0.75f;
 		StartFireTimer();
 	}
 	else if (CanDryFire())
 	{
-		if (USoundBase* DryFireSound = GetEquippingWeapon()->GetDryFireSound())
-		{
-			UGameplayStatics::PlaySoundAtLocation(this, DryFireSound, GetEquippingWeapon()->GetActorLocation());
-		}
-		StartDryFireTimer();
+		DryFire();
 	}
 }
 
-void UCombatComponent::LocalFire(const FVector_NetQuantize& TraceHitTarget)
+void UCombatComponent::LocalFire(const FVector_NetQuantize& HitTarget)
 {
 	if (IsValidOwnerCharacter() && GetEquippingWeapon())
 	{
@@ -806,7 +801,7 @@ void UCombatComponent::LocalFire(const FVector_NetQuantize& TraceHitTarget)
 		{
 			OwnerCharacter->PlayFireMontage(MontageToPlay);
 		}
-		GetEquippingWeapon()->Fire(TraceHitTarget);
+		GetEquippingWeapon()->Fire(HitTarget);
 	}
 }
 
@@ -885,12 +880,12 @@ void UCombatComponent::ServerEquipDefaultWeapon_Implementation()
 	}
 }
 
-void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
+void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& HitTarget)
 {
-	MulticastFire(TraceHitTarget);
+	MulticastFire(HitTarget);
 }
 
-void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
+void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& HitTarget)
 {
 	// Locally Controlled Character의 Local Fire 중복 호출 방지
 	if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled())
@@ -898,7 +893,7 @@ void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& T
 		return;
 	}
 
-	LocalFire(TraceHitTarget);
+	LocalFire(HitTarget);
 }
 
 FTransform UCombatComponent::GetWeaponLeftHandTransform()
