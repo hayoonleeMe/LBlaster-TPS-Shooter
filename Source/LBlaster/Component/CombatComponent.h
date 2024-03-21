@@ -136,6 +136,7 @@ private:
 
 	bool CanFire();	
 	void Fire();
+	void LocalFire(const FVector_NetQuantize& TraceHitTarget);
 
 	UFUNCTION(Server, Reliable)
 	void ServerSetFiring(bool bInFiring);
