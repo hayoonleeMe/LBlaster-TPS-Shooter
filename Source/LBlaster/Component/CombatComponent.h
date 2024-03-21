@@ -119,14 +119,20 @@ private:
 	/*
 	 *	Aiming
 	 */
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = "OnRep_IsAiming")
 	uint8 bIsAiming : 1;
+
+	UFUNCTION()
+	void OnRep_IsAiming();
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Aiming")
 	float ADSMultiplier;
 
 	UFUNCTION(Server, Reliable)
 	void ServerSetAiming(bool bInAiming);
+
+	// Locally Controlled 캐릭터에서 실제로 조준하는지
+	bool bDesiredIsAiming = false;
 	
 	/*
 	 *	Firing
