@@ -135,9 +135,9 @@ void ULBlasterCameraComponent::SetBlendWeight(float Weight)
 	BlendAlpha = FMath::InterpEaseOut(0.f, 1.f, BlendWeight, InvExponent);
 }
 
-void ULBlasterCameraComponent::SetADSFOV(float InFOV)
+void ULBlasterCameraComponent::SetAdsFov(float InFov)
 {
-	ADSMode.FieldOfView = InFOV;
+	ADSMode.FieldOfView = InFov;
 }
 
 void ULBlasterCameraComponent::UpdateBlending(float DeltaTime)

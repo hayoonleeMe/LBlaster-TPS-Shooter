@@ -69,7 +69,7 @@ public:
 	void SetBlendWeight(float Weight);
 	bool bIsDead = false;
 
-	void SetADSFOV(float InFOV);
+	void SetAdsFov(float InFov);
 
 private:
 	/*
