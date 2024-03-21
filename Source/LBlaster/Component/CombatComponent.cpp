@@ -783,6 +783,17 @@ void UCombatComponent::Fire()
 	if (CanFire())
 	{
 		bCanFire = false;
+
+		// Scatter를 사용하는 HitScanWeapon은 TraceHitTarget 업데이트
+		if (GetEquippingWeapon()->DoesUseScatter())
+		{
+			TraceHitTarget = GetEquippingWeapon()->TraceEndWithScatter(TraceHitTarget);
+			LB_SUBLOG(LogNetwork, Warning, TEXT("Scatter HitTarget %s"), *TraceHitTarget.ToString());
+		}
+		
+		// Fire Montage등 cosmetic effect는 로컬에서 먼저 수행
+		LocalFire(TraceHitTarget);	
+		ServerFire(TraceHitTarget);
 		
 		CrosshairShootingFactor = 0.75f;
 		StartFireTimer();
