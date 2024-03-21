@@ -275,13 +275,19 @@ void UCombatComponent::Reload()
 	if (GetEquippingWeapon() && GetEquippingWeapon()->NeedReload() && CarriedAmmo > 0 && CombatState == ECombatState::ECS_Unoccupied)
 	{
 		ServerReload();
+		HandleReload();	// Locally Controlled 캐릭터에서 바로 Reload Montage 재생
 	}
 }
 
 void UCombatComponent::ServerReload_Implementation()
 {
 	CombatState = ECombatState::ECS_Reloading;
-	HandleReload();
+
+	// Locally Controlled 캐릭터의 Reload Montage 중복 재생 방지
+	if (IsValidOwnerCharacter() && !OwnerCharacter->IsLocallyControlled())
+	{
+		HandleReload();
+	}
 }
 
 void UCombatComponent::HandleReload()
@@ -568,7 +574,11 @@ void UCombatComponent::OnRep_CombatState()
 	switch (CombatState)
 	{
 	case ECombatState::ECS_Reloading:
-		HandleReload();	
+		// Locally Controlled 캐릭터의 Reload Montage 중복 재생 방지
+		if (IsValidOwnerCharacter() && !OwnerCharacter->IsLocallyControlled())
+		{
+			HandleReload();	
+		}
 		break;
 
 	case ECombatState::ECS_TossingGrenade:
