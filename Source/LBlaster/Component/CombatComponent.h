@@ -134,18 +134,25 @@ private:
 	UPROPERTY(Replicated)
 	uint8 bIsFiring : 1;
 
+	UFUNCTION(Server, Reliable)
+	void ServerSetFiring(bool bInFiring);
+
 	bool CanFire();	
 	void Fire();
 	void LocalFire(const FVector_NetQuantize& HitTarget);
-
-	UFUNCTION(Server, Reliable)
-	void ServerSetFiring(bool bInFiring);
+	void ShotgunLocalFire(const TArray<FVector_NetQuantize>& HitTargets);	
 	
 	UFUNCTION(Server, Reliable)
 	void ServerFire(const FVector_NetQuantize& HitTarget);
 
+	UFUNCTION(Server, Reliable)
+	void ServerShotgunFire(const TArray<FVector_NetQuantize>& HitTargets);
+
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastFire(const FVector_NetQuantize& HitTarget);
+
+	UFUNCTION(NetMulticast, Reliable)
+    void MulticastShotgunFire(const TArray<FVector_NetQuantize>& HitTargets);
 
 	void TraceUnderCrosshair(FHitResult& TraceHitResult);
 

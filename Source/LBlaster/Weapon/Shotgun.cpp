@@ -6,6 +6,7 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "Interface/HitReceiverInterface.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Particles/ParticleSystemComponent.h"
 
 AShotgun::AShotgun()
@@ -20,9 +21,9 @@ AShotgun::AShotgun()
 	Damage = 10;
 }
 
-void AShotgun::Fire(const FVector& HitTarget)
+void AShotgun::ShotgunFire(const TArray<FVector_NetQuantize>& HitTargets)
 {
-	AWeapon::Fire(HitTarget);
+	AWeapon::Fire(HitTargets[0]);
 	
 	if (UWorld* World = GetWorld(); const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(FName(TEXT("MuzzleFlash"))))
 	{
@@ -30,7 +31,7 @@ void AShotgun::Fire(const FVector& HitTarget)
 		const FVector TraceStart = SocketTransform.GetLocation();
 
 		TMap<IHitReceiverInterface*, FHitInfo> HitMap;
-		for (uint32 Index = 0; Index < NumberOfPellets; ++Index)
+		for (const FVector& HitTarget : HitTargets)
 		{
 			const FVector TraceEnd = TraceStart + (HitTarget - TraceStart) * 1.25f;
 			
@@ -89,4 +90,28 @@ void AShotgun::Fire(const FVector& HitTarget)
 			}
 		}
 	}
+}
+
+TArray<FVector_NetQuantize> AShotgun::ShotgunTraceEndWithScatter(const FVector& HitTarget) const
+{
+	if (const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(FName(TEXT("MuzzleFlash"))))
+	{
+		const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
+		const FVector TraceStart = SocketTransform.GetLocation();
+
+		TArray<FVector_NetQuantize> TraceHitTargets;
+		const FVector ToTargetNormalized = (HitTarget - TraceStart).GetSafeNormal();
+		const FVector SphereCenter = TraceStart + ToTargetNormalized * DistanceToSphere;
+		
+		for (uint32 Index = 0; Index < NumberOfPellets; ++Index)
+		{
+			const FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, SphereRadius);
+			const FVector EndLoc = SphereCenter + RandVec;
+			const FVector ToEndLoc = EndLoc - TraceStart;
+			const FVector RandHitTarget = TraceStart + ToEndLoc / ToEndLoc.Size() * TRACE_LENGTH;  
+			TraceHitTargets.Emplace(RandHitTarget);
+		}
+		return TraceHitTargets;
+	}
+	return TArray<FVector_NetQuantize>();
 }
