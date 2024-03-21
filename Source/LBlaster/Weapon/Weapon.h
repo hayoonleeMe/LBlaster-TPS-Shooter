@@ -19,7 +19,7 @@ public:
 	void ShowPickupWidget(bool bInShow) const;
 	void SetWeaponState(EWeaponState InWeaponState);
 	void SetHUDAmmo() const;
-	void AddAmmo(int32 InAmmo);
+	void AddAmmo(int32 InAmmoToAdd);
 
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 	FORCEINLINE TSubclassOf<UAnimInstance> GetWeaponAnimLayer() const { return WeaponAnimLayer; }
@@ -65,6 +65,14 @@ protected:
 		UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex
 	);
+
+	/*
+	 *	Owner
+	 */
+	UPROPERTY()
+	TObjectPtr<ACharacter> OwnerCharacter;
+
+	bool IsValidOwnerCharacter();
 
 	/*
 	 *	Weapon Type
@@ -130,16 +138,23 @@ protected:
 	/*
 	 *	Ammo
 	 */
-	UPROPERTY(EditAnywhere, ReplicatedUsing=OnRep_Ammo, Category="LBlaster|Ammo")
+	UPROPERTY(EditAnywhere, Category="LBlaster|Ammo")
 	int32 Ammo;
 
-	UFUNCTION()
-	void OnRep_Ammo() const;
+	UFUNCTION(Client, Reliable)
+	void ClientUpdateAmmo(int32 InServerAmmo);
+
+	UFUNCTION(Client, Reliable)
+	void ClientAddAmmo(int32 InAmmoToAdd);
 
 	void SpendRound();
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Ammo")
 	int32 MagCapacity;
+
+	// The number of unprocessed server requests for Ammo
+	// Incremented in SpendRound, Decremented in ClientUpdateAmmo
+	int32 Sequence = 0;
 
 	/*
 	 *	Sound

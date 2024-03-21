@@ -8,6 +8,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "GameFramework/Character.h"
 #include "Interface/LBCharacterWeaponInterface.h"
 #include "Net/UnrealNetwork.h"
 
@@ -100,7 +101,6 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AWeapon, WeaponState);
-	DOREPLIFETIME(AWeapon, Ammo);
 }
 
 void AWeapon::ShowPickupWidget(bool bInShow) const
@@ -131,9 +131,21 @@ void AWeapon::SetHUDAmmo() const
 	}
 }
 
-void AWeapon::AddAmmo(int32 InAmmo)
+void AWeapon::AddAmmo(int32 InAmmoToAdd)
 {
-	Ammo = FMath::Clamp(Ammo + InAmmo, 0, MagCapacity);
+	Ammo = FMath::Clamp(Ammo + InAmmoToAdd, 0, MagCapacity);
+	SetHUDAmmo();
+	ClientAddAmmo(InAmmoToAdd);
+}
+
+void AWeapon::ClientAddAmmo_Implementation(int32 InAmmoToAdd)
+{
+	if (HasAuthority())
+	{
+		return;
+	}
+
+	Ammo = FMath::Clamp(Ammo + InAmmoToAdd, 0, MagCapacity);
 	SetHUDAmmo();
 }
 
@@ -157,10 +169,7 @@ void AWeapon::Fire(const FVector& HitTarget)
 		}
 	}
 
-	if (HasAuthority())
-	{
-		SpendRound();
-	}
+	SpendRound();
 }
 
 void AWeapon::Dropped()
@@ -225,6 +234,15 @@ void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 	}
 }
 
+bool AWeapon::IsValidOwnerCharacter()
+{
+	if (!OwnerCharacter && GetOwner())
+	{
+		OwnerCharacter = Cast<ACharacter>(GetOwner());
+	}
+	return OwnerCharacter != nullptr;
+}
+
 void AWeapon::OnRep_WeaponState()
 {
 	OnChangedWeaponState();
@@ -258,15 +276,30 @@ void AWeapon::OnChangedWeaponState()
 	}
 }
 
-void AWeapon::OnRep_Ammo() const
-{
-	SetHUDAmmo();
-}
-
 void AWeapon::SpendRound()
 {
 	Ammo = FMath::Clamp<int32>(Ammo - 1, 0, MagCapacity);
 	SetHUDAmmo();
+
+	if (HasAuthority())
+	{
+		ClientUpdateAmmo(Ammo);
+	}
+	else if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled())
+	{
+		++Sequence;
+	}
 }
 
+void AWeapon::ClientUpdateAmmo_Implementation(int32 InServerAmmo)
+{
+	if (HasAuthority())
+	{
+		return;
+	}
 
+	Ammo = InServerAmmo;
+	--Sequence;
+	Ammo -= Sequence;
+	SetHUDAmmo();
+}
