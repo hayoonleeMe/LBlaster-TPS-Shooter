@@ -783,6 +783,7 @@ void UCombatComponent::Fire()
 		
 		FHitResult HitResult;
 		TraceUnderCrosshair(HitResult);
+		LocalFire(HitResult.ImpactPoint);	// Fire Montage등 cosmetic effect는 로컬에서 먼저 수행
 		ServerFire(HitResult.ImpactPoint);
 		CrosshairShootingFactor = 0.75f;
 		StartFireTimer();
@@ -794,6 +795,18 @@ void UCombatComponent::Fire()
 			UGameplayStatics::PlaySoundAtLocation(this, DryFireSound, GetEquippingWeapon()->GetActorLocation());
 		}
 		StartDryFireTimer();
+	}
+}
+
+void UCombatComponent::LocalFire(const FVector_NetQuantize& TraceHitTarget)
+{
+	if (IsValidOwnerCharacter() && GetEquippingWeapon())
+	{
+		if (UAnimMontage* MontageToPlay = FireMontages[GetEquippingWeapon()->GetWeaponType()])
+		{
+			OwnerCharacter->PlayFireMontage(MontageToPlay);
+		}
+		GetEquippingWeapon()->Fire(TraceHitTarget);
 	}
 }
 
@@ -879,17 +892,13 @@ void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& Trac
 
 void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
-	if (IsValidOwnerCharacter())
+	// Locally Controlled Character의 Local Fire 중복 호출 방지
+	if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled())
 	{
-		if (UAnimMontage* MontageToPlay = FireMontages[GetEquippingWeapon()->GetWeaponType()])
-		{
-			OwnerCharacter->PlayFireMontage(MontageToPlay);
-		}
-		if (GetEquippingWeapon())
-		{
-			GetEquippingWeapon()->Fire(TraceHitTarget);
-		}
+		return;
 	}
+
+	LocalFire(TraceHitTarget);
 }
 
 FTransform UCombatComponent::GetWeaponLeftHandTransform()
