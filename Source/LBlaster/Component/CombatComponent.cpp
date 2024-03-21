@@ -132,6 +132,12 @@ void UCombatComponent::SetAiming(bool bInAiming)
 		{
 			ServerSetAiming(bInAiming);
 		}
+
+		// Client-Side Prediction for Aiming
+		if (OwnerCharacter->IsLocallyControlled())
+		{
+			bDesiredIsAiming = bIsAiming;
+		}
 	}
 }
 
@@ -926,6 +932,14 @@ void UCombatComponent::SetEquippingWeapon(AWeapon* InWeapon)
 
 	// Rep Notify 호출을 위한 dummy
 	EquipSlots[static_cast<uint8>(EEquipSlot::EES_MAX)] = EquipSlots[static_cast<uint8>(EEquipSlot::EES_MAX)] ? nullptr : InWeapon;
+}
+
+void UCombatComponent::OnRep_IsAiming()
+{
+	if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled())
+	{
+		bIsAiming = bDesiredIsAiming;
+	}
 }
 
 void UCombatComponent::ServerEquipDefaultWeapon_Implementation()
