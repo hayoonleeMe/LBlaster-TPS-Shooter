@@ -136,24 +136,27 @@ private:
 
 	bool CanFire();	
 	void Fire();
-	void LocalFire(const FVector_NetQuantize& TraceHitTarget);
+	void LocalFire(const FVector_NetQuantize& HitTarget);
 
 	UFUNCTION(Server, Reliable)
 	void ServerSetFiring(bool bInFiring);
 	
 	UFUNCTION(Server, Reliable)
-	void ServerFire(const FVector_NetQuantize& TraceHitTarget);
+	void ServerFire(const FVector_NetQuantize& HitTarget);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastFire(const FVector_NetQuantize& TraceHitTarget);
+	void MulticastFire(const FVector_NetQuantize& HitTarget);
 
 	void TraceUnderCrosshair(FHitResult& TraceHitResult);
+
+	FVector TraceHitTarget;
 
 	UPROPERTY(EditAnywhere, Category = "LBlaster|Firing")
 	TMap<EWeaponType, UAnimMontage*> FireMontages;
 
 	void StartDryFireTimer();
 	bool CanDryFire();
+	void DryFire();
 
 	/*
 	 *	Crosshair
