@@ -5,4 +5,4 @@
 
 IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, LBlaster, "LBlaster" );
 
-DEFINE_LOG_CATEGORY(LogNetwork);
+DEFINE_LOG_CATEGORY(LogLB);
