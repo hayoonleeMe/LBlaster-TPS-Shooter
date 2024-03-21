@@ -35,12 +35,14 @@ public:
 	FORCEINLINE const FTransform& GetAttachTransform() const { return AttachTransform; }
 
 	virtual void Fire(const FVector& HitTarget);
+	virtual void ShotgunFire(const TArray<FVector_NetQuantize>& HitTargets) {}
+	virtual bool DoesUseScatter() const { return false; } 
+	virtual FVector TraceEndWithScatter(const FVector& HitTarget) const { return FVector::ZeroVector; }
+	virtual TArray<FVector_NetQuantize> ShotgunTraceEndWithScatter(const FVector& HitTarget) const { return TArray<FVector_NetQuantize>(); }
+
 	void Dropped();
 	void Holstered();
 	void EnableCustomDepth(bool bEnable) const;
-
-	virtual FVector TraceEndWithScatter(const FVector& HitTarget) const { return FVector::ZeroVector; }
-	virtual bool DoesUseScatter() const { return false; } 
 
 protected:
 	virtual void BeginPlay() override;
