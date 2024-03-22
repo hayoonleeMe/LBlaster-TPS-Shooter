@@ -18,7 +18,7 @@ public:
 	
 	void ShowPickupWidget(bool bInShow) const;
 	void SetWeaponState(EWeaponState InWeaponState);
-	void SetHUDAmmo() const;
+	void SetHUDAmmo();
 	void AddAmmo(int32 InAmmoToAdd);
 
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }

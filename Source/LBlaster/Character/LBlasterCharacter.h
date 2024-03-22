@@ -6,7 +6,6 @@
 #include "InputActionValue.h"
 #include "Components/TimelineComponent.h"
 #include "GameFramework/Character.h"
-#include "Interface/LBCharacterWeaponInterface.h"
 #include "Interface/HitReceiverInterface.h"
 #include "Interface/LBCharacterPickupInterface.h"
 #include "LBlasterCharacter.generated.h"
@@ -14,7 +13,7 @@
 DECLARE_MULTICAST_DELEGATE(FOnLeftGame);
 
 UCLASS()
-class LBLASTER_API ALBlasterCharacter : public ACharacter, public ILBCharacterWeaponInterface, public IHitReceiverInterface, public ILBCharacterPickupInterface
+class LBLASTER_API ALBlasterCharacter : public ACharacter, public IHitReceiverInterface, public ILBCharacterPickupInterface
 {
 	GENERATED_BODY()
 
@@ -31,12 +30,6 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	/*
-	 *	ILBCharacterWeaponInterface
-	 */
-	virtual void SetOverlappingWeapon(AWeapon* InWeapon) override;
-	virtual void SetHUDAmmo(int32 InAmmo) override;
-
 	/*
 	 *	ProjectileHitInterface
 	 */
@@ -92,6 +85,12 @@ public:
 	void SetAdsFov(float InAdsFov) const;
 	FORCEINLINE UStaticMeshComponent* GetAttachedGrenade() const { return AttachedGrenade; }
 	FORCEINLINE class AWeapon* GetOverlappingWeapon() const { return OverlappingWeapon; }
+
+	/*
+	 *	Weapon
+	 */
+	void SetOverlappingWeapon(AWeapon* InWeapon);
+	void SetHUDAmmo(int32 InAmmo);
 
 	/*
 	 *	Elimination
