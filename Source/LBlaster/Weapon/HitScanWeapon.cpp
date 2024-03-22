@@ -4,10 +4,13 @@
 #include "Weapon/HitScanWeapon.h"
 
 #include "Engine/SkeletalMeshSocket.h"
+#include "Character/LBlasterCharacter.h"
+#include "Component/LagCompensationComponent.h"
 #include "Interface/HitReceiverInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Player/LBlasterPlayerController.h"
 
 AHitScanWeapon::AHitScanWeapon()
 {
@@ -20,6 +23,11 @@ AHitScanWeapon::AHitScanWeapon()
 void AHitScanWeapon::Fire(const FVector& HitTarget)
 {
 	Super::Fire(HitTarget);
+
+	if (!IsValidOwnerCharacter())
+	{
+		return;
+	}
 
 	if (UWorld* World = GetWorld(); const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(FName(TEXT("MuzzleFlash"))))
 	{
@@ -34,27 +42,33 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 		if (FireHit.bBlockingHit && FireHit.GetActor())
 		{
 			BeamEnd = FireHit.ImpactPoint;
-						
-			// Play HitReact Montage
-			if (IHitReceiverInterface* HitInterface = Cast<IHitReceiverInterface>(FireHit.GetActor()))
-			{
-				HitInterface->SetLastHitNormal(FireHit.ImpactNormal);
-			}
-					
-			// Apply Damage
-			if (APawn* OwnerPawn = Cast<APawn>(GetOwner()))
-			{
-				if (AController* InstigatorController = OwnerPawn->Controller)
-				{
-					if (HasAuthority())
-					{
-						UGameplayStatics::ApplyDamage(FireHit.GetActor(), Damage, InstigatorController, this, UDamageType::StaticClass());
-					}	
-				}
-			}
 
 			// Impact Effect
 			SpawnImpactEffects(World, FireHit);
+			
+			if (ALBlasterCharacter* HitCharacter = Cast<ALBlasterCharacter>(FireHit.GetActor()))
+			{
+				// Play HitReact Montage
+				HitCharacter->SetLastHitNormal(FireHit.ImpactNormal);
+				
+				// Apply Damage
+				if (HasAuthority())
+				{
+					if (AController* InstigatorController = OwnerCharacter->GetController())
+					{
+						UGameplayStatics::ApplyDamage(FireHit.GetActor(), Damage, InstigatorController, this, UDamageType::StaticClass());
+					}
+				}
+				else if (!HasAuthority() && OwnerCharacter->IsServerSideRewindEnabled())
+				{
+					// Apply Damage With Server-Side Rewind
+					if (IsValidOwnerController())
+					{
+						const float HitTime = OwnerController->GetServerTime() - OwnerController->GetSingleTripTime();
+						ServerScoreRequest(HitCharacter, TraceStart, HitTarget, HitTime, this);	
+					}
+				}
+			}
 		}
 
 		// Beam Effect
@@ -95,5 +109,19 @@ void AHitScanWeapon::SpawnImpactEffects(UWorld* World, const FHitResult& HitResu
 	if (ImpactSound)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, HitResult.ImpactPoint);
+	}
+}
+
+void AHitScanWeapon::ServerScoreRequest_Implementation(ALBlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart,
+	const FVector_NetQuantize& HitLocation, float HitTime, AWeapon* DamageCauser)
+{
+	if (IsValidOwnerCharacter() && OwnerCharacter->GetLagCompensationComponent() && HitCharacter && GetWorld())
+	{
+		const FServerSideRewindResult Confirm = OwnerCharacter->GetLagCompensationComponent()->ServerSideRewind(HitCharacter, TraceStart, HitLocation, HitTime);
+		if (Confirm.bHitConfirmed && DamageCauser && OwnerCharacter->GetController())
+		{
+			// Apply Damage
+			UGameplayStatics::ApplyDamage(HitCharacter, DamageCauser->GetDamage(), OwnerCharacter->GetController(), DamageCauser, UDamageType::StaticClass());
+		}
 	}
 }

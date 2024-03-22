@@ -7,10 +7,12 @@
 #include "LBlaster.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Character/LBlasterCharacter.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/Character.h"
 #include "Interface/LBCharacterWeaponInterface.h"
 #include "Net/UnrealNetwork.h"
+#include "Player/LBlasterPlayerController.h"
 
 AWeapon::AWeapon()
 {
@@ -238,9 +240,18 @@ bool AWeapon::IsValidOwnerCharacter()
 {
 	if (!OwnerCharacter && GetOwner())
 	{
-		OwnerCharacter = Cast<ACharacter>(GetOwner());
+		OwnerCharacter = Cast<ALBlasterCharacter>(GetOwner());
 	}
 	return OwnerCharacter != nullptr;
+}
+
+bool AWeapon::IsValidOwnerController()
+{
+	if (!OwnerController && IsValidOwnerCharacter() && OwnerCharacter->GetController())
+	{
+		OwnerController = Cast<ALBlasterPlayerController>(OwnerCharacter->GetController());
+	}
+	return OwnerController != nullptr;
 }
 
 void AWeapon::OnRep_WeaponState()
