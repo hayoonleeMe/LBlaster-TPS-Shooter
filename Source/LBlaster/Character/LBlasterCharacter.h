@@ -98,6 +98,11 @@ public:
 	 */
 	void Elim(bool bPlayerLeftGame);
 
+	/*
+	 *	Lag Compensation
+	 */
+	FORCEINLINE TMap<FName, class UBoxComponent*> GetHitCollisionBoxes() const { return HitCollisionBoxes; }
+
 protected:
 	/*
 	 *	Input
@@ -271,4 +276,72 @@ private:
 	 *	Leave Game
 	 */
 	bool bLeftGame = false;
+
+	/*
+	 *	Lag Compensation
+	 */
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class ULagCompensationComponent> LagCompensationComponent;
+
+	UPROPERTY()
+	TMap<FName, class UBoxComponent*> HitCollisionBoxes;
+
+	/*
+	 *	Hit boxes used for Server-Side Rewind
+	 */
+	void InitializeHitBoxes();
+	
+	#pragma region HitBoxes
+	
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<class UBoxComponent> head;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UBoxComponent> pelvis;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UBoxComponent> spine_03;
+	
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UBoxComponent> spine_04;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UBoxComponent> spine_05;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UBoxComponent> upperarm_l;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UBoxComponent> lowerarm_l;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UBoxComponent> hand_l;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UBoxComponent> upperarm_r;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UBoxComponent> lowerarm_r;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UBoxComponent> hand_r;
+	
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UBoxComponent> thigh_l;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UBoxComponent> calf_l;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UBoxComponent> foot_l;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UBoxComponent> thigh_r;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UBoxComponent> calf_r;
+
+	UPROPERTY(EditAnywhere)
+    TObjectPtr<UBoxComponent> foot_r;
+	#pragma endregion
 };
