@@ -50,4 +50,10 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category="LBlaster|Weapon Scatter")
 	uint8 bUseScatter : 1;
+
+	/*
+	 *	Lag Compensation
+	 */
+	UFUNCTION(Server, Reliable)
+	void ServerScoreRequest(class ALBlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation, float HitTime, AWeapon* DamageCauser);
 };

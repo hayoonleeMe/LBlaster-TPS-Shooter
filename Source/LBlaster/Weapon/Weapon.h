@@ -33,6 +33,7 @@ public:
 	FORCEINLINE float GetADSFOV() const { return ADSFOV; }
 	FORCEINLINE USoundBase* GetDryFireSound() const { return DryFireSound; }
 	FORCEINLINE const FTransform& GetAttachTransform() const { return AttachTransform; }
+	FORCEINLINE float GetDamage() const { return Damage; }
 
 	virtual void Fire(const FVector& HitTarget);
 	virtual void ShotgunFire(const TArray<FVector_NetQuantize>& HitTargets) {}
@@ -70,10 +71,15 @@ protected:
 	 *	Owner
 	 */
 	UPROPERTY()
-	TObjectPtr<ACharacter> OwnerCharacter;
+	TObjectPtr<class ALBlasterCharacter> OwnerCharacter;
 
 	bool IsValidOwnerCharacter();
 
+	UPROPERTY()
+	TObjectPtr<class ALBlasterPlayerController> OwnerController;
+
+	bool IsValidOwnerController();
+	
 	/*
 	 *	Weapon Type
 	 */

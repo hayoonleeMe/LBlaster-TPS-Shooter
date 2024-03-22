@@ -36,6 +36,8 @@ public:
 	void SetHUDAnnouncementCountdown(float InCountdownTime);
 	void UpdateHUDGrenadeAmount();
 	void UpdateHUDGrenadeAmount(int32 InGrenadeAmount);
+
+	FORCEINLINE float GetSingleTripTime() const { return SingleTripTime; }
 	
 	void HandleMatchHasStarted();
 	void HandleCooldown();
@@ -91,6 +93,7 @@ protected:
 	void ClientReportServerTime(float TimeOfClientRequest, float TimeServerReceivedClientRequest);
 
 	float ClientServerDelta = 0.f;
+	float SingleTripTime = 0.f;
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Time")
 	float TimeSyncFrequency;

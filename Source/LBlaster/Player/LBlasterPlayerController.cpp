@@ -160,6 +160,7 @@ void ALBlasterPlayerController::ClientReportServerTime_Implementation(float Time
 {
 	const float CurrentClientTime = GetWorld()->GetTimeSeconds();
 	const float RoundTripTime = CurrentClientTime - TimeOfClientRequest;
+	SingleTripTime = RoundTripTime * 0.5f;
 	const float CurrentServerTime = TimeServerReceivedClientRequest + RoundTripTime * 0.5f;
 	ClientServerDelta = CurrentServerTime - CurrentClientTime;
 }
