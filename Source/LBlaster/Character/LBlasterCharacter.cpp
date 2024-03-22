@@ -452,6 +452,15 @@ void ALBlasterCharacter::Elim(bool bPlayerLeftGame)
 	MulticastElim(bPlayerLeftGame);
 }
 
+bool ALBlasterCharacter::IsServerSideRewindEnabled() const
+{
+	if (LagCompensationComponent)
+	{
+		return LagCompensationComponent->IsServerSideRewindEnabled();
+	}
+	return false;
+}
+
 void ALBlasterCharacter::UpdateHUDHealth() const
 {
 	if (HealthComponent)

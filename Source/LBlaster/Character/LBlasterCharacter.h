@@ -102,6 +102,8 @@ public:
 	 *	Lag Compensation
 	 */
 	FORCEINLINE TMap<FName, class UBoxComponent*> GetHitCollisionBoxes() const { return HitCollisionBoxes; }
+	FORCEINLINE class ULagCompensationComponent* GetLagCompensationComponent() const { return LagCompensationComponent; }
+	bool IsServerSideRewindEnabled() const;
 
 protected:
 	/*
