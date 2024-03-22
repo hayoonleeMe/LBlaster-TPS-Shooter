@@ -10,7 +10,6 @@
 #include "Character/LBlasterCharacter.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/Character.h"
-#include "Interface/LBCharacterWeaponInterface.h"
 #include "Net/UnrealNetwork.h"
 #include "Player/LBlasterPlayerController.h"
 
@@ -122,14 +121,11 @@ void AWeapon::SetWeaponState(EWeaponState InWeaponState)
 	OnChangedWeaponState();
 }
 
-void AWeapon::SetHUDAmmo() const
+void AWeapon::SetHUDAmmo()
 {
-	if (GetOwner())
+	if (IsValidOwnerCharacter())
 	{
-		if (ILBCharacterWeaponInterface* Interface = Cast<ILBCharacterWeaponInterface>(GetOwner()))
-		{
-			Interface->SetHUDAmmo(Ammo);
-		}	
+		OwnerCharacter->SetHUDAmmo(Ammo);
 	}
 }
 
@@ -221,18 +217,17 @@ void AWeapon::OnRep_Owner()
 void AWeapon::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
                                    bool bFromSweep, const FHitResult& SweepResult)
 {
-	// 상위 Layer인 LBlasterCharacter는 인터페이스로 접근
-	if (ILBCharacterWeaponInterface* OverlappingPawn = Cast<ILBCharacterWeaponInterface>(OtherActor))
+	if (IsValidOwnerCharacter())
 	{
-		OverlappingPawn->SetOverlappingWeapon(this);
+		OwnerCharacter->SetOverlappingWeapon(this);
 	}
 }
 
 void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (ILBCharacterWeaponInterface* OverlappingPawn = Cast<ILBCharacterWeaponInterface>(OtherActor))
+	if (IsValidOwnerCharacter())
 	{
-		OverlappingPawn->SetOverlappingWeapon(nullptr);
+		OwnerCharacter->SetOverlappingWeapon(nullptr);
 	}
 }
 
