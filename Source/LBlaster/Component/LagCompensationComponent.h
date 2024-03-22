@@ -31,6 +31,21 @@ struct FFramePackage
 
 	UPROPERTY()
 	TMap<FName, FBoxInformation> HitBoxInfo;
+
+	UPROPERTY()
+	TObjectPtr<class ALBlasterCharacter> Character;
+};
+
+USTRUCT(BlueprintType)
+struct FServerSideRewindResult
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	uint8 bHitConfirmed : 1;
+
+	UPROPERTY()
+	uint8 bHeadShot : 1;
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -42,12 +57,26 @@ public:
 	ULagCompensationComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	void ShowFramePackage(const FFramePackage& InPackage, const FColor& InColor) const;
+	FServerSideRewindResult ServerSideRewind(class ALBlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation, float HitTime);
 
+	FORCEINLINE bool IsServerSideRewindEnabled() const { return bEnableServerSideRewind; }
+	
 protected:
 	virtual void BeginPlay() override;
 	void SaveFramePackage(FFramePackage& OutPackage);
+	void SaveFramePackage();
+	FFramePackage GetFrameToCheck(ALBlasterCharacter* HitCharacter, float HitTime);
+	FFramePackage InterpBetweenFrames(const FFramePackage& OlderFrame, const FFramePackage& YoungerFrame, float HitTime);
+	FServerSideRewindResult ConfirmHit(const FFramePackage& Package, ALBlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation) const;
+	void CacheBoxPositions(ALBlasterCharacter* HitCharacter, FFramePackage& OutPackage) const;
+	void MoveBoxes(ALBlasterCharacter* HitCharacter, const FFramePackage& Package) const;
+	void ResetHitBoxes(ALBlasterCharacter* HitCharacter, const FFramePackage& Package) const;
+	void EnableCharacterMeshCollision(ALBlasterCharacter* HitCharacter, ECollisionEnabled::Type CollisionEnabled) const;
 
 private:
+	UPROPERTY(EditAnywhere, Category="LBlaster")
+    bool bEnableServerSideRewind;
+	
 	/*
 	 *	Owner
 	 */
