@@ -6,7 +6,6 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "Character/LBlasterCharacter.h"
 #include "Component/LagCompensationComponent.h"
-#include "Interface/HitReceiverInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Particles/ParticleSystemComponent.h"
@@ -22,12 +21,12 @@ AHitScanWeapon::AHitScanWeapon()
 
 void AHitScanWeapon::Fire(const FVector& HitTarget)
 {
-	Super::Fire(HitTarget);
-
 	if (!IsValidOwnerCharacter())
 	{
 		return;
 	}
+	
+	Super::Fire(HitTarget);
 
 	if (UWorld* World = GetWorld(); const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(FName(TEXT("MuzzleFlash"))))
 	{
@@ -59,7 +58,7 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 						UGameplayStatics::ApplyDamage(FireHit.GetActor(), Damage, InstigatorController, this, UDamageType::StaticClass());
 					}
 				}
-				else if (!HasAuthority() && OwnerCharacter->IsServerSideRewindEnabled())
+				else if (!HasAuthority() && OwnerCharacter->IsLocallyControlled() && OwnerCharacter->IsServerSideRewindEnabled())
 				{
 					// Apply Damage With Server-Side Rewind
 					if (IsValidOwnerController())
@@ -100,7 +99,7 @@ FVector AHitScanWeapon::TraceEndWithScatter(const FVector& HitTarget) const
 	return Super::TraceEndWithScatter(HitTarget);
 }
 
-void AHitScanWeapon::SpawnImpactEffects(UWorld* World, const FHitResult& HitResult)
+void AHitScanWeapon::SpawnImpactEffects(const UWorld* World, const FHitResult& HitResult) const
 {
 	if (ImpactParticle)
 	{
