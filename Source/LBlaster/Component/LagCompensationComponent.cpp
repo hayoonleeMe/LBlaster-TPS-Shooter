@@ -40,13 +40,23 @@ FServerSideRewindResult ULagCompensationComponent::ServerSideRewind(ALBlasterCha
 	// FrameToCheck Confirm Hit
 	return ConfirmHit(FrameToCheck, HitCharacter, TraceStart, HitLocation);
 }
+FShotgunServerSideRewindResult ULagCompensationComponent::ShotgunServerSideRewind(const TArray<ALBlasterCharacter*>& HitCharacters,
+	const FVector_NetQuantize& TraceStart, const TArray<FVector_NetQuantize>& HitLocations, float HitTime)
+{
+	TArray<FFramePackage> FramesToCheck;
+	for (ALBlasterCharacter* HitCharacter : HitCharacters)
+	{
+		FramesToCheck.Emplace(GetFrameToCheck(HitCharacter, HitTime));
+	}
+
+	return ShotgunConfirmHit(FramesToCheck, HitCharacters, TraceStart, HitLocations);
+}
 
 void ULagCompensationComponent::SaveFramePackage(FFramePackage& OutPackage)
 {
 	if (IsValidOwnerCharacter() && GetWorld())
 	{
 		OutPackage.Time = GetWorld()->GetTimeSeconds();
-		OutPackage.Character = OwnerCharacter;
 		for (const TTuple<FName, UBoxComponent*>& BoxPair : OwnerCharacter->GetHitCollisionBoxes())
 		{
 			FBoxInformation BoxInformation;
@@ -122,7 +132,7 @@ FFramePackage ULagCompensationComponent::GetFrameToCheck(ALBlasterCharacter* Hit
 	}
 	else
 	{
-		// too laggy to do SSR
+		// too Laggy to do SSR
 		if (OldestHistoryTime > HitTime)
 		{
 			return FFramePackage();
@@ -166,7 +176,7 @@ FFramePackage ULagCompensationComponent::InterpBetweenFrames(const FFramePackage
 	return InterpFramePackage;
 }
 
-FServerSideRewindResult ULagCompensationComponent::ConfirmHit(const FFramePackage& Package, ALBlasterCharacter* HitCharacter,
+FServerSideRewindResult ULagCompensationComponent::ConfirmHit(const FFramePackage& InPackage, ALBlasterCharacter* HitCharacter,
 	const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation) const
 {
 	if (!HitCharacter)
@@ -176,7 +186,7 @@ FServerSideRewindResult ULagCompensationComponent::ConfirmHit(const FFramePackag
 
 	FFramePackage CurrentFrame;
 	CacheBoxPositions(HitCharacter, CurrentFrame);
-	MoveBoxes(HitCharacter, Package);
+	MoveBoxes(HitCharacter, InPackage);
 	EnableCharacterMeshCollision(HitCharacter, ECollisionEnabled::NoCollision);	// 캐릭터 메시에 Trace 방지
 
 	// 머리 먼저
@@ -225,6 +235,126 @@ FServerSideRewindResult ULagCompensationComponent::ConfirmHit(const FFramePackag
 	return FServerSideRewindResult{ false, false };
 }
 
+FShotgunServerSideRewindResult ULagCompensationComponent::ShotgunConfirmHit(const TArray<FFramePackage>& InPackages, const TArray<ALBlasterCharacter*>& HitCharacters, const FVector_NetQuantize& TraceStart, const TArray<FVector_NetQuantize>& HitLocations) const
+{
+	if (InPackages.Num() != HitCharacters.Num())
+	{
+		return FShotgunServerSideRewindResult();
+	}
+	for (ALBlasterCharacter* HitCharacter : HitCharacters)
+	{
+		if (!HitCharacter)
+		{
+			return FShotgunServerSideRewindResult();
+		}
+	}
+
+	FShotgunServerSideRewindResult ShotgunResult;
+	TArray<FFramePackage> CurrentFrames;
+	for (int32 Index = 0; Index < InPackages. Num(); ++Index)
+	{
+		FFramePackage CurrentFrame;
+		CacheBoxPositions(HitCharacters[Index], CurrentFrame);
+		MoveBoxes(HitCharacters[Index], InPackages[Index]);
+		EnableCharacterMeshCollision(HitCharacters[Index], ECollisionEnabled::NoCollision);
+		CurrentFrames.Emplace(CurrentFrame);
+	}
+
+	if (CurrentFrames.Num() != InPackages.Num())
+	{
+		return FShotgunServerSideRewindResult();
+	}
+
+	// enable head box collision
+	for (ALBlasterCharacter* HitCharacter : HitCharacters)
+	{
+		UBoxComponent* HeadBox = HitCharacter->GetHitCollisionBoxes()[FName(TEXT("head"))];
+		HeadBox->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		HeadBox->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	}
+
+	// Head Check
+	for (const FVector& HitLocation : HitLocations)
+	{
+		if (UWorld* World = GetWorld())
+		{
+			const FVector TraceEnd = TraceStart + (HitLocation - TraceStart) * 1.25f;
+			FHitResult ConfirmHitResult;
+			World->LineTraceSingleByChannel(ConfirmHitResult, TraceStart, TraceEnd, ECC_Visibility);
+
+			// hit head
+			if (ConfirmHitResult.bBlockingHit && ConfirmHitResult.GetActor())
+			{
+				if (ALBlasterCharacter* HitCharacter = Cast<ALBlasterCharacter>(ConfirmHitResult.GetActor()))
+				{
+					if (ShotgunResult.HeadShots.Contains(HitCharacter))
+					{
+						++ShotgunResult.HeadShots[HitCharacter];
+					}
+					else
+					{
+						ShotgunResult.HeadShots.Emplace(HitCharacter, 1);
+					}
+				}
+			}
+		}
+	}
+
+	// enable body box collision, disable head box collision 
+	for (ALBlasterCharacter* HitCharacter : HitCharacters)
+	{
+		for (const TTuple<FName, UBoxComponent*>& HitBoxPair : HitCharacter->GetHitCollisionBoxes())
+		{
+			if (HitBoxPair.Value)
+			{
+				HitBoxPair.Value->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+				HitBoxPair.Value->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+			}
+		}
+
+		if (UBoxComponent* HeadBox = HitCharacter->GetHitCollisionBoxes()[FName("head")])
+		{
+			HeadBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		}
+	}
+
+	// Body Check
+	for (const FVector& HitLocation : HitLocations)
+	{
+		if (UWorld* World = GetWorld())
+		{
+			const FVector TraceEnd = TraceStart + (HitLocation - TraceStart) * 1.25f;
+			FHitResult ConfirmHitResult;
+			World->LineTraceSingleByChannel(ConfirmHitResult, TraceStart, TraceEnd, ECC_Visibility);
+
+			// hit head
+			if (ConfirmHitResult.bBlockingHit && ConfirmHitResult.GetActor())
+			{
+				if (ALBlasterCharacter* HitCharacter = Cast<ALBlasterCharacter>(ConfirmHitResult.GetActor()))
+				{
+					if (ShotgunResult.BodyShots.Contains(HitCharacter))
+					{
+						++ShotgunResult.BodyShots[HitCharacter];
+					}
+					else
+					{
+						ShotgunResult.BodyShots.Emplace(HitCharacter, 1);
+					}
+				}
+			}
+		}
+	}
+
+	// Reset
+	for (int32 Index = 0; Index < InPackages.Num(); ++Index)
+	{
+		ResetHitBoxes(HitCharacters[Index], CurrentFrames[Index]);
+		EnableCharacterMeshCollision(HitCharacters[Index], ECollisionEnabled::QueryAndPhysics);
+	}
+
+	return ShotgunResult;
+}
+
 void ULagCompensationComponent::CacheBoxPositions(ALBlasterCharacter* HitCharacter, FFramePackage& OutPackage) const
 {
 	if (!HitCharacter)
@@ -245,7 +375,7 @@ void ULagCompensationComponent::CacheBoxPositions(ALBlasterCharacter* HitCharact
 	}
 }
 
-void ULagCompensationComponent::MoveBoxes(ALBlasterCharacter* HitCharacter, const FFramePackage& Package) const
+void ULagCompensationComponent::MoveBoxes(ALBlasterCharacter* HitCharacter, const FFramePackage& InPackage) const
 {
 	if (!HitCharacter)
 	{
@@ -256,14 +386,14 @@ void ULagCompensationComponent::MoveBoxes(ALBlasterCharacter* HitCharacter, cons
 	{
 		if (HitBoxPair.Value)
 		{
-			HitBoxPair.Value->SetWorldLocation(Package.HitBoxInfo[HitBoxPair.Key].Location);
-			HitBoxPair.Value->SetWorldRotation(Package.HitBoxInfo[HitBoxPair.Key].Rotation);
-			HitBoxPair.Value->SetBoxExtent(Package.HitBoxInfo[HitBoxPair.Key].BoxExtent);
+			HitBoxPair.Value->SetWorldLocation(InPackage.HitBoxInfo[HitBoxPair.Key].Location);
+			HitBoxPair.Value->SetWorldRotation(InPackage.HitBoxInfo[HitBoxPair.Key].Rotation);
+			HitBoxPair.Value->SetBoxExtent(InPackage.HitBoxInfo[HitBoxPair.Key].BoxExtent);
 		}
 	}
 }
 
-void ULagCompensationComponent::ResetHitBoxes(ALBlasterCharacter* HitCharacter, const FFramePackage& Package) const
+void ULagCompensationComponent::ResetHitBoxes(ALBlasterCharacter* HitCharacter, const FFramePackage& InPackage) const
 {
 	if (!HitCharacter)
 	{
@@ -274,9 +404,9 @@ void ULagCompensationComponent::ResetHitBoxes(ALBlasterCharacter* HitCharacter, 
 	{
 		if (HitBoxPair.Value)
 		{
-			HitBoxPair.Value->SetWorldLocation(Package.HitBoxInfo[HitBoxPair.Key].Location);
-			HitBoxPair.Value->SetWorldRotation(Package.HitBoxInfo[HitBoxPair.Key].Rotation);
-			HitBoxPair.Value->SetBoxExtent(Package.HitBoxInfo[HitBoxPair.Key].BoxExtent);
+			HitBoxPair.Value->SetWorldLocation(InPackage.HitBoxInfo[HitBoxPair.Key].Location);
+			HitBoxPair.Value->SetWorldRotation(InPackage.HitBoxInfo[HitBoxPair.Key].Rotation);
+			HitBoxPair.Value->SetBoxExtent(InPackage.HitBoxInfo[HitBoxPair.Key].BoxExtent);
 			HitBoxPair.Value->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		}
 	}

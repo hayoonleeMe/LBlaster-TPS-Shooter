@@ -10,7 +10,6 @@ struct FHitInfo
 {
 	uint32 HitCount;
 	FVector ImpactNormal;
-	AActor* HitActor;
 };
 
 /**
@@ -29,4 +28,7 @@ public:
 private:
 	UPROPERTY(EditAnywhere, Category="LBlaster|Ammo")
 	uint32 NumberOfPellets;
+
+	UFUNCTION(Server, Reliable)
+	void ShotgunServerScoreRequest(const TArray<ALBlasterCharacter*>& HitCharacters, const FVector_NetQuantize& TraceStart, const TArray<FVector_NetQuantize>& HitLocations, float HitTime, AWeapon* DamageCauser);
 };

@@ -3,11 +3,13 @@
 
 #include "Weapon/Shotgun.h"
 
+#include "Character/LBlasterCharacter.h"
+#include "Component/LagCompensationComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
-#include "Interface/HitReceiverInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Player/LBlasterPlayerController.h"
 
 AShotgun::AShotgun()
 {
@@ -23,6 +25,11 @@ AShotgun::AShotgun()
 
 void AShotgun::ShotgunFire(const TArray<FVector_NetQuantize>& HitTargets)
 {
+	if (!IsValidOwnerCharacter())
+	{
+		return;
+	}
+	
 	AWeapon::Fire(HitTargets[0]);
 	
 	if (UWorld* World = GetWorld(); const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(FName(TEXT("MuzzleFlash"))))
@@ -30,7 +37,7 @@ void AShotgun::ShotgunFire(const TArray<FVector_NetQuantize>& HitTargets)
 		const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
 		const FVector TraceStart = SocketTransform.GetLocation();
 
-		TMap<IHitReceiverInterface*, FHitInfo> HitMap;
+		TMap<ALBlasterCharacter*, FHitInfo> HitMap;
 		for (const FVector& HitTarget : HitTargets)
 		{
 			const FVector TraceEnd = TraceStart + (HitTarget - TraceStart) * 1.25f;
@@ -44,15 +51,15 @@ void AShotgun::ShotgunFire(const TArray<FVector_NetQuantize>& HitTargets)
 				BeamEnd = FireHit.ImpactPoint;
 						
 				// Caching Hit Info
-				if (IHitReceiverInterface* HitInterface = Cast<IHitReceiverInterface>(FireHit.GetActor()))
+				if (ALBlasterCharacter* HitCharacter = Cast<ALBlasterCharacter>(FireHit.GetActor()))
 				{
-					if (HitMap.Contains(HitInterface))
+					if (HitMap.Contains(HitCharacter))
 					{
-						++HitMap[HitInterface].HitCount;
+						++HitMap[HitCharacter].HitCount;
 					}
 					else
 					{
-						HitMap.Emplace(HitInterface, { 1, FireHit.ImpactNormal, FireHit.GetActor() });
+						HitMap.Emplace(HitCharacter, { 1, FireHit.ImpactNormal });
 					}
 				}
 
@@ -70,23 +77,45 @@ void AShotgun::ShotgunFire(const TArray<FVector_NetQuantize>& HitTargets)
 			}
 		}
 
-		for (const auto& HitPair : HitMap)
+		if (HasAuthority())
 		{
-			const FHitInfo& HitInfo = HitPair.Value; 
-				
-			// Play HitReact Montage
-			HitPair.Key->SetLastHitNormal(HitInfo.ImpactNormal);
-					
-			// Apply Damage
-			if (APawn* OwnerPawn = Cast<APawn>(GetOwner()))
+			for (const TTuple<ALBlasterCharacter*, FHitInfo>& HitPair : HitMap)
 			{
-				if (AController* InstigatorController = OwnerPawn->Controller)
+				if (ALBlasterCharacter* HitCharacter = HitPair.Key)
 				{
-					if (HasAuthority() && HitInfo.HitActor)
+					const FHitInfo& HitInfo = HitPair.Value; 
+				
+					// Play HitReact Montage
+					HitCharacter->SetLastHitNormal(HitInfo.ImpactNormal);
+					
+					// Apply Damage
+					if (AController* InstigatorController = OwnerCharacter->GetController())
 					{
-						UGameplayStatics::ApplyDamage(HitInfo.HitActor, Damage * HitInfo.HitCount, InstigatorController, this, UDamageType::StaticClass());
+						UGameplayStatics::ApplyDamage(HitCharacter, Damage * HitInfo.HitCount, InstigatorController, this, UDamageType::StaticClass());
 					}	
 				}
+			}	
+		}
+		else if (!HasAuthority() && OwnerCharacter->IsLocallyControlled() && OwnerCharacter->IsServerSideRewindEnabled())
+		{
+			TArray<ALBlasterCharacter*> HitCharacters;
+			for (const TTuple<ALBlasterCharacter*, FHitInfo>& HitPair : HitMap)
+			{
+				if (ALBlasterCharacter* HitCharacter = HitPair.Key)
+				{
+					HitCharacters.Emplace(HitCharacter);
+					
+					// Play HitReact Montage
+					const FHitInfo& HitInfo = HitPair.Value;
+					HitCharacter->SetLastHitNormal(HitInfo.ImpactNormal);
+				}
+			}
+
+			// Apply Damage With Server-Side Rewind
+			if (IsValidOwnerController())
+			{
+				const float HitTime = OwnerController->GetServerTime() - OwnerController->GetSingleTripTime();
+				ShotgunServerScoreRequest(HitCharacters, TraceStart, HitTargets, HitTime, this);	
 			}
 		}
 	}
@@ -114,4 +143,33 @@ TArray<FVector_NetQuantize> AShotgun::ShotgunTraceEndWithScatter(const FVector& 
 		return TraceHitTargets;
 	}
 	return TArray<FVector_NetQuantize>();
+}
+
+void AShotgun::ShotgunServerScoreRequest_Implementation(const TArray<ALBlasterCharacter*>& HitCharacters, const FVector_NetQuantize& TraceStart,
+	const TArray<FVector_NetQuantize>& HitLocations, float HitTime, AWeapon* DamageCauser)
+{
+	if (IsValidOwnerCharacter() && OwnerCharacter->GetLagCompensationComponent() && DamageCauser)
+	{
+		const FShotgunServerSideRewindResult Confirm = OwnerCharacter->GetLagCompensationComponent()->ShotgunServerSideRewind(HitCharacters, TraceStart, HitLocations, HitTime);
+
+		for (ALBlasterCharacter* HitCharacter : HitCharacters)
+		{
+			float TotalDamage = 0.f;
+			if (Confirm.HeadShots.Contains(HitCharacter))
+			{
+				const float HeadShotDamage = Confirm.HeadShots[HitCharacter] * DamageCauser->GetDamage();
+				TotalDamage += HeadShotDamage;
+			}
+			if (Confirm.BodyShots.Contains(HitCharacter))
+			{
+				const float BodyShotDamage = Confirm.BodyShots[HitCharacter] * DamageCauser->GetDamage();
+				TotalDamage += BodyShotDamage;
+			}
+
+			if (TotalDamage != 0.f && OwnerCharacter->GetController())
+			{
+				UGameplayStatics::ApplyDamage(HitCharacter, TotalDamage, OwnerCharacter->GetController(), DamageCauser, UDamageType::StaticClass());
+			}
+		}
+	}
 }

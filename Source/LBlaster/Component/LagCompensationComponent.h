@@ -31,9 +31,6 @@ struct FFramePackage
 
 	UPROPERTY()
 	TMap<FName, FBoxInformation> HitBoxInfo;
-
-	UPROPERTY()
-	TObjectPtr<class ALBlasterCharacter> Character;
 };
 
 USTRUCT(BlueprintType)
@@ -48,6 +45,18 @@ struct FServerSideRewindResult
 	uint8 bHeadShot : 1;
 };
 
+USTRUCT(BlueprintType)
+struct FShotgunServerSideRewindResult
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	TMap<class ALBlasterCharacter*, uint32> HeadShots;
+
+	UPROPERTY()
+	TMap<ALBlasterCharacter*, uint32> BodyShots;
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class LBLASTER_API ULagCompensationComponent : public UActorComponent
 {
@@ -58,6 +67,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	void ShowFramePackage(const FFramePackage& InPackage, const FColor& InColor) const;
 	FServerSideRewindResult ServerSideRewind(class ALBlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation, float HitTime);
+	FShotgunServerSideRewindResult ShotgunServerSideRewind(const TArray<ALBlasterCharacter*>& HitCharacters, const FVector_NetQuantize& TraceStart, const TArray<FVector_NetQuantize>& HitLocations, float HitTime);
 
 	FORCEINLINE bool IsServerSideRewindEnabled() const { return bEnableServerSideRewind; }
 	
@@ -67,10 +77,11 @@ protected:
 	void SaveFramePackage();
 	FFramePackage GetFrameToCheck(ALBlasterCharacter* HitCharacter, float HitTime);
 	FFramePackage InterpBetweenFrames(const FFramePackage& OlderFrame, const FFramePackage& YoungerFrame, float HitTime);
-	FServerSideRewindResult ConfirmHit(const FFramePackage& Package, ALBlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation) const;
+	FServerSideRewindResult ConfirmHit(const FFramePackage& InPackage, ALBlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation) const;
+	FShotgunServerSideRewindResult ShotgunConfirmHit(const TArray<FFramePackage>& InPackages, const TArray<ALBlasterCharacter*>& HitCharacters, const FVector_NetQuantize& TraceStart, const TArray<FVector_NetQuantize>& HitLocations) const;
 	void CacheBoxPositions(ALBlasterCharacter* HitCharacter, FFramePackage& OutPackage) const;
-	void MoveBoxes(ALBlasterCharacter* HitCharacter, const FFramePackage& Package) const;
-	void ResetHitBoxes(ALBlasterCharacter* HitCharacter, const FFramePackage& Package) const;
+	void MoveBoxes(ALBlasterCharacter* HitCharacter, const FFramePackage& InPackage) const;
+	void ResetHitBoxes(ALBlasterCharacter* HitCharacter, const FFramePackage& InPackage) const;
 	void EnableCharacterMeshCollision(ALBlasterCharacter* HitCharacter, ECollisionEnabled::Type CollisionEnabled) const;
 
 private:

@@ -30,7 +30,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category="LBlaster|Impact")
 	TObjectPtr<USoundBase> ImpactSound;
 
-	void SpawnImpactEffects(UWorld* World, const FHitResult& HitResult);
+	void SpawnImpactEffects(const UWorld* World, const FHitResult& HitResult) const;
 
 	/*
 	 *	Beam
@@ -51,6 +51,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category="LBlaster|Weapon Scatter")
 	uint8 bUseScatter : 1;
 
+private:
 	/*
 	 *	Lag Compensation
 	 */
