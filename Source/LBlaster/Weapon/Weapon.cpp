@@ -273,10 +273,7 @@ void AWeapon::OnChangedWeaponState()
 		break;
 		
 	case EWeaponState::EWS_Dropped:
-		if (HasAuthority())
-		{
-			AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-		}
+		AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		WeaponMesh->SetSimulatePhysics(true);
 		WeaponMesh->SetEnableGravity(true);
 		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
