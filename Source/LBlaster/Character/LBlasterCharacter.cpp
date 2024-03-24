@@ -449,6 +449,7 @@ void ALBlasterCharacter::SetAdsFov(float InAdsFov) const
 
 void ALBlasterCharacter::Elim(bool bPlayerLeftGame)
 {
+	bIsDead = true;
 	MulticastElim(bPlayerLeftGame);
 }
 

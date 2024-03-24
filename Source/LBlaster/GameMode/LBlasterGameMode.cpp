@@ -81,6 +81,11 @@ void ALBlasterGameMode::PlayerEliminated(ALBlasterCharacter* EliminatedCharacter
 	{
 		return;
 	}
+	// 이미 죽었으면 return
+	if (!EliminatedCharacter || EliminatedCharacter->IsDead())
+	{
+		return;
+	}
 	
 	// Attacker 점수 획득
 	if (ALBlasterPlayerState* AttackerPlayerState = Cast<ALBlasterPlayerState>(AttackerController->PlayerState))
@@ -102,11 +107,8 @@ void ALBlasterGameMode::PlayerEliminated(ALBlasterCharacter* EliminatedCharacter
 			}
 		}
 	}	
-	
-	if (EliminatedCharacter)
-	{
-		EliminatedCharacter->Elim(false);
-	}
+
+	EliminatedCharacter->Elim(false);
 }
 
 void ALBlasterGameMode::RequestRespawn(ACharacter* EliminatedCharacter, AController* EliminatedController)
