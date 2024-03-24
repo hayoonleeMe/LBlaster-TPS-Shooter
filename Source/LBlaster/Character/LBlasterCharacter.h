@@ -96,6 +96,7 @@ public:
 	 *	Elimination
 	 */
 	void Elim(bool bPlayerLeftGame);
+	FORCEINLINE bool IsDead() const { return bIsDead; }
 
 	/*
 	 *	Lag Compensation
@@ -251,6 +252,8 @@ private:
 	
 	FTimerHandle ElimTimer;
 	void ElimTimerFinished();
+
+	uint8 bIsDead : 1;
 
 	/*
 	 *	Dissolve Effect
