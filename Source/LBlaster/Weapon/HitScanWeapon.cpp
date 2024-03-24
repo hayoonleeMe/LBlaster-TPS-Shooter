@@ -51,7 +51,7 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 				HitCharacter->SetLastHitNormal(FireHit.ImpactNormal);
 				
 				// Apply Damage
-				if (HasAuthority())
+				if (HasAuthority() && (OwnerCharacter->IsLocallyControlled() || !OwnerCharacter->IsServerSideRewindEnabled()))
 				{
 					if (AController* InstigatorController = OwnerCharacter->GetController())
 					{
