@@ -217,17 +217,17 @@ void AWeapon::OnRep_Owner()
 void AWeapon::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
                                    bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (IsValidOwnerCharacter())
+	if (ALBlasterCharacter* OtherCharacter = Cast<ALBlasterCharacter>(OtherActor))
 	{
-		OwnerCharacter->SetOverlappingWeapon(this);
+		OtherCharacter->SetOverlappingWeapon(this);
 	}
 }
 
 void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (IsValidOwnerCharacter())
+	if (ALBlasterCharacter* OtherCharacter = Cast<ALBlasterCharacter>(OtherActor))
 	{
-		OwnerCharacter->SetOverlappingWeapon(nullptr);
+		OtherCharacter->SetOverlappingWeapon(nullptr);
 	}
 }
 
