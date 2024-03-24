@@ -211,7 +211,10 @@ void AWeapon::OnRep_Owner()
 {
 	Super::OnRep_Owner();
 
-	SetHUDAmmo();
+	if (GetOwner())
+	{
+		SetHUDAmmo();
+	}
 }
 
 void AWeapon::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,

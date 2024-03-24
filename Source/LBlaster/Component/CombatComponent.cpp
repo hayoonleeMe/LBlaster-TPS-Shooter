@@ -1094,7 +1094,7 @@ void UCombatComponent::MulticastSwitchToUnarmedState_Implementation(bool bSkipUn
 	{
 		if (IsValidOwnerController() && OwnerCharacter->IsLocallyControlled())
 		{
-			OwnerCharacter->SetHUDAmmo(0);
+			OwnerController->SetHUDAmmo(0);
 			OwnerController->SetHUDCarriedAmmo(0);
 			OwnerController->SetHUDWeaponTypeText(GetWeaponTypeString());	
 		}
