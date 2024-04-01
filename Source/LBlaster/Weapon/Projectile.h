@@ -24,6 +24,19 @@ protected:
 	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 	/*
+	 *	Owner
+	 */
+	UPROPERTY()
+	TObjectPtr<class ALBlasterCharacter> OwnerCharacter;
+
+	bool IsValidOwnerCharacter();
+
+	UPROPERTY()
+	TObjectPtr<class ALBlasterPlayerController> OwnerController;
+
+	bool IsValidOwnerController();
+
+	/*
 	 *	Collision
 	 */
 	UPROPERTY(VisibleAnywhere)
@@ -34,6 +47,9 @@ protected:
 	 */
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class UProjectileMovementComponent> ProjectileMovementComponent;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Projectile Movement");
+	float InitialSpeed;
 
 	/*
 	 *	Tracer

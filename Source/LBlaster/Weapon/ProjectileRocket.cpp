@@ -5,7 +5,6 @@
 
 #include "RocketMovementComponent.h"
 #include "Components/BoxComponent.h"
-#include "Interface/HitReceiverInterface.h"
 #include "Kismet/GameplayStatics.h"
 
 AProjectileRocket::AProjectileRocket()
@@ -17,8 +16,8 @@ AProjectileRocket::AProjectileRocket()
 	RocketMovementComponent = CreateDefaultSubobject<URocketMovementComponent>(TEXT("Rocket MovementComponent"));
 	RocketMovementComponent->bRotationFollowsVelocity = true;;
 	RocketMovementComponent->SetIsReplicated(true);
-	RocketMovementComponent->InitialSpeed = 2500.f;
-	RocketMovementComponent->MaxSpeed = 2500.f;
+	InitialSpeed = 2500.f;
+	RocketMovementComponent->InitialSpeed = RocketMovementComponent->MaxSpeed = InitialSpeed;
 	RocketMovementComponent->ProjectileGravityScale = 0.f;
 
 	/* Destroy */

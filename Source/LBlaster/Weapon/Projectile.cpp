@@ -43,6 +43,24 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimi
 	Destroy();
 }
 
+bool AProjectile::IsValidOwnerCharacter()
+{
+	if (!OwnerCharacter && GetOwner())
+	{
+		OwnerCharacter = Cast<ALBlasterCharacter>(GetOwner());
+	}
+	return OwnerCharacter != nullptr;
+}
+
+bool AProjectile::IsValidOwnerController()
+{
+	if (!OwnerController && IsValidOwnerCharacter() && OwnerCharacter->GetController())
+	{
+		OwnerController = Cast<ALBlasterPlayerController>(OwnerCharacter->GetController());
+	}
+	return OwnerController != nullptr;
+}
+
 void AProjectile::SpawnImpactEffects()
 {
 	if (ImpactParticle)
