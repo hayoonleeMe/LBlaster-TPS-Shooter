@@ -85,6 +85,7 @@ public:
 	void SetAdsFov(float InAdsFov) const;
 	FORCEINLINE UStaticMeshComponent* GetAttachedGrenade() const { return AttachedGrenade; }
 	FORCEINLINE class AWeapon* GetOverlappingWeapon() const { return OverlappingWeapon; }
+	AWeapon* GetEquippingWeapon() const;
 
 	/*
 	 *	Weapon

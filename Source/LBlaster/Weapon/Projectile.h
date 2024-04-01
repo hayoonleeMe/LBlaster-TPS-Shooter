@@ -16,7 +16,10 @@ public:
 	virtual void Destroyed() override;
 
 	void SetDamage(float InDamage);
-
+	virtual float GetProjectileGravityScale() const;
+	FORCEINLINE float GetDamage() const { return Damage; }
+	void SetReplicatesPostInit(bool bInReplicates);
+	
 protected:
 	virtual void BeginPlay() override;
 

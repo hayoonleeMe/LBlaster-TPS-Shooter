@@ -3,8 +3,10 @@
 
 #include "Component/LagCompensationComponent.h"
 
+#include "LBlaster.h"
 #include "Character/LBlasterCharacter.h"
 #include "Components/BoxComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Player/LBlasterPlayerController.h"
 
 ULagCompensationComponent::ULagCompensationComponent()
@@ -50,6 +52,15 @@ FShotgunServerSideRewindResult ULagCompensationComponent::ShotgunServerSideRewin
 	}
 
 	return ShotgunConfirmHit(FramesToCheck, HitCharacters, TraceStart, HitLocations);
+}
+
+FServerSideRewindResult ULagCompensationComponent::ProjectileServerSideRewind(ALBlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart,
+	const FVector_NetQuantize100& InitialVelocity, float HitTime, float GravityScale)
+{
+	FFramePackage FrameToCheck = GetFrameToCheck(HitCharacter, HitTime);
+
+	// FrameToCheck Confirm Hit
+	return ProjectileConfirmHit(FrameToCheck, HitCharacter, TraceStart, InitialVelocity, HitTime, GravityScale);
 }
 
 void ULagCompensationComponent::SaveFramePackage(FFramePackage& OutPackage)
@@ -353,6 +364,71 @@ FShotgunServerSideRewindResult ULagCompensationComponent::ShotgunConfirmHit(cons
 	}
 
 	return ShotgunResult;
+}
+
+FServerSideRewindResult ULagCompensationComponent::ProjectileConfirmHit(const FFramePackage& InPackage, ALBlasterCharacter* HitCharacter,
+	const FVector_NetQuantize& TraceStart, const FVector_NetQuantize100& InitialVelocity, float HitTime, float GravityScale)
+{
+	if (!HitCharacter || !IsValidOwnerCharacter())
+	{
+		return FServerSideRewindResult();
+	}
+
+	FFramePackage CurrentFrame;
+	CacheBoxPositions(HitCharacter, CurrentFrame);
+	MoveBoxes(HitCharacter, InPackage);
+	EnableCharacterMeshCollision(HitCharacter, ECollisionEnabled::NoCollision);	// 캐릭터 메시에 Trace 방지
+
+	// 머리 먼저
+	UBoxComponent* HeadBox = HitCharacter->GetHitCollisionBoxes()[FName(TEXT("head"))];
+	HeadBox->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	HeadBox->SetCollisionResponseToChannel(ECC_HitBox, ECR_Block);
+
+	FPredictProjectilePathParams PathParams;
+	PathParams.bTraceWithCollision = true;
+	PathParams.MaxSimTime = MaxRecordTime;
+	PathParams.LaunchVelocity = InitialVelocity;
+	PathParams.StartLocation = TraceStart;
+	PathParams.SimFrequency = 15.f;	// 값이 클수록 포물선이 더 정확해짐 -> 비용이 커짐
+	PathParams.ProjectileRadius = 5.f;
+	PathParams.TraceChannel = ECC_HitBox;
+	PathParams.ActorsToIgnore.Add(OwnerCharacter);
+	// PathParams.DrawDebugTime = 5.f;
+	// PathParams.DrawDebugType = EDrawDebugTrace::ForDuration;
+	PathParams.OverrideGravityZ = GravityScale;
+	
+	FPredictProjectilePathResult PathResult;
+	UGameplayStatics::PredictProjectilePath(this, PathParams, PathResult);
+
+	// hit head, return early
+	if (PathResult.HitResult.bBlockingHit)
+	{
+		ResetHitBoxes(HitCharacter, CurrentFrame);
+		EnableCharacterMeshCollision(HitCharacter, ECollisionEnabled::QueryAndPhysics);
+		return FServerSideRewindResult{ true, true, PathResult.HitResult.ImpactNormal };
+	}
+	
+	// 다른 박스 체크
+	for (const TTuple<FName, UBoxComponent*>& HitBoxPair : HitCharacter->GetHitCollisionBoxes())
+	{
+		if (HitBoxPair.Value != nullptr)
+		{
+			HitBoxPair.Value->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			HitBoxPair.Value->SetCollisionResponseToChannel(ECC_HitBox, ECR_Block);	
+		}
+	}
+	
+	UGameplayStatics::PredictProjectilePath(this, PathParams, PathResult);
+	if (PathResult.HitResult.bBlockingHit)
+	{
+		ResetHitBoxes(HitCharacter, CurrentFrame);
+		EnableCharacterMeshCollision(HitCharacter, ECollisionEnabled::QueryAndPhysics);
+		return FServerSideRewindResult{ true, false, PathResult.HitResult.ImpactNormal };
+	}
+
+	ResetHitBoxes(HitCharacter, CurrentFrame);
+	EnableCharacterMeshCollision(HitCharacter, ECollisionEnabled::QueryAndPhysics);
+	return FServerSideRewindResult{ false, false };
 }
 
 void ULagCompensationComponent::CacheBoxPositions(ALBlasterCharacter* HitCharacter, FFramePackage& OutPackage) const

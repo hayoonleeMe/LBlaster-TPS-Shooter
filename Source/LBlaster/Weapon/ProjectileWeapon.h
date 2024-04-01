@@ -16,6 +16,12 @@ class LBLASTER_API AProjectileWeapon : public AWeapon
 
 public:
 	virtual void Fire(const FVector& HitTarget) override;
+
+	/*
+	 *	Lag Compensation
+	 */
+	UFUNCTION(Server, Reliable)
+	void ServerScoreRequest(class ALBlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize100& InitialVelocity, float HitTime, float InDamage, float InProjectileGravityScale);
 	
 private:
 	/*

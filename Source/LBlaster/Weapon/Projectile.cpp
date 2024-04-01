@@ -4,8 +4,11 @@
 #include "Weapon/Projectile.h"
 
 #include "LBlaster.h"
+#include "Character/LBlasterCharacter.h"
 #include "Components/BoxComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Player/LBlasterPlayerController.h"
 
 AProjectile::AProjectile()
 {
@@ -23,6 +26,12 @@ AProjectile::AProjectile()
 	CollisionBox->SetCollisionResponseToChannel(ECC_SkeletalMesh, ECR_Block);
 }
 
+void AProjectile::SetReplicatesPostInit(bool bInReplicates)
+{
+	SetReplicates(bInReplicates);
+	ProjectileMovementComponent->SetIsReplicated(bInReplicates);
+}
+
 void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
@@ -32,7 +41,7 @@ void AProjectile::BeginPlay()
 		TracerComponent = UGameplayStatics::SpawnEmitterAttached(Tracer, CollisionBox, FName(), GetActorLocation(), GetActorRotation(), EAttachLocation::KeepWorldPosition);
 	}
 
-	if (HasAuthority())
+	if (IsValidOwnerCharacter() &&  OwnerCharacter->HasAuthority())
 	{
 		CollisionBox->OnComponentHit.AddDynamic(this, &ThisClass::OnHit);
 	}
@@ -83,5 +92,14 @@ void AProjectile::Destroyed()
 void AProjectile::SetDamage(float InDamage)
 {
 	Damage = InDamage;
+}
+
+float AProjectile::GetProjectileGravityScale() const
+{
+	if (ProjectileMovementComponent)
+	{
+		return ProjectileMovementComponent->ProjectileGravityScale;
+	}
+	return 0.f;
 }
 
