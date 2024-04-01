@@ -294,6 +294,15 @@ void ALBlasterCharacter::OnRep_PlayerState()
 	UpdatePlayerNameToOverheadWidget();
 }
 
+AWeapon* ALBlasterCharacter::GetEquippingWeapon() const
+{
+	if (CombatComponent)
+	{
+		return CombatComponent->GetEquippingWeapon();
+	}
+	return nullptr;
+}
+
 void ALBlasterCharacter::SetOverlappingWeapon(AWeapon* InWeapon)
 {
 	if (!CombatComponent || CombatComponent->GetEquipSlotType() == EEquipSlot::EES_ThirdSlot)
