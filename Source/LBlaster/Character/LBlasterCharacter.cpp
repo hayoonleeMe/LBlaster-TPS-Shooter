@@ -471,6 +471,14 @@ bool ALBlasterCharacter::IsServerSideRewindEnabled() const
 	return false;
 }
 
+void ALBlasterCharacter::EnableServerSideRewind(bool bInEnabled) const
+{
+	if (LagCompensationComponent)
+	{
+		LagCompensationComponent->EnableServerSideRewind(bInEnabled);
+	}
+}
+
 void ALBlasterCharacter::UpdateHUDHealth() const
 {
 	if (HealthComponent)
