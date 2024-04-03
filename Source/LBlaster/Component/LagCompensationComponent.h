@@ -74,6 +74,7 @@ public:
 	FServerSideRewindResult ProjectileServerSideRewind(ALBlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize100& InitialVelocity, float HitTime, float GravityScale);
 
 	FORCEINLINE bool IsServerSideRewindEnabled() const { return bEnableServerSideRewind; }
+	void EnableServerSideRewind(bool bInEnabled);
 	
 protected:
 	virtual void BeginPlay() override;

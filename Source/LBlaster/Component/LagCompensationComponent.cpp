@@ -496,6 +496,11 @@ void ULagCompensationComponent::EnableCharacterMeshCollision(ALBlasterCharacter*
 	}
 }
 
+void ULagCompensationComponent::EnableServerSideRewind(bool bInEnabled)
+{
+	bEnableServerSideRewind = bInEnabled;
+}
+
 void ULagCompensationComponent::BeginPlay()
 {
 	Super::BeginPlay();

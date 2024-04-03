@@ -22,7 +22,7 @@ ALBlasterPlayerController::ALBlasterPlayerController()
 	TimeSyncFrequency = 5.f;
 
 	/* High Ping */
-	HighPingThreshold = 50.f;
+	HighPingThreshold = 100.f;
 	WarningDuration = 5.f;
 	CheckPingFrequency = 15.f;
 
@@ -322,12 +322,29 @@ void ALBlasterPlayerController::StartCheckPing()
 
 void ALBlasterPlayerController::CheckPing()
 {
-	if (GetPlayerState<APlayerState>() && GetPlayerState<APlayerState>()->GetCompressedPing() * 4 > HighPingThreshold)
+	if (IsValidCharacter() && GetPlayerState<APlayerState>())
 	{
-		if (IsValidHUD())
+		if (GEngine)
 		{
-			LBlasterHUD->HighPingWarning(WarningDuration);
+			GEngine->AddOnScreenDebugMessage(0, 10.f, FColor::Orange, FString::Printf(TEXT("Ping : %d"), GetPlayerState<APlayerState>()->GetCompressedPing() * 4));
 		}
+		
+		// SSR 제한
+		if (GetPlayerState<APlayerState>()->GetCompressedPing() * 4 > HighPingThreshold)
+		{
+			if (IsValidHUD())
+			{
+				LBlasterCharacter->EnableServerSideRewind(false);
+				LBlasterHUD->HighPingWarning(WarningDuration);
+			}	
+		}
+		// SSR 사용 가능
+		else
+		{
+			LBlasterCharacter->EnableServerSideRewind(true);
+		}
+
+		LB_LOG(LogLB, Warning, TEXT("Is SSR Enabled? %d"), LBlasterCharacter->IsServerSideRewindEnabled());
 	}
 }
 
