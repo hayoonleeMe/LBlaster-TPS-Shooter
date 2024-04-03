@@ -269,7 +269,7 @@ void ALBlasterPlayerController::SetHUDAnnouncementCountdown(float InCountdownTim
 
 void ALBlasterPlayerController::UpdateHUDGrenadeAmount()
 {
-	if (ALBlasterCharacter* LBlasterCharacter = Cast<ALBlasterCharacter>(GetPawn()))
+	if (IsValidCharacter())
 	{
 		UpdateHUDGrenadeAmount(LBlasterCharacter->GetGrenadeAmount());
 	}
@@ -369,7 +369,7 @@ void ALBlasterPlayerController::ClientElimAnnouncement_Implementation(APlayerSta
 
 void ALBlasterPlayerController::UpdateHUDHealth()
 {
-	if (ALBlasterCharacter* LBlasterCharacter = Cast<ALBlasterCharacter>(GetPawn()))
+	if (IsValidCharacter())
 	{
 		LBlasterCharacter->UpdateHUDHealth();
 	}
@@ -443,14 +443,11 @@ void ALBlasterPlayerController::ServerSendChatText_Implementation(const FText& I
 
 void ALBlasterPlayerController::ShowPauseMenu()
 {
-	if (IsValidHUD())
+	if (IsValidCharacter() && IsValidHUD())
 	{
 		if (LBlasterHUD->ShowPauseMenu())
 		{
-			if (const ALBlasterCharacter* OwningCharacter = Cast<ALBlasterCharacter>(GetCharacter()))
-			{
-				OwningCharacter->ReleaseCombatState();
-			}
+			LBlasterCharacter->ReleaseCombatState();
 		}
 	}		
 }
@@ -488,19 +485,25 @@ void ALBlasterPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
-	if (ALBlasterCharacter* OwningCharacter = Cast<ALBlasterCharacter>(GetCharacter()))
+	if (IsValidCharacter() && HasAuthority())
     {
-		if (HasAuthority())
+		LBlasterCharacter->UpdatePlayerNameToOverheadWidget();
+		if (IsLocalController())
 		{
-    		OwningCharacter->UpdatePlayerNameToOverheadWidget();
-			if (IsLocalController())
-			{
-				UpdateHUDHealth();
-				UpdateHUDGrenadeAmount();
-				OwningCharacter->EquipDefaultWeapon();
-			}	
+			UpdateHUDHealth();
+			UpdateHUDGrenadeAmount();
+			LBlasterCharacter->EquipDefaultWeapon();
 		}
     }
+}
+
+bool ALBlasterPlayerController::IsValidCharacter()
+{
+	if (!LBlasterCharacter && GetCharacter())
+	{
+		LBlasterCharacter = Cast<ALBlasterCharacter>(GetCharacter());
+	}
+	return LBlasterCharacter != nullptr;
 }
 
 bool ALBlasterPlayerController::IsValidHUD()
