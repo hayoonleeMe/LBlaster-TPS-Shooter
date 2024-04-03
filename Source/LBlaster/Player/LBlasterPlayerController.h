@@ -108,6 +108,14 @@ protected:
 	void ClientJoinMidGame(FName StateOfMatch, float Warmup, float Match, float Cooldown, float StartingTime);
 	
 private:
+	/*
+	 *	Owning
+	 */
+	UPROPERTY()
+	TObjectPtr<class ALBlasterCharacter> LBlasterCharacter;
+
+	bool IsValidCharacter();
+	
 	UPROPERTY()
 	TObjectPtr<class ALBlasterHUD> LBlasterHUD;
 
