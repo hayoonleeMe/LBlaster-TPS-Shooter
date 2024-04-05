@@ -500,16 +500,19 @@ void ALBlasterPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
-	if (IsValidCharacter() && HasAuthority())
-    {
-		LBlasterCharacter->UpdatePlayerNameToOverheadWidget();
-		if (IsLocalController())
+	if (ALBlasterCharacter* PossessCharacter = Cast<ALBlasterCharacter>(InPawn))
+	{
+		if (HasAuthority())
 		{
-			UpdateHUDHealth();
-			UpdateHUDGrenadeAmount();
-			LBlasterCharacter->EquipDefaultWeapon();
-		}
-    }
+			PossessCharacter->UpdatePlayerNameToOverheadWidget();
+			if (IsLocalController())
+			{
+				PossessCharacter->UpdateHUDHealth();
+				UpdateHUDGrenadeAmount(PossessCharacter->GetGrenadeAmount());
+				PossessCharacter->EquipDefaultWeapon();
+			}
+		}	
+	}
 }
 
 bool ALBlasterPlayerController::IsValidCharacter()
