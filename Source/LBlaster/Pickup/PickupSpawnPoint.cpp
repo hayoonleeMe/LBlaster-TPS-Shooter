@@ -96,14 +96,36 @@ void APickupSpawnPoint::SpawnPickup()
 		SpawnedPickup->OnDestroyed.AddDynamic(this, &ThisClass::StartSpawnPickupTimer);
 		SpawnedPickup->FinishSpawning(GetActorTransform());
 
-		PadLoadingParticleComponent->Deactivate();
+		MulticastDeactivatePadLoadingParticle();
 	}
 }
 
 void APickupSpawnPoint::StartSpawnPickupTimer(AActor* DestroyedActor)
 {
-	PadLoadingParticleComponent->Activate();
+	MulticastActivatePadLoadingParticle();
 	GetWorld()->GetTimerManager().SetTimer(SpawnPickupTimer, this, &ThisClass::SpawnPickup, SpawnCooldownTime);
+}
+
+void APickupSpawnPoint::MulticastActivatePadLoadingParticle_Implementation()
+{
+	if (PadLoadingParticleComponent)
+	{
+		PadLoadingParticleComponent->Activate();
+	}
+
+	// 클라이언트에서 Tick 로직 수행을 위해 Timer 재생
+	if (!HasAuthority())
+	{
+		GetWorld()->GetTimerManager().SetTimer(SpawnPickupTimer, SpawnCooldownTime, false);
+	}
+}
+
+void APickupSpawnPoint::MulticastDeactivatePadLoadingParticle_Implementation()
+{
+	if (PadLoadingParticleComponent)
+	{
+		PadLoadingParticleComponent->Deactivate();
+	}
 }
 
 
