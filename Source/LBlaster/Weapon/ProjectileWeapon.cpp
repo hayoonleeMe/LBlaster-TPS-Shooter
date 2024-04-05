@@ -30,16 +30,11 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 			const FTransform ProjectileTransform(TargetRotation, SocketTransform.GetLocation());
 			if (OwnerCharacter->HasAuthority())
 			{
-				// replicated
+				// not-replicated
 				AProjectile* Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, ProjectileTransform, GetOwner(), InstigatorPawn);
 				Projectile->SetDamage(Damage, HeadshotMultiplier);
 				Projectile->FinishSpawning(ProjectileTransform);
-				
-				if (!OwnerCharacter->IsLocallyControlled())
-				{
-					// not-replicated
-					Projectile->SetReplicatesPostInit(false);
-				}
+				Projectile->SetReplicatesPostInit(false);
 			}
 			else
 			{
