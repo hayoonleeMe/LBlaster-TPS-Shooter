@@ -17,6 +17,7 @@ class LBLASTER_API AProjectileRocket : public AProjectileExplosive
 public:
 	AProjectileRocket();
 	virtual void Destroyed() override;
+	virtual void SetReplicatesPostInit(bool bInReplicates) override;
 
 protected:
 	virtual void BeginPlay() override;

@@ -18,7 +18,7 @@ public:
 	void SetDamage(float InDamage, float InHeadshotMultiplier);
 	virtual float GetProjectileGravityScale() const;
 	FORCEINLINE float GetDamage() const { return Damage; }
-	void SetReplicatesPostInit(bool bInReplicates);
+	virtual void SetReplicatesPostInit(bool bInReplicates);
 	
 protected:
 	virtual void BeginPlay() override;

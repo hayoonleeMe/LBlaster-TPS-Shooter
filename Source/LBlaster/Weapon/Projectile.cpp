@@ -29,7 +29,10 @@ AProjectile::AProjectile()
 void AProjectile::SetReplicatesPostInit(bool bInReplicates)
 {
 	SetReplicates(bInReplicates);
-	ProjectileMovementComponent->SetIsReplicated(bInReplicates);
+	if (ProjectileMovementComponent)
+	{
+		ProjectileMovementComponent->SetIsReplicated(bInReplicates);
+	}
 }
 
 void AProjectile::BeginPlay()
@@ -41,10 +44,7 @@ void AProjectile::BeginPlay()
 		TracerComponent = UGameplayStatics::SpawnEmitterAttached(Tracer, CollisionBox, FName(), GetActorLocation(), GetActorRotation(), EAttachLocation::KeepWorldPosition);
 	}
 
-	if (IsValidOwnerCharacter() &&  OwnerCharacter->HasAuthority())
-	{
-		CollisionBox->OnComponentHit.AddDynamic(this, &ThisClass::OnHit);
-	}
+	CollisionBox->OnComponentHit.AddDynamic(this, &ThisClass::OnHit);
 }
 
 void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
