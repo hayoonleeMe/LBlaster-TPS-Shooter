@@ -23,5 +23,5 @@ void AThrowableGrenade::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetDamage(DamageExposure);
+	SetDamage(DamageExposure, 1.f);
 }

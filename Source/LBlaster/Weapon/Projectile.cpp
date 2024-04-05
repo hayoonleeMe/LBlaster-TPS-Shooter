@@ -89,9 +89,10 @@ void AProjectile::Destroyed()
 	Super::Destroyed();
 }
 
-void AProjectile::SetDamage(float InDamage)
+void AProjectile::SetDamage(float InDamage, float InHeadshotMultiplier)
 {
 	Damage = InDamage;
+	HeadshotMultiplier = InHeadshotMultiplier;
 }
 
 float AProjectile::GetProjectileGravityScale() const

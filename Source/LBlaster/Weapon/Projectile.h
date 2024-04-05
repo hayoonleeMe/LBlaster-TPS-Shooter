@@ -15,7 +15,7 @@ public:
 	AProjectile();
 	virtual void Destroyed() override;
 
-	void SetDamage(float InDamage);
+	void SetDamage(float InDamage, float InHeadshotMultiplier);
 	virtual float GetProjectileGravityScale() const;
 	FORCEINLINE float GetDamage() const { return Damage; }
 	void SetReplicatesPostInit(bool bInReplicates);
@@ -79,4 +79,7 @@ protected:
 	 */
 	UPROPERTY(VisibleAnywhere)
 	float Damage;
+
+	UPROPERTY(VisibleAnywhere)
+	float HeadshotMultiplier;
 };

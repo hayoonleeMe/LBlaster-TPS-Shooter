@@ -48,7 +48,13 @@ void AProjectileBullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 		{
 			if (AController* InstigatorController = OwnerCharacter->GetController())
 			{
-				UGameplayStatics::ApplyDamage(HitCharacter, Damage, InstigatorController, this, UDamageType::StaticClass());
+				// Headshot
+				float DamageToCause = Damage;
+				if (Hit.BoneName.ToString() == FString(TEXT("head")))
+				{
+					DamageToCause *= HeadshotMultiplier;
+				}
+				UGameplayStatics::ApplyDamage(HitCharacter, DamageToCause, InstigatorController, this, UDamageType::StaticClass());
 			}
 		}
 		else if (!OwnerCharacter->HasAuthority() && OwnerCharacter->IsLocallyControlled() && OwnerCharacter->IsServerSideRewindEnabled())

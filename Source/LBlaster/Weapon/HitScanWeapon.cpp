@@ -3,6 +3,7 @@
 
 #include "Weapon/HitScanWeapon.h"
 
+#include "LBlaster.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Character/LBlasterCharacter.h"
 #include "Component/LagCompensationComponent.h"
@@ -55,7 +56,13 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 				{
 					if (AController* InstigatorController = OwnerCharacter->GetController())
 					{
-						UGameplayStatics::ApplyDamage(FireHit.GetActor(), Damage, InstigatorController, this, UDamageType::StaticClass());
+						// Headshot
+						float DamageToCause = Damage;
+						if (FireHit.BoneName.ToString() == FString(TEXT("head")))
+						{
+							DamageToCause *= HeadshotMultiplier;
+						}
+						UGameplayStatics::ApplyDamage(FireHit.GetActor(), DamageToCause, InstigatorController, this, UDamageType::StaticClass());
 					}
 				}
 				else if (!HasAuthority() && OwnerCharacter->IsLocallyControlled() && OwnerCharacter->IsServerSideRewindEnabled())

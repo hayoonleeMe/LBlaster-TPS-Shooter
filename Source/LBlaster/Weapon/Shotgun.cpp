@@ -3,6 +3,7 @@
 
 #include "Weapon/Shotgun.h"
 
+#include "LBlaster.h"
 #include "Character/LBlasterCharacter.h"
 #include "Component/LagCompensationComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
@@ -38,6 +39,7 @@ void AShotgun::ShotgunFire(const TArray<FVector_NetQuantize>& HitTargets)
 		const FVector TraceStart = SocketTransform.GetLocation();
 
 		TMap<ALBlasterCharacter*, FHitInfo> HitMap;
+		TMap<ALBlasterCharacter*, FHitInfo> HeadshotHitMap;
 		for (const FVector& HitTarget : HitTargets)
 		{
 			const FVector TraceEnd = TraceStart + (HitTarget - TraceStart) * 1.25f;
@@ -53,13 +55,28 @@ void AShotgun::ShotgunFire(const TArray<FVector_NetQuantize>& HitTargets)
 				// Caching Hit Info
 				if (ALBlasterCharacter* HitCharacter = Cast<ALBlasterCharacter>(FireHit.GetActor()))
 				{
-					if (HitMap.Contains(HitCharacter))
+					// Headshot
+					if (FireHit.BoneName.ToString() == FString(TEXT("head")))
 					{
-						++HitMap[HitCharacter].HitCount;
+						if (HeadshotHitMap.Contains(HitCharacter))
+						{
+							++HeadshotHitMap[HitCharacter].HitCount;
+						}
+						else
+						{
+							HeadshotHitMap.Emplace(HitCharacter, { 1, FireHit.ImpactNormal });
+						}	
 					}
 					else
 					{
-						HitMap.Emplace(HitCharacter, { 1, FireHit.ImpactNormal });
+						if (HitMap.Contains(HitCharacter))
+						{
+							++HitMap[HitCharacter].HitCount;
+						}
+						else
+						{
+							HitMap.Emplace(HitCharacter, { 1, FireHit.ImpactNormal });
+						}	
 					}
 				}
 
@@ -79,6 +96,24 @@ void AShotgun::ShotgunFire(const TArray<FVector_NetQuantize>& HitTargets)
 
 		if (HasAuthority())
 		{
+			// Headshot
+			for (const TTuple<ALBlasterCharacter*, FHitInfo>& HitPair : HeadshotHitMap)
+			{
+				if (ALBlasterCharacter* HitCharacter = HitPair.Key)
+				{
+					const FHitInfo& HitInfo = HitPair.Value; 
+				
+					// Play HitReact Montage
+					HitCharacter->SetLastHitNormal(HitInfo.ImpactNormal);
+					
+					// Apply Damage
+					if (AController* InstigatorController = OwnerCharacter->GetController())
+					{
+						UGameplayStatics::ApplyDamage(HitCharacter, Damage * HeadshotMultiplier * HitInfo.HitCount, InstigatorController, this, UDamageType::StaticClass());
+					}	
+				}
+			}
+			
 			for (const TTuple<ALBlasterCharacter*, FHitInfo>& HitPair : HitMap)
 			{
 				if (ALBlasterCharacter* HitCharacter = HitPair.Key)
