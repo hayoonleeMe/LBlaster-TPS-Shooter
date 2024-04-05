@@ -833,6 +833,9 @@ void UCombatComponent::Fire()
 		
 		CrosshairShootingFactor = 0.75f;
 		StartFireTimer();
+
+		// 수직 반동
+		OwnerCharacter->AddControllerPitchInput(-1.f * GetEquippingWeapon()->GetVerticalRecoilValue());
 	}
 	else if (CanDryFire())
 	{
