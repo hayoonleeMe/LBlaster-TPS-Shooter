@@ -3,6 +3,7 @@
 
 #include "Weapon/ProjectileWeapon.h"
 
+#include "LBlaster.h"
 #include "Projectile.h"
 #include "Character/LBlasterCharacter.h"
 #include "Component/LagCompensationComponent.h"
@@ -29,48 +30,23 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 			const FTransform ProjectileTransform(TargetRotation, SocketTransform.GetLocation());
 			if (OwnerCharacter->HasAuthority())
 			{
-				if (OwnerCharacter->IsLocallyControlled())
+				// replicated
+				AProjectile* Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, ProjectileTransform, GetOwner(), InstigatorPawn);
+				Projectile->SetDamage(Damage, HeadshotMultiplier);
+				Projectile->FinishSpawning(ProjectileTransform);
+				
+				if (!OwnerCharacter->IsLocallyControlled())
 				{
-					// replicated, no ssr
-					AProjectile* Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, ProjectileTransform, GetOwner(), InstigatorPawn);
-					Projectile->SetDamage(Damage, HeadshotMultiplier);
-					Projectile->FinishSpawning(ProjectileTransform);
-				}
-				else
-				{
-					if (OwnerCharacter->IsServerSideRewindEnabled())
-					{
-						// not-replicated, no ssr
-						AProjectile* Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, ProjectileTransform, GetOwner(), InstigatorPawn);
-						Projectile->SetDamage(Damage, HeadshotMultiplier);
-						Projectile->FinishSpawning(ProjectileTransform);
-						Projectile->SetReplicatesPostInit(false);
-					}
-					else
-					{
-						// replicated, no ssr
-						AProjectile* Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, ProjectileTransform, GetOwner(), InstigatorPawn);
-						Projectile->SetDamage(Damage, HeadshotMultiplier);
-						Projectile->FinishSpawning(ProjectileTransform);
-					}
+					// not-replicated
+					Projectile->SetReplicatesPostInit(false);
 				}
 			}
-			else if (OwnerCharacter->IsServerSideRewindEnabled())
+			else
 			{
-				if (OwnerCharacter->IsLocallyControlled())
-				{
-					// not-replicated, ssr
-					AProjectile* Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, ProjectileTransform, GetOwner(), InstigatorPawn);
-					Projectile->SetDamage(Damage, HeadshotMultiplier);
-					Projectile->FinishSpawning(ProjectileTransform);
-				}
-				else
-				{
-					// not-replicated, no ssr
-					AProjectile* Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, ProjectileTransform, GetOwner(), InstigatorPawn);
-					Projectile->SetDamage(Damage, HeadshotMultiplier);
-					Projectile->FinishSpawning(ProjectileTransform);
-				}
+				// not-replicated
+				AProjectile* Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, ProjectileTransform, GetOwner(), InstigatorPawn);
+				Projectile->SetDamage(Damage, HeadshotMultiplier);
+				Projectile->FinishSpawning(ProjectileTransform);
 			}
 		}
 	}

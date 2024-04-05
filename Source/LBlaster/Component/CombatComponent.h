@@ -149,10 +149,10 @@ private:
 	void ShotgunLocalFire(const TArray<FVector_NetQuantize>& HitTargets);	
 	
 	UFUNCTION(Server, Reliable)
-	void ServerFire(const FVector_NetQuantize& HitTarget);
+	void ServerFire(const FVector_NetQuantize& HitTarget, bool bEnabledSSR);
 
 	UFUNCTION(Server, Reliable)
-	void ServerShotgunFire(const TArray<FVector_NetQuantize>& HitTargets);
+	void ServerShotgunFire(const TArray<FVector_NetQuantize>& HitTargets, bool bEnabledSSR);
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastFire(const FVector_NetQuantize& HitTarget);

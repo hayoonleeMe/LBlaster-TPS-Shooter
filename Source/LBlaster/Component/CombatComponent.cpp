@@ -801,6 +801,11 @@ bool UCombatComponent::CanFire()
 
 void UCombatComponent::Fire()
 {
+	if (!IsValidOwnerCharacter())
+	{
+		return;
+	}
+	
 	if (CanFire())
 	{
 		bCanFire = false;
@@ -811,7 +816,7 @@ void UCombatComponent::Fire()
 			const TArray<FVector_NetQuantize>& TraceHitTargets = GetEquippingWeapon()->ShotgunTraceEndWithScatter(TraceHitTarget);
 
 			ShotgunLocalFire(TraceHitTargets);
-			ServerShotgunFire(TraceHitTargets);
+			ServerShotgunFire(TraceHitTargets, OwnerCharacter->IsServerSideRewindEnabled());
 		}
 		else
 		{
@@ -823,7 +828,7 @@ void UCombatComponent::Fire()
 		
 			// Fire Montage등 cosmetic effect는 로컬에서 먼저 수행
 			LocalFire(TraceHitTarget);	
-			ServerFire(TraceHitTarget);
+			ServerFire(TraceHitTarget, OwnerCharacter->IsServerSideRewindEnabled());
 		}
 		
 		CrosshairShootingFactor = 0.75f;
@@ -859,13 +864,21 @@ void UCombatComponent::ShotgunLocalFire(const TArray<FVector_NetQuantize>& HitTa
 	}
 }
 
-void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& HitTarget)
+void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& HitTarget, bool bEnabledSSR)
 {
-	MulticastFire(HitTarget);
+	if (IsValidOwnerCharacter())
+	{
+		OwnerCharacter->EnableServerSideRewind(bEnabledSSR);
+	}
+	MulticastFire(HitTarget);	
 }
 
-void UCombatComponent::ServerShotgunFire_Implementation(const TArray<FVector_NetQuantize>& HitTargets)
+void UCombatComponent::ServerShotgunFire_Implementation(const TArray<FVector_NetQuantize>& HitTargets, bool bEnabledSSR)
 {
+	if (IsValidOwnerCharacter())
+	{
+		OwnerCharacter->EnableServerSideRewind(bEnabledSSR);
+	}
 	MulticastShotgunFire(HitTargets);
 }
 
