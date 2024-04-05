@@ -87,6 +87,9 @@ AWeapon::AWeapon()
 	bAutomatic = true;
 	FireDelay = 0.15f;
 
+	/* Recoil */
+	VerticalRecoilValue = 0.3f;
+
 	/* Damage */
 	Damage = 20.f;
 	HeadshotMultiplier = 1.5f;

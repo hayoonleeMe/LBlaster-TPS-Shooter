@@ -35,6 +35,7 @@ public:
 	FORCEINLINE const FTransform& GetAttachTransform() const { return AttachTransform; }
 	FORCEINLINE float GetDamage() const { return Damage; }
 	FORCEINLINE float GetHeadshotMultiplier() const { return HeadshotMultiplier; }
+	FORCEINLINE float GetVerticalRecoilValue() const { return VerticalRecoilValue; }
 
 	virtual void Fire(const FVector& HitTarget);
 	virtual void ShotgunFire(const TArray<FVector_NetQuantize>& HitTargets) {}
@@ -141,6 +142,12 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category="LBlaster|Auto Fire")
 	float FireDelay;
+
+	/*
+	 *	Recoil
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Recoil")
+	float VerticalRecoilValue;
 
 	/*
 	 *	Ammo
