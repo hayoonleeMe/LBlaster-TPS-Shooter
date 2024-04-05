@@ -177,6 +177,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category="LBlaster|Damage")
 	float Damage;
 
+	UPROPERTY(EditAnywhere, Category="LBlaster|Damage")
+	float HeadshotMultiplier;
+
 	/*
 	 *	ADS FOV
 	 */

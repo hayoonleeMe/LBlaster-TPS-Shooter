@@ -33,7 +33,7 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 				{
 					// replicated, no ssr
 					AProjectile* Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, ProjectileTransform, GetOwner(), InstigatorPawn);
-					Projectile->SetDamage(Damage);
+					Projectile->SetDamage(Damage, HeadshotMultiplier);
 					Projectile->FinishSpawning(ProjectileTransform);
 				}
 				else
@@ -42,7 +42,7 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 					{
 						// not-replicated, no ssr
 						AProjectile* Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, ProjectileTransform, GetOwner(), InstigatorPawn);
-						Projectile->SetDamage(Damage);
+						Projectile->SetDamage(Damage, HeadshotMultiplier);
 						Projectile->FinishSpawning(ProjectileTransform);
 						Projectile->SetReplicatesPostInit(false);
 					}
@@ -50,7 +50,7 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 					{
 						// replicated, no ssr
 						AProjectile* Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, ProjectileTransform, GetOwner(), InstigatorPawn);
-						Projectile->SetDamage(Damage);
+						Projectile->SetDamage(Damage, HeadshotMultiplier);
 						Projectile->FinishSpawning(ProjectileTransform);
 					}
 				}
@@ -61,14 +61,14 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 				{
 					// not-replicated, ssr
 					AProjectile* Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, ProjectileTransform, GetOwner(), InstigatorPawn);
-					Projectile->SetDamage(Damage);
+					Projectile->SetDamage(Damage, HeadshotMultiplier);
 					Projectile->FinishSpawning(ProjectileTransform);
 				}
 				else
 				{
 					// not-replicated, no ssr
 					AProjectile* Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, ProjectileTransform, GetOwner(), InstigatorPawn);
-					Projectile->SetDamage(Damage);
+					Projectile->SetDamage(Damage, HeadshotMultiplier);
 					Projectile->FinishSpawning(ProjectileTransform);
 				}
 			}

@@ -89,6 +89,7 @@ AWeapon::AWeapon()
 
 	/* Damage */
 	Damage = 20.f;
+	HeadshotMultiplier = 1.5f;
 
 	/* ADS FOV */
 	ADSFOV = 70.f;
