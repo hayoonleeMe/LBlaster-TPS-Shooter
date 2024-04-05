@@ -126,8 +126,13 @@ void AHitScanWeapon::ServerScoreRequest_Implementation(ALBlasterCharacter* HitCh
 		const FServerSideRewindResult Confirm = OwnerCharacter->GetLagCompensationComponent()->ServerSideRewind(HitCharacter, TraceStart, HitLocation, HitTime);
 		if (Confirm.bHitConfirmed && DamageCauser && OwnerCharacter->GetController())
 		{
+			float DamageToCause = DamageCauser->GetDamage();
+			if (Confirm.bHeadShot)
+			{
+				DamageToCause *= DamageCauser->GetHeadshotMultiplier();
+			}
 			// Apply Damage
-			UGameplayStatics::ApplyDamage(HitCharacter, DamageCauser->GetDamage(), OwnerCharacter->GetController(), DamageCauser, UDamageType::StaticClass());
+			UGameplayStatics::ApplyDamage(HitCharacter, DamageToCause, OwnerCharacter->GetController(), DamageCauser, UDamageType::StaticClass());
 		}
 	}
 }

@@ -34,6 +34,7 @@ public:
 	FORCEINLINE USoundBase* GetDryFireSound() const { return DryFireSound; }
 	FORCEINLINE const FTransform& GetAttachTransform() const { return AttachTransform; }
 	FORCEINLINE float GetDamage() const { return Damage; }
+	FORCEINLINE float GetHeadshotMultiplier() const { return HeadshotMultiplier; }
 
 	virtual void Fire(const FVector& HitTarget);
 	virtual void ShotgunFire(const TArray<FVector_NetQuantize>& HitTargets) {}

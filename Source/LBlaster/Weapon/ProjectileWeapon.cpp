@@ -76,7 +76,7 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 	}
 }
 
-void AProjectileWeapon::ServerScoreRequest_Implementation(ALBlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize100& InitialVelocity, float HitTime, float InDamage, float InProjectileGravityScale)
+void AProjectileWeapon::ServerScoreRequest_Implementation(ALBlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize100& InitialVelocity, float HitTime, float InDamage, float InHeadshotMultiplier, float InProjectileGravityScale)
 {
 	if (IsValidOwnerCharacter() && OwnerCharacter->GetLagCompensationComponent() && HitCharacter && GetWorld())
 	{
@@ -85,9 +85,14 @@ void AProjectileWeapon::ServerScoreRequest_Implementation(ALBlasterCharacter* Hi
 		{
 			// Play HitReact Montage
 			HitCharacter->SetLastHitNormal(Confirm.ImpactNormal);
-			
+
+			float DamageToCause = InDamage;
+			if (Confirm.bHeadShot)
+			{
+				DamageToCause *= InHeadshotMultiplier;
+			}
 			// Apply Damage
-			UGameplayStatics::ApplyDamage(HitCharacter, InDamage, OwnerCharacter->GetController(), this, UDamageType::StaticClass());
+			UGameplayStatics::ApplyDamage(HitCharacter, DamageToCause, OwnerCharacter->GetController(), this, UDamageType::StaticClass());
 		}
 	}
 }

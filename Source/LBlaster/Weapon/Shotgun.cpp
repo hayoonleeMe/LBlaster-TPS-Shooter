@@ -192,7 +192,7 @@ void AShotgun::ShotgunServerScoreRequest_Implementation(const TArray<ALBlasterCh
 			float TotalDamage = 0.f;
 			if (Confirm.HeadShots.Contains(HitCharacter))
 			{
-				const float HeadShotDamage = Confirm.HeadShots[HitCharacter] * DamageCauser->GetDamage();
+				const float HeadShotDamage = Confirm.HeadShots[HitCharacter] * DamageCauser->GetDamage() * DamageCauser->GetHeadshotMultiplier();
 				TotalDamage += HeadShotDamage;
 			}
 			if (Confirm.BodyShots.Contains(HitCharacter))

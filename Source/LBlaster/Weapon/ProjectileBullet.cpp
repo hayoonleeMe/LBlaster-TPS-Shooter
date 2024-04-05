@@ -65,7 +65,7 @@ void AProjectileBullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 				if (AProjectileWeapon* ProjectileWeapon = Cast<AProjectileWeapon>(OwnerCharacter->GetEquippingWeapon()))
 				{
 					const float HitTime = OwnerController->GetServerTime() - OwnerController->GetSingleTripTime();
-					ProjectileWeapon->ServerScoreRequest(HitCharacter, TraceStart, InitialVelocity, HitTime, GetDamage(), GetProjectileGravityScale());	
+					ProjectileWeapon->ServerScoreRequest(HitCharacter, TraceStart, InitialVelocity, HitTime, GetDamage(), HeadshotMultiplier, GetProjectileGravityScale());	
 				}
 			}
 		}
