@@ -29,16 +29,21 @@ void AProjectileRocket::Destroyed()
 	// Super::Destroyed() 호출 방지
 }
 
+void AProjectileRocket::SetReplicatesPostInit(bool bInReplicates)
+{
+	Super::SetReplicatesPostInit(bInReplicates);
+
+	if (RocketMovementComponent)
+	{
+		RocketMovementComponent->SetIsReplicated(bInReplicates);
+	}
+}
+
 void AProjectileRocket::BeginPlay()
 {
 	Super::BeginPlay();
 
 	SpawnTrailSystem();
-	
-	if (!HasAuthority())
-	{
-		CollisionBox->OnComponentHit.AddDynamic(this, &ThisClass::OnHit);
-	}
 }
 
 void AProjectileRocket::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)

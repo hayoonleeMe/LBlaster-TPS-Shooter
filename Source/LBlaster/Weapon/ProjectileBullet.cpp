@@ -77,11 +77,6 @@ void AProjectileBullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 void AProjectileBullet::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (IsValidOwnerCharacter() && !OwnerCharacter->HasAuthority())
-	{
-		CollisionBox->OnComponentHit.AddDynamic(this, &ThisClass::OnHit);
-	}
 	
 	/* Lag Compensation */
 	TraceStart = GetActorLocation();
