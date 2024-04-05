@@ -67,4 +67,10 @@ private:
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Pad Particle")
 	FLinearColor PadColor;
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastActivatePadLoadingParticle();
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastDeactivatePadLoadingParticle();
 };
