@@ -343,8 +343,6 @@ void ALBlasterPlayerController::CheckPing()
 		{
 			LBlasterCharacter->EnableServerSideRewind(true);
 		}
-
-		LB_LOG(LogLB, Warning, TEXT("Is SSR Enabled? %d"), LBlasterCharacter->IsServerSideRewindEnabled());
 	}
 }
 

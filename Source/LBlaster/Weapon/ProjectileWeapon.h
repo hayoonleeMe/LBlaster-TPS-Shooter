@@ -21,7 +21,7 @@ public:
 	 *	Lag Compensation
 	 */
 	UFUNCTION(Server, Reliable)
-	void ServerScoreRequest(class ALBlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize100& InitialVelocity, float HitTime, float InDamage, float InProjectileGravityScale);
+	void ServerScoreRequest(class ALBlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize100& InitialVelocity, float HitTime, float InDamage, float InHeadshotMultiplier, float InProjectileGravityScale);
 	
 private:
 	/*
