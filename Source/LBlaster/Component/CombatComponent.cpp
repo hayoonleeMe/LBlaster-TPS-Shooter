@@ -718,6 +718,14 @@ void UCombatComponent::ServerChooseWeaponSlot_Implementation(EEquipSlot InEquipS
 	}
 }
 
+void UCombatComponent::ChooseWeaponSlot(EEquipSlot InEquipSlotType)
+{
+	SetAiming(false);
+	SetFiring(false);
+	bCanFire = true;
+	ServerChooseWeaponSlot(InEquipSlotType);
+}
+
 void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -1071,6 +1079,13 @@ void UCombatComponent::ServerEquipOverlappingWeapon_Implementation()
 			EquipWeapon(OwnerCharacter->GetOverlappingWeapon());
 		}	
 	}
+}
+
+void UCombatComponent::EquipOverlappingWeapon()
+{
+	SetAiming(false);
+	SetFiring(false);
+	ServerEquipOverlappingWeapon();
 }
 
 void UCombatComponent::EquipWeapon(AWeapon* InWeapon)

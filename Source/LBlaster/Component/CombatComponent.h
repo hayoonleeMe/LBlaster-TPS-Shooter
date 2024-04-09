@@ -39,6 +39,8 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerEquipOverlappingWeapon();
 
+	void EquipOverlappingWeapon();
+
 	UFUNCTION(Server, Reliable)
 	void ServerEquipDefaultWeapon();
 	
@@ -63,6 +65,8 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void ServerChooseWeaponSlot(EEquipSlot InEquipSlotType);
+
+	void ChooseWeaponSlot(EEquipSlot InEquipSlotType);
 
 protected:
 	virtual void BeginPlay() override;
