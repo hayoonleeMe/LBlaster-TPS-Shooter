@@ -158,9 +158,6 @@ protected:
 	UFUNCTION(Client, Reliable)
 	void ClientUpdateAmmo(int32 InServerAmmo);
 
-	UFUNCTION(Client, Reliable)
-	void ClientAddAmmo(int32 InAmmoToAdd);
-
 	void SpendRound();
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Ammo")
@@ -168,7 +165,7 @@ protected:
 
 	// The number of unprocessed server requests for Ammo
 	// Incremented in SpendRound, Decremented in ClientUpdateAmmo
-	int32 Sequence = 0;
+	int32 AmmoSequence = 0;
 
 	/*
 	 *	Sound
