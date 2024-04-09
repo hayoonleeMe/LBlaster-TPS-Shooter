@@ -137,18 +137,30 @@ void AWeapon::AddAmmo(int32 InAmmoToAdd)
 {
 	Ammo = FMath::Clamp(Ammo + InAmmoToAdd, 0, MagCapacity);
 	SetHUDAmmo();
-	ClientAddAmmo(InAmmoToAdd);
-}
 
-void AWeapon::ClientAddAmmo_Implementation(int32 InAmmoToAdd)
-{
 	if (HasAuthority())
 	{
-		return;
+		ClientUpdateAmmo(Ammo);
 	}
+	else if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled())
+	{
+		++AmmoSequence;
+	}
+}
 
-	Ammo = FMath::Clamp(Ammo + InAmmoToAdd, 0, MagCapacity);
-	SetHUDAmmo();
+void AWeapon::SpendRound()
+{
+	AddAmmo(-1);
+}
+
+void AWeapon::ClientUpdateAmmo_Implementation(int32 InServerAmmo)
+{
+	--AmmoSequence;
+	if (AmmoSequence == 0)
+	{
+		Ammo = InServerAmmo;
+		SetHUDAmmo();
+	}
 }
 
 void AWeapon::Fire(const FVector& HitTarget)
@@ -284,32 +296,4 @@ void AWeapon::OnChangedWeaponState()
 		EnableCustomDepth(true);
 		break;
 	}
-}
-
-void AWeapon::SpendRound()
-{
-	Ammo = FMath::Clamp<int32>(Ammo - 1, 0, MagCapacity);
-	SetHUDAmmo();
-
-	if (HasAuthority())
-	{
-		ClientUpdateAmmo(Ammo);
-	}
-	else if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled())
-	{
-		++Sequence;
-	}
-}
-
-void AWeapon::ClientUpdateAmmo_Implementation(int32 InServerAmmo)
-{
-	if (HasAuthority())
-	{
-		return;
-	}
-
-	Ammo = InServerAmmo;
-	--Sequence;
-	Ammo -= Sequence;
-	SetHUDAmmo();
 }
