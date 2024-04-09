@@ -234,14 +234,16 @@ private:
 	/*
 	 *	Ammo
 	 */
-	UPROPERTY(ReplicatedUsing=OnRep_CarriedAmmo)
-	int32 CarriedAmmo;
-
-	UFUNCTION()
-	void OnRep_CarriedAmmo();
-
 	UPROPERTY(EditAnywhere, Category="LBlaster|Ammo")
 	TMap<EWeaponType, int32> CarriedAmmoMap;
+
+	// Client-Side Prediction for Carried Ammo
+	int32 CarriedAmmoSequence = 0;
+
+	void AddCarriedAmmo(EWeaponType InWeaponTypeToAdd, int32 InAmmoToAdd);
+
+	UFUNCTION(Client, Reliable)
+	void ClientUpdateCarriedAmmo(EWeaponType InWeaponTypeToAdd, int32 InServerCarriedAmmo);
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Ammo")
 	TMap<EWeaponType, int32> MaxCarriedAmmoMap;

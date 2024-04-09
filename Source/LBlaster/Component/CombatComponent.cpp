@@ -92,7 +92,6 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(UCombatComponent, EquipSlots);
 	DOREPLIFETIME(UCombatComponent, bIsAiming);
 	DOREPLIFETIME(UCombatComponent, bIsFiring);
-	DOREPLIFETIME_CONDITION(UCombatComponent, CarriedAmmo, COND_OwnerOnly);
 	DOREPLIFETIME(UCombatComponent, CombatState);
 	DOREPLIFETIME(UCombatComponent, GrenadeAmount);
 }
@@ -272,10 +271,14 @@ void UCombatComponent::ElimWeapon()
 
 void UCombatComponent::Reload()
 {
-	if (GetEquippingWeapon() && GetEquippingWeapon()->NeedReload() && CarriedAmmo > 0 && CombatState == ECombatState::ECS_Unoccupied)
+	if (GetEquippingWeapon() && GetEquippingWeapon()->NeedReload() && CombatState == ECombatState::ECS_Unoccupied)
 	{
-		ServerReload();
-		HandleReload();	// Locally Controlled 캐릭터에서 바로 Reload Montage 재생
+		if (CarriedAmmoMap.Contains(GetEquippingWeapon()->GetWeaponType()) && CarriedAmmoMap[GetEquippingWeapon()->GetWeaponType()] > 0)
+		{
+			CombatState = ECombatState::ECS_Reloading;
+			HandleReload();	// Locally Controlled 캐릭터에서 바로 Reload Montage 재생
+			ServerReload();	
+		}
 	}
 }
 
@@ -294,25 +297,38 @@ void UCombatComponent::HandleReload()
 {
 	if (IsValidOwnerCharacter())
 	{
+		MulticastInterruptMontage();
+		
 		OwnerCharacter->PlayReloadMontage(SelectReloadMontage());
+	}
+}
+
+void UCombatComponent::ReloadFinished()
+{
+	if (!IsValidOwnerCharacter())
+	{
+		return;
+	}
+
+	CombatState = ECombatState::ECS_Unoccupied;
+	UpdateAmmoValues();
+
+	if (OwnerCharacter->IsLocallyControlled() && bIsFiring)
+	{
+		Fire();
 	}
 }
 
 void UCombatComponent::UpdateAmmoValues()
 {
-	if (!IsValidOwnerController() || !GetEquippingWeapon())
+	if (!GetEquippingWeapon())
 	{
 		return;
 	}
 
 	const int32 ReloadAmount = AmountToReload();
-	if (CarriedAmmoMap.Contains(GetEquippingWeapon()->GetWeaponType()))
-	{
-		CarriedAmmoMap[GetEquippingWeapon()->GetWeaponType()] -= ReloadAmount;
-		CarriedAmmo = CarriedAmmoMap[GetEquippingWeapon()->GetWeaponType()];
-	}
-	OwnerController->SetHUDCarriedAmmo(CarriedAmmo);
 	GetEquippingWeapon()->AddAmmo(ReloadAmount);
+	AddCarriedAmmo(GetEquippingWeapon()->GetWeaponType(), -ReloadAmount);
 }
 
 int32 UCombatComponent::AmountToReload()
@@ -339,27 +355,9 @@ void UCombatComponent::MulticastInterruptMontage_Implementation()
 				OwnerCharacter->GetMesh()->GetAnimInstance()->StopAllMontages(0.1f);
 			}
 		}
-		
+
+		ShowWeapon();
 		CombatState = ECombatState::ECS_Unoccupied;
-	}
-}
-
-void UCombatComponent::ReloadFinished()
-{
-	if (!IsValidOwnerCharacter())
-	{
-		return;
-	}
-
-	CombatState = ECombatState::ECS_Unoccupied;
-	if (OwnerCharacter->HasAuthority())
-	{
-		UpdateAmmoValues();
-	}
-
-	if (OwnerCharacter->IsLocallyControlled() && bIsFiring)
-	{
-		Fire();
 	}
 }
 
@@ -560,11 +558,53 @@ void UCombatComponent::FireTimerFinished()
 	}
 }
 
-void UCombatComponent::OnRep_CarriedAmmo()
+void UCombatComponent::AddCarriedAmmo(EWeaponType InWeaponTypeToAdd, int32 InAmmoToAdd)
 {
-	if (IsValidOwnerController())
+	if (!GetEquippingWeapon())
 	{
-		OwnerController->SetHUDCarriedAmmo(CarriedAmmo);
+		return;
+	}
+
+	if (CarriedAmmoMap.Contains(InWeaponTypeToAdd) && MaxCarriedAmmoMap.Contains(InWeaponTypeToAdd))
+    {
+		CarriedAmmoMap[InWeaponTypeToAdd] = FMath::Clamp(CarriedAmmoMap[InWeaponTypeToAdd] + InAmmoToAdd, 0, MaxCarriedAmmoMap[InWeaponTypeToAdd]);
+
+		// 현재 장착중인 무기의 Carried Ammo가 업데이트됨
+		const EWeaponType WeaponType = GetEquippingWeapon()->GetWeaponType();
+		if (IsValidOwnerController() && WeaponType == InWeaponTypeToAdd)
+		{
+			OwnerController->SetHUDCarriedAmmo(CarriedAmmoMap[WeaponType]);
+		}
+
+		if (OwnerCharacter->HasAuthority())
+		{
+			ClientUpdateCarriedAmmo(InWeaponTypeToAdd, CarriedAmmoMap[InWeaponTypeToAdd]);
+		}
+		else
+		{
+			++CarriedAmmoSequence;
+		}
+	}
+}
+
+void UCombatComponent::ClientUpdateCarriedAmmo_Implementation(EWeaponType InWeaponTypeToAdd, int32 InServerCarriedAmmo)
+{
+	if (!GetEquippingWeapon())
+	{
+		return;
+	}
+
+	--CarriedAmmoSequence;
+	if (CarriedAmmoMap.Contains(InWeaponTypeToAdd) && CarriedAmmoSequence == 0)
+	{
+		CarriedAmmoMap[InWeaponTypeToAdd] = InServerCarriedAmmo;
+
+		// 현재 장착중인 무기의 Carried Ammo가 업데이트됨
+		const EWeaponType WeaponType = GetEquippingWeapon()->GetWeaponType();
+		if (IsValidOwnerController() && WeaponType == InWeaponTypeToAdd)
+		{
+			OwnerController->SetHUDCarriedAmmo(CarriedAmmoMap[WeaponType]);
+		}	
 	}
 }
 
@@ -618,16 +658,7 @@ void UCombatComponent::PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount)
 		return;
 	}
 	
-	if (CarriedAmmoMap.Contains(InWeaponType) && MaxCarriedAmmoMap.Contains(InWeaponType))
-	{
-		CarriedAmmoMap[InWeaponType] = FMath::Clamp(CarriedAmmoMap[InWeaponType] + InAmmoAmount, 0, MaxCarriedAmmoMap[InWeaponType]);
-
-		if (GetEquippingWeapon() && GetEquippingWeapon()->GetWeaponType() == InWeaponType)
-		{
-			CarriedAmmo = CarriedAmmoMap[InWeaponType];
-			OwnerController->SetHUDCarriedAmmo(CarriedAmmo);	
-		}
-	}
+	AddCarriedAmmo(InWeaponType, InAmmoAmount);
 
 	if (GetEquippingWeapon() && GetEquippingWeapon()->GetWeaponType() == InWeaponType && GetEquippingWeapon()->IsAmmoEmpty())
 	{
@@ -1015,11 +1046,9 @@ void UCombatComponent::ServerEquipOverlappingWeapon_Implementation()
 void UCombatComponent::EquipWeapon(AWeapon* InWeapon)
 {
 	// From ServerRPC (Server Only)
-	// TODO : EquipMontage 등 추가되면 다시 고려해보기
 	MulticastInterruptMontage();
-	
-	SetEquippingWeapon(InWeapon);
 
+	SetEquippingWeapon(InWeapon);
 	if (GetEquippingWeapon())
 	{
 		GetEquippingWeapon()->SetWeaponState(EWeaponState::EWS_Equipped);
@@ -1027,14 +1056,13 @@ void UCombatComponent::EquipWeapon(AWeapon* InWeapon)
 		if (IsValidOwnerCharacter())
 		{
 			GetEquippingWeapon()->SetOwner(OwnerCharacter);
-			
 			GetEquippingWeapon()->SetHUDAmmo();
+			
 			if (CarriedAmmoMap.Contains(GetEquippingWeapon()->GetWeaponType()))
 			{
-				CarriedAmmo = CarriedAmmoMap[GetEquippingWeapon()->GetWeaponType()];
 				if (IsValidOwnerController() && OwnerCharacter->IsLocallyControlled())
 				{
-					OwnerController->SetHUDCarriedAmmo(CarriedAmmo);
+					OwnerController->SetHUDCarriedAmmo(CarriedAmmoMap[GetEquippingWeapon()->GetWeaponType()]);
 					OwnerController->SetHUDWeaponTypeText(GetWeaponTypeString(GetEquippingWeapon()->GetWeaponType()));
 				}
 			}
@@ -1048,12 +1076,12 @@ void UCombatComponent::EquipWeapon(AWeapon* InWeapon)
 			
 			/* Sniper Scope */
 			InitSniperScope();
-		}
 
-		// Reload Empty Weapon
-		if (GetEquippingWeapon()->IsAmmoEmpty())
-		{
-			Reload();
+			// Reload Empty Weapon
+			if (OwnerCharacter->IsLocallyControlled() && GetEquippingWeapon()->IsAmmoEmpty())
+			{
+				Reload();
+			}
 		}
 	}
 }
@@ -1068,10 +1096,13 @@ void UCombatComponent::OnRep_EquipSlots()
 		
 		if (IsValidOwnerCharacter())
 		{
-			if (IsValidOwnerController() /* 클라이언트에서 PlayerController가 유효하면 Local Controller */)
+			if (CarriedAmmoMap.Contains(GetEquippingWeapon()->GetWeaponType()))
 			{
-				OwnerController->SetHUDCarriedAmmo(CarriedAmmo);
-				OwnerController->SetHUDWeaponTypeText(GetWeaponTypeString(GetEquippingWeapon()->GetWeaponType()));
+				if (IsValidOwnerController() && OwnerCharacter->IsLocallyControlled())
+				{
+					OwnerController->SetHUDCarriedAmmo(CarriedAmmoMap[GetEquippingWeapon()->GetWeaponType()]);
+					OwnerController->SetHUDWeaponTypeText(GetWeaponTypeString(GetEquippingWeapon()->GetWeaponType()));
+				}	
 			}
 
 			AttachWeapon();
@@ -1083,7 +1114,13 @@ void UCombatComponent::OnRep_EquipSlots()
 			
 			/* Sniper Scope */
 			InitSniperScope();
-		}	
+
+			// Reload Empty Weapon
+			if (GetEquippingWeapon()->IsAmmoEmpty())
+			{
+				Reload();
+			}
+		}
 	}
 }
 
