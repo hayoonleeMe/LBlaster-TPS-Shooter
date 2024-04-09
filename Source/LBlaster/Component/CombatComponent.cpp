@@ -317,6 +317,18 @@ void UCombatComponent::ReloadFinished()
 	{
 		Fire();
 	}
+	else if (bDelayedFire)
+	{
+		bDelayedFire = false;
+		if (GetEquippingWeapon()->GetWeaponType() == EWeaponType::EWT_Shotgun)
+		{
+			ServerShotgunFire(CachedHitTargets, bCachedEnabledSSR);
+		}
+		else
+		{
+			ServerFire(CachedHitTarget, bCachedEnabledSSR);
+		}
+	}
 }
 
 void UCombatComponent::UpdateAmmoValues()
@@ -900,6 +912,15 @@ void UCombatComponent::ShotgunLocalFire(const TArray<FVector_NetQuantize>& HitTa
 
 void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& HitTarget, bool bEnabledSSR)
 {
+	// 만약 서버에서 아직 장전 중인데 클라에서 Fire RPC가 호출된 경우
+	if (CombatState == ECombatState::ECS_Reloading)
+	{
+		bDelayedFire = true;
+		CachedHitTarget = HitTarget;
+		bCachedEnabledSSR = bEnabledSSR;
+		return;
+	}
+
 	if (IsValidOwnerCharacter())
 	{
 		OwnerCharacter->EnableServerSideRewind(bEnabledSSR);
@@ -909,6 +930,15 @@ void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& HitT
 
 void UCombatComponent::ServerShotgunFire_Implementation(const TArray<FVector_NetQuantize>& HitTargets, bool bEnabledSSR)
 {
+	// 만약 서버에서 아직 장전 중인데 클라에서 Fire RPC가 호출된 경우
+	if (CombatState == ECombatState::ECS_Reloading)
+	{
+		bDelayedFire = true;
+		CachedHitTargets = HitTargets;
+		bCachedEnabledSSR = bEnabledSSR;
+		return;
+	}
+	
 	if (IsValidOwnerCharacter())
 	{
 		OwnerCharacter->EnableServerSideRewind(bEnabledSSR);
