@@ -158,6 +158,9 @@ void ALBlasterHUD::AddCharacterOverlay()
 			SetHUDAmmo(0);
 			SetHUDCarriedAmmo(0);
 			SetHUDWeaponTypeText(FString());
+			SetWeaponSlotIcon(EEquipSlot::EES_FirstSlot, EWeaponType::EWT_Unarmed);
+			SetWeaponSlotIcon(EEquipSlot::EES_SecondSlot, EWeaponType::EWT_Unarmed);
+			SetWeaponSlotIcon(EEquipSlot::EES_ThirdSlot, EWeaponType::EWT_Unarmed);
 			OwnerController->UpdateHUDHealth();
 			OwnerController->UpdateHUDGrenadeAmount();
 		}
@@ -363,6 +366,22 @@ void ALBlasterHUD::ScrollChatBox(float InScrollValue) const
 	if (ChatUI)
 	{
 		ChatUI->ChatBox->Scroll(InScrollValue);
+	}
+}
+
+void ALBlasterHUD::SetWeaponSlotIcon(EEquipSlot InEquipSlot, EWeaponType InWeaponType) const
+{
+	if (CharacterOverlay)
+	{
+		CharacterOverlay->SetWeaponSlotIcon(InEquipSlot, InWeaponType);
+	}
+}
+
+void ALBlasterHUD::ChooseWeaponSlot(EEquipSlot InEquipSlot) const
+{
+	if (CharacterOverlay)
+	{
+		CharacterOverlay->ChooseWeaponSlot(InEquipSlot);
 	}
 }
 

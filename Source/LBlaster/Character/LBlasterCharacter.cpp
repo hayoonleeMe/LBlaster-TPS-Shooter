@@ -873,6 +873,8 @@ void ALBlasterCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
 		PlayerController->SetHUDAmmo(0);
 		PlayerController->SetHUDCarriedAmmo(0);
 		PlayerController->SetHUDWeaponTypeText();
+		PlayerController->SetWeaponSlotIcon(EEquipSlot::EES_FirstSlot, EWeaponType::EWT_Unarmed);
+		PlayerController->SetWeaponSlotIcon(EEquipSlot::EES_SecondSlot, EWeaponType::EWT_Unarmed);
 	}
 
 	/* Ragdoll */

@@ -448,6 +448,22 @@ void ALBlasterPlayerController::BroadcastChatText(const FText& InText)
 	ClientAddChatText(InText);
 }
 
+void ALBlasterPlayerController::SetWeaponSlotIcon(EEquipSlot InEquipSlot, EWeaponType InWeaponType)
+{
+	if (IsValidHUD())
+	{
+		LBlasterHUD->SetWeaponSlotIcon(InEquipSlot, InWeaponType);
+	}
+}
+
+void ALBlasterPlayerController::ChooseWeaponSlot(EEquipSlot InEquipSlot)
+{
+	if (IsValidHUD())
+	{
+		LBlasterHUD->ChooseWeaponSlot(InEquipSlot);
+	}
+}
+
 void ALBlasterPlayerController::ServerSendChatText_Implementation(const FText& InText)
 {
 	if (IsValidGameMode())
