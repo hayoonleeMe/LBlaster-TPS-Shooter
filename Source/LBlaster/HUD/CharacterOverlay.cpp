@@ -56,6 +56,9 @@ void UCharacterOverlay::SetCarriedAmmoAmount(int32 InCarriedAmmo)
 
 void UCharacterOverlay::SetWeaponTypeText(const FString& InWeaponTypeString)
 {
+	// TODO : 임시로 Weapon Type Text 사용안함. 완전히 결정 필요 
+	return;
+	
 	if (InWeaponTypeString == FString())
 	{
 		WeaponTypeText->SetVisibility(ESlateVisibility::Hidden);
