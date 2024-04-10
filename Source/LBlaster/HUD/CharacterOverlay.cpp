@@ -8,6 +8,16 @@
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 
+void UCharacterOverlay::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	/* Weapon Slot Icon */
+	WeaponSlotImages.Emplace(EEquipSlot::EES_FirstSlot, WeaponSlot1);
+	WeaponSlotImages.Emplace(EEquipSlot::EES_SecondSlot, WeaponSlot2);
+	WeaponSlotImages.Emplace(EEquipSlot::EES_ThirdSlot, WeaponSlot3);
+}
+
 void UCharacterOverlay::SetHealthBar(float InHealth, float InMaxHealth)
 {
 	const float HealthPercent = InHealth / InMaxHealth;
@@ -88,5 +98,37 @@ void UCharacterOverlay::HighPingWarning(float InDuration)
 	if (HighPingImage && HighPingImageBlink)
 	{
 		PlayAnimation(HighPingImageBlink, 0.f, FMath::CeilToInt32(InDuration / HighPingImageBlink->GetEndTime()));
+	}
+}
+
+void UCharacterOverlay::SetWeaponSlotIcon(EEquipSlot InEquipSlot, EWeaponType InWeaponType)
+{
+	if (WeaponSlotIcons.Contains(InWeaponType) && WeaponSlotImages.Contains(InEquipSlot))
+	{
+		if (UTexture2D* WeaponTexture = WeaponSlotIcons[InWeaponType])
+		{
+			if (UImage* WeaponImage = WeaponSlotImages[InEquipSlot])
+			{
+				WeaponImage->SetBrushFromTexture(WeaponTexture, true);
+			}
+		}	
+	}
+}
+
+void UCharacterOverlay::ChooseWeaponSlot(EEquipSlot InEquipSlot)
+{
+	for (const TTuple<EEquipSlot, UImage*>& Pair : WeaponSlotImages)
+	{
+		if (UImage* Image = Pair.Value)
+		{
+			if (Pair.Key == InEquipSlot)
+			{
+				Image->SetRenderOpacity(1.f);
+			}
+			else
+			{
+				Image->SetRenderOpacity(0.5f);
+			}	
+		}
 	}
 }

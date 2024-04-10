@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
 #include "GameFramework/PlayerController.h"
+#include "LBTypes/EquipSlot.h"
+#include "LBTypes/WeaponTypes.h"
 #include "LBlasterPlayerController.generated.h"
 
 /**
@@ -50,6 +52,9 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void ServerSendChatText(const FText& InText);
+
+	void SetWeaponSlotIcon(EEquipSlot InEquipSlot, EWeaponType InWeaponType);
+	void ChooseWeaponSlot(EEquipSlot InEquipSlot);
 
 protected:
 	/*

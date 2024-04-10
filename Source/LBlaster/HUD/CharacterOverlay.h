@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "LBTypes/EquipSlot.h"
+#include "LBTypes/WeaponTypes.h"
 #include "CharacterOverlay.generated.h"
 
 /**
@@ -25,6 +27,11 @@ public:
 	void SetMatchCountdownText(float InCountdownTime);
 	void SetGrenadeAmount(int32 InGrenadeAmount) const;
 	void HighPingWarning(float InDuration);
+	void SetWeaponSlotIcon(EEquipSlot InEquipSlot, EWeaponType InWeaponType);
+	void ChooseWeaponSlot(EEquipSlot InEquipSlot);
+
+protected:
+	virtual void NativeConstruct() override;
 	
 private:
 	/*
@@ -60,6 +67,15 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UImage> HighPingImage;
 
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UImage> WeaponSlot1;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UImage> WeaponSlot2;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UImage> WeaponSlot3;
+
 	/*
 	 *	Widget Animation
 	 */
@@ -74,4 +90,13 @@ private:
 	 */
 	UPROPERTY(EditAnywhere, Category="LBlaster|Miscellaneous")
 	float ThresholdToPlayMatchCountdownBlinkAnim = 20.f;
+
+	/*
+	 *	Weapon Slot Icon
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Weapon Slot Icon")
+	TMap<EWeaponType, class UTexture2D*> WeaponSlotIcons;
+
+	UPROPERTY()
+	TMap<EEquipSlot, class UImage*> WeaponSlotImages;
 };

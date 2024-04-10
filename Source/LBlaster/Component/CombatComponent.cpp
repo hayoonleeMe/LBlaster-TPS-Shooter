@@ -690,11 +690,6 @@ void UCombatComponent::ShowWeapon()
 
 void UCombatComponent::ServerChooseWeaponSlot_Implementation(EEquipSlot InEquipSlotType)
 {
-	if (EquipSlotType == InEquipSlotType)
-	{
-		return;
-	}
-
 	// 슬롯 바꾸기 전에 들고 있던 무기 손에서 떼야함.
 	HolsterWeapon();
 
@@ -720,10 +715,16 @@ void UCombatComponent::ServerChooseWeaponSlot_Implementation(EEquipSlot InEquipS
 
 void UCombatComponent::ChooseWeaponSlot(EEquipSlot InEquipSlotType)
 {
+	if (EquipSlotType == InEquipSlotType)
+	{
+		return;
+	}
+	
 	SetAiming(false);
 	SetFiring(false);
 	bCanFire = true;
 	ServerChooseWeaponSlot(InEquipSlotType);
+	EquipSlotType = InEquipSlotType;
 }
 
 void UCombatComponent::BeginPlay()
@@ -1109,6 +1110,8 @@ void UCombatComponent::EquipWeapon(AWeapon* InWeapon)
 				{
 					OwnerController->SetHUDCarriedAmmo(CarriedAmmoMap[GetEquippingWeapon()->GetWeaponType()]);
 					OwnerController->SetHUDWeaponTypeText(GetWeaponTypeString(GetEquippingWeapon()->GetWeaponType()));
+					OwnerController->SetWeaponSlotIcon(EquipSlotType, GetEquippingWeapon()->GetWeaponType());
+					OwnerController->ChooseWeaponSlot(EquipSlotType);
 				}
 			}
 			
@@ -1147,6 +1150,8 @@ void UCombatComponent::OnRep_EquipSlots()
 				{
 					OwnerController->SetHUDCarriedAmmo(CarriedAmmoMap[GetEquippingWeapon()->GetWeaponType()]);
 					OwnerController->SetHUDWeaponTypeText(GetWeaponTypeString(GetEquippingWeapon()->GetWeaponType()));
+					OwnerController->SetWeaponSlotIcon(EquipSlotType, GetEquippingWeapon()->GetWeaponType());
+					OwnerController->ChooseWeaponSlot(EquipSlotType);
 				}	
 			}
 
@@ -1194,7 +1199,9 @@ void UCombatComponent::MulticastSwitchToUnarmedState_Implementation(bool bSkipUn
 		{
 			OwnerController->SetHUDAmmo(0);
 			OwnerController->SetHUDCarriedAmmo(0);
-			OwnerController->SetHUDWeaponTypeText(GetWeaponTypeString());	
+			OwnerController->SetHUDWeaponTypeText(GetWeaponTypeString());
+			OwnerController->SetWeaponSlotIcon(EquipSlotType, EWeaponType::EWT_Unarmed);
+			OwnerController->ChooseWeaponSlot(EquipSlotType);
 		}
 		
 		if (!bSkipUnEquipMontage)

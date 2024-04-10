@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
+#include "LBTypes/EquipSlot.h"
+#include "LBTypes/WeaponTypes.h"
 #include "LBlasterHUD.generated.h"
 
 USTRUCT(BlueprintType)
@@ -69,6 +71,8 @@ public:
 	void FocusChat() const;
 	void AddChatMessage(const FText& InText) const;
 	void ScrollChatBox(float InScrollValue) const;
+	void SetWeaponSlotIcon(EEquipSlot InEquipSlot, EWeaponType InWeaponType) const;
+	void ChooseWeaponSlot(EEquipSlot InEquipSlot) const;
 
 protected:
 	virtual void PostInitializeComponents() override;
