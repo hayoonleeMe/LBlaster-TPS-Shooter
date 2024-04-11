@@ -17,7 +17,6 @@ class LBLASTER_API AHitScanWeapon : public AWeapon
 public:
 	AHitScanWeapon();
 	virtual void Fire(const FVector& HitTarget) override;
-	virtual FVector TraceEndWithScatter(const FVector& HitTarget) const override;
 	virtual bool DoesUseScatter() const override { return bUseScatter; }
 	
 protected:
@@ -37,19 +36,6 @@ protected:
 	 */
 	UPROPERTY(EditAnywhere, Category="LBlaster|Beam")
 	TObjectPtr<UParticleSystem> BeamParticle;
-
-	/*
-	 *	Trace End With Scatter
-	 */
-	UPROPERTY(EditAnywhere, Category="LBlaster|Weapon Scatter")
-	float DistanceToSphere;
-
-	// 이 SphereRadius로 정의되는 Sphere의 랜덤한 지점으로 총알이 발사된다. 이 값이 작을수록 맞추기 쉽다. bUseScatter 옵션을 사용해야 적용된다.
-	UPROPERTY(EditAnywhere, Category="LBlaster|Weapon Scatter")
-	float SphereRadius;
-	
-	UPROPERTY(EditAnywhere, Category="LBlaster|Weapon Scatter")
-	uint8 bUseScatter : 1;
 
 private:
 	/*

@@ -10,6 +10,7 @@
 #include "Character/LBlasterCharacter.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/Character.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "Player/LBlasterPlayerController.h"
 
@@ -87,6 +88,10 @@ AWeapon::AWeapon()
 	bAutomatic = true;
 	FireDelay = 0.15f;
 
+	/* Scatter (Minute of Angle) */
+	bUseScatter = true;
+	DistanceToSphere = 910.f;
+
 	/* Recoil */
 	VerticalRecoilValue = 0.3f;
 
@@ -148,6 +153,11 @@ void AWeapon::AddAmmo(int32 InAmmoToAdd)
 	}
 }
 
+float AWeapon::GetSphereRadius() const
+{
+	return MOA * 2.54f;
+}
+
 void AWeapon::SpendRound()
 {
 	AddAmmo(-1);
@@ -184,6 +194,24 @@ void AWeapon::Fire(const FVector& HitTarget)
 	}
 
 	SpendRound();
+}
+
+FVector AWeapon::TraceEndWithScatter(const FVector& HitTarget) const
+{
+	if (const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(FName(TEXT("MuzzleFlash"))))
+	{
+		const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
+		const FVector TraceStart = SocketTransform.GetLocation();
+
+		const FVector ToTargetNormalized = (HitTarget - TraceStart).GetSafeNormal();
+		const FVector SphereCenter = TraceStart + ToTargetNormalized * DistanceToSphere;
+		const FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, GetSphereRadius());
+		const FVector EndLoc = SphereCenter + RandVec;
+		const FVector ToEndLoc = EndLoc - TraceStart;
+
+		return TraceStart + ToEndLoc / ToEndLoc.Size() * TRACE_LENGTH;
+	}
+	return FVector::ZeroVector;
 }
 
 void AWeapon::Dropped()

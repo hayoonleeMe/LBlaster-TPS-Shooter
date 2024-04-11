@@ -872,7 +872,7 @@ void UCombatComponent::Fire()
 		}
 		else
 		{
-			// Scatter를 사용하는 HitScanWeapon은 TraceHitTarget 업데이트
+			// Scatter가 적용된 TraceHitTarget로 업데이트
 			if (GetEquippingWeapon()->DoesUseScatter())
 			{
 				TraceHitTarget = GetEquippingWeapon()->TraceEndWithScatter(TraceHitTarget);

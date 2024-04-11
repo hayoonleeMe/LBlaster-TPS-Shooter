@@ -10,6 +10,12 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "Kismet/GameplayStatics.h"
 
+AProjectileWeapon::AProjectileWeapon()
+{
+	/* Scatter (Minute of Angle) */
+	MOA = 2.f;
+}
+
 void AProjectileWeapon::Fire(const FVector& HitTarget)
 {
 	Super::Fire(HitTarget);

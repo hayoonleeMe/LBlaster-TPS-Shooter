@@ -39,8 +39,8 @@ public:
 
 	virtual void Fire(const FVector& HitTarget);
 	virtual void ShotgunFire(const TArray<FVector_NetQuantize>& HitTargets) {}
-	virtual bool DoesUseScatter() const { return false; } 
-	virtual FVector TraceEndWithScatter(const FVector& HitTarget) const { return FVector::ZeroVector; }
+	virtual bool DoesUseScatter() const { return bUseScatter; } 
+	FVector TraceEndWithScatter(const FVector& HitTarget) const;
 	virtual TArray<FVector_NetQuantize> ShotgunTraceEndWithScatter(const FVector& HitTarget) const { return TArray<FVector_NetQuantize>(); }
 
 	void Dropped();
@@ -148,6 +148,21 @@ protected:
 	 */
 	UPROPERTY(EditAnywhere, Category="LBlaster|Recoil")
 	float VerticalRecoilValue;
+
+	/*
+	 *	Scatter (Minute of Angle)
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Weapon Scatter")
+	float DistanceToSphere;
+
+	// 이 SphereRadius로 정의되는 Sphere의 랜덤한 지점으로 총알이 발사된다. 이 값이 작을수록 맞추기 쉽다. bUseScatter 옵션을 사용해야 적용된다.
+	UPROPERTY(EditAnywhere, Category="LBlaster|Weapon Scatter")
+	float MOA;
+	
+	UPROPERTY(EditAnywhere, Category="LBlaster|Weapon Scatter")
+	uint8 bUseScatter : 1;
+
+	float GetSphereRadius() const;
 
 	/*
 	 *	Ammo
