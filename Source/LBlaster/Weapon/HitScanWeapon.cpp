@@ -14,10 +14,8 @@
 
 AHitScanWeapon::AHitScanWeapon()
 {
-	/* Weapon Scatter */
-	DistanceToSphere = 800.f;
-	SphereRadius = 60.f;
-	bUseScatter = false;
+	/* Scatter (Minute of Angle) */
+	MOA = 9.f;
 }
 
 void AHitScanWeapon::Fire(const FVector& HitTarget)
@@ -86,24 +84,6 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 			}
 		}
 	}
-}
-
-FVector AHitScanWeapon::TraceEndWithScatter(const FVector& HitTarget) const
-{
-	if (const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(FName(TEXT("MuzzleFlash"))))
-	{
-		const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
-		const FVector TraceStart = SocketTransform.GetLocation();
-
-		const FVector ToTargetNormalized = (HitTarget - TraceStart).GetSafeNormal();
-		const FVector SphereCenter = TraceStart + ToTargetNormalized * DistanceToSphere;
-		const FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, SphereRadius);
-		const FVector EndLoc = SphereCenter + RandVec;
-		const FVector ToEndLoc = EndLoc - TraceStart;
-
-		return TraceStart + ToEndLoc / ToEndLoc.Size() * TRACE_LENGTH;
-	}
-	return Super::TraceEndWithScatter(HitTarget);
 }
 
 void AHitScanWeapon::SpawnImpactEffects(const UWorld* World, const FHitResult& HitResult) const
