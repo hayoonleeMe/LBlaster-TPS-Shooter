@@ -26,9 +26,21 @@ public:
 	virtual TArray<FVector_NetQuantize> ShotgunTraceEndWithScatter(const FVector& HitTarget) const override;
 	
 private:
+	/*
+	 *	Ammo
+	 */
 	UPROPERTY(EditAnywhere, Category="LBlaster|Ammo")
 	uint32 NumberOfPellets;
 
+	/*
+	 *	Spread
+	 */
+	UPROPERTY(EditAnywhere, Category="LBLaster|Spread")
+	float SpreadRadius;
+
+	/*
+	 *	Lag Compensation
+	 */
 	UFUNCTION(Server, Reliable)
 	void ShotgunServerScoreRequest(const TArray<ALBlasterCharacter*>& HitCharacters, const FVector_NetQuantize& TraceStart, const TArray<FVector_NetQuantize>& HitLocations, float HitTime, AWeapon* DamageCauser);
 };

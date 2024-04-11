@@ -22,6 +22,12 @@ AShotgun::AShotgun()
 
 	/* Damage */
 	Damage = 10;
+
+	/* Scatter (Minute of Angle) */
+	bUseScatter = false;
+
+	/* Spread */
+	SpreadRadius = 60.f;
 }
 
 void AShotgun::ShotgunFire(const TArray<FVector_NetQuantize>& HitTargets)
@@ -169,7 +175,7 @@ TArray<FVector_NetQuantize> AShotgun::ShotgunTraceEndWithScatter(const FVector& 
 		
 		for (uint32 Index = 0; Index < NumberOfPellets; ++Index)
 		{
-			const FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, SphereRadius);
+			const FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, SpreadRadius);
 			const FVector EndLoc = SphereCenter + RandVec;
 			const FVector ToEndLoc = EndLoc - TraceStart;
 			const FVector RandHitTarget = TraceStart + ToEndLoc / ToEndLoc.Size() * TRACE_LENGTH;  
