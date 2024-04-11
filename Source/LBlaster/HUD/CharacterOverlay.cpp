@@ -26,6 +26,8 @@ void UCharacterOverlay::SetHealthBar(float InHealth, float InMaxHealth)
 
 void UCharacterOverlay::SetHealthText(float InHealth, float InMaxHealth)
 {
+	// TODO : 임시로 HealthText 표시 안함. 결정 필요 
+	return;
 	const FString HealthString = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(InHealth), FMath::CeilToInt(InMaxHealth));
 	HealthText->SetText(FText::FromString(HealthString));
 }
