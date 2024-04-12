@@ -46,6 +46,21 @@ struct FServerSideRewindResult
 
 	UPROPERTY()
 	FVector_NetQuantizeNormal ImpactNormal;
+
+	UPROPERTY()
+	float HitDistanceMeter;
+};
+
+USTRUCT()
+struct FShotgunHitInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	uint32 HitCount;
+
+	UPROPERTY()
+	float HitDistanceMeter;
 };
 
 USTRUCT(BlueprintType)
@@ -54,10 +69,10 @@ struct FShotgunServerSideRewindResult
 	GENERATED_BODY()
 
 	UPROPERTY()
-	TMap<class ALBlasterCharacter*, uint32> HeadShots;
+	TMap<class ALBlasterCharacter*, FShotgunHitInfo> HeadShots;
 
 	UPROPERTY()
-	TMap<ALBlasterCharacter*, uint32> BodyShots;
+	TMap<ALBlasterCharacter*, FShotgunHitInfo> BodyShots;
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )

@@ -18,11 +18,7 @@ public:
 	AProjectileWeapon();
 	virtual void Fire(const FVector& HitTarget) override;
 
-	/*
-	 *	Lag Compensation
-	 */
-	UFUNCTION(Server, Reliable)
-	void ServerScoreRequest(class ALBlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize100& InitialVelocity, float HitTime, float InDamage, float InHeadshotMultiplier, float InProjectileGravityScale);
+	virtual void CallServerScoreRequest(ALBlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize100& InitialVelocity, float HitTime, float InDamage, float InHeadshotMultiplier, float InProjectileGravityScale) override;
 	
 private:
 	/*
@@ -30,4 +26,10 @@ private:
 	 */
 	UPROPERTY(EditAnywhere, Category="LBlaster|Projectile")
 	TSubclassOf<class AProjectile> ProjectileClass;
+
+	/*
+	 *	Lag Compensation
+	 */
+	UFUNCTION(Server, Reliable)
+	void ServerScoreRequest(class ALBlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize100& InitialVelocity, float HitTime, float InDamage, float InHeadshotMultiplier, float InProjectileGravityScale);
 };

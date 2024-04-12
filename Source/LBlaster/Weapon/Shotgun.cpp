@@ -61,6 +61,8 @@ void AShotgun::ShotgunFire(const TArray<FVector_NetQuantize>& HitTargets)
 				// Caching Hit Info
 				if (ALBlasterCharacter* HitCharacter = Cast<ALBlasterCharacter>(FireHit.GetActor()))
 				{
+					const float HitDistanceMeter = (FireHit.ImpactPoint - TraceStart).Length() / 100.f;
+					
 					// Headshot
 					if (FireHit.BoneName.ToString() == FString(TEXT("head")))
 					{
@@ -70,7 +72,7 @@ void AShotgun::ShotgunFire(const TArray<FVector_NetQuantize>& HitTargets)
 						}
 						else
 						{
-							HeadshotHitMap.Emplace(HitCharacter, { 1, FireHit.ImpactNormal });
+							HeadshotHitMap.Emplace(HitCharacter, { 1, FireHit, HitDistanceMeter });
 						}	
 					}
 					else
@@ -81,13 +83,10 @@ void AShotgun::ShotgunFire(const TArray<FVector_NetQuantize>& HitTargets)
 						}
 						else
 						{
-							HitMap.Emplace(HitCharacter, { 1, FireHit.ImpactNormal });
+							HitMap.Emplace(HitCharacter, { 1, FireHit, HitDistanceMeter });
 						}	
 					}
 				}
-
-				// Impact Effect
-				SpawnImpactEffects(World, FireHit);
 			}
 
 			// Beam Effect
@@ -100,23 +99,34 @@ void AShotgun::ShotgunFire(const TArray<FVector_NetQuantize>& HitTargets)
 			}
 		}
 
-		if (HasAuthority())
+		// Apply Damage	
+		if (HasAuthority() && (OwnerCharacter->IsLocallyControlled() || !OwnerCharacter->IsServerSideRewindEnabled()))
 		{
 			// Headshot
 			for (const TTuple<ALBlasterCharacter*, FHitInfo>& HitPair : HeadshotHitMap)
 			{
 				if (ALBlasterCharacter* HitCharacter = HitPair.Key)
 				{
-					const FHitInfo& HitInfo = HitPair.Value; 
-				
+					const FHitInfo& HitInfo = HitPair.Value;
+					
+					// 샷건의 유효 사거리를 넘으면 데미지는 0이므로 No Hit
+					const float DamageToCause = Damage * GetDamageFallOffMultiplier(HitInfo.HitDistanceMeter);
+					if (DamageToCause == 0.f)
+					{
+						continue;
+					}
+
+					// Impact Effect
+					SpawnImpactEffects(World, HitInfo.FireHit);
+					
 					// Play HitReact Montage
-					HitCharacter->SetLastHitNormal(HitInfo.ImpactNormal);
+					HitCharacter->SetLastHitNormal(HitInfo.FireHit.ImpactNormal);
 					
 					// Apply Damage
 					if (AController* InstigatorController = OwnerCharacter->GetController())
 					{
-						UGameplayStatics::ApplyDamage(HitCharacter, Damage * HeadshotMultiplier * HitInfo.HitCount, InstigatorController, this, UDamageType::StaticClass());
-					}	
+						UGameplayStatics::ApplyDamage(HitCharacter, DamageToCause * HeadshotMultiplier * HitInfo.HitCount, InstigatorController, this, UDamageType::StaticClass());
+					}
 				}
 			}
 			
@@ -125,14 +135,24 @@ void AShotgun::ShotgunFire(const TArray<FVector_NetQuantize>& HitTargets)
 				if (ALBlasterCharacter* HitCharacter = HitPair.Key)
 				{
 					const FHitInfo& HitInfo = HitPair.Value; 
-				
+
+					// 샷건의 유효 사거리를 넘으면 데미지는 0이므로 No Hit
+					const float DamageToCause = Damage * GetDamageFallOffMultiplier(HitInfo.HitDistanceMeter);
+					if (DamageToCause == 0.f)
+					{
+						continue;
+					}
+
+					// Impact Effect
+					SpawnImpactEffects(World, HitInfo.FireHit);
+					
 					// Play HitReact Montage
-					HitCharacter->SetLastHitNormal(HitInfo.ImpactNormal);
+					HitCharacter->SetLastHitNormal(HitInfo.FireHit.ImpactNormal);
 					
 					// Apply Damage
 					if (AController* InstigatorController = OwnerCharacter->GetController())
 					{
-						UGameplayStatics::ApplyDamage(HitCharacter, Damage * HitInfo.HitCount, InstigatorController, this, UDamageType::StaticClass());
+						UGameplayStatics::ApplyDamage(HitCharacter, DamageToCause * HitInfo.HitCount, InstigatorController, this, UDamageType::StaticClass());
 					}	
 				}
 			}	
@@ -148,7 +168,7 @@ void AShotgun::ShotgunFire(const TArray<FVector_NetQuantize>& HitTargets)
 					
 					// Play HitReact Montage
 					const FHitInfo& HitInfo = HitPair.Value;
-					HitCharacter->SetLastHitNormal(HitInfo.ImpactNormal);
+					HitCharacter->SetLastHitNormal(HitInfo.FireHit.ImpactNormal);
 				}
 			}
 
@@ -198,12 +218,12 @@ void AShotgun::ShotgunServerScoreRequest_Implementation(const TArray<ALBlasterCh
 			float TotalDamage = 0.f;
 			if (Confirm.HeadShots.Contains(HitCharacter))
 			{
-				const float HeadShotDamage = Confirm.HeadShots[HitCharacter] * DamageCauser->GetDamage() * DamageCauser->GetHeadshotMultiplier();
+				const float HeadShotDamage = DamageCauser->GetDamage() * GetDamageFallOffMultiplier(Confirm.HeadShots[HitCharacter].HitDistanceMeter) * DamageCauser->GetHeadshotMultiplier() * Confirm.HeadShots[HitCharacter].HitCount;
 				TotalDamage += HeadShotDamage;
 			}
 			if (Confirm.BodyShots.Contains(HitCharacter))
 			{
-				const float BodyShotDamage = Confirm.BodyShots[HitCharacter] * DamageCauser->GetDamage();
+				const float BodyShotDamage = DamageCauser->GetDamage() * GetDamageFallOffMultiplier(Confirm.BodyShots[HitCharacter].HitDistanceMeter) * Confirm.BodyShots[HitCharacter].HitCount;
 				TotalDamage += BodyShotDamage;
 			}
 

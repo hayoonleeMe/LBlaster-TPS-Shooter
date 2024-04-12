@@ -9,7 +9,8 @@
 struct FHitInfo
 {
 	uint32 HitCount;
-	FVector ImpactNormal;
+	FHitResult FireHit;
+	float HitDistanceMeter;
 };
 
 /**

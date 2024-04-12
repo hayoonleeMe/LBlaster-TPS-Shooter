@@ -163,6 +163,11 @@ void AWeapon::SpendRound()
 	AddAmmo(-1);
 }
 
+void AWeapon::CallServerScoreRequest(ALBlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize100& InitialVelocity,
+	float HitTime, float InDamage, float InHeadshotMultiplier, float InProjectileGravityScale)
+{
+}
+
 void AWeapon::ClientUpdateAmmo_Implementation(int32 InServerAmmo)
 {
 	--AmmoSequence;
@@ -238,6 +243,16 @@ void AWeapon::EnableCustomDepth(bool bEnable) const
 	{
 		WeaponMesh->SetRenderCustomDepth(bEnable);
 	}
+}
+
+float AWeapon::GetDamageFallOffMultiplier(float InDistance) const
+{
+	if (DamageFallOffCurve)
+	{
+		LB_SUBLOG(LogLB, Warning, TEXT("value %f"), DamageFallOffCurve->GetFloatValue(InDistance));
+		return DamageFallOffCurve->GetFloatValue(InDistance);
+	}
+	return 0.f;
 }
 
 void AWeapon::BeginPlay()

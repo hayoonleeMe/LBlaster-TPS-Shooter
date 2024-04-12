@@ -4,6 +4,7 @@
 #include "Weapon/Projectile.h"
 
 #include "LBlaster.h"
+#include "Weapon.h"
 #include "Character/LBlasterCharacter.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
@@ -52,18 +53,18 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimi
 	Destroy();
 }
 
-bool AProjectile::IsValidOwnerCharacter()
+bool AProjectile::IsValidOwnerWeapon()
 {
-	if (!OwnerCharacter && GetOwner())
+	if (!OwnerWeapon && GetOwner())
 	{
-		OwnerCharacter = Cast<ALBlasterCharacter>(GetOwner());
+		OwnerWeapon = Cast<AWeapon>(GetOwner());
 	}
-	return OwnerCharacter != nullptr;
+	return OwnerWeapon != nullptr;
 }
 
 bool AProjectile::IsValidOwnerController()
 {
-	if (!OwnerController && IsValidOwnerCharacter() && OwnerCharacter->GetController())
+	if (!OwnerController && OwnerCharacter && OwnerCharacter->GetController())
 	{
 		OwnerController = Cast<ALBlasterPlayerController>(OwnerCharacter->GetController());
 	}

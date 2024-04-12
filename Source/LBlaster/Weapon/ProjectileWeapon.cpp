@@ -28,29 +28,38 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 	if (const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(TEXT("MuzzleFlash")))
 	{
 		const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
-		const FVector ToTarget = HitTarget - SocketTransform.GetLocation();
+		const FVector TraceStart = SocketTransform.GetLocation();
+		const FVector ToTarget = HitTarget - TraceStart;
 		const FRotator TargetRotation = ToTarget.Rotation();
 
 		if (UWorld* World = GetWorld(); APawn* InstigatorPawn = Cast<APawn>(GetOwner()))
 		{
-			const FTransform ProjectileTransform(TargetRotation, SocketTransform.GetLocation());
+			const FTransform ProjectileTransform(TargetRotation, TraceStart);
 			if (OwnerCharacter->HasAuthority())
 			{
 				// not-replicated
-				AProjectile* Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, ProjectileTransform, GetOwner(), InstigatorPawn);
+				AProjectile* Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, ProjectileTransform, this, InstigatorPawn);
 				Projectile->SetDamage(Damage, HeadshotMultiplier);
+				Projectile->SetOwnerCharacter(OwnerCharacter);
 				Projectile->FinishSpawning(ProjectileTransform);
 				Projectile->SetReplicatesPostInit(false);
 			}
 			else
 			{
 				// not-replicated
-				AProjectile* Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, ProjectileTransform, GetOwner(), InstigatorPawn);
+				AProjectile* Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, ProjectileTransform, this, InstigatorPawn);
 				Projectile->SetDamage(Damage, HeadshotMultiplier);
+				Projectile->SetOwnerCharacter(OwnerCharacter);
 				Projectile->FinishSpawning(ProjectileTransform);
 			}
 		}
 	}
+}
+
+void AProjectileWeapon::CallServerScoreRequest(ALBlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart,
+	const FVector_NetQuantize100& InitialVelocity, float HitTime, float InDamage, float InHeadshotMultiplier, float InProjectileGravityScale)
+{
+	ServerScoreRequest(HitCharacter, TraceStart, InitialVelocity, HitTime, InDamage, InHeadshotMultiplier, InProjectileGravityScale);
 }
 
 void AProjectileWeapon::ServerScoreRequest_Implementation(ALBlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize100& InitialVelocity, float HitTime, float InDamage, float InHeadshotMultiplier, float InProjectileGravityScale)
@@ -63,7 +72,7 @@ void AProjectileWeapon::ServerScoreRequest_Implementation(ALBlasterCharacter* Hi
 			// Play HitReact Montage
 			HitCharacter->SetLastHitNormal(Confirm.ImpactNormal);
 
-			float DamageToCause = InDamage;
+			float DamageToCause = InDamage * GetDamageFallOffMultiplier(Confirm.HitDistanceMeter);
 			if (Confirm.bHeadShot)
 			{
 				DamageToCause *= InHeadshotMultiplier;
