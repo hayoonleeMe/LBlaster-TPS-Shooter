@@ -43,7 +43,7 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 
 			// Impact Effect
 			SpawnImpactEffects(World, FireHit);
-			
+
 			if (ALBlasterCharacter* HitCharacter = Cast<ALBlasterCharacter>(FireHit.GetActor()))
 			{
 				// Play HitReact Montage
@@ -54,8 +54,8 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 				{
 					if (AController* InstigatorController = OwnerCharacter->GetController())
 					{
-						// Headshot
-						float DamageToCause = Damage;
+						const float HitDistanceMeter = (FireHit.ImpactPoint - TraceStart).Length() / 100.f;
+						float DamageToCause = Damage * GetDamageFallOffMultiplier(HitDistanceMeter);
 						if (FireHit.BoneName.ToString() == FString(TEXT("head")))
 						{
 							DamageToCause *= HeadshotMultiplier;
@@ -106,7 +106,7 @@ void AHitScanWeapon::ServerScoreRequest_Implementation(ALBlasterCharacter* HitCh
 		const FServerSideRewindResult Confirm = OwnerCharacter->GetLagCompensationComponent()->ServerSideRewind(HitCharacter, TraceStart, HitLocation, HitTime);
 		if (Confirm.bHitConfirmed && DamageCauser && OwnerCharacter->GetController())
 		{
-			float DamageToCause = DamageCauser->GetDamage();
+			float DamageToCause = DamageCauser->GetDamage() * GetDamageFallOffMultiplier(Confirm.HitDistanceMeter);
 			if (Confirm.bHeadShot)
 			{
 				DamageToCause *= DamageCauser->GetHeadshotMultiplier();

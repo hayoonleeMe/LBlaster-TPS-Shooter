@@ -216,7 +216,10 @@ FServerSideRewindResult ULagCompensationComponent::ConfirmHit(const FFramePackag
 		{
 			ResetHitBoxes(HitCharacter, CurrentFrame);
 			EnableCharacterMeshCollision(HitCharacter, ECollisionEnabled::QueryAndPhysics);
-			return FServerSideRewindResult{ true, true };
+			const float HitDistanceMeter = (ConfirmHitResult.ImpactPoint - TraceStart).Length() / 100.f;
+			FServerSideRewindResult ResultToReturn{ true, true };
+			ResultToReturn.HitDistanceMeter = HitDistanceMeter;
+			return ResultToReturn;
 		}
 		// 다른 박스 체크
 		else
@@ -235,7 +238,10 @@ FServerSideRewindResult ULagCompensationComponent::ConfirmHit(const FFramePackag
 			{
 				ResetHitBoxes(HitCharacter, CurrentFrame);
 				EnableCharacterMeshCollision(HitCharacter, ECollisionEnabled::QueryAndPhysics);
-				return FServerSideRewindResult{ true, false };
+				const float HitDistanceMeter = (ConfirmHitResult.ImpactPoint - TraceStart).Length() / 100.f;
+				FServerSideRewindResult ResultToReturn{ true, false };
+				ResultToReturn.HitDistanceMeter = HitDistanceMeter;
+				return ResultToReturn;
 			}
 		}
 	}
@@ -293,18 +299,18 @@ FShotgunServerSideRewindResult ULagCompensationComponent::ShotgunConfirmHit(cons
 			FHitResult ConfirmHitResult;
 			World->LineTraceSingleByChannel(ConfirmHitResult, TraceStart, TraceEnd, ECC_HitBox);
 
-			// hit head
 			if (ConfirmHitResult.bBlockingHit && ConfirmHitResult.GetActor())
 			{
 				if (ALBlasterCharacter* HitCharacter = Cast<ALBlasterCharacter>(ConfirmHitResult.GetActor()))
 				{
 					if (ShotgunResult.HeadShots.Contains(HitCharacter))
 					{
-						++ShotgunResult.HeadShots[HitCharacter];
+						++ShotgunResult.HeadShots[HitCharacter].HitCount;
 					}
 					else
 					{
-						ShotgunResult.HeadShots.Emplace(HitCharacter, 1);
+						const float HitDistanceMeter = (ConfirmHitResult.ImpactPoint - TraceStart).Length() / 100.f;
+						ShotgunResult.HeadShots.Emplace(HitCharacter, { 1, HitDistanceMeter });
 					}
 				}
 			}
@@ -338,18 +344,18 @@ FShotgunServerSideRewindResult ULagCompensationComponent::ShotgunConfirmHit(cons
 			FHitResult ConfirmHitResult;
 			World->LineTraceSingleByChannel(ConfirmHitResult, TraceStart, TraceEnd, ECC_HitBox);
 
-			// hit head
 			if (ConfirmHitResult.bBlockingHit && ConfirmHitResult.GetActor())
 			{
 				if (ALBlasterCharacter* HitCharacter = Cast<ALBlasterCharacter>(ConfirmHitResult.GetActor()))
 				{
 					if (ShotgunResult.BodyShots.Contains(HitCharacter))
 					{
-						++ShotgunResult.BodyShots[HitCharacter];
+						++ShotgunResult.BodyShots[HitCharacter].HitCount;
 					}
 					else
 					{
-						ShotgunResult.BodyShots.Emplace(HitCharacter, 1);
+						const float HitDistanceMeter = (ConfirmHitResult.ImpactPoint - TraceStart).Length() / 100.f;
+						ShotgunResult.BodyShots.Emplace(HitCharacter, { 1, HitDistanceMeter });
 					}
 				}
 			}
@@ -405,7 +411,8 @@ FServerSideRewindResult ULagCompensationComponent::ProjectileConfirmHit(const FF
 	{
 		ResetHitBoxes(HitCharacter, CurrentFrame);
 		EnableCharacterMeshCollision(HitCharacter, ECollisionEnabled::QueryAndPhysics);
-		return FServerSideRewindResult{ true, true, PathResult.HitResult.ImpactNormal };
+		const float HitDistanceMeter = (PathResult.HitResult.ImpactPoint - TraceStart).Length() / 100.f;
+		return FServerSideRewindResult{ true, true, PathResult.HitResult.ImpactNormal, HitDistanceMeter };
 	}
 	
 	// 다른 박스 체크
@@ -423,7 +430,8 @@ FServerSideRewindResult ULagCompensationComponent::ProjectileConfirmHit(const FF
 	{
 		ResetHitBoxes(HitCharacter, CurrentFrame);
 		EnableCharacterMeshCollision(HitCharacter, ECollisionEnabled::QueryAndPhysics);
-		return FServerSideRewindResult{ true, false, PathResult.HitResult.ImpactNormal };
+		const float HitDistanceMeter = (PathResult.HitResult.ImpactPoint - TraceStart).Length() / 100.f;
+		return FServerSideRewindResult{ true, false, PathResult.HitResult.ImpactNormal, HitDistanceMeter };
 	}
 
 	ResetHitBoxes(HitCharacter, CurrentFrame);

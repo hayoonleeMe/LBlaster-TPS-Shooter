@@ -46,6 +46,9 @@ public:
 	void Dropped();
 	void Holstered();
 	void EnableCustomDepth(bool bEnable) const;
+	float GetDamageFallOffMultiplier(float InDistance) const;
+
+	virtual void CallServerScoreRequest(class ALBlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize100& InitialVelocity, float HitTime, float InDamage, float InHeadshotMultiplier, float InProjectileGravityScale);
 
 protected:
 	virtual void BeginPlay() override;

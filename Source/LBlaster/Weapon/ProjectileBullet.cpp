@@ -4,13 +4,13 @@
 #include "Weapon/ProjectileBullet.h"
 
 #include "LBlaster.h"
+#include "Weapon.h"
 #include "Character/LBlasterCharacter.h"
 #include "Component/LagCompensationComponent.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/LBlasterPlayerController.h"
-#include "Weapon/ProjectileWeapon.h"
 
 AProjectileBullet::AProjectileBullet()
 {
@@ -28,7 +28,7 @@ AProjectileBullet::AProjectileBullet()
 
 void AProjectileBullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (!IsValidOwnerCharacter() || !OtherActor)
+	if (!OwnerCharacter || !IsValidOwnerWeapon() || !OtherActor)
 	{
 		return;
 	}
@@ -48,8 +48,9 @@ void AProjectileBullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 		{
 			if (AController* InstigatorController = OwnerCharacter->GetController())
 			{
-				// Headshot
-				float DamageToCause = Damage;
+				const float HitDistanceMeter = (Hit.ImpactPoint - TraceStart).Length() / 100.f;
+				float DamageToCause = Damage * OwnerWeapon->GetDamageFallOffMultiplier(HitDistanceMeter);
+				
 				if (Hit.BoneName.ToString() == FString(TEXT("head")))
 				{
 					DamageToCause *= HeadshotMultiplier;
@@ -60,13 +61,10 @@ void AProjectileBullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 		else if (!OwnerCharacter->HasAuthority() && OwnerCharacter->IsLocallyControlled() && OwnerCharacter->IsServerSideRewindEnabled())
 		{
 			// Apply Damage With Server-Side Rewind
-			if (IsValidOwnerController() && OwnerCharacter->GetEquippingWeapon())
+			if (IsValidOwnerController())
 			{
-				if (AProjectileWeapon* ProjectileWeapon = Cast<AProjectileWeapon>(OwnerCharacter->GetEquippingWeapon()))
-				{
-					const float HitTime = OwnerController->GetServerTime() - OwnerController->GetSingleTripTime();
-					ProjectileWeapon->ServerScoreRequest(HitCharacter, TraceStart, InitialVelocity, HitTime, GetDamage(), HeadshotMultiplier, GetProjectileGravityScale());	
-				}
+				const float HitTime = OwnerController->GetServerTime() - OwnerController->GetSingleTripTime();
+				OwnerWeapon->CallServerScoreRequest(HitCharacter, TraceStart, InitialVelocity, HitTime, GetDamage(), HeadshotMultiplier, GetProjectileGravityScale());
 			}
 		}
 	}
