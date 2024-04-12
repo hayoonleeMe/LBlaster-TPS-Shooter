@@ -212,6 +212,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category="LBlaster|Attach Transform")
 	FTransform AttachTransform;
 	
+	/*
+	 *	Damage FallOff
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Damage FallOff")
+	TObjectPtr<UCurveFloat> DamageFallOffCurve;
+	
 public:
 	/*
 	 *	Crosshair
