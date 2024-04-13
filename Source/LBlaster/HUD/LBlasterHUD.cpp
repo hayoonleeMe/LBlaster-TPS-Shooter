@@ -281,7 +281,7 @@ void ALBlasterHUD::InitSniperScope(const TSubclassOf<UUserWidget>& InSniperScope
 	if (IsValidOwnerController())
 	{
 		SniperScope = CreateWidget<USniperScope>(OwnerController, InSniperScopeClass);
-		SniperScope->AddToViewport();
+		SniperScope->AddToViewport(-999);
 		SniperScope->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
@@ -293,20 +293,12 @@ void ALBlasterHUD::ShowSniperScopeWidget(bool bShowScope)
 		if (bShowScope)
 		{
 			bEnableCrosshair = false;
-			if (CharacterOverlay)
-			{
-				CharacterOverlay->SetVisibility(ESlateVisibility::Hidden);
-			}
 			SniperScope->SetVisibility(ESlateVisibility::Visible);
 			SniperScope->ShowSniperScopeWidget();
 		}
 		else
 		{
 			bEnableCrosshair = true;
-			if (CharacterOverlay)
-			{
-				CharacterOverlay->SetVisibility(ESlateVisibility::Visible);
-			}
 			SniperScope->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
