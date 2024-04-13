@@ -81,7 +81,7 @@ UCombatComponent::UCombatComponent()
 
 	/* Grenade */
 	MaxGrenadeAmount = 4;
-	GrenadeAmount = 4;
+	GrenadeAmount = MaxGrenadeAmount;
 }
 
 void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -641,18 +641,7 @@ void UCombatComponent::OnRep_CombatState()
 
 void UCombatComponent::ServerLaunchGrenade_Implementation(const FVector_NetQuantize& HitTarget)
 {
-	if (IsValidOwnerCharacter() && OwnerCharacter->HasAuthority() && GrenadeClass && OwnerCharacter->GetAttachedGrenade())
-	{
-		const FVector StartingLocation = OwnerCharacter->GetAttachedGrenade()->GetComponentLocation();
-		const FVector ToTarget = HitTarget - StartingLocation;
-
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.Owner = SpawnParams.Instigator = OwnerCharacter;
-		if (UWorld* World = GetWorld())
-		{
-			World->SpawnActor<AProjectile>(GrenadeClass, StartingLocation, ToTarget.Rotation(), SpawnParams);
-		}
-	}
+	MulticastLaunchGrenade(HitTarget);
 }
 
 void UCombatComponent::UpdateHUDGrenadeAmount()
@@ -763,6 +752,38 @@ void UCombatComponent::ServerTossGrenade_Implementation()
 	HandleUnEquipBeforeTossGrenade();
 }
 
+void UCombatComponent::MulticastLaunchGrenade_Implementation(const FVector_NetQuantize& HitTarget)
+{
+	if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled())
+	{
+		return;
+	}
+
+	LocalLaunchGrenade(HitTarget);
+}
+
+void UCombatComponent::LocalLaunchGrenade(const FVector_NetQuantize& HitTarget)
+{
+	if (IsValidOwnerCharacter() && OwnerCharacter->GetAttachedGrenade() && GrenadeClass)
+	{
+		const FVector StartingLocation = OwnerCharacter->GetAttachedGrenade()->GetComponentLocation();
+		const FVector ToTarget = HitTarget - StartingLocation;
+
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = SpawnParams.Instigator = OwnerCharacter;
+
+		if (UWorld* World = GetWorld())
+		{
+			AProjectile* Projectile = World->SpawnActor<AProjectile>(GrenadeClass, StartingLocation, ToTarget.Rotation(), SpawnParams);
+			
+			if (OwnerCharacter->HasAuthority())
+			{
+				Projectile->SetReplicatesPostInit(false);
+			}
+		}
+	}
+}
+
 void UCombatComponent::HandleTossGrenade()
 {
 	if (IsValidOwnerCharacter() && TossGrenadeMontage)
@@ -837,6 +858,7 @@ void UCombatComponent::LaunchGrenade()
 
 	if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled())
 	{
+		LocalLaunchGrenade(TraceHitTarget);
 		ServerLaunchGrenade(TraceHitTarget);	
 	}
 }

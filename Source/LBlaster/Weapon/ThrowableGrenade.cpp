@@ -11,10 +11,15 @@ AThrowableGrenade::AThrowableGrenade()
 	DestroyTime = 2.5f;
 
 	/* Projectile Movement */
-	ProjectileMovementComponent->ProjectileGravityScale = 1.3f;
-	ProjectileMovementComponent->Bounciness = 0.4f;
-	ProjectileMovementComponent->Friction = 0.3f;
+	ProjectileMovementComponent->Velocity.Z = 0.3f;
+	ProjectileMovementComponent->ProjectileGravityScale = 1.2f;
+	ProjectileMovementComponent->Bounciness = 0.5f;
+	ProjectileMovementComponent->Friction = 0.5f;
 
+	/* Explosive Damage */
+	DamageInnerRadius = 300.f;
+	DamageOuterRadius = 600.f;
+	
 	/* ThrowableGrenade */
 	DamageExposure = 120.f;
 }

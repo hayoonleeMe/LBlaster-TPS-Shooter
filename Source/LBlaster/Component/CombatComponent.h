@@ -299,6 +299,10 @@ private:
 	UFUNCTION(Server, Reliable)
 	void ServerLaunchGrenade(const FVector_NetQuantize& HitTarget);
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastLaunchGrenade(const FVector_NetQuantize& HitTarget);
+
+	void LocalLaunchGrenade(const FVector_NetQuantize& HitTarget);
 	void HandleTossGrenade();
 	void HandleUnEquipBeforeTossGrenade();
 	void ShowAttachedGrenade(bool bShow);
