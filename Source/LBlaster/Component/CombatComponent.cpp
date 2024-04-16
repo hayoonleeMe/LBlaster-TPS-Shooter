@@ -850,6 +850,9 @@ void UCombatComponent::TossGrenadeFinished()
 	{
 		OwnerCharacter->PlayEquipMontage(GetEquipMontage(GetEquippingWeapon()->GetWeaponType()));
 	}
+
+	const EWeaponType WeaponType = GetEquippingWeapon() ? GetEquippingWeapon()->GetWeaponType() : EWeaponType::EWT_Unarmed;
+	HandleEquip(WeaponType);
 }
 
 void UCombatComponent::LaunchGrenade()
@@ -1044,6 +1047,14 @@ void UCombatComponent::AttachWeapon()
 	}
 }
 
+void UCombatComponent::HandleEquip(EWeaponType InWeaponType)
+{
+	if (IsValidOwnerCharacter())
+	{
+		OwnerCharacter->PlayEquipMontage(GetEquipMontage(InWeaponType));
+	}
+}
+
 void UCombatComponent::SetEquippingWeapon(AWeapon* InWeapon)
 {
 	EquipSlots[static_cast<uint8>(EquipSlotType)] = InWeapon;
@@ -1139,6 +1150,7 @@ void UCombatComponent::EquipWeapon(AWeapon* InWeapon)
 			
 			AttachWeapon();
 			OwnerCharacter->SetWeaponAnimLayers(GetEquippingWeapon()->GetWeaponType(), GetEquippingWeapon()->GetWeaponAnimLayer());
+			HandleEquip(GetEquippingWeapon()->GetWeaponType());
 			UGameplayStatics::PlaySoundAtLocation(this, GetEquippingWeapon()->GetEquipSound(), GetEquippingWeapon()->GetActorLocation());
 
 			/* ADS FOV */
@@ -1179,6 +1191,7 @@ void UCombatComponent::OnRep_EquipSlots()
 
 			AttachWeapon();
 			OwnerCharacter->SetWeaponAnimLayers(GetEquippingWeapon()->GetWeaponType(), GetEquippingWeapon()->GetWeaponAnimLayer());
+			HandleEquip(GetEquippingWeapon()->GetWeaponType());
 			UGameplayStatics::PlaySoundAtLocation(this, GetEquippingWeapon()->GetEquipSound(), GetEquippingWeapon()->GetActorLocation());
 
 			/* ADS FOV */
@@ -1229,6 +1242,7 @@ void UCombatComponent::MulticastSwitchToUnarmedState_Implementation(bool bSkipUn
 		if (!bSkipUnEquipMontage)
 		{
 			OwnerCharacter->SetWeaponAnimLayers(EWeaponType::EWT_Unarmed);
+			HandleEquip(EWeaponType::EWT_Unarmed);
 		}
 	}
 }
