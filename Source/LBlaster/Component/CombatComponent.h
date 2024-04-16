@@ -41,7 +41,6 @@ public:
 	UAnimMontage* SelectHitReactMontage(const FVector& HitNormal);
 	UAnimMontage* SelectDeathMontage(const FVector& HitNormal);
 	UAnimMontage* SelectReloadMontage();
-	UAnimMontage* GetEquipMontage(EWeaponType InWeaponType);
 	void DropWeapon();
 	void ElimWeapon();
 	void Reload();
@@ -94,6 +93,9 @@ private:
 
 	static FString GetWeaponTypeString(EWeaponType InWeaponType = EWeaponType::EWT_Unarmed);
 	void AttachWeapon();
+
+	void HandleEquip(EWeaponType InWeaponType);
+	UAnimMontage* GetEquipMontage(EWeaponType InWeaponType);
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Weapon")
 	TSubclassOf<AWeapon> DefaultWeaponClass;

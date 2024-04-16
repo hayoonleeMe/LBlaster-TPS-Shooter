@@ -389,14 +389,6 @@ void ALBlasterCharacter::SetWeaponAnimLayers(EWeaponType InWeaponType, TSubclass
 	{
 		GetMesh()->LinkAnimClassLayers(InWeaponAnimLayer);
 	}
-	
-	if (CombatComponent)
-	{
-		if (UAnimMontage* MontageToPlay = CombatComponent->GetEquipMontage(InWeaponType))
-		{
-			PlayEquipMontage(MontageToPlay);
-		}
-	}
 }
 
 void ALBlasterCharacter::PlayFireMontage(UAnimMontage* InFireMontage)
