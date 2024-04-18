@@ -6,6 +6,7 @@
 #include "LBlaster.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Button.h"
+#include "Components/EditableText.h"
 #include "Components/TextBlock.h"
 #include "Components/WidgetSwitcher.h"
 
@@ -47,6 +48,7 @@ void UOptionSelector::InitializeOptions()
 			Switcher->AddChild(TextBlock);
 		}
 	}
+	Switcher->SetActiveWidgetIndex(InitialIndex);
 }
 
 void UOptionSelector::SelectRightOption()

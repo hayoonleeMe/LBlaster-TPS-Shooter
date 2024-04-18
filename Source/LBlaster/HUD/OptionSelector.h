@@ -31,6 +31,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LBlaster", meta=(AllowPrivateAccess="true"))
 	TArray<FString> Options;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LBlaster", meta=(AllowPrivateAccess="true"))
+	int32 InitialIndex;
+
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UWidgetSwitcher> Switcher;
 
