@@ -38,9 +38,9 @@ void UChatBox::ExitChatEdit()
 
 void UChatBox::AddChatMessage(const FText& InText)
 {
-	if (ScrollBox && ChatEntryClass && IsValidPlayerController())
+	if (ScrollBox && ChatEntryClass && IsValidOwnerController())
 	{
-		if (UChatEntry* ChatEntry = CreateWidget<UChatEntry>(PlayerController, ChatEntryClass))
+		if (UChatEntry* ChatEntry = CreateWidget<UChatEntry>(OwnerController, ChatEntryClass))
 		{
 			ChatEntry->SetChatEntryText(InText);
 			ScrollBox->AddChild(ChatEntry);
@@ -76,15 +76,6 @@ void UChatBox::NativeConstruct()
 	}
 }
 
-bool UChatBox::IsValidPlayerController()
-{
-	if (!PlayerController && GetWorld())
-	{
-		PlayerController = GetWorld()->GetFirstPlayerController<ALBlasterPlayerController>();
-	}
-	return PlayerController != nullptr;
-}
-
 void UChatBox::StartChatBoxFadeOutTimer()
 {
 	// Wait Time을 기다리고 Fade Out 애니메이션 재생
@@ -102,19 +93,19 @@ void UChatBox::StartChatBoxFadeOutTimer()
 
 void UChatBox::OnTextCommitted(const FText& Text, ETextCommit::Type CommitMethod)
 {
-	if (!IsValidPlayerController())
+	if (!IsValidOwnerController())
 	{
 		return;
 	}
 	
 	if (CommitMethod == ETextCommit::OnEnter && !Text.IsEmpty())
 	{
-		if (APlayerState* PlayerState = PlayerController->GetPlayerState<APlayerState>())
+		if (APlayerState* PlayerState = OwnerController->GetPlayerState<APlayerState>())
 		{
 			const FText ChatText = FText::FromString(FString::Printf(TEXT("%s : %s"), *PlayerState->GetPlayerName(), *Text.ToString()));
-			PlayerController->ServerSendChatText(ChatText);
+			OwnerController->ServerSendChatText(ChatText);
 		}
 	}
 	ExitChatEdit();
-	PlayerController->SetInputMode(FInputModeGameOnly());
+	OwnerController->SetInputMode(FInputModeGameOnly());
 }

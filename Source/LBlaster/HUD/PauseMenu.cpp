@@ -3,6 +3,8 @@
 
 #include "HUD/PauseMenu.h"
 
+#include "LBlasterHUD.h"
+#include "SettingMenu.h"
 #include "../../../Plugins/MultiplayerSessions/Source/MultiplayerSessions/Public/MultiplayerSessionsSubsystem.h"
 #include "Character/LBlasterCharacter.h"
 #include "Components/Button.h"
@@ -11,17 +13,15 @@
 
 void UPauseMenu::MenuSetup()
 {
-	AddToViewport();
-	SetVisibility(ESlateVisibility::Visible);
-	SetIsFocusable(true);
+	Super::MenuSetup();
 
-	if (IsValidPlayerController())
+	if (IsValidOwnerController())
 	{
-		PlayerController->EnablePauseMenuMappingContext();
+		OwnerController->EnablePauseMenuMappingContext();
 		FInputModeGameAndUI InputModeData;
 		InputModeData.SetWidgetToFocus(TakeWidget());
-		PlayerController->SetInputMode(InputModeData);
-		PlayerController->SetShowMouseCursor(true);
+		OwnerController->SetInputMode(InputModeData);
+		OwnerController->SetShowMouseCursor(true);
 	}
 
 	/* Main Menu Button */
@@ -44,17 +44,23 @@ void UPauseMenu::MenuSetup()
 	{
 		ResumeButton->OnClicked.AddDynamic(this, &ThisClass::ResumeButtonClicked);
 	}
+
+	/* Setting Button */
+	if (SettingButton && !SettingButton->OnClicked.IsBound())
+	{
+		SettingButton->OnClicked.AddDynamic(this, &ThisClass::SettingButtonClicked);
+	}
 }
 
 void UPauseMenu::MenuTearDown()
 {
-	RemoveFromParent();
-
-	if (IsValidPlayerController())
+	Super::MenuTearDown();
+	
+	if (IsValidOwnerController())
 	{
-		PlayerController->DisablePauseMenuMappingContext();
-		PlayerController->SetInputMode(FInputModeGameOnly());
-		PlayerController->SetShowMouseCursor(false);
+		OwnerController->DisablePauseMenuMappingContext();
+		OwnerController->SetInputMode(FInputModeGameOnly());
+		OwnerController->SetShowMouseCursor(false);
 	}
 }
 
@@ -77,9 +83,9 @@ void UPauseMenu::OnDestroySession(bool bWasSuccessful)
 		// Client
 		else
 		{
-			if (IsValidPlayerController())
+			if (IsValidOwnerController())
 			{
-				PlayerController->ClientReturnToMainMenuWithTextReason(FText());
+				OwnerController->ClientReturnToMainMenuWithTextReason(FText());
 			}
 		}
 	}
@@ -93,22 +99,13 @@ void UPauseMenu::OnPlayerLeftGame()
 	}
 }
 
-bool UPauseMenu::IsValidPlayerController()
-{
-	if (!PlayerController && GetWorld())
-	{
-		PlayerController = GetWorld()->GetFirstPlayerController<ALBlasterPlayerController>();
-	}
-	return PlayerController != nullptr;
-}
-
 void UPauseMenu::MainMenuButtonClicked()
 {
 	MainMenuButton->SetIsEnabled(false);
 
-	if (IsValidPlayerController())
+	if (IsValidOwnerController())
 	{
-		if (ALBlasterCharacter* LBCharacter = Cast<ALBlasterCharacter>(PlayerController->GetCharacter()))
+		if (ALBlasterCharacter* LBCharacter = Cast<ALBlasterCharacter>(OwnerController->GetCharacter()))
 		{
 			LBCharacter->OnLeftGame.AddUObject(this, &ThisClass::OnPlayerLeftGame);
 			LBCharacter->ServerLeaveGame();
@@ -124,4 +121,12 @@ void UPauseMenu::MainMenuButtonClicked()
 void UPauseMenu::ResumeButtonClicked()
 {
 	MenuTearDown();
+}
+
+void UPauseMenu::SettingButtonClicked()
+{
+	if (IsValidHUD())
+	{
+		LBlasterHUD->CreateSettingMenu();
+	}
 }

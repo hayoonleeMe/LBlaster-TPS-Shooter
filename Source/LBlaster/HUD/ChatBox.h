@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "LBlasterUserWidget.h"
 #include "ChatBox.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class LBLASTER_API UChatBox : public UUserWidget
+class LBLASTER_API UChatBox : public ULBlasterUserWidget
 {
 	GENERATED_BODY()
 
@@ -27,14 +27,6 @@ protected:
 	virtual void NativeConstruct() override;
 
 private:
-	/*
-	 *	Owner
-	 */
-	UPROPERTY()
-	TObjectPtr<class ALBlasterPlayerController> PlayerController;
-
-	bool IsValidPlayerController();
-
 	/*
 	 *	Chat
 	 */
