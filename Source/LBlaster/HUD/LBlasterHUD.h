@@ -73,6 +73,10 @@ public:
 	void ScrollChatBox(float InScrollValue) const;
 	void SetWeaponSlotIcon(EEquipSlot InEquipSlot, EWeaponType InWeaponType) const;
 	void ChooseWeaponSlot(EEquipSlot InEquipSlot) const;
+	void ReturnMenu();
+	
+	void CreateSettingMenu();
+	void CreateGraphicSettingMenu();
 
 protected:
 	virtual void PostInitializeComponents() override;
@@ -123,17 +127,6 @@ private:
 	TObjectPtr<class UAnnouncement> Announcement;
 
 	/*
-	 *	Pause Menu
-	 */
-	UPROPERTY(EditAnywhere, Category="LBlaster|Pause Menu")
-	TSubclassOf<UUserWidget> PauseMenuClass;
-
-	UPROPERTY()
-	TObjectPtr<class UPauseMenu> PauseMenu;
-
-	bool bShowedPauseMenu = false;
-
-	/*
 	 *	Elim Announcement
 	 */
 	UPROPERTY(EditAnywhere, Category="LBlaster|Elim Announcement")
@@ -156,4 +149,37 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UChatUI> ChatUI;
+
+	/*
+	 *	Pause Menu
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Pause Menu")
+	TSubclassOf<UUserWidget> PauseMenuClass;
+
+	UPROPERTY()
+	TObjectPtr<class UPauseMenu> PauseMenu;
+
+	bool bShowedPauseMenu = false;
+
+	TArray<class ULBlasterUserWidget*> MenuStack;
+
+	void AddNewMenuToStack(ULBlasterUserWidget* InNewMenu);
+	
+	/*
+	 *	Setting Menu
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Setting")
+	TSubclassOf<class USettingMenu> SettingMenuClass;
+
+	UPROPERTY()
+	TObjectPtr<USettingMenu> SettingMenu;
+
+	/*
+	 *	Graphic Setting Menu
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Setting")
+	TSubclassOf<class UGraphicSettingMenu> GraphicSettingMenuClass;
+
+	UPROPERTY()
+	TObjectPtr<UGraphicSettingMenu> GraphicSettingMenu;
 };

@@ -46,6 +46,8 @@ public:
 
 	void EnablePauseMenuMappingContext() const;
 	void DisablePauseMenuMappingContext() const;
+	void EnableMenuMappingContext() const;
+	void DisableMenuMappingContext() const;
 
 	void BroadcastElim(APlayerState* AttackerState, APlayerState* VictimState);
 	void BroadcastChatText(const FText& InText);
@@ -67,6 +69,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
 	TObjectPtr<UInputMappingContext> PauseMenuMappingContext;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
+	TObjectPtr<UInputMappingContext> MenuMappingContext;
 	
 	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
 	TObjectPtr<class UInputAction> PauseMenuAction;
@@ -77,9 +82,13 @@ protected:
 	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
 	TObjectPtr<UInputAction> ChatScrollAction;
 
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
+	TObjectPtr<UInputAction> ReturnMenuAction;
+
 	void ShowPauseMenu();
 	void FocusChat();
 	void ChatScroll(const FInputActionValue& ActionValue);
+	void ReturnMenu();
 
 protected:
 	virtual void BeginPlay() override;

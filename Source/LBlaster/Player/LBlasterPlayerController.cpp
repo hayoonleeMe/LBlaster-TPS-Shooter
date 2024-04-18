@@ -38,6 +38,12 @@ ALBlasterPlayerController::ALBlasterPlayerController()
 	{
 		PauseMenuMappingContext = PauseMenuMappingContextRef.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<UInputMappingContext> MenuMappingContextRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/LBlaster/Core/Inputs/IMC_MenuContext.IMC_MenuContext'"));
+	if (MenuMappingContextRef.Object)
+	{
+		MenuMappingContext = MenuMappingContextRef.Object;
+	}
 	
 	static ConstructorHelpers::FObjectFinder<UInputAction> PauseMenuActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_PauseMenu.IA_PauseMenu'"));
 	if (PauseMenuActionRef.Object)
@@ -55,6 +61,12 @@ ALBlasterPlayerController::ALBlasterPlayerController()
 	if (ChatScrollActionRef.Object)
 	{
 		ChatScrollAction = ChatScrollActionRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> ReturnMenuActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_ReturnMenu.IA_ReturnMenu'"));
+	if (ReturnMenuActionRef.Object)
+	{
+		ReturnMenuAction = ReturnMenuActionRef.Object;
 	}
 }
 
@@ -74,6 +86,7 @@ void ALBlasterPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(PauseMenuAction, ETriggerEvent::Triggered, this, &ThisClass::ShowPauseMenu);
 	EnhancedInputComponent->BindAction(FocusChatAction, ETriggerEvent::Triggered, this, &ThisClass::FocusChat);
 	EnhancedInputComponent->BindAction(ChatScrollAction, ETriggerEvent::Triggered, this, &ThisClass::ChatScroll);
+	EnhancedInputComponent->BindAction(ReturnMenuAction, ETriggerEvent::Triggered, this, &ThisClass::ReturnMenu);
 }
 
 float ALBlasterPlayerController::GetServerTime()
@@ -438,6 +451,36 @@ void ALBlasterPlayerController::DisablePauseMenuMappingContext() const
 	}
 }
 
+void ALBlasterPlayerController::EnableMenuMappingContext() const
+{
+	if (GEngine && GetWorld() && PauseMenuMappingContext && MenuMappingContext)
+	{
+		if (const ULocalPlayer* LocalPlayer = GEngine->GetFirstGamePlayer(GetWorld()))
+		{
+			if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
+			{
+				Subsystem->RemoveMappingContext(PauseMenuMappingContext);
+				Subsystem->AddMappingContext(MenuMappingContext, 0);
+			}	
+		}
+	}
+}
+
+void ALBlasterPlayerController::DisableMenuMappingContext() const
+{
+	if (GEngine && GetWorld() && PauseMenuMappingContext && MenuMappingContext)
+	{
+		if (const ULocalPlayer* LocalPlayer = GEngine->GetFirstGamePlayer(GetWorld()))
+		{
+			if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
+			{
+				Subsystem->RemoveMappingContext(MenuMappingContext);
+				Subsystem->AddMappingContext(PauseMenuMappingContext, 0);
+			}	
+		}
+	}
+}
+
 void ALBlasterPlayerController::BroadcastElim(APlayerState* AttackerState, APlayerState* VictimState)
 {
 	ClientElimAnnouncement(AttackerState, VictimState);
@@ -496,6 +539,14 @@ void ALBlasterPlayerController::ChatScroll(const FInputActionValue& ActionValue)
 	if (IsValidHUD())
 	{
 		LBlasterHUD->ScrollChatBox(ActionValue.Get<float>());
+	}
+}
+
+void ALBlasterPlayerController::ReturnMenu()
+{
+	if (IsValidHUD())
+	{
+		LBlasterHUD->ReturnMenu();
 	}
 }
 

@@ -7,8 +7,10 @@
 #include "CharacterOverlay.h"
 #include "ChatBox.h"
 #include "ElimAnnouncement.h"
+#include "GraphicSettingMenu.h"
 #include "LBlaster.h"
 #include "PauseMenu.h"
+#include "SettingMenu.h"
 #include "SniperScope.h"
 #include "Blueprint/UserWidget.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
@@ -196,6 +198,62 @@ void ALBlasterHUD::ElimAnnouncementTimerFinished(UElimAnnouncement* MessageToRem
 	}
 }
 
+void ALBlasterHUD::AddNewMenuToStack(ULBlasterUserWidget* InNewMenu)
+{
+	if (!InNewMenu)
+	{
+		return;
+	}
+	
+	// Pause Menu에서 새로운 메뉴 오픈
+	if (MenuStack.Num() == 0)
+	{
+		PauseMenu->SetVisibility(ESlateVisibility::Hidden);
+		
+		if (IsValidOwnerController())
+		{
+			OwnerController->EnableMenuMappingContext();
+		}
+	}
+	else
+	{
+		const int32 LastMenuIndex = MenuStack.Num() - 1;
+		if (MenuStack.IsValidIndex(LastMenuIndex))
+		{
+			MenuStack[LastMenuIndex]->SetVisibility(ESlateVisibility::Hidden);
+		}	
+	}
+	
+	MenuStack.Emplace(InNewMenu);
+	InNewMenu->MenuSetup();
+}
+
+void ALBlasterHUD::ReturnMenu()
+{
+	int32 LastMenuIndex = MenuStack.Num() - 1;
+	if (MenuStack.IsValidIndex(LastMenuIndex))
+	{
+		MenuStack[LastMenuIndex]->MenuTearDown();
+		MenuStack.RemoveAt(LastMenuIndex);
+		--LastMenuIndex;
+	}
+
+	// Pause Menu로 돌아감
+	if (MenuStack.Num() == 0)
+	{
+		PauseMenu->SetVisibility(ESlateVisibility::Visible);
+
+		if (IsValidOwnerController())
+		{
+			OwnerController->DisableMenuMappingContext();
+		}
+	}
+	else
+	{
+		MenuStack[LastMenuIndex]->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
 void ALBlasterHUD::AddAnnouncement()
 {
 	if (IsValidOwnerController())
@@ -375,6 +433,32 @@ void ALBlasterHUD::ChooseWeaponSlot(EEquipSlot InEquipSlot) const
 	{
 		CharacterOverlay->ChooseWeaponSlot(InEquipSlot);
 	}
+}
+
+void ALBlasterHUD::CreateSettingMenu()
+{
+	if (SettingMenuClass && !SettingMenu)
+	{
+		if (IsValidOwnerController())
+		{
+			SettingMenu = CreateWidget<USettingMenu>(OwnerController, SettingMenuClass);
+		}
+	}
+
+	AddNewMenuToStack(SettingMenu);
+}
+
+void ALBlasterHUD::CreateGraphicSettingMenu()
+{
+	if (GraphicSettingMenuClass && !GraphicSettingMenu)
+	{
+		if (IsValidOwnerController())
+		{
+			GraphicSettingMenu = CreateWidget<UGraphicSettingMenu>(OwnerController, GraphicSettingMenuClass);
+		}
+	}
+
+	AddNewMenuToStack(GraphicSettingMenu);
 }
 
 void ALBlasterHUD::PostInitializeComponents()

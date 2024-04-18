@@ -3,20 +3,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "LBlasterUserWidget.h"
 #include "PauseMenu.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class LBLASTER_API UPauseMenu : public UUserWidget
+class LBLASTER_API UPauseMenu : public ULBlasterUserWidget
 {
 	GENERATED_BODY()
 
 public:
-	void MenuSetup();
-	void MenuTearDown();
+	virtual void MenuSetup() override;
+	virtual void MenuTearDown() override;
 
 protected:
 	/*
@@ -29,14 +29,6 @@ protected:
     void OnPlayerLeftGame();
 
 private:
-	/*
-	 *	Owner
-	 */
-	UPROPERTY()
-	TObjectPtr<class ALBlasterPlayerController> PlayerController;
-
-	bool IsValidPlayerController();
-
 	/*
 	 *	Main Menu Button
 	 */
@@ -57,4 +49,13 @@ private:
 
 	UFUNCTION()
 	void ResumeButtonClicked();
+
+	/*
+	 *	Setting Button
+	 */
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UButton> SettingButton;
+	
+	UFUNCTION()
+	void SettingButtonClicked();
 };
