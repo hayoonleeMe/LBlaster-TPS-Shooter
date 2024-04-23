@@ -6,6 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "OptionSelector.generated.h"
 
+DECLARE_DELEGATE_OneParam(FOnSwitcherActiveIndexChanged, int32 /* InActiveIndex */);
+
 /**
  * 
  */
@@ -20,19 +22,19 @@ protected:
 	
 public:
 	void InitializeOptions();
+	void SetActiveIndex(int32 InActiveIndex);
 
 	UFUNCTION()
 	void SelectRightOption();
 
 	UFUNCTION()
 	void SelectLeftOption();
+
+	FOnSwitcherActiveIndexChanged OnSwitcherActiveIndexChanged; 
 	
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LBlaster", meta=(AllowPrivateAccess="true"))
 	TArray<FString> Options;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LBlaster", meta=(AllowPrivateAccess="true"))
-	int32 InitialIndex;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UWidgetSwitcher> Switcher;

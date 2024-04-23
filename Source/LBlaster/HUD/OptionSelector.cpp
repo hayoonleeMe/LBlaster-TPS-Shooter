@@ -21,11 +21,11 @@ void UOptionSelector::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	if (LeftButton)
+	if (LeftButton && !LeftButton->OnClicked.IsBound())
 	{
 		LeftButton->OnClicked.AddDynamic(this, &ThisClass::SelectLeftOption);
 	}
-	if (RightButton)
+	if (RightButton && !RightButton->OnClicked.IsBound())
 	{
 		RightButton->OnClicked.AddDynamic(this, &ThisClass::SelectRightOption);
 	}
@@ -48,14 +48,23 @@ void UOptionSelector::InitializeOptions()
 			Switcher->AddChild(TextBlock);
 		}
 	}
-	Switcher->SetActiveWidgetIndex(InitialIndex);
+}
+
+void UOptionSelector::SetActiveIndex(int32 InActiveIndex)
+{
+	if (Switcher)
+	{
+		Switcher->SetActiveWidgetIndex(InActiveIndex);
+	}
 }
 
 void UOptionSelector::SelectRightOption()
 {
 	if (Switcher)
 	{
-		Switcher->SetActiveWidgetIndex(GetNewIndex(1));
+		const int32 NewIndex = GetNewIndex(1);
+		Switcher->SetActiveWidgetIndex(NewIndex);
+		OnSwitcherActiveIndexChanged.Execute(NewIndex);
 	}
 }
 
@@ -63,7 +72,9 @@ void UOptionSelector::SelectLeftOption()
 {
 	if (Switcher)
 	{
-		Switcher->SetActiveWidgetIndex(GetNewIndex(-1));
+		const int32 NewIndex = GetNewIndex(-1);
+		Switcher->SetActiveWidgetIndex(NewIndex);
+		OnSwitcherActiveIndexChanged.Execute(NewIndex);
 	}
 }
 
