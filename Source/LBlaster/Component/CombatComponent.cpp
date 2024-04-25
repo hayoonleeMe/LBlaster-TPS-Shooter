@@ -10,6 +10,7 @@
 #include "Weapon/Weapon.h"
 #include "Character/LBlasterCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/GameStateBase.h"
 #include "HUD/LBlasterHUD.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Player/LBlasterPlayerController.h"
@@ -88,6 +89,7 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	DOREPLIFETIME(UCombatComponent, ServerCarriedAmmoState);
 	DOREPLIFETIME(UCombatComponent, EquipSlotType);
 	DOREPLIFETIME(UCombatComponent, EquipSlots);
 	DOREPLIFETIME(UCombatComponent, bIsAiming);
@@ -570,53 +572,111 @@ void UCombatComponent::FireTimerFinished()
 	}
 }
 
-void UCombatComponent::AddCarriedAmmo(EWeaponType InWeaponTypeToAdd, int32 InAmmoToAdd)
+void UCombatComponent::AddCarriedAmmo(EWeaponType InWeaponTypeToAdd, int32 InCarriedAmmoToAdd)
 {
-	if (!GetEquippingWeapon())
+	if (!IsValidOwnerCharacter())
 	{
 		return;
 	}
 
+	FCarriedAmmoChange CarriedAmmoChange = CreateCarriedAmmoChange(InWeaponTypeToAdd, InCarriedAmmoToAdd);
+	if (OwnerCharacter->GetLocalRole() == ROLE_AutonomousProxy)
+	{
+		ProcessAddCarriedAmmo(InWeaponTypeToAdd, InCarriedAmmoToAdd);
+		UnacknowledgedCarriedAmmoChanges.Add(CarriedAmmoChange);
+		ServerSendCarriedAmmoChange(CarriedAmmoChange);
+	}
+	if (OwnerCharacter->HasAuthority() && OwnerCharacter->IsLocallyControlled())
+	{
+		ServerSendCarriedAmmoChange(CarriedAmmoChange);
+	}
+}
+
+void UCombatComponent::ProcessAddCarriedAmmo(EWeaponType InWeaponTypeToAdd, int32 InCarriedAmmoToAdd)
+{
 	if (CarriedAmmoMap.Contains(InWeaponTypeToAdd) && MaxCarriedAmmoMap.Contains(InWeaponTypeToAdd))
-    {
-		CarriedAmmoMap[InWeaponTypeToAdd] = FMath::Clamp(CarriedAmmoMap[InWeaponTypeToAdd] + InAmmoToAdd, 0, MaxCarriedAmmoMap[InWeaponTypeToAdd]);
-
+	{
+		CarriedAmmoMap[InWeaponTypeToAdd] = FMath::Clamp(CarriedAmmoMap[InWeaponTypeToAdd] + InCarriedAmmoToAdd, 0, MaxCarriedAmmoMap[InWeaponTypeToAdd]);
+		
 		// 현재 장착중인 무기의 Carried Ammo가 업데이트됨
-		const EWeaponType WeaponType = GetEquippingWeapon()->GetWeaponType();
-		if (IsValidOwnerController() && WeaponType == InWeaponTypeToAdd)
+		if (GetEquippingWeapon() && IsValidOwnerController())
 		{
-			OwnerController->SetHUDCarriedAmmo(CarriedAmmoMap[WeaponType]);
-		}
-
-		if (OwnerCharacter->HasAuthority())
-		{
-			ClientUpdateCarriedAmmo(InWeaponTypeToAdd, CarriedAmmoMap[InWeaponTypeToAdd]);
-		}
-		else
-		{
-			++CarriedAmmoSequence;
+			const EWeaponType WeaponType = GetEquippingWeapon()->GetWeaponType();
+			if (WeaponType == InWeaponTypeToAdd)
+			{
+				OwnerController->SetHUDCarriedAmmo(CarriedAmmoMap[WeaponType]);
+			}	
 		}
 	}
 }
 
-void UCombatComponent::ClientUpdateCarriedAmmo_Implementation(EWeaponType InWeaponTypeToAdd, int32 InServerCarriedAmmo)
+FCarriedAmmoChange UCombatComponent::CreateCarriedAmmoChange(EWeaponType InWeaponType, int32 InCarriedAmmoToAdd)
 {
-	if (!GetEquippingWeapon())
+	if (AGameStateBase* GameStateBase = GetWorld()->GetGameState())
+	{
+		FCarriedAmmoChange CarriedAmmoChange;
+		CarriedAmmoChange.WeaponType = InWeaponType;
+		CarriedAmmoChange.CarriedAmmoToAdd = InCarriedAmmoToAdd;
+		CarriedAmmoChange.Time = GameStateBase->GetServerWorldTimeSeconds();
+		return CarriedAmmoChange;
+	}
+	return FCarriedAmmoChange();
+}
+
+void UCombatComponent::ClearAcknowledgedCarriedAmmoChanges(const FCarriedAmmoChange& LastCarriedAmmoChange)
+{
+	TArray<FCarriedAmmoChange> NewArray;
+
+	for (const FCarriedAmmoChange& CarriedAmmoChange : UnacknowledgedCarriedAmmoChanges)
+	{
+		if (CarriedAmmoChange.Time > LastCarriedAmmoChange.Time)
+		{
+			NewArray.Add(CarriedAmmoChange);
+		}
+	}
+	UnacknowledgedCarriedAmmoChanges = NewArray;
+}
+
+void UCombatComponent::OnRep_ServerCarriedAmmoState()
+{
+	if (!CarriedAmmoMap.Contains(ServerCarriedAmmoState.WeaponType) || !MaxCarriedAmmoMap.Contains(ServerCarriedAmmoState.WeaponType))
 	{
 		return;
 	}
+	CarriedAmmoMap[ServerCarriedAmmoState.WeaponType] = ServerCarriedAmmoState.CarriedAmmo;
+	
+	ClearAcknowledgedCarriedAmmoChanges(ServerCarriedAmmoState.LastCarriedAmmoChange);
 
-	--CarriedAmmoSequence;
-	if (CarriedAmmoMap.Contains(InWeaponTypeToAdd) && CarriedAmmoSequence == 0)
+	// Unacknowledged Carried Ammo Change 다시 적용
+	for (const FCarriedAmmoChange& CarriedAmmoChange : UnacknowledgedCarriedAmmoChanges)
 	{
-		CarriedAmmoMap[InWeaponTypeToAdd] = InServerCarriedAmmo;
+		CarriedAmmoMap[CarriedAmmoChange.WeaponType] = FMath::Clamp(CarriedAmmoMap[CarriedAmmoChange.WeaponType] + CarriedAmmoChange.CarriedAmmoToAdd, 0, MaxCarriedAmmoMap[CarriedAmmoChange.WeaponType]);
 
-		// 현재 장착중인 무기의 Carried Ammo가 업데이트됨
-		const EWeaponType WeaponType = GetEquippingWeapon()->GetWeaponType();
-		if (IsValidOwnerController() && WeaponType == InWeaponTypeToAdd)
+		if (GetEquippingWeapon() && IsValidOwnerController())
 		{
-			OwnerController->SetHUDCarriedAmmo(CarriedAmmoMap[WeaponType]);
-		}	
+			const EWeaponType WeaponType = GetEquippingWeapon()->GetWeaponType();
+			if (WeaponType == ServerCarriedAmmoState.WeaponType)
+			{
+				OwnerController->SetHUDCarriedAmmo(CarriedAmmoMap[WeaponType]);
+			}	
+		}
+	}
+	
+	if (IsValidOwnerCharacter() && OwnerCharacter->GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		ProcessAddCarriedAmmo(ServerCarriedAmmoState.WeaponType, ServerCarriedAmmoState.LastCarriedAmmoChange.CarriedAmmoToAdd);
+	}
+}
+
+void UCombatComponent::ServerSendCarriedAmmoChange_Implementation(const FCarriedAmmoChange& InCarriedAmmoChange)
+{
+	ProcessAddCarriedAmmo(InCarriedAmmoChange.WeaponType, InCarriedAmmoChange.CarriedAmmoToAdd);
+	
+	if (CarriedAmmoMap.Contains(InCarriedAmmoChange.WeaponType))
+	{
+		ServerCarriedAmmoState.WeaponType = InCarriedAmmoChange.WeaponType;
+		ServerCarriedAmmoState.CarriedAmmo = CarriedAmmoMap[InCarriedAmmoChange.WeaponType];
+		ServerCarriedAmmoState.LastCarriedAmmoChange = InCarriedAmmoChange;
 	}
 }
 
