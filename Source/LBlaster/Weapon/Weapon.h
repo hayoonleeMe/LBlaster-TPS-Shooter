@@ -7,6 +7,30 @@
 #include "LBTypes/WeaponTypes.h"
 #include "Weapon.generated.h"
 
+USTRUCT()
+struct FAmmoChange
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	int32 AmmoToAdd;
+
+	UPROPERTY()
+	float Time;
+};
+
+USTRUCT()
+struct FAmmoState
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	int32 Ammo;
+	
+	UPROPERTY()
+	FAmmoChange LastAmmoChange;
+};
+
 UCLASS()
 class LBLASTER_API AWeapon : public AActor
 {
@@ -173,17 +197,31 @@ protected:
 	UPROPERTY(EditAnywhere, Category="LBlaster|Ammo")
 	int32 Ammo;
 
-	UFUNCTION(Client, Reliable)
-	void ClientUpdateAmmo(int32 InServerAmmo);
-
 	void SpendRound();
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Ammo")
 	int32 MagCapacity;
 
-	// The number of unprocessed server requests for Ammo
-	// Incremented in SpendRound, Decremented in ClientUpdateAmmo
-	int32 AmmoSequence = 0;
+	void ProcessAddAmmo(int32 InAmmoToAdd);
+
+	/*
+	 *	Client-Side Prediction for Ammo
+	 */
+	UPROPERTY(ReplicatedUsing=OnRep_ServerAmmoState)
+	FAmmoState ServerAmmoState;
+
+	FAmmoChange CreateAmmoChange(int32 InAmmoToAdd);
+
+	UPROPERTY()
+	TArray<FAmmoChange> UnacknowledgedAmmoChanges;
+
+	void ClearAcknowledgedAmmoChanges(const FAmmoChange& LastAmmoChange);
+	
+	UFUNCTION()
+	void OnRep_ServerAmmoState();
+
+	UFUNCTION(Server, Reliable)
+	void ServerSendAmmoChange(const FAmmoChange& InAmmoChange);
 
 	/*
 	 *	Sound

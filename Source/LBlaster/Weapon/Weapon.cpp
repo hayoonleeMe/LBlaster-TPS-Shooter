@@ -10,6 +10,7 @@
 #include "Character/LBlasterCharacter.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/GameStateBase.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "Player/LBlasterPlayerController.h"
@@ -111,6 +112,7 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AWeapon, WeaponState);
+	DOREPLIFETIME(AWeapon, ServerAmmoState);
 }
 
 void AWeapon::ShowPickupWidget(bool bInShow) const
@@ -140,16 +142,21 @@ void AWeapon::SetHUDAmmo()
 
 void AWeapon::AddAmmo(int32 InAmmoToAdd)
 {
-	Ammo = FMath::Clamp(Ammo + InAmmoToAdd, 0, MagCapacity);
-	SetHUDAmmo();
-
-	if (HasAuthority())
+	if (!IsValidOwnerCharacter())
 	{
-		ClientUpdateAmmo(Ammo);
+		return;
 	}
-	else if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled())
+	
+	FAmmoChange AmmoChange = CreateAmmoChange(InAmmoToAdd);
+	if (OwnerCharacter->GetLocalRole() == ROLE_AutonomousProxy)
 	{
-		++AmmoSequence;
+		ProcessAddAmmo(InAmmoToAdd);
+		UnacknowledgedAmmoChanges.Add(AmmoChange);
+		ServerSendAmmoChange(AmmoChange);
+	}
+	if (OwnerCharacter->HasAuthority() && OwnerCharacter->IsLocallyControlled())
+	{
+		ServerSendAmmoChange(AmmoChange);
 	}
 }
 
@@ -163,19 +170,68 @@ void AWeapon::SpendRound()
 	AddAmmo(-1);
 }
 
-void AWeapon::CallServerScoreRequest(ALBlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize100& InitialVelocity,
-	float HitTime, float InDamage, float InHeadshotMultiplier, float InProjectileGravityScale)
+void AWeapon::ProcessAddAmmo(int32 InAmmoToAdd)
 {
+	Ammo = FMath::Clamp(Ammo + InAmmoToAdd, 0, MagCapacity);
+	SetHUDAmmo();
 }
 
-void AWeapon::ClientUpdateAmmo_Implementation(int32 InServerAmmo)
+FAmmoChange AWeapon::CreateAmmoChange(int32 InAmmoToAdd)
 {
-	--AmmoSequence;
-	if (AmmoSequence == 0)
+	if (AGameStateBase* GameStateBase = GetWorld()->GetGameState())
 	{
-		Ammo = InServerAmmo;
-		SetHUDAmmo();
+		FAmmoChange AmmoChange;
+		AmmoChange.AmmoToAdd = InAmmoToAdd;
+		AmmoChange.Time = GameStateBase->GetServerWorldTimeSeconds();
+		return AmmoChange;
 	}
+	return FAmmoChange();
+}
+
+void AWeapon::ClearAcknowledgedAmmoChanges(const FAmmoChange& LastAmmoChange)
+{
+	TArray<FAmmoChange> NewArray;
+
+	for (const FAmmoChange& AmmoChange : UnacknowledgedAmmoChanges)
+	{
+		if (AmmoChange.Time > LastAmmoChange.Time)
+		{
+			NewArray.Add(AmmoChange);
+		}
+	}
+	UnacknowledgedAmmoChanges = NewArray;
+}
+
+void AWeapon::OnRep_ServerAmmoState()
+{
+	Ammo = ServerAmmoState.Ammo;
+
+	ClearAcknowledgedAmmoChanges(ServerAmmoState.LastAmmoChange);
+
+	// Unacknowledged Ammo Change 다시 적용
+	for (const FAmmoChange& AmmoChange : UnacknowledgedAmmoChanges)
+	{
+		Ammo = FMath::Clamp(Ammo + AmmoChange.AmmoToAdd, 0, MagCapacity);
+	}
+	SetHUDAmmo();
+
+	if (IsValidOwnerCharacter() && OwnerCharacter->GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		ProcessAddAmmo(ServerAmmoState.LastAmmoChange.AmmoToAdd);
+	}
+}
+
+void AWeapon::ServerSendAmmoChange_Implementation(const FAmmoChange& InAmmoChange)
+{
+	ProcessAddAmmo(InAmmoChange.AmmoToAdd);
+
+	ServerAmmoState.Ammo = Ammo;
+	ServerAmmoState.LastAmmoChange = InAmmoChange;
+}
+
+void AWeapon::CallServerScoreRequest(ALBlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize100& InitialVelocity,
+                                     float HitTime, float InDamage, float InHeadshotMultiplier, float InProjectileGravityScale)
+{
 }
 
 void AWeapon::Fire(const FVector& HitTarget)
@@ -214,6 +270,8 @@ FVector AWeapon::TraceEndWithScatter(const FVector& HitTarget) const
 		const FVector EndLoc = SphereCenter + RandVec;
 		const FVector ToEndLoc = EndLoc - TraceStart;
 
+		//DrawDebugSphere(GetWorld(), EndLoc, 1.5f, 15.f, FColor::Orange, true);
+
 		return TraceStart + ToEndLoc / ToEndLoc.Size() * TRACE_LENGTH;
 	}
 	return FVector::ZeroVector;
@@ -249,7 +307,6 @@ float AWeapon::GetDamageFallOffMultiplier(float InDistance) const
 {
 	if (DamageFallOffCurve)
 	{
-		LB_SUBLOG(LogLB, Warning, TEXT("value %f"), DamageFallOffCurve->GetFloatValue(InDistance));
 		return DamageFallOffCurve->GetFloatValue(InDistance);
 	}
 	return 0.f;
