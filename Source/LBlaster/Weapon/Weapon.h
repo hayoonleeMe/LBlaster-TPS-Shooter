@@ -210,18 +210,18 @@ protected:
 	UPROPERTY(ReplicatedUsing=OnRep_ServerAmmoState)
 	FAmmoState ServerAmmoState;
 
+	UFUNCTION()
+	void OnRep_ServerAmmoState();
+
 	FAmmoChange CreateAmmoChange(int32 InAmmoToAdd);
+
+	UFUNCTION(Server, Reliable)
+	void ServerSendAmmoChange(const FAmmoChange& InAmmoChange);
 
 	UPROPERTY()
 	TArray<FAmmoChange> UnacknowledgedAmmoChanges;
 
 	void ClearAcknowledgedAmmoChanges(const FAmmoChange& LastAmmoChange);
-	
-	UFUNCTION()
-	void OnRep_ServerAmmoState();
-
-	UFUNCTION(Server, Reliable)
-	void ServerSendAmmoChange(const FAmmoChange& InAmmoChange);
 
 	/*
 	 *	Sound

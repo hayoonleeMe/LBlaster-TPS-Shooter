@@ -10,6 +10,36 @@
 #include "LBTypes/EquipSlot.h"
 #include "CombatComponent.generated.h"
 
+USTRUCT()
+struct FCarriedAmmoChange
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	EWeaponType WeaponType;
+	
+	UPROPERTY()
+	int32 CarriedAmmoToAdd;
+
+	UPROPERTY()
+	float Time;
+};
+
+USTRUCT()
+struct FCarriedAmmoState
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	EWeaponType WeaponType;
+
+	UPROPERTY()
+	int32 CarriedAmmo;
+
+	UPROPERTY()
+	FCarriedAmmoChange LastCarriedAmmoChange;
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class LBLASTER_API UCombatComponent : public UActorComponent
 {
@@ -235,21 +265,36 @@ private:
 	TArray<UAnimMontage*> RightDeath;
 
 	/*
-	 *	Ammo
+	 *	Carried Ammo
 	 */
 	UPROPERTY(EditAnywhere, Category="LBlaster|Ammo")
 	TMap<EWeaponType, int32> CarriedAmmoMap;
 
-	// Client-Side Prediction for Carried Ammo
-	int32 CarriedAmmoSequence = 0;
-
-	void AddCarriedAmmo(EWeaponType InWeaponTypeToAdd, int32 InAmmoToAdd);
-
-	UFUNCTION(Client, Reliable)
-	void ClientUpdateCarriedAmmo(EWeaponType InWeaponTypeToAdd, int32 InServerCarriedAmmo);
+	void AddCarriedAmmo(EWeaponType InWeaponTypeToAdd, int32 InCarriedAmmoToAdd);
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Ammo")
 	TMap<EWeaponType, int32> MaxCarriedAmmoMap;
+
+	void ProcessAddCarriedAmmo(EWeaponType InWeaponTypeToAdd, int32 InCarriedAmmoToAdd);
+
+	/*
+	 *	Client-Side Prediction for Carried Ammo
+	 */
+	UPROPERTY(ReplicatedUsing=OnRep_ServerCarriedAmmoState)
+	FCarriedAmmoState ServerCarriedAmmoState;
+
+	UFUNCTION()
+	void OnRep_ServerCarriedAmmoState();
+	
+	FCarriedAmmoChange CreateCarriedAmmoChange(EWeaponType InWeaponType, int32 InCarriedAmmoToAdd);
+
+	UFUNCTION(Server, Reliable)
+	void ServerSendCarriedAmmoChange(const FCarriedAmmoChange& InCarriedAmmoChange);
+
+	UPROPERTY()
+	TArray<FCarriedAmmoChange> UnacknowledgedCarriedAmmoChanges;
+
+	void ClearAcknowledgedCarriedAmmoChanges(const FCarriedAmmoChange& LastCarriedAmmoChange);
 
 	/*
 	 *	Reload
