@@ -31,7 +31,7 @@ public:
 	void AnimNotify_ShowWeapon();
 
 	UFUNCTION()
-	void AnimNotify_StartTossGrenade();
+	void AnimNotify_EquipFinished();
 	
 protected:
 	bool IsValidCharacter();

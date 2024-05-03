@@ -112,7 +112,7 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 void UCombatComponent::SetAiming(bool bInAiming)
 {
-	if (!GetEquippingWeapon())
+	if (!GetEquippingWeapon() || CombatState != ECombatState::ECS_Unoccupied)
 	{
 		return;
 	}
@@ -865,6 +865,10 @@ void UCombatComponent::HandleUnEquipBeforeTossGrenade()
 void UCombatComponent::StartTossGrenade()
 {
 	HandleTossGrenade();
+}
+
+void UCombatComponent::EquipFinished()
+{
 }
 
 void UCombatComponent::InitSniperScope()
