@@ -147,7 +147,7 @@ void AWeapon::ShowPickupWidget(bool bInShow) const
 
 void AWeapon::SetHUDAmmo()
 {
-	if (IsValidOwnerCharacter())
+	if (IsValidOwnerCharacter() && bSelected)
 	{
 		OwnerCharacter->SetHUDAmmo(Ammo);
 	}
@@ -297,6 +297,7 @@ FVector AWeapon::TraceEndWithScatter(const FVector& HitTarget) const
 void AWeapon::Dropped()
 {
 	ChangeWeaponState(EWeaponState::EWS_Dropped);
+	bSelected = false;
 
 	const FDetachmentTransformRules DetachRule(EDetachmentRule::KeepWorld, true);
 	WeaponMesh->DetachFromComponent(DetachRule);
@@ -306,6 +307,7 @@ void AWeapon::Dropped()
 void AWeapon::Holstered()
 {
 	SetEquippingWeaponVisibility(false);
+	bSelected = false;
 
 	const FDetachmentTransformRules DetachRule(EDetachmentRule::KeepWorld, true);
 	WeaponMesh->DetachFromComponent(DetachRule);
