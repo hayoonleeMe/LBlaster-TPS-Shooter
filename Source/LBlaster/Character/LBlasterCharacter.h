@@ -228,11 +228,8 @@ private:
 	 */
 	void PlayHitReactMontage(const FVector& HitNormal) const;
 
-	UPROPERTY(ReplicatedUsing=OnRep_LastHitNormal)
+	UPROPERTY()
 	FVector LastHitNormal;
-
-	UFUNCTION()
-	void OnRep_LastHitNormal();
 
 	/*
 	 *	Health
