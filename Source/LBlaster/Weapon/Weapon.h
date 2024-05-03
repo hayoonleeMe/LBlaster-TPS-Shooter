@@ -31,6 +31,30 @@ struct FAmmoState
 	FAmmoChange LastAmmoChange;
 };
 
+USTRUCT()
+struct FWeaponStateChange
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	EWeaponState WeaponStateToChange;
+
+	UPROPERTY()
+	float Time;
+};
+
+USTRUCT()
+struct FWeaponStateChangedState
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	EWeaponState WeaponState;
+	
+	UPROPERTY()
+	FWeaponStateChange LastWeaponStateChange;
+};
+
 UCLASS()
 class LBLASTER_API AWeapon : public AActor
 {
@@ -41,7 +65,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	void ShowPickupWidget(bool bInShow) const;
-	void SetWeaponState(EWeaponState InWeaponState);
+	void ChangeWeaponState(EWeaponState InWeaponStateToChange);
 	void SetHUDAmmo();
 	void AddAmmo(int32 InAmmoToAdd);
 
@@ -142,12 +166,35 @@ protected:
 	/*
 	 *	Weapon State
 	 */
-	UPROPERTY(ReplicatedUsing = OnRep_WeaponState, VisibleAnywhere, Category="LBlaster|Weapon State")
+	UPROPERTY(VisibleAnywhere, Category="LBlaster|Weapon State")
 	EWeaponState WeaponState;
 
     UFUNCTION()
     void OnRep_WeaponState();
     void OnChangedWeaponState();
+
+	void ProcessChangeWeaponState(EWeaponState InWeaponStateToChange);
+
+	bool bSelected = false;
+
+	/*
+	 *	Client-Side Prediction for Weapon State
+	 */
+	UPROPERTY(ReplicatedUsing=OnRep_ServerWeaponStateChangedState)
+	FWeaponStateChangedState ServerWeaponStateChangedState;
+
+	UFUNCTION()
+	void OnRep_ServerWeaponStateChangedState();
+
+	FWeaponStateChange CreateWeaponStateChange(EWeaponState InWeaponStateToChange);
+
+	UFUNCTION(Server, Reliable)
+	void ServerSendWeaponStateChange(const FWeaponStateChange& InWeaponStateChange);
+
+	UPROPERTY()
+	TArray<FWeaponStateChange> UnacknowledgedWeaponStateChanges;
+
+	void ClearAcknowledgedWeaponStateChanges(const FWeaponStateChange& LastWeaponStateChange);
 
 	/*
 	 *	Animation

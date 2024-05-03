@@ -111,8 +111,8 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(AWeapon, WeaponState);
 	DOREPLIFETIME(AWeapon, ServerAmmoState);
+	DOREPLIFETIME(AWeapon, ServerWeaponStateChangedState);
 }
 
 void AWeapon::ShowPickupWidget(bool bInShow) const
@@ -124,12 +124,6 @@ void AWeapon::ShowPickupWidget(bool bInShow) const
 		PickupWidgetComponent->SetRelativeLocation(RelativeLocation);
 		PickupWidgetComponent->SetVisibility(bInShow);
 	}
-}
-
-void AWeapon::SetWeaponState(EWeaponState InWeaponState)
-{
-	WeaponState = InWeaponState;
-	OnChangedWeaponState();
 }
 
 void AWeapon::SetHUDAmmo()
@@ -270,8 +264,6 @@ FVector AWeapon::TraceEndWithScatter(const FVector& HitTarget) const
 		const FVector EndLoc = SphereCenter + RandVec;
 		const FVector ToEndLoc = EndLoc - TraceStart;
 
-		//DrawDebugSphere(GetWorld(), EndLoc, 1.5f, 15.f, FColor::Orange, true);
-
 		return TraceStart + ToEndLoc / ToEndLoc.Size() * TRACE_LENGTH;
 	}
 	return FVector::ZeroVector;
@@ -279,7 +271,7 @@ FVector AWeapon::TraceEndWithScatter(const FVector& HitTarget) const
 
 void AWeapon::Dropped()
 {
-	SetWeaponState(EWeaponState::EWS_Dropped);
+	ChangeWeaponState(EWeaponState::EWS_Dropped);
 
 	const FDetachmentTransformRules DetachRule(EDetachmentRule::KeepWorld, true);
 	WeaponMesh->DetachFromComponent(DetachRule);
@@ -288,7 +280,6 @@ void AWeapon::Dropped()
 
 void AWeapon::Holstered()
 {
-	SetWeaponState(EWeaponState::EWS_Initial);
 
 	const FDetachmentTransformRules DetachRule(EDetachmentRule::KeepWorld, true);
 	WeaponMesh->DetachFromComponent(DetachRule);
@@ -375,7 +366,6 @@ void AWeapon::OnRep_WeaponState()
 
 void AWeapon::OnChangedWeaponState()
 {
-	// TODO : 모든 EWeaponState 경우 처리 필요
 	switch (WeaponState)
 	{
 	case EWeaponState::EWS_Equipped:
@@ -396,4 +386,86 @@ void AWeapon::OnChangedWeaponState()
 		EnableCustomDepth(true);
 		break;
 	}
+}
+
+void AWeapon::ChangeWeaponState(EWeaponState InWeaponStateToChange)
+{
+	if (!IsValidOwnerCharacter())
+	{
+		return;
+	}
+
+	FWeaponStateChange WeaponStateChange = CreateWeaponStateChange(InWeaponStateToChange);
+	if (!OwnerCharacter->HasAuthority())
+	{
+		// 게임 초기에 Default Weapon을 생성하고 착용할 때 Simulated Proxy에서도 ProcessEquipWeapon()을 통해 이 함수를 호출하므로 작업을 수행할 수 있게 한다.
+		ProcessChangeWeaponState(InWeaponStateToChange);
+		if (OwnerCharacter->GetLocalRole() == ROLE_AutonomousProxy)
+		{
+			UnacknowledgedWeaponStateChanges.Add(WeaponStateChange);
+			// ChangeWeaponState는 클라에서의 EquipWeapon에 의해 서버로 전달된 RPC에서 수행되므로 Autonomous Proxy에서는 Server RPC를 전송하지 않도록 한다.
+		}	
+	}
+	
+	// Autonomous Proxy에 의해 전송된 Equip Server RPC에 의해 이 함수가 호출됐을 때도 수행해줘야 한다.
+	if (OwnerCharacter->HasAuthority() && (OwnerCharacter->IsLocallyControlled() || OwnerCharacter->GetRemoteRole() == ROLE_AutonomousProxy))
+	{
+		ServerSendWeaponStateChange(WeaponStateChange);
+	}
+}
+
+void AWeapon::ProcessChangeWeaponState(EWeaponState InWeaponStateToChange)
+{
+	WeaponState = InWeaponStateToChange;
+	OnChangedWeaponState();
+}
+
+void AWeapon::OnRep_ServerWeaponStateChangedState()
+{
+	ClearAcknowledgedWeaponStateChanges(ServerWeaponStateChangedState.LastWeaponStateChange);
+
+	// Unacknowledged Combat State Change 다시 적용
+	if (UnacknowledgedWeaponStateChanges.IsValidIndex(UnacknowledgedWeaponStateChanges.Num() - 1))
+	{
+		ProcessChangeWeaponState(UnacknowledgedWeaponStateChanges[UnacknowledgedWeaponStateChanges.Num() - 1].WeaponStateToChange);
+	}
+
+	if (IsValidOwnerCharacter() && OwnerCharacter->GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		ProcessChangeWeaponState(ServerWeaponStateChangedState.LastWeaponStateChange.WeaponStateToChange);
+	}
+}
+
+FWeaponStateChange AWeapon::CreateWeaponStateChange(EWeaponState InWeaponStateToChange)
+{
+	if (AGameStateBase* GameStateBase = GetWorld()->GetGameState())
+	{
+		FWeaponStateChange WeaponStateChange;
+		WeaponStateChange.WeaponStateToChange = InWeaponStateToChange;
+		WeaponStateChange.Time = GameStateBase->GetServerWorldTimeSeconds();
+		return WeaponStateChange;
+	}
+	return FWeaponStateChange();
+}
+
+void AWeapon::ServerSendWeaponStateChange_Implementation(const FWeaponStateChange& InWeaponStateChange)
+{
+	ProcessChangeWeaponState(InWeaponStateChange.WeaponStateToChange);
+
+	ServerWeaponStateChangedState.WeaponState = WeaponState;
+	ServerWeaponStateChangedState.LastWeaponStateChange = InWeaponStateChange;
+}
+
+void AWeapon::ClearAcknowledgedWeaponStateChanges(const FWeaponStateChange& LastWeaponStateChange)
+{
+	TArray<FWeaponStateChange> NewArray;
+
+	for (const FWeaponStateChange& WeaponStateChange : UnacknowledgedWeaponStateChanges)
+	{
+		if (WeaponStateChange.Time > LastWeaponStateChange.Time)
+		{
+			NewArray.Add(WeaponStateChange);
+		}
+	}
+	UnacknowledgedWeaponStateChanges = NewArray;
 }
