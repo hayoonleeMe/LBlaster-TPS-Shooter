@@ -92,9 +92,9 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(UCombatComponent, ServerCarriedAmmoState);
 	DOREPLIFETIME(UCombatComponent, EquipSlotType);
 	DOREPLIFETIME(UCombatComponent, EquipSlots);
+	DOREPLIFETIME(UCombatComponent, ServerCombatStateChangedState);
 	DOREPLIFETIME(UCombatComponent, bIsAiming);
 	DOREPLIFETIME(UCombatComponent, bIsFiring);
-	DOREPLIFETIME(UCombatComponent, CombatState);
 	DOREPLIFETIME(UCombatComponent, GrenadeAmount);
 }
 
@@ -277,7 +277,7 @@ void UCombatComponent::Reload()
 	{
 		if (CarriedAmmoMap.Contains(GetEquippingWeapon()->GetWeaponType()) && CarriedAmmoMap[GetEquippingWeapon()->GetWeaponType()] > 0)
 		{
-			CombatState = ECombatState::ECS_Reloading;
+			ChangeCombatState(ECombatState::ECS_Reloading);
 			HandleReload();	// Locally Controlled 캐릭터에서 바로 Reload Montage 재생
 			ServerReload();	
 		}
@@ -286,7 +286,7 @@ void UCombatComponent::Reload()
 
 void UCombatComponent::ServerReload_Implementation()
 {
-	CombatState = ECombatState::ECS_Reloading;
+	ChangeCombatState(ECombatState::ECS_Reloading);
 
 	// Locally Controlled 캐릭터의 Reload Montage 중복 재생 방지
 	if (IsValidOwnerCharacter() && !OwnerCharacter->IsLocallyControlled())
@@ -312,7 +312,8 @@ void UCombatComponent::ReloadFinished()
 		return;
 	}
 
-	CombatState = ECombatState::ECS_Unoccupied;
+	ChangeCombatState(ECombatState::ECS_Unoccupied);
+
 	UpdateAmmoValues();
 
 	if (OwnerCharacter->IsLocallyControlled() && bIsFiring)
@@ -356,6 +357,92 @@ int32 UCombatComponent::AmountToReload()
 		}
 	}
 	return 0;
+}
+
+void UCombatComponent::ChangeCombatState(ECombatState InCombatStateToChange)
+{
+	if (!IsValidOwnerCharacter())
+	{
+		return;
+	}
+
+	FCombatStateChange CombatStateChange = CreateCombatStateChange(InCombatStateToChange);
+	if (OwnerCharacter->GetLocalRole() == ROLE_AutonomousProxy)
+	{
+		ProcessChangeCombatState(InCombatStateToChange);
+		UnacknowledgedCombatStateChanges.Add(CombatStateChange);
+		ServerSendCombatStateChange(CombatStateChange);
+	}
+	if (OwnerCharacter->HasAuthority() && OwnerCharacter->IsLocallyControlled())
+	{
+		ServerSendCombatStateChange(CombatStateChange);	
+	}
+}
+
+void UCombatComponent::ProcessChangeCombatState(ECombatState InCombatStateToChange)
+{
+	CombatState = InCombatStateToChange;
+}
+
+void UCombatComponent::OnRep_ServerCombatStateChangedState()
+{
+	ClearAcknowledgedCombatStateChanges(ServerCombatStateChangedState.LastCombatStateChange);
+
+	// Unacknowledged Combat State Change 다시 적용
+	if (UnacknowledgedCombatStateChanges.IsValidIndex(UnacknowledgedCombatStateChanges.Num() - 1))
+	{
+		CombatState = UnacknowledgedCombatStateChanges[UnacknowledgedCombatStateChanges.Num() - 1].CombatStateToChange;
+	}
+
+	if (IsValidOwnerCharacter() && OwnerCharacter->GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		ProcessChangeCombatState(ServerCombatStateChangedState.LastCombatStateChange.CombatStateToChange);
+	
+		switch (CombatState)
+		{
+		case ECombatState::ECS_Reloading:
+			HandleReload();	
+			break;
+		
+		case ECombatState::ECS_TossingGrenade:
+			HandleUnEquipBeforeTossGrenade();
+			break;
+		}
+	}
+}
+
+FCombatStateChange UCombatComponent::CreateCombatStateChange(ECombatState InCombatStateToChange)
+{
+	if (AGameStateBase* GameStateBase = GetWorld()->GetGameState())
+	{
+		FCombatStateChange CombatStateChange;
+		CombatStateChange.CombatStateToChange = InCombatStateToChange;
+		CombatStateChange.Time = GameStateBase->GetServerWorldTimeSeconds();
+		return CombatStateChange;
+	}
+	return FCombatStateChange();
+}
+
+void UCombatComponent::ServerSendCombatStateChange_Implementation(const FCombatStateChange& InCombatStateChange)
+{
+	ProcessChangeCombatState(InCombatStateChange.CombatStateToChange);
+
+	ServerCombatStateChangedState.CombatState = CombatState;
+	ServerCombatStateChangedState.LastCombatStateChange = InCombatStateChange;
+}
+
+void UCombatComponent::ClearAcknowledgedCombatStateChanges(const FCombatStateChange& LastCombatStateChange)
+{
+	TArray<FCombatStateChange> NewArray;
+
+	for (const FCombatStateChange& CombatStateChange : UnacknowledgedCombatStateChanges)
+	{
+		if (CombatStateChange.Time > LastCombatStateChange.Time)
+		{
+			NewArray.Add(CombatStateChange);
+		}
+	}
+	UnacknowledgedCombatStateChanges = NewArray;
 }
 
 void UCombatComponent::MulticastInterruptMontage_Implementation()
@@ -680,25 +767,6 @@ void UCombatComponent::ServerSendCarriedAmmoChange_Implementation(const FCarried
 	}
 }
 
-void UCombatComponent::OnRep_CombatState()
-{
-	// TODO: CombatState 모든 경우 처리
-	switch (CombatState)
-	{
-	case ECombatState::ECS_Reloading:
-		// Locally Controlled 캐릭터의 Reload Montage 중복 재생 방지
-		if (IsValidOwnerCharacter() && !OwnerCharacter->IsLocallyControlled())
-		{
-			HandleReload();	
-		}
-		break;
-
-	case ECombatState::ECS_TossingGrenade:
-		HandleUnEquipBeforeTossGrenade();
-		break;
-	}
-}
-
 void UCombatComponent::ServerLaunchGrenade_Implementation(const FVector_NetQuantize& HitTarget)
 {
 	MulticastLaunchGrenade(HitTarget);
@@ -807,7 +875,7 @@ void UCombatComponent::ServerTossGrenade_Implementation()
 	GetEquippingWeapon()->SetActorEnableCollision(false);
 	GetEquippingWeapon()->SetActorHiddenInGame(true);
 	
-	CombatState = ECombatState::ECS_TossingGrenade;
+	ChangeCombatState(ECombatState::ECS_TossingGrenade);
 	GrenadeAmount = FMath::Clamp(GrenadeAmount - 1, 0, MaxGrenadeAmount);
 	HandleUnEquipBeforeTossGrenade();
 }
@@ -869,6 +937,7 @@ void UCombatComponent::StartTossGrenade()
 
 void UCombatComponent::EquipFinished()
 {
+	ChangeCombatState(ECombatState::ECS_Unoccupied);
 }
 
 void UCombatComponent::InitSniperScope()
@@ -902,18 +971,19 @@ void UCombatComponent::TossGrenade()
 {
 	if (GetEquippingWeapon() && CombatState == ECombatState::ECS_Unoccupied && GrenadeAmount > 0)
 	{
+		ChangeCombatState(ECombatState::ECS_TossingGrenade);
 		ServerTossGrenade();
 	}
 }
 
 void UCombatComponent::TossGrenadeFinished()
 {
-	CombatState = ECombatState::ECS_Unoccupied;
 	
 	if (IsValidOwnerCharacter())
 	{
 		OwnerCharacter->PlayEquipMontage(GetEquipMontage(GetEquippingWeapon()->GetWeaponType()));
 	}
+	ChangeCombatState(ECombatState::ECS_Unoccupied);
 
 	const EWeaponType WeaponType = GetEquippingWeapon() ? GetEquippingWeapon()->GetWeaponType() : EWeaponType::EWT_Unarmed;
 	HandleEquip(WeaponType);

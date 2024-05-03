@@ -40,6 +40,37 @@ struct FCarriedAmmoState
 	FCarriedAmmoChange LastCarriedAmmoChange;
 };
 
+USTRUCT()
+struct FCombatStateChange
+{
+	GENERATED_BODY()
+	
+	UPROPERTY()
+	ECombatState CombatStateToChange;
+
+	UPROPERTY()
+	float Time;
+};
+
+USTRUCT()
+struct FCombatStateChangedState
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	ECombatState CombatState;
+
+	UPROPERTY()
+	FCombatStateChange LastCombatStateChange;
+};
+
+UENUM()
+enum class EEquipMode : uint8
+{
+	EEM_ChooseWeaponSlot,
+	EEM_OverlappingWeapon,
+	EEM_UnarmedState
+};
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class LBLASTER_API UCombatComponent : public UActorComponent
 {
@@ -317,12 +348,32 @@ private:
 	/*
 	 *	Combat State
 	 */
-	UPROPERTY(ReplicatedUsing=OnRep_CombatState)
+	UPROPERTY(VisibleAnywhere, Category = "LBlaster|Combat State")
 	ECombatState CombatState;
 
-	UFUNCTION()
-	void OnRep_CombatState();
+	void ChangeCombatState(ECombatState InCombatStateToChange);
 
+	void ProcessChangeCombatState(ECombatState InCombatStateToChange);
+
+	/*
+	 *	Client-Side Prediction for CombatState
+	 */
+	UPROPERTY(ReplicatedUsing=OnRep_ServerCombatStateChangedState)
+	FCombatStateChangedState ServerCombatStateChangedState;
+
+	UFUNCTION()
+	void OnRep_ServerCombatStateChangedState();
+	
+	FCombatStateChange CreateCombatStateChange(ECombatState InCombatStateToChange);
+
+	UFUNCTION(Server, Reliable)
+	void ServerSendCombatStateChange(const FCombatStateChange& InCombatStateChange);
+
+	UPROPERTY()
+	TArray<FCombatStateChange> UnacknowledgedCombatStateChanges;
+
+	void ClearAcknowledgedCombatStateChanges(const FCombatStateChange& LastCombatStateChange);
+	
 	/*
 	 *	Grenade
 	 */
