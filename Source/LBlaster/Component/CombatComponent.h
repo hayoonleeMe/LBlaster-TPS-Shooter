@@ -145,11 +145,11 @@ public:
 	void ShowSniperScopeWidget(bool bShowScope);
 	void TossGrenade();
 	void TossGrenadeFinished();
+	void StartTossGrenade();
 	void LaunchGrenade();
 	void UpdateHUDGrenadeAmount();
 	void PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount);
 	void ShowWeapon();
-	void StartTossGrenade();
 	void EquipFinished();
 
 protected:
@@ -413,6 +413,7 @@ private:
 	void ChangeCombatState(ECombatState InCombatStateToChange);
 
 	void ProcessChangeCombatState(ECombatState InCombatStateToChange);
+	void OnChangedCombatState();
 
 	/*
 	 *	Client-Side Prediction for CombatState
@@ -448,11 +449,11 @@ private:
 	UPROPERTY(EditAnywhere, Category="LBlaster|Grenade")
 	int32 MaxGrenadeAmount;
 
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing=OnRep_GrenadeAmount)
 	int32 GrenadeAmount;
 
-	UFUNCTION(Server, Reliable)
-	void ServerTossGrenade();
+	UFUNCTION()
+	void OnRep_GrenadeAmount();
 
 	UFUNCTION(Server, Reliable)
 	void ServerLaunchGrenade(const FVector_NetQuantize& HitTarget);
@@ -461,7 +462,6 @@ private:
 	void MulticastLaunchGrenade(const FVector_NetQuantize& HitTarget);
 
 	void LocalLaunchGrenade(const FVector_NetQuantize& HitTarget);
-	void HandleTossGrenade();
 	void HandleUnEquipBeforeTossGrenade();
 	void ShowAttachedGrenade(bool bShow);
 };

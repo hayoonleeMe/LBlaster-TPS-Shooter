@@ -383,6 +383,23 @@ void UCombatComponent::ChangeCombatState(ECombatState InCombatStateToChange)
 void UCombatComponent::ProcessChangeCombatState(ECombatState InCombatStateToChange)
 {
 	CombatState = InCombatStateToChange;
+	OnChangedCombatState();
+}
+
+void UCombatComponent::OnChangedCombatState()
+{
+	switch (CombatState)
+	{
+	case ECombatState::ECS_Reloading:
+		HandleReload();	
+		break;
+		
+	case ECombatState::ECS_TossingGrenade:
+		// 무기 숨김
+		GetEquippingWeapon()->SetEquippingWeaponVisibility(false);
+		HandleUnEquipBeforeTossGrenade();
+		break;
+	}
 }
 
 void UCombatComponent::OnRep_ServerCombatStateChangedState()
@@ -398,17 +415,6 @@ void UCombatComponent::OnRep_ServerCombatStateChangedState()
 	if (IsValidOwnerCharacter() && OwnerCharacter->GetLocalRole() == ROLE_SimulatedProxy)
 	{
 		ProcessChangeCombatState(ServerCombatStateChangedState.LastCombatStateChange.CombatStateToChange);
-	
-		switch (CombatState)
-		{
-		case ECombatState::ECS_Reloading:
-			HandleReload();	
-			break;
-		
-		case ECombatState::ECS_TossingGrenade:
-			HandleUnEquipBeforeTossGrenade();
-			break;
-		}
 	}
 }
 
@@ -768,11 +774,6 @@ void UCombatComponent::ServerSendCarriedAmmoChange_Implementation(const FCarried
 	}
 }
 
-void UCombatComponent::ServerLaunchGrenade_Implementation(const FVector_NetQuantize& HitTarget)
-{
-	MulticastLaunchGrenade(HitTarget);
-}
-
 void UCombatComponent::UpdateHUDGrenadeAmount()
 {
 	if (IsValidOwnerController())
@@ -831,26 +832,20 @@ void UCombatComponent::BeginPlay()
 	}
 }
 
-void UCombatComponent::ShowAttachedGrenade(bool bShow)
+void UCombatComponent::OnRep_GrenadeAmount()
 {
-	if (IsValidOwnerCharacter() && OwnerCharacter->GetAttachedGrenade())
-	{
-		OwnerCharacter->GetAttachedGrenade()->SetVisibility(bShow);
-	}
+	UpdateHUDGrenadeAmount();
 }
 
-void UCombatComponent::ServerTossGrenade_Implementation()
+void UCombatComponent::ServerLaunchGrenade_Implementation(const FVector_NetQuantize& HitTarget)
 {
-	// 무기 숨김
-	GetEquippingWeapon()->SetEquippingWeaponVisibility(false);
-	
-	ChangeCombatState(ECombatState::ECS_TossingGrenade);
-	GrenadeAmount = FMath::Clamp(GrenadeAmount - 1, 0, MaxGrenadeAmount);
-	HandleUnEquipBeforeTossGrenade();
+	LocalLaunchGrenade(HitTarget);
+	MulticastLaunchGrenade(HitTarget);
 }
 
 void UCombatComponent::MulticastLaunchGrenade_Implementation(const FVector_NetQuantize& HitTarget)
 {
+	// 중복 Launch 방지
 	if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled())
 	{
 		return;
@@ -881,16 +876,6 @@ void UCombatComponent::LocalLaunchGrenade(const FVector_NetQuantize& HitTarget)
 	}
 }
 
-void UCombatComponent::HandleTossGrenade()
-{
-	if (IsValidOwnerCharacter() && TossGrenadeMontage)
-	{
-		OwnerCharacter->PlayTossGrenadeMontage(TossGrenadeMontage);
-		ShowAttachedGrenade(true);
-		UpdateHUDGrenadeAmount();
-	}
-}
-
 void UCombatComponent::HandleUnEquipBeforeTossGrenade()
 {
 	if (IsValidOwnerCharacter() && UnEquipBeforeTossGrenadeMontage)
@@ -899,9 +884,12 @@ void UCombatComponent::HandleUnEquipBeforeTossGrenade()
 	}
 }
 
-void UCombatComponent::StartTossGrenade()
+void UCombatComponent::ShowAttachedGrenade(bool bShow)
 {
-	HandleTossGrenade();
+	if (IsValidOwnerCharacter() && OwnerCharacter->GetAttachedGrenade())
+	{
+		OwnerCharacter->GetAttachedGrenade()->SetVisibility(bShow);
+	}
 }
 
 void UCombatComponent::EquipFinished()
@@ -940,32 +928,53 @@ void UCombatComponent::TossGrenade()
 {
 	if (GetEquippingWeapon() && CombatState == ECombatState::ECS_Unoccupied && GrenadeAmount > 0)
 	{
+		// Local & Server Call HandleUnEquipBeforeTossGrenade()
 		ChangeCombatState(ECombatState::ECS_TossingGrenade);
-		ServerTossGrenade();
 	}
 }
 
 void UCombatComponent::TossGrenadeFinished()
 {
-	
-	if (IsValidOwnerCharacter())
-	{
-		OwnerCharacter->PlayEquipMontage(GetEquipMontage(GetEquippingWeapon()->GetWeaponType()));
-	}
 	ChangeCombatState(ECombatState::ECS_Unoccupied);
 
-	const EWeaponType WeaponType = GetEquippingWeapon() ? GetEquippingWeapon()->GetWeaponType() : EWeaponType::EWT_Unarmed;
-	HandleEquip(WeaponType);
+	if (GetEquippingWeapon())
+	{
+		HandleEquip(GetEquippingWeapon()->GetWeaponType());
+		ShowWeapon();
+	}
+}
+
+void UCombatComponent::StartTossGrenade()
+{
+	if (IsValidOwnerCharacter() && TossGrenadeMontage)
+	{
+		OwnerCharacter->PlayTossGrenadeMontage(TossGrenadeMontage);
+		ShowAttachedGrenade(true);
+
+		if (OwnerCharacter->HasAuthority())
+		{
+			GrenadeAmount = FMath::Clamp(GrenadeAmount - 1, 0, MaxGrenadeAmount);
+			UpdateHUDGrenadeAmount();
+		}
+	}
 }
 
 void UCombatComponent::LaunchGrenade()
 {
-	ShowAttachedGrenade(false);
+	if (!IsValidOwnerCharacter())
+	{
+		return;
+	}
 
-	if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled())
+	ShowAttachedGrenade(false);
+	if (OwnerCharacter->GetLocalRole() == ROLE_AutonomousProxy)
 	{
 		LocalLaunchGrenade(TraceHitTarget);
-		ServerLaunchGrenade(TraceHitTarget);	
+		ServerLaunchGrenade(TraceHitTarget);
+	}
+	if (OwnerCharacter->HasAuthority() && OwnerCharacter->IsLocallyControlled())
+	{
+		ServerLaunchGrenade(TraceHitTarget);
 	}
 }
 
