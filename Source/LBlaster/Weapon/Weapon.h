@@ -69,6 +69,7 @@ public:
 	void ChangeWeaponState(EWeaponState InWeaponStateToChange);
 	void SetHUDAmmo();
 	void AddAmmo(int32 InAmmoToAdd);
+	FORCEINLINE void SetSelected(bool bInSelected) { bSelected = bInSelected; }
 	void SetEquippingWeaponVisibility(bool bInVisible);
 
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
@@ -133,6 +134,8 @@ protected:
 	TObjectPtr<class ALBlasterPlayerController> OwnerController;
 
 	bool IsValidOwnerController();
+
+	bool bSelected = false;
 	
 	/*
 	 *	Weapon Type

@@ -1309,7 +1309,7 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 		ChangeCombatState(ECombatState::ECS_Equipping);
 		GetEquippingWeapon()->SetOwner(OwnerCharacter);
 		GetEquippingWeapon()->ChangeWeaponState(EWeaponState::EWS_Equipped);
-		GetEquippingWeapon()->SetSelected(true);
+		GetEquippingWeapon()->SetSelected(true); 
 		GetEquippingWeapon()->SetHUDAmmo();
 			
 		if (CarriedAmmoMap.Contains(GetEquippingWeapon()->GetWeaponType()))
