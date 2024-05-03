@@ -24,6 +24,7 @@ AWeapon::AWeapon()
 	/* Mesh */
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	SetRootComponent(WeaponMesh);
+	WeaponMesh->SetIsReplicated(false);
 	WeaponMesh->SetCollisionResponseToAllChannels(ECR_Block);
 	WeaponMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	WeaponMesh->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
@@ -40,12 +41,14 @@ AWeapon::AWeapon()
 	/* Overlap Sphere */
 	AreaSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AreaSphere"));
 	AreaSphere->SetupAttachment(RootComponent);
+	AreaSphere->SetIsReplicated(false);
 	AreaSphere->SetCollisionResponseToAllChannels(ECR_Ignore);
 	AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	/* Pickup Widget Component */
 	PickupWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Pickup Widget Component"));
 	PickupWidgetComponent->SetupAttachment(RootComponent);
+	PickupWidgetComponent->SetIsReplicated(false);
 	PickupWidgetComponent->SetRelativeLocation(FVector(0.f, 20.f, 50.f));
 	PickupWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	PickupWidgetComponent->SetDrawAtDesiredSize(true);
@@ -113,6 +116,22 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 
 	DOREPLIFETIME(AWeapon, ServerAmmoState);
 	DOREPLIFETIME(AWeapon, ServerWeaponStateChangedState);
+	DISABLE_REPLICATED_PRIVATE_PROPERTY(AWeapon, bHidden);
+	DISABLE_REPLICATED_PROPERTY(AWeapon, Owner);
+}
+
+void AWeapon::SetOwner(AActor* NewOwner)
+{
+	Super::SetOwner(NewOwner);
+
+	if (NewOwner)
+	{
+		OwnerCharacter = Cast<ALBlasterCharacter>(NewOwner);
+	}
+	else
+	{
+		OwnerCharacter = nullptr;
+	}
 }
 
 void AWeapon::ShowPickupWidget(bool bInShow) const
@@ -152,6 +171,12 @@ void AWeapon::AddAmmo(int32 InAmmoToAdd)
 	{
 		ServerSendAmmoChange(AmmoChange);
 	}
+}
+
+void AWeapon::SetEquippingWeaponVisibility(bool bInVisible)
+{
+	SetActorEnableCollision(bInVisible);
+	SetActorHiddenInGame(!bInVisible);
 }
 
 float AWeapon::GetSphereRadius() const
@@ -280,10 +305,10 @@ void AWeapon::Dropped()
 
 void AWeapon::Holstered()
 {
+	SetEquippingWeaponVisibility(false);
 
 	const FDetachmentTransformRules DetachRule(EDetachmentRule::KeepWorld, true);
 	WeaponMesh->DetachFromComponent(DetachRule);
-	SetOwner(nullptr);
 }
 
 void AWeapon::EnableCustomDepth(bool bEnable) const
@@ -312,16 +337,6 @@ void AWeapon::BeginPlay()
 	AreaSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnSphereBeginOverlap);
 	AreaSphere->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnSphereEndOverlap);
-}
-
-void AWeapon::OnRep_Owner()
-{
-	Super::OnRep_Owner();
-
-	if (GetOwner())
-	{
-		SetHUDAmmo();
-	}
 }
 
 void AWeapon::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,

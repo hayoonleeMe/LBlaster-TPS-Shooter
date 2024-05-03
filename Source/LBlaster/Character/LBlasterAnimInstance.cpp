@@ -55,11 +55,11 @@ void ULBlasterAnimInstance::AnimNotify_GrenadeLaunch()
 	}
 }
 
-void ULBlasterAnimInstance::AnimNotify_ShowWeapon()
+void ULBlasterAnimInstance::AnimNotify_StartTossGrenade()
 {
-	if (IsValidCharacter() && Character->HasAuthority())
+	if (IsValidCharacter())
 	{
-		Character->ShowWeapon();
+		Character->StartTossGrenade();
 	}
 }
 

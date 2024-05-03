@@ -336,11 +336,11 @@ FTransform ALBlasterCharacter::GetWeaponLeftHandTransform() const
 	return FTransform::Identity;
 }
 
-void ALBlasterCharacter::ShowWeapon() const
+void ALBlasterCharacter::StartTossGrenade() const
 {
 	if (CombatComponent)
 	{
-		CombatComponent->ShowWeapon();
+		CombatComponent->StartTossGrenade();
 	}
 }
 
