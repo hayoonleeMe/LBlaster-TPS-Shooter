@@ -52,7 +52,6 @@ public:
 	void LaunchGrenade() const;
 	FORCEINLINE const FVector2D& GetMovementVector() const { return MovementVector; };
 	FTransform GetWeaponLeftHandTransform() const;
-	void ShowWeapon() const;
 	void StartTossGrenade() const;
 	void EquipFinished() const;
 

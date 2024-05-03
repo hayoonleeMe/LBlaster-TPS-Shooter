@@ -63,11 +63,13 @@ class LBLASTER_API AWeapon : public AActor
 public:	
 	AWeapon();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void SetOwner(AActor* NewOwner) override;
 	
 	void ShowPickupWidget(bool bInShow) const;
 	void ChangeWeaponState(EWeaponState InWeaponStateToChange);
 	void SetHUDAmmo();
 	void AddAmmo(int32 InAmmoToAdd);
+	void SetEquippingWeaponVisibility(bool bInVisible);
 
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 	FORCEINLINE TSubclassOf<UAnimInstance> GetWeaponAnimLayer() const { return WeaponAnimLayer; }
@@ -100,7 +102,6 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void OnRep_Owner() override;
 
 	UFUNCTION()
 	virtual void OnSphereBeginOverlap(
@@ -174,9 +175,7 @@ protected:
     void OnChangedWeaponState();
 
 	void ProcessChangeWeaponState(EWeaponState InWeaponStateToChange);
-
-	bool bSelected = false;
-
+	
 	/*
 	 *	Client-Side Prediction for Weapon State
 	 */

@@ -64,9 +64,6 @@ void APickup::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (HasAuthority())
-	{
-	}
 	OverlapSphere->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnSphereOverlap);
 }
 

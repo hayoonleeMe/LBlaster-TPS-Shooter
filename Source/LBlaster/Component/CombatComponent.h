@@ -71,6 +71,43 @@ enum class EEquipMode : uint8
 	EEM_OverlappingWeapon,
 	EEM_UnarmedState
 };
+
+USTRUCT()
+struct FWeaponEquip
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	EEquipSlot SlotToEquip;
+	
+	UPROPERTY()
+	TObjectPtr<class AWeapon> WeaponToEquip;
+
+	UPROPERTY()
+	EEquipMode EquipMode;
+
+	UPROPERTY()
+	float Time;
+};
+
+USTRUCT()
+struct FWeaponEquipState
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	EEquipSlot EquippingSlot;
+	
+	UPROPERTY()
+	TObjectPtr<AWeapon> EquippingWeapon;
+
+	UPROPERTY()
+	EEquipMode EquipMode;
+
+	UPROPERTY()
+	FWeaponEquip LastWeaponEquip;
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class LBLASTER_API UCombatComponent : public UActorComponent
 {
@@ -80,22 +117,21 @@ public:
 	UCombatComponent();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
+	
 	FORCEINLINE bool IsAiming() const { return bIsAiming; }
 	FORCEINLINE bool IsFiring() const { return bIsFiring; }
 	FORCEINLINE bool IsReloading() const { return CombatState == ECombatState::ECS_Reloading; }
-	FORCEINLINE class AWeapon* GetEquippingWeapon() { return EquipSlots[static_cast<uint8>(EquipSlotType)]; }
+	FORCEINLINE class AWeapon* GetEquippingWeapon() { return GetEquippingWeapon(EquipSlotType); }
+	AWeapon* GetEquippingWeapon(EEquipSlot InEquipSlotType);
 	FTransform GetWeaponLeftHandTransform();
 	FORCEINLINE int32 GetGrenadeAmount() const { return GrenadeAmount; }
 	FORCEINLINE EEquipSlot GetEquipSlotType() const { return EquipSlotType; }
 
 	UFUNCTION(Server, Reliable)
-	void ServerEquipOverlappingWeapon();
-
-	void EquipOverlappingWeapon();
-
-	UFUNCTION(Server, Reliable)
 	void ServerEquipDefaultWeapon();
+
+	void ChooseWeaponSlot(EEquipSlot InEquipSlotType);
+	void EquipOverlappingWeapon();
 	
 	void SetAiming(bool bInAiming);
 	void SetFiring(bool bInFiring);
@@ -114,11 +150,6 @@ public:
 	void PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount);
 	void ShowWeapon();
 	void StartTossGrenade();
-
-	UFUNCTION(Server, Reliable)
-	void ServerChooseWeaponSlot(EEquipSlot InEquipSlotType);
-
-	void ChooseWeaponSlot(EEquipSlot InEquipSlotType);
 	void EquipFinished();
 
 protected:
@@ -146,9 +177,9 @@ private:
 	/*
 	 *	Weapon
 	 */
-	void EquipWeapon(AWeapon* InWeapon);
-	void SwapWeapon(AWeapon* InWeapon);
-	void HolsterWeapon();
+	void EquipWeapon(EEquipSlot InEquipSlotType, EEquipMode InEquipMode, AWeapon* InWeaponToEquip = nullptr);
+	void ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode InEquipMode, AWeapon* InWeaponToEquip, bool bPlayEquipMontage = true);
+	void HolsterWeapon(EEquipSlot InEquipSlotType);
 	
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastSwitchToUnarmedState(bool bSkipUnEquipMontage);
@@ -160,21 +191,49 @@ private:
 	UAnimMontage* GetEquipMontage(EWeaponType InWeaponType);
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Weapon")
-	TSubclassOf<AWeapon> DefaultWeaponClass;
-
-	UPROPERTY(EditAnywhere, Category="LBlaster|Weapon")
 	TMap<EWeaponType, UAnimMontage*> EquipMontages;
 
-	UPROPERTY(Replicated)
+	UPROPERTY()
 	EEquipSlot EquipSlotType;
 
-	UPROPERTY(ReplicatedUsing="OnRep_EquipSlots")
-	TArray<AWeapon*> EquipSlots;
+	UPROPERTY()
+	TArray<TObjectPtr<AWeapon>> EquipSlots;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Weapon")
+	TSubclassOf<AWeapon> DefaultWeaponClass;
+
+	UPROPERTY(ReplicatedUsing=OnRep_DefaultWeapon)
+	TObjectPtr<AWeapon> DefaultWeapon;
 
 	UFUNCTION()
-    void OnRep_EquipSlots();
+	void OnRep_DefaultWeapon();
 
-	void SetEquippingWeapon(AWeapon* InWeapon);
+	bool bEquipDefaultWeapon = false;
+
+	FTimerHandle EquipDelayTimer;
+
+	float EquipDelay = 0.3f;
+
+	bool bCanEquipWeapon = true;
+
+	/*
+	 *	Client-Side Prediction for Equip
+	 */
+	UPROPERTY(ReplicatedUsing=OnRep_ServerWeaponEquipState)
+	FWeaponEquipState ServerWeaponEquipState;
+
+	UFUNCTION()
+	void OnRep_ServerWeaponEquipState();
+
+	FWeaponEquip CreateWeaponEquip(EEquipSlot InEquipSlotType, EEquipMode InEquipMode, AWeapon* InWeaponToEquip);
+
+	UFUNCTION(Server, Reliable)
+	void ServerSendWeaponEquip(const FWeaponEquip& InWeaponEquip);
+
+	UPROPERTY()
+	TArray<FWeaponEquip> UnacknowledgedWeaponEquips;
+
+	void ClearAcknowledgedWeaponEquip(const FWeaponEquip& LastWeaponEquip);
 
 	/*
 	 *	Aiming

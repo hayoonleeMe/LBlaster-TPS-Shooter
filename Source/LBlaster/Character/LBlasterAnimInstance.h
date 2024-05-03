@@ -28,7 +28,7 @@ public:
 	void AnimNotify_GrenadeLaunch();
 
 	UFUNCTION()
-	void AnimNotify_ShowWeapon();
+	void AnimNotify_StartTossGrenade();
 
 	UFUNCTION()
 	void AnimNotify_EquipFinished();
