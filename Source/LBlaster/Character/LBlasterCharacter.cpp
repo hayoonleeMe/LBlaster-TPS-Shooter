@@ -243,7 +243,6 @@ void ALBlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(ALBlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
-	DOREPLIFETIME(ALBlasterCharacter, LastHitNormal);
 }
 
 void ALBlasterCharacter::PostInitializeComponents()
@@ -767,11 +766,6 @@ void ALBlasterCharacter::PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount
 	{
 		CombatComponent->PickupAmmo(InWeaponType, InAmmoAmount);
 	}
-}
-
-void ALBlasterCharacter::OnRep_LastHitNormal()
-{
-	PlayHitReactMontage(LastHitNormal);
 }
 
 void ALBlasterCharacter::PlayDeathMontage(const FVector& HitNormal)
