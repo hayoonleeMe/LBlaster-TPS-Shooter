@@ -63,11 +63,11 @@ void ULBlasterAnimInstance::AnimNotify_ShowWeapon()
 	}
 }
 
-void ULBlasterAnimInstance::AnimNotify_StartTossGrenade()
+void ULBlasterAnimInstance::AnimNotify_EquipFinished()
 {
 	if (IsValidCharacter())
 	{
-		Character->StartTossGrenade();
+		Character->EquipFinished();
 	}
 }
 

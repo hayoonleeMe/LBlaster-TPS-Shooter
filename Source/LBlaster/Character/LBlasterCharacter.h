@@ -54,6 +54,7 @@ public:
 	FTransform GetWeaponLeftHandTransform() const;
 	void ShowWeapon() const;
 	void StartTossGrenade() const;
+	void EquipFinished() const;
 
 	/*
 	 *	Leave Game

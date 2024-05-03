@@ -344,11 +344,11 @@ void ALBlasterCharacter::ShowWeapon() const
 	}
 }
 
-void ALBlasterCharacter::StartTossGrenade() const
+void ALBlasterCharacter::EquipFinished() const
 {
 	if (CombatComponent)
 	{
-		CombatComponent->StartTossGrenade();
+		CombatComponent->EquipFinished();
 	}
 }
 

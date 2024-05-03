@@ -88,6 +88,7 @@ public:
 	void ServerChooseWeaponSlot(EEquipSlot InEquipSlotType);
 
 	void ChooseWeaponSlot(EEquipSlot InEquipSlotType);
+	void EquipFinished();
 
 protected:
 	virtual void BeginPlay() override;
