@@ -282,11 +282,17 @@ private:
 	/*
 	 *	Firing
 	 */
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing=OnRep_IsFiring)
 	uint8 bIsFiring : 1;
+
+	UFUNCTION()
+	void OnRep_IsFiring();
 
 	UFUNCTION(Server, Reliable)
 	void ServerSetFiring(bool bInFiring);
+
+	// Locally Controlled 캐릭터에서 실제로 조준하는지
+	bool bDesiredIsFiring = false;
 
 	bool CanFire();	
 	void Fire();

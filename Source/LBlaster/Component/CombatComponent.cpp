@@ -178,18 +178,6 @@ void UCombatComponent::ServerSetAiming_Implementation(bool bInAiming)
 	}
 }
 
-void UCombatComponent::SetFiring(bool bInFiring)
-{
-	if (!GetEquippingWeapon() || (bInFiring && !bCanFire))
-	{
-		return;
-	}
-	
-	bIsFiring = bInFiring;
-	ServerSetFiring(bInFiring);
-	Fire();
-}
-
 UAnimMontage* UCombatComponent::SelectHitReactMontage(const FVector& HitNormal)
 {
 	const FVector& ActorForward = GetOwner()->GetActorForwardVector();
@@ -1056,9 +1044,33 @@ void UCombatComponent::LaunchGrenade()
 	}
 }
 
+void UCombatComponent::SetFiring(bool bInFiring)
+{
+	if (!IsValidOwnerCharacter() && !GetEquippingWeapon())
+	{
+		return;
+	}
+
+	bIsFiring = bInFiring;
+	if (OwnerCharacter->GetLocalRole() == ROLE_AutonomousProxy)
+	{
+		bDesiredIsFiring = bIsFiring;
+	}
+	ServerSetFiring(bInFiring);
+	
+	Fire();
+}
+
 void UCombatComponent::ServerSetFiring_Implementation(bool bInFiring)
 {
 	bIsFiring = bInFiring;
+
+void UCombatComponent::OnRep_IsFiring()
+{
+	if (IsValidOwnerCharacter() && OwnerCharacter->GetLocalRole() == ROLE_AutonomousProxy)
+	{
+		bIsFiring = bDesiredIsFiring;
+	}
 }
 
 bool UCombatComponent::CanFire()
