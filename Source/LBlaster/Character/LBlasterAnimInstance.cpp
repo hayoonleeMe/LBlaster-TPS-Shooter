@@ -24,7 +24,7 @@ void ULBlasterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	bIsAiming = Character->IsAiming();
 	const FLBlasterCharacterGroundInfo& GroundInfo = CharacterMovementComponent->GetGroundInfo();
 	GroundDistance = GroundInfo.GroundDistance;
-	bIsFiring = Character->IsFiring();
+	bIsFiring = Character->IsEquippingWeapon() && Character->IsFiring();
 
 	/* Left Hand */
 	WeaponLeftHandTransform = Character->GetWeaponLeftHandTransform();
