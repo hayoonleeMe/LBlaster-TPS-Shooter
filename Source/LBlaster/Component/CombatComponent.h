@@ -327,6 +327,8 @@ private:
 	bool CanDryFire();
 	void DryFire();
 
+	bool CanReloadOnFire();
+
 	/*
 	 *	Crosshair
 	 */

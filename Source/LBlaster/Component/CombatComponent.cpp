@@ -595,7 +595,7 @@ void UCombatComponent::StartDryFireTimer()
 bool UCombatComponent::CanDryFire()
 {
 	// 탄약 부족으로 발사할 수 없는 상태
-	return GetEquippingWeapon() != nullptr && bCanFire && bIsFiring && CombatState == ECombatState::ECS_Unoccupied && GetEquippingWeapon()->IsAmmoEmpty() && CarriedAmmoMap[GetEquippingWeapon()->GetWeaponType()] == 0;
+	return GetEquippingWeapon() != nullptr && bCanFire && bIsFiring && CombatState == ECombatState::ECS_Unoccupied && GetEquippingWeapon()->IsAmmoEmpty() && CarriedAmmoMap.Contains(GetEquippingWeapon()->GetWeaponType()) && CarriedAmmoMap[GetEquippingWeapon()->GetWeaponType()] == 0;
 }
 
 void UCombatComponent::DryFire()
@@ -605,6 +605,11 @@ void UCombatComponent::DryFire()
 		UGameplayStatics::PlaySoundAtLocation(this, DryFireSound, GetEquippingWeapon()->GetActorLocation());
 	}
 	StartDryFireTimer();
+}
+
+bool UCombatComponent::CanReloadOnFire()
+{
+	return GetEquippingWeapon() != nullptr && bCanFire && bIsFiring && CombatState == ECombatState::ECS_Unoccupied && GetEquippingWeapon()->IsAmmoEmpty() && CarriedAmmoMap.Contains(GetEquippingWeapon()->GetWeaponType()) && CarriedAmmoMap[GetEquippingWeapon()->GetWeaponType()] > 0;
 }
 
 void UCombatComponent::SetHUDCrosshair(float DeltaTime)
@@ -1115,6 +1120,10 @@ void UCombatComponent::Fire()
 
 		// 수직 반동
 		OwnerCharacter->AddControllerPitchInput(-1.f * GetEquippingWeapon()->GetVerticalRecoilValue());
+	}
+	else if (CanReloadOnFire())
+	{
+		Reload();
 	}
 	else if (CanDryFire())
 	{
