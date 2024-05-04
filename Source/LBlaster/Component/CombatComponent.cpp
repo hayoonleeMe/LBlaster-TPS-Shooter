@@ -9,6 +9,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Weapon/Weapon.h"
 #include "Character/LBlasterCharacter.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/GameStateBase.h"
 #include "HUD/LBlasterHUD.h"
@@ -1392,6 +1393,8 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 			OwnerController->ChooseWeaponSlot(EquipSlotType);
 		}
 
+		// Equip이 끝나고 다시 Overlap 이벤트가 발생한 Drop된 Weapon이 있는지 체크
+		FindNearestOverlappingWeapon();
 		return;
 	}
 
@@ -1442,6 +1445,9 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 		/* Sniper Scope */
 		InitSniperScope();
 	}
+
+	// Equip이 끝나고 다시 Overlap 이벤트가 발생한 Drop된 Weapon이 있는지 체크
+	FindNearestOverlappingWeapon();
 }
 
 void UCombatComponent::OnRep_ServerWeaponEquipState()
@@ -1510,5 +1516,42 @@ void UCombatComponent::HolsterWeapon(EEquipSlot InEquipSlotType)
 	if (GetEquippingWeapon(InEquipSlotType))
 	{
 		GetEquippingWeapon(InEquipSlotType)->Holstered();
+	}
+}
+
+void UCombatComponent::FindNearestOverlappingWeapon()
+{
+	if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled())
+	{
+		// Overlapping Weapon 초기화
+		OwnerCharacter->SetOverlappingWeapon(nullptr);
+		
+		TArray<AActor*> OverlappingActors;
+		OwnerCharacter->GetCapsuleComponent()->GetOverlappingActors(OverlappingActors, AWeapon::StaticClass());
+		if (OverlappingActors.Num() == 0)
+		{
+			return;
+		}
+
+		// 캐릭터와 가장 가까운 Weapon을 Overlapping하도록 설정
+		const FVector Location = OwnerCharacter->GetActorLocation();
+		float MinDistance = MAX_flt;
+		AActor* NearestActor = nullptr;
+		for (AActor* Actor : OverlappingActors)
+		{
+			if (const float Distance = (Location - Actor->GetActorLocation()).Length(); Distance < MinDistance)
+			{
+				NearestActor = Actor;
+				MinDistance = Distance;
+			}
+		}
+		// 찾으면 SetOverlappingWeapon
+		if (NearestActor)
+		{
+			if (AWeapon* NearestWeapon = Cast<AWeapon>(NearestActor))
+			{
+				OwnerCharacter->SetOverlappingWeapon(NearestWeapon);
+			}	
+		}
 	}
 }
