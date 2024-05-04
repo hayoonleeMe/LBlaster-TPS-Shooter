@@ -1349,11 +1349,16 @@ void UCombatComponent::EquipWeapon(EEquipSlot InEquipSlotType, EEquipMode InEqui
 
 void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode InEquipMode, AWeapon* InWeaponToEquip, bool bPlayEquipMontage, bool bCanSendCombatStateRPC)
 {
+	if (!IsValidOwnerCharacter())
+	{
+		return;
+	}
+	
 	SetAiming(false);
 	bCanFire = true;
 
 	// Set Equip Delay Timer
-	if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled())
+	if (OwnerCharacter->IsLocallyControlled())
 	{
 		bCanEquipWeapon = false;
 		GetWorld()->GetTimerManager().SetTimer(EquipDelayTimer, FTimerDelegate::CreateLambda(
@@ -1364,30 +1369,27 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 	EEquipSlot PrevSlotType = EquipSlotType;
 	EquipSlotType = InEquipSlotType;
 
+	// Switch to Unarmed State
 	if (InEquipMode == EEquipMode::EEM_UnarmedState)
 	{
 		// 슬롯 바꾸기 전에 들고 있던 무기 손에서 떼야함.
 		HolsterWeapon(PrevSlotType);	
 		
-		// Switch to Unarmed State
-		if (IsValidOwnerCharacter())
+		// 이전 슬롯과 현재 슬롯이 모두 Unarmed라면 Equip Montage 재생 X
+		const bool bShouldPlayUnarmedEquipMontage = bPlayEquipMontage && EquipSlots[static_cast<uint8>(PrevSlotType)];
+		if (bShouldPlayUnarmedEquipMontage)
 		{
-			// 이전 슬롯과 현재 슬롯이 모두 Unarmed라면 Equip Montage 재생 X
-			const bool bShouldPlayUnarmedEquipMontage = bPlayEquipMontage && EquipSlots[static_cast<uint8>(PrevSlotType)];
-			if (bShouldPlayUnarmedEquipMontage)
-			{
-				OwnerCharacter->SetWeaponAnimLayers(EWeaponType::EWT_Unarmed);
-			}
-			ChangeCombatState(ECombatState::ECS_Equipping, bPlayEquipMontage, bShouldPlayUnarmedEquipMontage, bCanSendCombatStateRPC);
+			OwnerCharacter->SetWeaponAnimLayers(EWeaponType::EWT_Unarmed);
+		}
+		ChangeCombatState(ECombatState::ECS_Equipping, bPlayEquipMontage, bShouldPlayUnarmedEquipMontage, bCanSendCombatStateRPC);
 		
-			if (IsValidOwnerController() && OwnerCharacter->IsLocallyControlled())
-			{
-				OwnerController->SetHUDAmmo(0);
-				OwnerController->SetHUDCarriedAmmo(0);
-				OwnerController->SetHUDWeaponTypeText(GetWeaponTypeString());
-				OwnerController->SetWeaponSlotIcon(EquipSlotType, EWeaponType::EWT_Unarmed);
-				OwnerController->ChooseWeaponSlot(EquipSlotType);
-			}
+		if (IsValidOwnerController() && OwnerCharacter->IsLocallyControlled())
+		{
+			OwnerController->SetHUDAmmo(0);
+			OwnerController->SetHUDCarriedAmmo(0);
+			OwnerController->SetHUDWeaponTypeText(GetWeaponTypeString());
+			OwnerController->SetWeaponSlotIcon(EquipSlotType, EWeaponType::EWT_Unarmed);
+			OwnerController->ChooseWeaponSlot(EquipSlotType);
 		}
 
 		return;
@@ -1405,12 +1407,13 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 		// 슬롯 바꾸기 전에 들고 있던 무기 손에서 떼야함.
 		HolsterWeapon(PrevSlotType);
 	}
-
-	if (InWeaponToEquip)
-	{
-		EquipSlots[static_cast<uint8>(EquipSlotType)] = InWeaponToEquip;
-	}
-	if (GetEquippingWeapon() && IsValidOwnerCharacter())
+	
+	// Restore Weapon To Equip
+    if (InWeaponToEquip)
+    {
+    	EquipSlots[static_cast<uint8>(EquipSlotType)] = InWeaponToEquip;
+    }
+	if (GetEquippingWeapon())
 	{
 		GetEquippingWeapon()->SetOwner(OwnerCharacter);
 		GetEquippingWeapon()->ChangeWeaponState(EWeaponState::EWS_Equipped);
@@ -1438,12 +1441,6 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 			
 		/* Sniper Scope */
 		InitSniperScope();
-
-		// Reload Empty Weapon
-		// if (OwnerCharacter->IsLocallyControlled() && GetEquippingWeapon()->IsAmmoEmpty())
-		// {
-		// 	Reload();
-		// }
 	}
 }
 
