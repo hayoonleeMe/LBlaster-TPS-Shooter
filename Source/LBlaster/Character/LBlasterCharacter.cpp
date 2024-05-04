@@ -842,10 +842,7 @@ void ALBlasterCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
 			CombatComponent->SetAiming(false);
 		}
 		// 소지 중인 무기 모두 해제
-		if (HasAuthority())
-		{
-			CombatComponent->ElimWeapon();
-		}
+		CombatComponent->ElimWeapon();
 	}
 	
 	PlayDeathMontage(LastHitNormal);
