@@ -117,6 +117,27 @@ struct FWeaponEquipState
 	FWeaponEquip LastWeaponEquip;
 };
 
+USTRUCT(BlueprintType)
+struct FCrosshairTexture
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UTexture2D> CenterCrosshair;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UTexture2D> TopCrosshair;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UTexture2D> BottomCrosshair;
+	
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UTexture2D> LeftCrosshair;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UTexture2D> RightCrosshair;
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class LBLASTER_API UCombatComponent : public UActorComponent
 {
@@ -309,6 +330,18 @@ private:
 	float CrosshairInAirFactor;
 	float CrosshairAimFactor;
 	float CrosshairShootingFactor;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Crosshair")
+	FCrosshairTexture DefaultCrosshair;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Crosshair")
+	FCrosshairTexture ShotgunCrosshair;
+
+	UTexture2D* GetCenterCrosshair(EWeaponType InWeaponType = EWeaponType::EWT_Unarmed) const;
+	UTexture2D* GetTopCrosshair(EWeaponType InWeaponType = EWeaponType::EWT_Unarmed) const;
+	UTexture2D* GetBottomCrosshair(EWeaponType InWeaponType = EWeaponType::EWT_Unarmed) const;
+	UTexture2D* GetLeftCrosshair(EWeaponType InWeaponType = EWeaponType::EWT_Unarmed) const;
+	UTexture2D* GetRightCrosshair(EWeaponType InWeaponType = EWeaponType::EWT_Unarmed) const;
 
 	/*
 	 *	Sniper Scope

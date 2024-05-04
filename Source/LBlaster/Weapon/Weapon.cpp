@@ -61,33 +61,6 @@ AWeapon::AWeapon()
 		PickupWidgetComponent->SetWidgetClass(PickupWidgetClassRef.Class);
 	}
 
-	/* Crosshair */
-	static ConstructorHelpers::FObjectFinder<UTexture2D> CenterCrosshairRef(TEXT("/Script/Engine.Texture2D'/Game/LBlaster/UI/Crosshair/Primary/Crosshair_Center.Crosshair_Center'"));
-	if (CenterCrosshairRef.Object)
-	{
-		CenterCrosshair = CenterCrosshairRef.Object;
-	}
-	static ConstructorHelpers::FObjectFinder<UTexture2D> TopCrosshairRef(TEXT("/Script/Engine.Texture2D'/Game/LBlaster/UI/Crosshair/Primary/Crosshair_Top.Crosshair_Top'"));
-	if (TopCrosshairRef.Object)
-	{
-		TopCrosshair = TopCrosshairRef.Object;
-	}
-	static ConstructorHelpers::FObjectFinder<UTexture2D> BottomCrosshairRef(TEXT("/Script/Engine.Texture2D'/Game/LBlaster/UI/Crosshair/Primary/Crosshair_Bottom.Crosshair_Bottom'"));
-	if (BottomCrosshairRef.Object)
-	{
-		BottomCrosshair = BottomCrosshairRef.Object;
-	}
-	static ConstructorHelpers::FObjectFinder<UTexture2D> LeftCrosshairRef(TEXT("/Script/Engine.Texture2D'/Game/LBlaster/UI/Crosshair/Primary/Crosshair_Left.Crosshair_Left'"));
-	if (LeftCrosshairRef.Object)
-	{
-		LeftCrosshair = LeftCrosshairRef.Object;
-	}
-	static ConstructorHelpers::FObjectFinder<UTexture2D> RightCrosshairRef(TEXT("/Script/Engine.Texture2D'/Game/LBlaster/UI/Crosshair/Primary/Crosshair_Right.Crosshair_Right'"));
-	if (RightCrosshairRef.Object)
-	{
-		RightCrosshair = RightCrosshairRef.Object;
-	}
-
 	/* Auto Fire */
 	bAutomatic = true;
 	FireDelay = 0.15f;
