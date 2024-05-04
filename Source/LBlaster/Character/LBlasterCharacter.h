@@ -198,7 +198,7 @@ private:
 	/*
 	 *	Weapon
 	 */
-	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon)
+	UPROPERTY()
 	TObjectPtr<AWeapon> OverlappingWeapon;
 
 	UFUNCTION()

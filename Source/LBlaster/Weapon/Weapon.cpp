@@ -111,10 +111,13 @@ void AWeapon::ShowPickupWidget(bool bInShow) const
 {
 	if (PickupWidgetComponent)
 	{
-		// 항상 Weapon 위에 표시되도록 위치 보정
-		const FVector RelativeLocation = GetActorRotation().UnrotateVector(LocOffset);
-		PickupWidgetComponent->SetRelativeLocation(RelativeLocation);
 		PickupWidgetComponent->SetVisibility(bInShow);
+		if (bInShow)
+		{
+			// 항상 Weapon 위에 표시되도록 위치 보정
+			const FVector RelativeLocation = GetActorRotation().UnrotateVector(LocOffset);
+			PickupWidgetComponent->SetRelativeLocation(RelativeLocation);	
+		}
 	}
 }
 
