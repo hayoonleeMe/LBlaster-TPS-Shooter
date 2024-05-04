@@ -209,6 +209,7 @@ private:
 	void EquipWeapon(EEquipSlot InEquipSlotType, EEquipMode InEquipMode, AWeapon* InWeaponToEquip = nullptr);
 	void ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode InEquipMode, AWeapon* InWeaponToEquip, bool bPlayEquipMontage, bool bCanSendCombatStateRPC = true);
 	void HolsterWeapon(EEquipSlot InEquipSlotType);
+	void FindNearestOverlappingWeapon();
 
 	static FString GetWeaponTypeString(EWeaponType InWeaponType = EWeaponType::EWT_Unarmed);
 	void AttachWeapon();

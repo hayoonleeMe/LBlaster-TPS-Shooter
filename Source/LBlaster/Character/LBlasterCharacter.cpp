@@ -303,7 +303,12 @@ AWeapon* ALBlasterCharacter::GetEquippingWeapon() const
 
 void ALBlasterCharacter::SetOverlappingWeapon(AWeapon* InWeapon)
 {
-	if (!CombatComponent || CombatComponent->GetEquipSlotType() == EEquipSlot::EES_ThirdSlot)
+	if (!CombatComponent)
+	{
+		return;
+	}
+	// 3번 슬롯인 상태에서 Weapon Overlap 방지; End Overlap은 가능
+	if (InWeapon && CombatComponent->GetEquipSlotType() == EEquipSlot::EES_ThirdSlot)
 	{
 		return;
 	}
