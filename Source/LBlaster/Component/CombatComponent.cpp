@@ -329,10 +329,9 @@ void UCombatComponent::ReloadFinished()
 	}
 
 	ChangeCombatState(ECombatState::ECS_Unoccupied);
-
 	UpdateAmmoValues();
 
-	if (OwnerCharacter->IsLocallyControlled() && bIsFiring)
+	if (OwnerCharacter->IsLocallyControlled() && bIsFiring && bCanFire && GetEquippingWeapon() && GetEquippingWeapon()->IsAutomatic())
 	{
 		Fire();
 	}
@@ -382,6 +381,10 @@ void UCombatComponent::ChangeCombatState(ECombatState InCombatStateToChange, boo
 		return;
 	}
 
+	// Fire Timer 초기화
+	bCanFire = true;
+	GetWorld()->GetTimerManager().ClearTimer(FireTimer);
+	
 	FCombatStateChange CombatStateChange = CreateCombatStateChange(InCombatStateToChange, bPlayEquipMontage, bShouldPlayUnarmedEquipMontage);
 	if (OwnerCharacter->GetLocalRole() == ROLE_AutonomousProxy)
 	{
@@ -683,20 +686,10 @@ void UCombatComponent::StartFireTimer()
 
 void UCombatComponent::FireTimerFinished()
 {
-	if (!GetEquippingWeapon())
-	{
-		return;
-	}
-
 	bCanFire = true;
-	if (bIsFiring && GetEquippingWeapon()->IsAutomatic())
+	if (bIsFiring && bCanFire && GetEquippingWeapon() && GetEquippingWeapon()->IsAutomatic())
 	{
 		Fire();
-	}
-
-	if (GetEquippingWeapon()->IsAmmoEmpty())
-	{
-		Reload();
 	}
 }
 
@@ -920,6 +913,11 @@ void UCombatComponent::ShowAttachedGrenade(bool bShow)
 void UCombatComponent::EquipFinished()
 {
 	ChangeCombatState(ECombatState::ECS_Unoccupied);
+	
+	if (bIsFiring && bCanFire && GetEquippingWeapon() && GetEquippingWeapon()->IsAutomatic())
+	{
+		Fire();
+	}
 }
 
 UTexture2D* UCombatComponent::GetCenterCrosshair(EWeaponType InWeaponType) const
@@ -1069,6 +1067,7 @@ void UCombatComponent::SetFiring(bool bInFiring)
 void UCombatComponent::ServerSetFiring_Implementation(bool bInFiring)
 {
 	bIsFiring = bInFiring;
+}
 
 void UCombatComponent::OnRep_IsFiring()
 {
