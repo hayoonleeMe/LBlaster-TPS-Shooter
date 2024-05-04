@@ -432,8 +432,12 @@ void UCombatComponent::OnChangedCombatState(bool bPlayEquipMontage, bool bShould
 		if (GetEquippingWeapon())
 		{
 			GetEquippingWeapon()->SetWeaponVisibility(false);
+			HandleUnEquipBeforeTossGrenade();
 		}
-		HandleUnEquipBeforeTossGrenade();
+		else
+		{
+			StartTossGrenade();
+		}
 		break;
 		
 	case ECombatState::ECS_Equipping:
@@ -999,7 +1003,7 @@ void UCombatComponent::ShowSniperScopeWidget(bool bShowScope)
 
 void UCombatComponent::TossGrenade()
 {
-	if (GetEquippingWeapon() && CombatState == ECombatState::ECS_Unoccupied && GrenadeAmount > 0)
+	if (CombatState == ECombatState::ECS_Unoccupied && GrenadeAmount > 0)
 	{
 		// Local & Server Call HandleUnEquipBeforeTossGrenade()
 		ChangeCombatState(ECombatState::ECS_TossingGrenade);
@@ -1008,7 +1012,14 @@ void UCombatComponent::TossGrenade()
 
 void UCombatComponent::TossGrenadeFinished()
 {
-	ChangeCombatState(ECombatState::ECS_Equipping);
+	if (GetEquippingWeapon())
+	{
+		ChangeCombatState(ECombatState::ECS_Equipping);
+	}
+	else
+	{
+		ChangeCombatState(ECombatState::ECS_Unoccupied);
+	}
 }
 
 void UCombatComponent::StartTossGrenade()
