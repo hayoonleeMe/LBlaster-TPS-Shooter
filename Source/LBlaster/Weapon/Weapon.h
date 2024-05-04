@@ -307,23 +307,4 @@ protected:
 	 */
 	UPROPERTY(EditAnywhere, Category="LBlaster|Damage FallOff")
 	TObjectPtr<UCurveFloat> DamageFallOffCurve;
-	
-public:
-	/*
-	 *	Crosshair
-	 */
-	UPROPERTY(EditAnywhere, Category="LBlaster|Crosshair")
-	TObjectPtr<UTexture2D> CenterCrosshair;
-	
-	UPROPERTY(EditAnywhere, Category="LBlaster|Crosshair")
-	TObjectPtr<UTexture2D> TopCrosshair;
-
-	UPROPERTY(EditAnywhere, Category="LBlaster|Crosshair")
-	TObjectPtr<UTexture2D> BottomCrosshair;
-
-	UPROPERTY(EditAnywhere, Category="LBlaster|Crosshair")
-	TObjectPtr<UTexture2D> LeftCrosshair;
-
-	UPROPERTY(EditAnywhere, Category="LBlaster|Crosshair")
-	TObjectPtr<UTexture2D> RightCrosshair;
 };

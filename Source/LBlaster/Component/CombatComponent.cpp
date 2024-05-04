@@ -83,6 +83,33 @@ UCombatComponent::UCombatComponent()
 	/* Grenade */
 	MaxGrenadeAmount = 4;
 	GrenadeAmount = MaxGrenadeAmount;
+
+	/* Crosshair */
+	static ConstructorHelpers::FObjectFinder<UTexture2D> CenterCrosshairRef(TEXT("/Script/Engine.Texture2D'/Game/LBlaster/UI/Crosshair/Primary/Crosshair_Center.Crosshair_Center'"));
+	if (CenterCrosshairRef.Object)
+	{
+		DefaultCrosshair.CenterCrosshair = CenterCrosshairRef.Object;
+	}
+	static ConstructorHelpers::FObjectFinder<UTexture2D> TopCrosshairRef(TEXT("/Script/Engine.Texture2D'/Game/LBlaster/UI/Crosshair/Primary/Crosshair_Top.Crosshair_Top'"));
+	if (TopCrosshairRef.Object)
+	{
+		DefaultCrosshair.TopCrosshair = TopCrosshairRef.Object;
+	}
+	static ConstructorHelpers::FObjectFinder<UTexture2D> BottomCrosshairRef(TEXT("/Script/Engine.Texture2D'/Game/LBlaster/UI/Crosshair/Primary/Crosshair_Bottom.Crosshair_Bottom'"));
+	if (BottomCrosshairRef.Object)
+	{
+		DefaultCrosshair.BottomCrosshair = BottomCrosshairRef.Object;
+	}
+	static ConstructorHelpers::FObjectFinder<UTexture2D> LeftCrosshairRef(TEXT("/Script/Engine.Texture2D'/Game/LBlaster/UI/Crosshair/Primary/Crosshair_Left.Crosshair_Left'"));
+	if (LeftCrosshairRef.Object)
+	{
+		DefaultCrosshair.LeftCrosshair = LeftCrosshairRef.Object;
+	}
+	static ConstructorHelpers::FObjectFinder<UTexture2D> RightCrosshairRef(TEXT("/Script/Engine.Texture2D'/Game/LBlaster/UI/Crosshair/Primary/Crosshair_Right.Crosshair_Right'"));
+	if (RightCrosshairRef.Object)
+	{
+		DefaultCrosshair.RightCrosshair = RightCrosshairRef.Object;
+	}	
 }
 
 void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -514,11 +541,6 @@ bool UCombatComponent::IsValidHUD()
 
 void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 {
-	if (!GetEquippingWeapon())
-	{
-		return;
-	}
-	
 	// Viewport Size
 	FVector2D ViewportSize;
 	if (GEngine && GEngine->GameViewport)
@@ -527,7 +549,7 @@ void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 	}
 
 	// Viewport 정중앙의 크로스헤어 위치 계산 (Viewport space = screen space)
-	FVector2D CrosshairLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
+	const FVector2D CrosshairLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
 
 	// Crosshair를 World Space로 변환
 	FVector CrosshairWorldPosition;
@@ -602,22 +624,21 @@ void UCombatComponent::SetHUDCrosshair(float DeltaTime)
 
 	if (GetEquippingWeapon())
 	{
-		HUDPackage.TopCrosshair = GetEquippingWeapon()->TopCrosshair;
-		HUDPackage.BottomCrosshair = GetEquippingWeapon()->BottomCrosshair;
-		HUDPackage.LeftCrosshair = GetEquippingWeapon()->LeftCrosshair;
-		HUDPackage.RightCrosshair = GetEquippingWeapon()->RightCrosshair;
-		HUDPackage.CenterCrosshair = GetEquippingWeapon()->CenterCrosshair;
+		const EWeaponType WeaponType = GetEquippingWeapon()->GetWeaponType();
+		HUDPackage.TopCrosshair = GetTopCrosshair(WeaponType);
+		HUDPackage.BottomCrosshair = GetBottomCrosshair(WeaponType);
+		HUDPackage.LeftCrosshair = GetLeftCrosshair(WeaponType);
+		HUDPackage.RightCrosshair = GetRightCrosshair(WeaponType);
+		HUDPackage.CenterCrosshair = GetCenterCrosshair(WeaponType);
 	}
 	else
 	{
-		// early return for unarmed state
-		HUDPackage.TopCrosshair = nullptr;
-		HUDPackage.BottomCrosshair = nullptr;
-		HUDPackage.LeftCrosshair = nullptr;
-		HUDPackage.RightCrosshair = nullptr;
-		HUDPackage.CenterCrosshair = nullptr;
-		HUD->SetHUDPackage(HUDPackage);
-		return;
+		// unarmed state
+		HUDPackage.TopCrosshair = GetTopCrosshair();
+		HUDPackage.BottomCrosshair = GetBottomCrosshair();
+		HUDPackage.LeftCrosshair = GetLeftCrosshair();
+		HUDPackage.RightCrosshair = GetRightCrosshair();
+		HUDPackage.CenterCrosshair = GetCenterCrosshair();
 	}
 
 	// 이동 속도에 따른 Crosshair Spread
@@ -902,6 +923,51 @@ void UCombatComponent::ShowAttachedGrenade(bool bShow)
 void UCombatComponent::EquipFinished()
 {
 	ChangeCombatState(ECombatState::ECS_Unoccupied);
+}
+
+UTexture2D* UCombatComponent::GetCenterCrosshair(EWeaponType InWeaponType) const
+{
+	if (InWeaponType == EWeaponType::EWT_Shotgun)
+	{
+		return ShotgunCrosshair.CenterCrosshair;
+	}
+	return DefaultCrosshair.CenterCrosshair;
+}
+
+UTexture2D* UCombatComponent::GetTopCrosshair(EWeaponType InWeaponType) const
+{
+	if (InWeaponType == EWeaponType::EWT_Shotgun)
+	{
+		return ShotgunCrosshair.TopCrosshair;
+	}
+	return DefaultCrosshair.TopCrosshair;
+}
+
+UTexture2D* UCombatComponent::GetBottomCrosshair(EWeaponType InWeaponType) const
+{
+	if (InWeaponType == EWeaponType::EWT_Shotgun)
+	{
+		return ShotgunCrosshair.BottomCrosshair;
+	}
+	return DefaultCrosshair.BottomCrosshair;
+}
+
+UTexture2D* UCombatComponent::GetLeftCrosshair(EWeaponType InWeaponType) const
+{
+	if (InWeaponType == EWeaponType::EWT_Shotgun)
+	{
+		return ShotgunCrosshair.LeftCrosshair;
+	}
+	return DefaultCrosshair.LeftCrosshair;
+}
+
+UTexture2D* UCombatComponent::GetRightCrosshair(EWeaponType InWeaponType) const
+{
+	if (InWeaponType == EWeaponType::EWT_Shotgun)
+	{
+		return ShotgunCrosshair.RightCrosshair;
+	}
+	return DefaultCrosshair.RightCrosshair;
 }
 
 void UCombatComponent::InitSniperScope()
