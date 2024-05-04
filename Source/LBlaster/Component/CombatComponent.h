@@ -49,6 +49,12 @@ struct FCombatStateChange
 	ECombatState CombatStateToChange;
 
 	UPROPERTY()
+	uint8 bPlayEquipMontage : 1;
+
+	UPROPERTY()
+	uint8 bShouldPlayUnarmedEquipMontage : 1;
+
+	UPROPERTY()
 	float Time;
 };
 
@@ -85,6 +91,9 @@ struct FWeaponEquip
 
 	UPROPERTY()
 	EEquipMode EquipMode;
+
+	UPROPERTY()
+	uint8 bPlayEquipMontage : 1;
 
 	UPROPERTY()
 	float Time;
@@ -149,7 +158,6 @@ public:
 	void LaunchGrenade();
 	void UpdateHUDGrenadeAmount();
 	void PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount);
-	void ShowWeapon();
 	void EquipFinished();
 
 protected:
@@ -178,11 +186,8 @@ private:
 	 *	Weapon
 	 */
 	void EquipWeapon(EEquipSlot InEquipSlotType, EEquipMode InEquipMode, AWeapon* InWeaponToEquip = nullptr);
-	void ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode InEquipMode, AWeapon* InWeaponToEquip, bool bPlayEquipMontage = true);
+	void ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode InEquipMode, AWeapon* InWeaponToEquip, bool bPlayEquipMontage, bool bCanSendCombatStateRPC = true);
 	void HolsterWeapon(EEquipSlot InEquipSlotType);
-	
-	UFUNCTION(NetMulticast, Reliable)
-	void MulticastSwitchToUnarmedState(bool bSkipUnEquipMontage);
 
 	static FString GetWeaponTypeString(EWeaponType InWeaponType = EWeaponType::EWT_Unarmed);
 	void AttachWeapon();
@@ -225,7 +230,7 @@ private:
 	UFUNCTION()
 	void OnRep_ServerWeaponEquipState();
 
-	FWeaponEquip CreateWeaponEquip(EEquipSlot InEquipSlotType, EEquipMode InEquipMode, AWeapon* InWeaponToEquip);
+	FWeaponEquip CreateWeaponEquip(EEquipSlot InEquipSlotType, EEquipMode InEquipMode, AWeapon* InWeaponToEquip, bool bInPlayEquipMontage);
 
 	UFUNCTION(Server, Reliable)
 	void ServerSendWeaponEquip(const FWeaponEquip& InWeaponEquip);
@@ -401,19 +406,16 @@ private:
 	void UpdateAmmoValues();
 	int32 AmountToReload();
 
-	UFUNCTION(NetMulticast, Reliable)
-	void MulticastInterruptMontage();
-
 	/*
 	 *	Combat State
 	 */
 	UPROPERTY(VisibleAnywhere, Category = "LBlaster|Combat State")
 	ECombatState CombatState;
 
-	void ChangeCombatState(ECombatState InCombatStateToChange);
+	void ChangeCombatState(ECombatState InCombatStateToChange, bool bPlayEquipMontage = true, bool bShouldPlayUnarmedEquipMontage = false, bool bCanSendCombatStateRPC = true);
 
-	void ProcessChangeCombatState(ECombatState InCombatStateToChange);
-	void OnChangedCombatState();
+	void ProcessChangeCombatState(ECombatState InCombatStateToChange, bool bPlayEquipMontage = true, bool bShouldPlayUnarmedEquipMontage = false);
+	void OnChangedCombatState(bool bPlayEquipMontage, bool bShouldPlayUnarmedEquipMontage);
 
 	/*
 	 *	Client-Side Prediction for CombatState
@@ -424,7 +426,7 @@ private:
 	UFUNCTION()
 	void OnRep_ServerCombatStateChangedState();
 	
-	FCombatStateChange CreateCombatStateChange(ECombatState InCombatStateToChange);
+	FCombatStateChange CreateCombatStateChange(ECombatState InCombatStateToChange, bool bInPlayEquipMontage, bool bInShouldPlayUnarmedEquipMontage);
 
 	UFUNCTION(Server, Reliable)
 	void ServerSendCombatStateChange(const FCombatStateChange& InCombatStateChange);

@@ -173,7 +173,7 @@ void AWeapon::AddAmmo(int32 InAmmoToAdd)
 	}
 }
 
-void AWeapon::SetEquippingWeaponVisibility(bool bInVisible)
+void AWeapon::SetWeaponVisibility(bool bInVisible)
 {
 	SetActorEnableCollision(bInVisible);
 	SetActorHiddenInGame(!bInVisible);
@@ -306,7 +306,7 @@ void AWeapon::Dropped()
 
 void AWeapon::Holstered()
 {
-	SetEquippingWeaponVisibility(false);
+	SetWeaponVisibility(false);
 	bSelected = false;
 
 	const FDetachmentTransformRules DetachRule(EDetachmentRule::KeepWorld, true);

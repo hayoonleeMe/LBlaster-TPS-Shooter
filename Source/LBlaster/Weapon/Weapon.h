@@ -70,7 +70,7 @@ public:
 	void SetHUDAmmo();
 	void AddAmmo(int32 InAmmoToAdd);
 	FORCEINLINE void SetSelected(bool bInSelected) { bSelected = bInSelected; }
-	void SetEquippingWeaponVisibility(bool bInVisible);
+	void SetWeaponVisibility(bool bInVisible);
 
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 	FORCEINLINE TSubclassOf<UAnimInstance> GetWeaponAnimLayer() const { return WeaponAnimLayer; }

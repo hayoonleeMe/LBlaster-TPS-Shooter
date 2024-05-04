@@ -360,33 +360,39 @@ int32 UCombatComponent::AmountToReload()
 	return 0;
 }
 
-void UCombatComponent::ChangeCombatState(ECombatState InCombatStateToChange)
+void UCombatComponent::ChangeCombatState(ECombatState InCombatStateToChange, bool bPlayEquipMontage, bool bShouldPlayUnarmedEquipMontage, bool bCanSendCombatStateRPC)
 {
 	if (!IsValidOwnerCharacter())
 	{
 		return;
 	}
 
-	FCombatStateChange CombatStateChange = CreateCombatStateChange(InCombatStateToChange);
+	FCombatStateChange CombatStateChange = CreateCombatStateChange(InCombatStateToChange, bPlayEquipMontage, bShouldPlayUnarmedEquipMontage);
 	if (OwnerCharacter->GetLocalRole() == ROLE_AutonomousProxy)
 	{
-		ProcessChangeCombatState(InCombatStateToChange);
+		ProcessChangeCombatState(InCombatStateToChange, bPlayEquipMontage, bShouldPlayUnarmedEquipMontage);
 		UnacknowledgedCombatStateChanges.Add(CombatStateChange);
-		ServerSendCombatStateChange(CombatStateChange);
+		// Autonomous Proxy에서 EquipWeapon()에 의해 해당 함수가 호출되는 경우 Server RPC도 함께 수행하므로 여기서도 CombatState Change에 대해 Server RPC를 보낼 필요가 없다.
+		if (bCanSendCombatStateRPC)
+		{
+			ServerSendCombatStateChange(CombatStateChange);
+		}
 	}
-	if (OwnerCharacter->HasAuthority() && OwnerCharacter->IsLocallyControlled())
+
+	// Autonomous Proxy에 의해 전송된 Equip Server RPC에 의해 이 함수가 호출됐을 때도 수행해줘야 한다.
+	if (OwnerCharacter->HasAuthority() && (OwnerCharacter->IsLocallyControlled() || OwnerCharacter->GetRemoteRole() == ROLE_AutonomousProxy))
 	{
 		ServerSendCombatStateChange(CombatStateChange);	
 	}
 }
 
-void UCombatComponent::ProcessChangeCombatState(ECombatState InCombatStateToChange)
+void UCombatComponent::ProcessChangeCombatState(ECombatState InCombatStateToChange, bool bPlayEquipMontage, bool bShouldPlayUnarmedEquipMontage)
 {
 	CombatState = InCombatStateToChange;
-	OnChangedCombatState();
+	OnChangedCombatState(bPlayEquipMontage, bShouldPlayUnarmedEquipMontage);
 }
 
-void UCombatComponent::OnChangedCombatState()
+void UCombatComponent::OnChangedCombatState(bool bPlayEquipMontage, bool bShouldPlayUnarmedEquipMontage)
 {
 	switch (CombatState)
 	{
@@ -396,8 +402,32 @@ void UCombatComponent::OnChangedCombatState()
 		
 	case ECombatState::ECS_TossingGrenade:
 		// 무기 숨김
-		GetEquippingWeapon()->SetEquippingWeaponVisibility(false);
+		if (GetEquippingWeapon())
+		{
+			GetEquippingWeapon()->SetWeaponVisibility(false);
+		}
 		HandleUnEquipBeforeTossGrenade();
+		break;
+		
+	case ECombatState::ECS_Equipping:
+		// Equip Montage 재생
+		if (bPlayEquipMontage)
+		{
+			if (bShouldPlayUnarmedEquipMontage)
+			{
+				HandleEquip(EWeaponType::EWT_Unarmed);
+			}
+			else if (GetEquippingWeapon())
+			{
+				HandleEquip(GetEquippingWeapon()->GetWeaponType());
+				UGameplayStatics::PlaySoundAtLocation(this, GetEquippingWeapon()->GetEquipSound(), GetEquippingWeapon()->GetActorLocation());
+			}
+		}
+		// Equip Montage와 관계없이 무기 보이게
+		if (GetEquippingWeapon())
+		{
+			GetEquippingWeapon()->SetWeaponVisibility(true);
+		}
 		break;
 	}
 }
@@ -409,21 +439,24 @@ void UCombatComponent::OnRep_ServerCombatStateChangedState()
 	// Unacknowledged Combat State Change 다시 적용
 	if (UnacknowledgedCombatStateChanges.IsValidIndex(UnacknowledgedCombatStateChanges.Num() - 1))
 	{
-		CombatState = UnacknowledgedCombatStateChanges[UnacknowledgedCombatStateChanges.Num() - 1].CombatStateToChange;
+		FCombatStateChange CombatStateChange = UnacknowledgedCombatStateChanges[UnacknowledgedCombatStateChanges.Num() - 1];
+		ChangeCombatState(CombatStateChange.CombatStateToChange, CombatStateChange.bPlayEquipMontage, CombatStateChange.bShouldPlayUnarmedEquipMontage);
 	}
 
 	if (IsValidOwnerCharacter() && OwnerCharacter->GetLocalRole() == ROLE_SimulatedProxy)
 	{
-		ProcessChangeCombatState(ServerCombatStateChangedState.LastCombatStateChange.CombatStateToChange);
+		ProcessChangeCombatState(ServerCombatStateChangedState.LastCombatStateChange.CombatStateToChange, ServerCombatStateChangedState.LastCombatStateChange.bPlayEquipMontage, ServerCombatStateChangedState.LastCombatStateChange.bShouldPlayUnarmedEquipMontage);
 	}
 }
 
-FCombatStateChange UCombatComponent::CreateCombatStateChange(ECombatState InCombatStateToChange)
+FCombatStateChange UCombatComponent::CreateCombatStateChange(ECombatState InCombatStateToChange, bool bInPlayEquipMontage, bool bInShouldPlayUnarmedEquipMontage)
 {
 	if (AGameStateBase* GameStateBase = GetWorld()->GetGameState())
 	{
 		FCombatStateChange CombatStateChange;
 		CombatStateChange.CombatStateToChange = InCombatStateToChange;
+		CombatStateChange.bPlayEquipMontage = bInPlayEquipMontage;
+		CombatStateChange.bShouldPlayUnarmedEquipMontage = bInShouldPlayUnarmedEquipMontage;
 		CombatStateChange.Time = GameStateBase->GetServerWorldTimeSeconds();
 		return CombatStateChange;
 	}
@@ -432,7 +465,7 @@ FCombatStateChange UCombatComponent::CreateCombatStateChange(ECombatState InComb
 
 void UCombatComponent::ServerSendCombatStateChange_Implementation(const FCombatStateChange& InCombatStateChange)
 {
-	ProcessChangeCombatState(InCombatStateChange.CombatStateToChange);
+	ProcessChangeCombatState(InCombatStateChange.CombatStateToChange, InCombatStateChange.bPlayEquipMontage, InCombatStateChange.bShouldPlayUnarmedEquipMontage);
 
 	ServerCombatStateChangedState.CombatState = CombatState;
 	ServerCombatStateChangedState.LastCombatStateChange = InCombatStateChange;
@@ -450,23 +483,6 @@ void UCombatComponent::ClearAcknowledgedCombatStateChanges(const FCombatStateCha
 		}
 	}
 	UnacknowledgedCombatStateChanges = NewArray;
-}
-
-void UCombatComponent::MulticastInterruptMontage_Implementation()
-{
-	if (CombatState != ECombatState::ECS_Unoccupied)
-	{
-		if (IsValidOwnerCharacter())
-		{
-			if (OwnerCharacter->GetMesh()->GetAnimInstance()->IsAnyMontagePlaying())
-			{
-				OwnerCharacter->GetMesh()->GetAnimInstance()->StopAllMontages(0.1f);
-			}
-		}
-
-		ShowWeapon();
-		CombatState = ECombatState::ECS_Unoccupied;
-	}
 }
 
 bool UCombatComponent::IsValidOwnerCharacter()
@@ -787,15 +803,6 @@ void UCombatComponent::PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount)
 	AddCarriedAmmo(InWeaponType, InAmmoAmount);
 }
 
-void UCombatComponent::ShowWeapon()
-{
-	// 무기를 변경할 때 숨겼던 무기를 다시 보이게 설정
-	if (GetEquippingWeapon())
-	{
-		GetEquippingWeapon()->SetEquippingWeaponVisibility(true);
-	}
-}
-
 void UCombatComponent::ChooseWeaponSlot(EEquipSlot InEquipSlotType)
 {
 	if (EquipSlotType == InEquipSlotType || !bCanEquipWeapon)
@@ -935,13 +942,7 @@ void UCombatComponent::TossGrenade()
 
 void UCombatComponent::TossGrenadeFinished()
 {
-	ChangeCombatState(ECombatState::ECS_Unoccupied);
-
-	if (GetEquippingWeapon())
-	{
-		HandleEquip(GetEquippingWeapon()->GetWeaponType());
-		ShowWeapon();
-	}
+	ChangeCombatState(ECombatState::ECS_Equipping);
 }
 
 void UCombatComponent::StartTossGrenade()
@@ -1187,7 +1188,7 @@ void UCombatComponent::ServerEquipDefaultWeapon_Implementation()
 		if (AWeapon* SpawnedDefaultWeapon = GetWorld()->SpawnActor<AWeapon>(DefaultWeaponClass))
 		{
 			DefaultWeapon = SpawnedDefaultWeapon; 
-			ProcessEquipWeapon(EquipSlotType, EEquipMode::EEM_OverlappingWeapon, DefaultWeapon);
+			ProcessEquipWeapon(EquipSlotType, EEquipMode::EEM_OverlappingWeapon, DefaultWeapon, true);
 		}
 	}
 }
@@ -1197,7 +1198,7 @@ void UCombatComponent::OnRep_DefaultWeapon()
 	if (!bEquipDefaultWeapon)
 	{
 		bEquipDefaultWeapon = true;
-		ProcessEquipWeapon(EEquipSlot::EES_ThirdSlot, EEquipMode::EEM_OverlappingWeapon, DefaultWeapon);
+		ProcessEquipWeapon(EEquipSlot::EES_ThirdSlot, EEquipMode::EEM_OverlappingWeapon, DefaultWeapon, true);
 	}
 }
 
@@ -1236,10 +1237,10 @@ void UCombatComponent::EquipWeapon(EEquipSlot InEquipSlotType, EEquipMode InEqui
 		return;
 	}
 
-	FWeaponEquip WeaponEquip = CreateWeaponEquip(InEquipSlotType, InEquipMode, InWeaponToEquip);
+	FWeaponEquip WeaponEquip = CreateWeaponEquip(InEquipSlotType, InEquipMode, InWeaponToEquip, true);
 	if (OwnerCharacter->GetLocalRole() == ROLE_AutonomousProxy)
 	{
-		ProcessEquipWeapon(InEquipSlotType, InEquipMode, InWeaponToEquip);
+		ProcessEquipWeapon(InEquipSlotType, InEquipMode, InWeaponToEquip, true, false);
 		UnacknowledgedWeaponEquips.Add(WeaponEquip);
 		ServerSendWeaponEquip(WeaponEquip);
 	}
@@ -1249,7 +1250,7 @@ void UCombatComponent::EquipWeapon(EEquipSlot InEquipSlotType, EEquipMode InEqui
 	}
 }
 
-void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode InEquipMode, AWeapon* InWeaponToEquip, bool bPlayEquipMontage)
+void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode InEquipMode, AWeapon* InWeaponToEquip, bool bPlayEquipMontage, bool bCanSendCombatStateRPC)
 {
 	SetAiming(false);
 	bCanFire = true;
@@ -1274,7 +1275,13 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 		// Switch to Unarmed State
 		if (IsValidOwnerCharacter())
 		{
-			ChangeCombatState(ECombatState::ECS_Unoccupied);
+			// 이전 슬롯과 현재 슬롯이 모두 Unarmed라면 Equip Montage 재생 X
+			const bool bShouldPlayUnarmedEquipMontage = bPlayEquipMontage && EquipSlots[static_cast<uint8>(PrevSlotType)];
+			if (bShouldPlayUnarmedEquipMontage)
+			{
+				OwnerCharacter->SetWeaponAnimLayers(EWeaponType::EWT_Unarmed);
+			}
+			ChangeCombatState(ECombatState::ECS_Equipping, bPlayEquipMontage, bShouldPlayUnarmedEquipMontage, bCanSendCombatStateRPC);
 		
 			if (IsValidOwnerController() && OwnerCharacter->IsLocallyControlled())
 			{
@@ -1283,13 +1290,6 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 				OwnerController->SetHUDWeaponTypeText(GetWeaponTypeString());
 				OwnerController->SetWeaponSlotIcon(EquipSlotType, EWeaponType::EWT_Unarmed);
 				OwnerController->ChooseWeaponSlot(EquipSlotType);
-			}
-
-			// 이전 슬롯과 현재 슬롯이 모두 Unarmed라면 Equip Montage 재생 X
-			if (bPlayEquipMontage && EquipSlots[static_cast<uint8>(PrevSlotType)])
-			{
-				OwnerCharacter->SetWeaponAnimLayers(EWeaponType::EWT_Unarmed);
-				HandleEquip(EWeaponType::EWT_Unarmed);
 			}
 		}
 
@@ -1315,12 +1315,16 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 	}
 	if (GetEquippingWeapon() && IsValidOwnerCharacter())
 	{
-		ChangeCombatState(ECombatState::ECS_Equipping);
 		GetEquippingWeapon()->SetOwner(OwnerCharacter);
 		GetEquippingWeapon()->ChangeWeaponState(EWeaponState::EWS_Equipped);
+		
+		AttachWeapon();
+		OwnerCharacter->SetWeaponAnimLayers(GetEquippingWeapon()->GetWeaponType(), GetEquippingWeapon()->GetWeaponAnimLayer());
+		ChangeCombatState(ECombatState::ECS_Equipping, bPlayEquipMontage, false, bCanSendCombatStateRPC);
+
 		GetEquippingWeapon()->SetSelected(true); 
 		GetEquippingWeapon()->SetHUDAmmo();
-			
+		
 		if (CarriedAmmoMap.Contains(GetEquippingWeapon()->GetWeaponType()))
 		{
 			if (IsValidOwnerController() && OwnerCharacter->IsLocallyControlled())
@@ -1331,15 +1335,6 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 				OwnerController->ChooseWeaponSlot(EquipSlotType);
 			}
 		}
-			
-		AttachWeapon();
-		OwnerCharacter->SetWeaponAnimLayers(GetEquippingWeapon()->GetWeaponType(), GetEquippingWeapon()->GetWeaponAnimLayer());
-		if (bPlayEquipMontage)
-		{
-			HandleEquip(GetEquippingWeapon()->GetWeaponType());
-			UGameplayStatics::PlaySoundAtLocation(this, GetEquippingWeapon()->GetEquipSound(), GetEquippingWeapon()->GetActorLocation());
-		}
-		ShowWeapon();
 
 		/* ADS FOV */
 		OwnerCharacter->SetAdsFov(GetEquippingWeapon()->GetADSFOV());
@@ -1367,17 +1362,17 @@ void UCombatComponent::OnRep_ServerWeaponEquipState()
 		// 착용 중인 무기와 다른 경우만 착용
 		if (GetEquippingWeapon() != WeaponEquip.WeaponToEquip)
 		{
-			ProcessEquipWeapon(WeaponEquip.SlotToEquip, WeaponEquip.EquipMode, WeaponEquip.WeaponToEquip, false);
+			ProcessEquipWeapon(WeaponEquip.SlotToEquip, WeaponEquip.EquipMode, WeaponEquip.WeaponToEquip, false, false);
 		}
 	}
 
 	if (IsValidOwnerCharacter() && OwnerCharacter->GetLocalRole() == ROLE_SimulatedProxy)
 	{
-		ProcessEquipWeapon(ServerWeaponEquipState.LastWeaponEquip.SlotToEquip, ServerWeaponEquipState.LastWeaponEquip.EquipMode, ServerWeaponEquipState.LastWeaponEquip.WeaponToEquip);
+		ProcessEquipWeapon(ServerWeaponEquipState.LastWeaponEquip.SlotToEquip, ServerWeaponEquipState.LastWeaponEquip.EquipMode, ServerWeaponEquipState.LastWeaponEquip.WeaponToEquip, ServerWeaponEquipState.LastWeaponEquip.bPlayEquipMontage, false);
 	}
 }
 
-FWeaponEquip UCombatComponent::CreateWeaponEquip(EEquipSlot InEquipSlotType, EEquipMode InEquipMode, AWeapon* InWeaponToEquip)
+FWeaponEquip UCombatComponent::CreateWeaponEquip(EEquipSlot InEquipSlotType, EEquipMode InEquipMode, AWeapon* InWeaponToEquip, bool bInPlayEquipMontage)
 {
 	if (AGameStateBase* GameStateBase = GetWorld()->GetGameState())
 	{
@@ -1385,6 +1380,7 @@ FWeaponEquip UCombatComponent::CreateWeaponEquip(EEquipSlot InEquipSlotType, EEq
 		WeaponEquip.SlotToEquip = InEquipSlotType;
 		WeaponEquip.WeaponToEquip = InWeaponToEquip;
 		WeaponEquip.EquipMode = InEquipMode;
+		WeaponEquip.bPlayEquipMontage = bInPlayEquipMontage;
 		WeaponEquip.Time = GameStateBase->GetServerWorldTimeSeconds();
 		return WeaponEquip;
 	}
@@ -1393,7 +1389,7 @@ FWeaponEquip UCombatComponent::CreateWeaponEquip(EEquipSlot InEquipSlotType, EEq
 
 void UCombatComponent::ServerSendWeaponEquip_Implementation(const FWeaponEquip& InWeaponEquip)
 {
-	ProcessEquipWeapon(InWeaponEquip.SlotToEquip, InWeaponEquip.EquipMode, InWeaponEquip.WeaponToEquip);
+	ProcessEquipWeapon(InWeaponEquip.SlotToEquip, InWeaponEquip.EquipMode, InWeaponEquip.WeaponToEquip, InWeaponEquip.bPlayEquipMontage);
 
 	ServerWeaponEquipState.EquippingSlot = EquipSlotType;
 	ServerWeaponEquipState.EquippingWeapon = GetEquippingWeapon();
@@ -1420,28 +1416,5 @@ void UCombatComponent::HolsterWeapon(EEquipSlot InEquipSlotType)
 	if (GetEquippingWeapon(InEquipSlotType))
 	{
 		GetEquippingWeapon(InEquipSlotType)->Holstered();
-	}
-}
-
-void UCombatComponent::MulticastSwitchToUnarmedState_Implementation(bool bSkipUnEquipMontage)
-{
-	if (IsValidOwnerCharacter())
-	{
-		ChangeCombatState(ECombatState::ECS_Unoccupied);
-		
-		if (IsValidOwnerController() && OwnerCharacter->IsLocallyControlled())
-		{
-			OwnerController->SetHUDAmmo(0);
-			OwnerController->SetHUDCarriedAmmo(0);
-			OwnerController->SetHUDWeaponTypeText(GetWeaponTypeString());
-			OwnerController->SetWeaponSlotIcon(EquipSlotType, EWeaponType::EWT_Unarmed);
-			OwnerController->ChooseWeaponSlot(EquipSlotType);
-		}
-		
-		if (!bSkipUnEquipMontage)
-		{
-			OwnerCharacter->SetWeaponAnimLayers(EWeaponType::EWT_Unarmed);
-			HandleEquip(EWeaponType::EWT_Unarmed);
-		}
 	}
 }
