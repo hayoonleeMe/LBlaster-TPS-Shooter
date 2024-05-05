@@ -1033,12 +1033,6 @@ void UCombatComponent::StartTossGrenade()
 	{
 		OwnerCharacter->PlayTossGrenadeMontage(TossGrenadeMontage);
 		ShowAttachedGrenade(true);
-
-		if (OwnerCharacter->HasAuthority())
-		{
-			GrenadeAmount = FMath::Clamp(GrenadeAmount - 1, 0, MaxGrenadeAmount);
-			UpdateHUDGrenadeAmount();
-		}
 	}
 }
 
@@ -1047,6 +1041,13 @@ void UCombatComponent::LaunchGrenade()
 	if (!IsValidOwnerCharacter())
 	{
 		return;
+	}
+
+	// Update GrenadeAmount
+	if (OwnerCharacter->HasAuthority())
+	{
+		GrenadeAmount = FMath::Clamp(GrenadeAmount - 1, 0, MaxGrenadeAmount);
+		UpdateHUDGrenadeAmount();
 	}
 
 	ShowAttachedGrenade(false);
