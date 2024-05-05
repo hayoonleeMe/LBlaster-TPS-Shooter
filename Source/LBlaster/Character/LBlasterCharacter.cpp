@@ -581,6 +581,7 @@ void ALBlasterCharacter::DoADS(const FInputActionValue& ActionValue)
 {
 	if (CombatComponent)
 	{
+		CombatComponent->TriggerAimingKey(ActionValue.Get<bool>());
 		CombatComponent->SetAiming(ActionValue.Get<bool>());
 	}
 }
