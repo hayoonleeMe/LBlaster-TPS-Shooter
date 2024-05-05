@@ -149,6 +149,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 	FORCEINLINE bool IsAiming() const { return bIsAiming; }
+	FORCEINLINE void TriggerAimingKey(bool bPressed) { bAimingKeyPressed = bPressed; }
 	FORCEINLINE bool IsFiring() const { return bIsFiring; }
 	FORCEINLINE bool IsReloading() const { return CombatState == ECombatState::ECS_Reloading; }
 	FORCEINLINE class AWeapon* GetEquippingWeapon() { return GetEquippingWeapon(EquipSlotType); }
@@ -279,6 +280,8 @@ private:
 
 	// Locally Controlled 캐릭터에서 실제로 조준하는지
 	bool bDesiredIsAiming = false;
+
+	bool bAimingKeyPressed = false;
 	
 	/*
 	 *	Firing

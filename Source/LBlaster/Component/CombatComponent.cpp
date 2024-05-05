@@ -332,6 +332,12 @@ void UCombatComponent::ReloadFinished()
 	ChangeCombatState(ECombatState::ECS_Unoccupied);
 	UpdateAmmoValues();
 
+	// Aiming이 Interrupt 됐을 때 다시 Aiming
+	if (OwnerCharacter->IsLocallyControlled() && bAimingKeyPressed && !bIsAiming && GetEquippingWeapon())
+	{
+		SetAiming(true);
+	}
+
 	if (OwnerCharacter->IsLocallyControlled() && bIsFiring && bCanFire && GetEquippingWeapon() && GetEquippingWeapon()->IsAutomatic())
 	{
 		Fire();
@@ -914,6 +920,12 @@ void UCombatComponent::ShowAttachedGrenade(bool bShow)
 void UCombatComponent::EquipFinished()
 {
 	ChangeCombatState(ECombatState::ECS_Unoccupied);
+
+	// Aiming이 Interrupt 됐을 때 다시 Aiming
+	if (OwnerCharacter->IsLocallyControlled() && bAimingKeyPressed && !bIsAiming && GetEquippingWeapon())
+	{
+		SetAiming(true);
+	}
 	
 	if (bIsFiring && bCanFire && GetEquippingWeapon() && GetEquippingWeapon()->IsAutomatic())
 	{
