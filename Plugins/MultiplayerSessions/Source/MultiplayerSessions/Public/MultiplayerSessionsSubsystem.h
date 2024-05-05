@@ -7,10 +7,10 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "MultiplayerSessionsSubsystem.generated.h"
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FMultiplayerOnCreateSessionCompleteDelegate, bool bWasSuccessful);
-DECLARE_MULTICAST_DELEGATE_TwoParams(FMultiplayerOnFindSessionsCompleteDelegate, const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful);
-DECLARE_MULTICAST_DELEGATE_OneParam(FMultiplayerOnJoinSessionCompleteDelegate, EOnJoinSessionCompleteResult::Type Result);
-DECLARE_MULTICAST_DELEGATE_OneParam(FMultiplayerOnDestroySessionCompleteDelegate, bool bWasSuccessful);
+DECLARE_MULTICAST_DELEGATE_OneParam(FLBOnCreateSessionCompleteDelegate, bool bWasSuccessful);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FLBOnFindSessionsCompleteDelegate, const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful);
+DECLARE_MULTICAST_DELEGATE_OneParam(FLBOnJoinSessionCompleteDelegate, EOnJoinSessionCompleteResult::Type Result);
+DECLARE_MULTICAST_DELEGATE_OneParam(FLBOnDestroySessionCompleteDelegate, bool bWasSuccessful);
 
 /**
  * 
@@ -33,10 +33,10 @@ public:
 	void DestroySession();
 	void StartSession();
 
-	FMultiplayerOnCreateSessionCompleteDelegate MultiplayerOnCreateSessionCompleteDelegate;
-	FMultiplayerOnFindSessionsCompleteDelegate MultiplayerOnFindSessionsCompleteDelegate;
-	FMultiplayerOnJoinSessionCompleteDelegate MultiplayerOnJoinSessionCompleteDelegate;
-	FMultiplayerOnDestroySessionCompleteDelegate MultiplayerOnDestroySessionCompleteDelegate;
+	FLBOnCreateSessionCompleteDelegate LBOnCreateSessionCompleteDelegate;
+	FLBOnFindSessionsCompleteDelegate LBOnFindSessionsCompleteDelegate;
+	FLBOnJoinSessionCompleteDelegate LBOnJoinSessionCompleteDelegate;
+	FLBOnDestroySessionCompleteDelegate LBOnDestroySessionCompleteDelegate;
 
 protected:
 	/*
