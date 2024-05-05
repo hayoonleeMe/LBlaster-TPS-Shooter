@@ -1354,13 +1354,13 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 	{
 		return;
 	}
-	
-	SetAiming(false);
-	bCanFire = true;
 
-	// Set Equip Delay Timer
 	if (OwnerCharacter->IsLocallyControlled())
 	{
+		SetAiming(false);
+		bCanFire = true;
+		
+		// Set Equip Delay Timer
 		bCanEquipWeapon = false;
 		GetWorld()->GetTimerManager().SetTimer(EquipDelayTimer, FTimerDelegate::CreateLambda(
 			[this]() { bCanEquipWeapon = true; }
