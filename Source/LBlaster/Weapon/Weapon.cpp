@@ -109,7 +109,7 @@ void AWeapon::SetOwner(AActor* NewOwner)
 
 void AWeapon::ShowPickupWidget(bool bInShow) const
 {
-	if (PickupWidgetComponent)
+	if (PickupWidgetComponent && PickupWidgetComponent->IsVisible() != bInShow)
 	{
 		PickupWidgetComponent->SetVisibility(bInShow);
 		if (bInShow)
@@ -322,7 +322,7 @@ void AWeapon::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AAc
 {
 	if (ALBlasterCharacter* OtherCharacter = Cast<ALBlasterCharacter>(OtherActor))
 	{
-		OtherCharacter->SetOverlappingWeapon(this);
+		OtherCharacter->SetOverlappingWeapon(this, true);
 	}
 }
 
@@ -330,7 +330,7 @@ void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 {
 	if (ALBlasterCharacter* OtherCharacter = Cast<ALBlasterCharacter>(OtherActor))
 	{
-		OtherCharacter->SetOverlappingWeapon(nullptr);
+		OtherCharacter->SetOverlappingWeapon(this, false);
 	}
 }
 
