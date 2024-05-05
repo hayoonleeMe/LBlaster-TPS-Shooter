@@ -140,7 +140,7 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 void UCombatComponent::SetAiming(bool bInAiming)
 {
-	if (!GetEquippingWeapon() || CombatState != ECombatState::ECS_Unoccupied)
+	if (!GetEquippingWeapon() || CombatState != ECombatState::ECS_Unoccupied || bIsAiming == bInAiming)
 	{
 		return;
 	}
@@ -293,9 +293,6 @@ void UCombatComponent::Reload()
 	{
 		if (CarriedAmmoMap.Contains(GetEquippingWeapon()->GetWeaponType()) && CarriedAmmoMap[GetEquippingWeapon()->GetWeaponType()] > 0)
 		{
-			SetAiming(false);
-			bCanFire = true;
-			
 			ChangeCombatState(ECombatState::ECS_Reloading);
 			HandleReload();	// Locally Controlled 캐릭터에서 바로 Reload Montage 재생
 			ServerReload();	
@@ -388,9 +385,13 @@ void UCombatComponent::ChangeCombatState(ECombatState InCombatStateToChange, boo
 		return;
 	}
 
-	// Fire Timer 초기화
-	bCanFire = true;
-	GetWorld()->GetTimerManager().ClearTimer(FireTimer);
+	// 전투 관련 상태 초기화
+	if (OwnerCharacter->IsLocallyControlled())
+	{
+		SetAiming(false);
+		bCanFire = true;
+		GetWorld()->GetTimerManager().ClearTimer(FireTimer);	
+	}
 	
 	FCombatStateChange CombatStateChange = CreateCombatStateChange(InCombatStateToChange, bPlayEquipMontage, bShouldPlayUnarmedEquipMontage);
 	if (OwnerCharacter->GetLocalRole() == ROLE_AutonomousProxy)
@@ -1369,14 +1370,14 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 
 	if (OwnerCharacter->IsLocallyControlled())
 	{
-		SetAiming(false);
-		bCanFire = true;
-		
 		// Set Equip Delay Timer
 		bCanEquipWeapon = false;
 		GetWorld()->GetTimerManager().SetTimer(EquipDelayTimer, FTimerDelegate::CreateLambda(
 			[this]() { bCanEquipWeapon = true; }
 		), EquipDelay, false);
+
+		// Interrupt Aiming for UnarmedState
+		SetAiming(false);
 	}
 	
 	EEquipSlot PrevSlotType = EquipSlotType;
