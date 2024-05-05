@@ -15,12 +15,26 @@ void USettingMenu::MenuSetup()
 	{
 		GraphicSettingButton->OnClicked.AddDynamic(this, &ThisClass::GraphicSettingButtonClicked);
 	}
+
+	/* Return Button */
+	if (ReturnButton && !ReturnButton->OnClicked.IsBound())
+	{
+		ReturnButton->OnClicked.AddDynamic(this, &ThisClass::ReturnButtonClicked);
+	}
 }
 
 void USettingMenu::GraphicSettingButtonClicked()
 {
-	if (IsValidHUD())
+	if (IsValidLBlasterHUD())
 	{
 		LBlasterHUD->CreateGraphicSettingMenu();
+	}
+}
+
+void USettingMenu::ReturnButtonClicked()
+{
+	if (IsValidLBlasterHUD())
+	{
+		LBlasterHUD->ReturnMenu();
 	}
 }

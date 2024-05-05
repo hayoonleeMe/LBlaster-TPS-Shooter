@@ -15,13 +15,13 @@ void UPauseMenu::MenuSetup()
 {
 	Super::MenuSetup();
 
-	if (IsValidOwnerController())
+	if (IsValidOwnerLBController())
 	{
-		OwnerController->EnablePauseMenuMappingContext();
+		OwnerLBController->EnablePauseMenuMappingContext();
 		FInputModeGameAndUI InputModeData;
 		InputModeData.SetWidgetToFocus(TakeWidget());
-		OwnerController->SetInputMode(InputModeData);
-		OwnerController->SetShowMouseCursor(true);
+		OwnerLBController->SetInputMode(InputModeData);
+		OwnerLBController->SetShowMouseCursor(true);
 	}
 
 	/* Main Menu Button */
@@ -33,9 +33,9 @@ void UPauseMenu::MenuSetup()
 	if (UGameInstance* GameInstance = GetGameInstance())
 	{
 		MultiplayerSessionsSubsystem = GameInstance->GetSubsystem<UMultiplayerSessionsSubsystem>();
-		if (MultiplayerSessionsSubsystem && !MultiplayerSessionsSubsystem->MultiplayerOnDestroySessionCompleteDelegate.IsBound())
+		if (MultiplayerSessionsSubsystem && !MultiplayerSessionsSubsystem->LBOnDestroySessionCompleteDelegate.IsBound())
 		{
-			MultiplayerSessionsSubsystem->MultiplayerOnDestroySessionCompleteDelegate.AddUObject(this, &ThisClass::OnDestroySession);
+			MultiplayerSessionsSubsystem->LBOnDestroySessionCompleteDelegate.AddUObject(this, &ThisClass::OnDestroySession);
 		}
 	}
 
@@ -56,11 +56,11 @@ void UPauseMenu::MenuTearDown()
 {
 	Super::MenuTearDown();
 	
-	if (IsValidOwnerController())
+	if (IsValidOwnerLBController())
 	{
-		OwnerController->DisablePauseMenuMappingContext();
-		OwnerController->SetInputMode(FInputModeGameOnly());
-		OwnerController->SetShowMouseCursor(false);
+		OwnerLBController->DisablePauseMenuMappingContext();
+		OwnerLBController->SetInputMode(FInputModeGameOnly());
+		OwnerLBController->SetShowMouseCursor(false);
 	}
 }
 
@@ -83,9 +83,9 @@ void UPauseMenu::OnDestroySession(bool bWasSuccessful)
 		// Client
 		else
 		{
-			if (IsValidOwnerController())
+			if (IsValidOwnerLBController())
 			{
-				OwnerController->ClientReturnToMainMenuWithTextReason(FText());
+				OwnerLBController->ClientReturnToMainMenuWithTextReason(FText());
 			}
 		}
 	}
@@ -103,9 +103,9 @@ void UPauseMenu::MainMenuButtonClicked()
 {
 	MainMenuButton->SetIsEnabled(false);
 
-	if (IsValidOwnerController())
+	if (IsValidOwnerLBController())
 	{
-		if (ALBlasterCharacter* LBCharacter = Cast<ALBlasterCharacter>(OwnerController->GetCharacter()))
+		if (ALBlasterCharacter* LBCharacter = Cast<ALBlasterCharacter>(OwnerLBController->GetCharacter()))
 		{
 			LBCharacter->OnLeftGame.AddUObject(this, &ThisClass::OnPlayerLeftGame);
 			LBCharacter->ServerLeaveGame();
@@ -125,7 +125,7 @@ void UPauseMenu::ResumeButtonClicked()
 
 void UPauseMenu::SettingButtonClicked()
 {
-	if (IsValidHUD())
+	if (IsValidLBlasterHUD())
 	{
 		LBlasterHUD->CreateSettingMenu();
 	}

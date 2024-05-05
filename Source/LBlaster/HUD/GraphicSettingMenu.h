@@ -77,7 +77,7 @@ class LBLASTER_API UGraphicSettingMenu : public ULBlasterUserWidget
 public:
 	virtual void MenuSetup() override;
 
-private:
+protected:
 	UPROPERTY()
 	TObjectPtr<class ULBGameUserSettings> GameUserSettings;
 

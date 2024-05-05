@@ -38,9 +38,9 @@ void UChatBox::ExitChatEdit()
 
 void UChatBox::AddChatMessage(const FText& InText)
 {
-	if (ScrollBox && ChatEntryClass && IsValidOwnerController())
+	if (ScrollBox && ChatEntryClass && IsValidOwnerLBController())
 	{
-		if (UChatEntry* ChatEntry = CreateWidget<UChatEntry>(OwnerController, ChatEntryClass))
+		if (UChatEntry* ChatEntry = CreateWidget<UChatEntry>(OwnerLBController, ChatEntryClass))
 		{
 			ChatEntry->SetChatEntryText(InText);
 			ScrollBox->AddChild(ChatEntry);
@@ -93,19 +93,19 @@ void UChatBox::StartChatBoxFadeOutTimer()
 
 void UChatBox::OnTextCommitted(const FText& Text, ETextCommit::Type CommitMethod)
 {
-	if (!IsValidOwnerController())
+	if (!IsValidOwnerLBController())
 	{
 		return;
 	}
 	
 	if (CommitMethod == ETextCommit::OnEnter && !Text.IsEmpty())
 	{
-		if (APlayerState* PlayerState = OwnerController->GetPlayerState<APlayerState>())
+		if (APlayerState* PlayerState = OwnerLBController->GetPlayerState<APlayerState>())
 		{
 			const FText ChatText = FText::FromString(FString::Printf(TEXT("%s : %s"), *PlayerState->GetPlayerName(), *Text.ToString()));
-			OwnerController->ServerSendChatText(ChatText);
+			OwnerLBController->ServerSendChatText(ChatText);
 		}
 	}
 	ExitChatEdit();
-	OwnerController->SetInputMode(FInputModeGameOnly());
+	OwnerLBController->SetInputMode(FInputModeGameOnly());
 }

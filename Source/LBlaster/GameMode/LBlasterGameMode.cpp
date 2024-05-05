@@ -19,7 +19,7 @@ ALBlasterGameMode::ALBlasterGameMode()
 		DefaultPawnClass = LBlasterCharacterClassRef.Class;
 	}
 
-	static ConstructorHelpers::FClassFinder<ALBlasterHUD> LBlasterHUDClassRef(TEXT("/Script/Engine.Blueprint'/Game/LBlaster/UI/HUD/BP_LBlasterHUD.BP_LBlasterHUD_C'"));
+	static ConstructorHelpers::FClassFinder<ALBlasterHUD> LBlasterHUDClassRef(TEXT("/Script/Engine.Blueprint'/Game/LBlaster/Core/HUD/BP_LBlasterHUD.BP_LBlasterHUD_C'"));
 	if (LBlasterHUDClassRef.Class)
 	{
 		HUDClass = LBlasterHUDClassRef.Class;
