@@ -240,7 +240,7 @@ private:
 
 	FTimerHandle EquipDelayTimer;
 
-	float EquipDelay = 0.3f;
+	float EquipDelay = 0.4f;
 
 	bool bCanEquipWeapon = true;
 
