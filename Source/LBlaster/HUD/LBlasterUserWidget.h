@@ -3,32 +3,28 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "MainMenuUserWidget.h"
 #include "LBlasterUserWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class LBLASTER_API ULBlasterUserWidget : public UUserWidget
+class LBLASTER_API ULBlasterUserWidget : public UMainMenuUserWidget
 {
 	GENERATED_BODY()
-
-public:
-	virtual void MenuSetup();
-	virtual void MenuTearDown();
 	
 protected:
 	/*
 	 *	Owner
 	 */
 	UPROPERTY()
-	TObjectPtr<class ALBlasterPlayerController> OwnerController;
+	TObjectPtr<class ALBlasterPlayerController> OwnerLBController;
 
-	bool IsValidOwnerController();
+	bool IsValidOwnerLBController();
 
 	UPROPERTY()
 	TObjectPtr<class ALBlasterHUD> LBlasterHUD;
 
-	bool IsValidHUD();
+	bool IsValidLBlasterHUD();
 };

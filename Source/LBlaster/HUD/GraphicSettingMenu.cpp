@@ -686,7 +686,7 @@ void UGraphicSettingMenu::OnReturnButtonClicked()
 	}
 	else
 	{
-		if (IsValidHUD())
+		if (IsValidLBlasterHUD())
 		{
 			LBlasterHUD->ReturnMenu();
 		}	
@@ -789,7 +789,7 @@ void UGraphicSettingMenu::OnAlertAcceptButtonClicked()
 		}	
 	}
 	
-	if (IsValidHUD())
+	if (IsValidLBlasterHUD())
 	{
 		LBlasterHUD->ReturnMenu();
 	}	

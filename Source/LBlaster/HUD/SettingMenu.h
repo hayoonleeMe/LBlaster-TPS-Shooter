@@ -17,13 +17,23 @@ class LBLASTER_API USettingMenu : public ULBlasterUserWidget
 public:
 	virtual void MenuSetup() override;
 	
-private:
+protected:
 	/*
 	 *	Graphic Setting	
 	 */
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<class UButton> GraphicSettingButton;
 
+	/*
+	 *	Return Button
+	 */
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UButton> ReturnButton;
+
+private:
 	UFUNCTION()
 	void GraphicSettingButtonClicked();
+
+	UFUNCTION()
+	void ReturnButtonClicked();
 };
