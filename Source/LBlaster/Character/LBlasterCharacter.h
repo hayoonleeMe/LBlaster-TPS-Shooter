@@ -90,7 +90,7 @@ public:
 	/*
 	 *	Weapon
 	 */
-	void SetOverlappingWeapon(AWeapon* InWeapon);
+	void SetOverlappingWeapon(AWeapon* InWeapon, bool bBegin);
 	void SetHUDAmmo(int32 InAmmo);
 
 	/*
@@ -200,10 +200,6 @@ private:
 	 */
 	UPROPERTY()
 	TObjectPtr<AWeapon> OverlappingWeapon;
-
-	UFUNCTION()
-	void OnRep_OverlappingWeapon(AWeapon* LastOverlappingWeapon) const;
-	void ShowOverlappingWeaponPickupWidget(AWeapon* LastOverlappingWeapon) const;
 
 	/*
 	 *	Grenade

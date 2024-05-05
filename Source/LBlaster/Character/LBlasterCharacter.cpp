@@ -301,24 +301,44 @@ AWeapon* ALBlasterCharacter::GetEquippingWeapon() const
 	return nullptr;
 }
 
-void ALBlasterCharacter::SetOverlappingWeapon(AWeapon* InWeapon)
+void ALBlasterCharacter::SetOverlappingWeapon(AWeapon* InWeapon, bool bBegin)
 {
-	if (!CombatComponent)
+	if (!CombatComponent || !IsLocallyControlled())
 	{
 		return;
 	}
 	// 3번 슬롯인 상태에서 Weapon Overlap 방지; End Overlap은 가능
-	if (InWeapon && CombatComponent->GetEquipSlotType() == EEquipSlot::EES_ThirdSlot)
+	if (bBegin && CombatComponent->GetEquipSlotType() == EEquipSlot::EES_ThirdSlot)
 	{
 		return;
 	}
 
-	AWeapon* LastOverlappingWeapon = OverlappingWeapon;
-	OverlappingWeapon = InWeapon;
-
-	if (IsLocallyControlled())
+	// Begin Overlap
+	if (bBegin)
 	{
-		ShowOverlappingWeaponPickupWidget(LastOverlappingWeapon);
+		AWeapon* LastOverlappingWeapon = OverlappingWeapon;
+		OverlappingWeapon = InWeapon;
+
+		if (LastOverlappingWeapon)
+		{
+			LastOverlappingWeapon->ShowPickupWidget(false);
+		}
+		if (OverlappingWeapon)
+		{
+			OverlappingWeapon->ShowPickupWidget(true);
+		}
+	}
+	// End Overlap
+	else
+	{
+		if (InWeapon)
+		{
+			if (OverlappingWeapon == InWeapon)
+			{
+				OverlappingWeapon = nullptr;
+			}
+			InWeapon->ShowPickupWidget(false);	
+		}
 	}
 }
 
@@ -667,23 +687,6 @@ void ALBlasterCharacter::ReleaseCombatState() const
 	{
 		CombatComponent->SetAiming(false);
 		CombatComponent->SetFiring(false);
-	}
-}
-
-void ALBlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastOverlappingWeapon) const
-{
-	ShowOverlappingWeaponPickupWidget(LastOverlappingWeapon);
-}
-
-void ALBlasterCharacter::ShowOverlappingWeaponPickupWidget(AWeapon* LastOverlappingWeapon) const
-{
-	if (OverlappingWeapon)
-	{
-		OverlappingWeapon->ShowPickupWidget(true);
-	}
-	if (LastOverlappingWeapon)
-	{
-		LastOverlappingWeapon->ShowPickupWidget(false);
 	}
 }
 

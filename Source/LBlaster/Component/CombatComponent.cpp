@@ -1524,7 +1524,7 @@ void UCombatComponent::FindNearestOverlappingWeapon()
 	if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled())
 	{
 		// Overlapping Weapon 초기화
-		OwnerCharacter->SetOverlappingWeapon(nullptr);
+		OwnerCharacter->SetOverlappingWeapon(OwnerCharacter->GetOverlappingWeapon(), false);
 		
 		TArray<AActor*> OverlappingActors;
 		OwnerCharacter->GetCapsuleComponent()->GetOverlappingActors(OverlappingActors, AWeapon::StaticClass());
@@ -1550,7 +1550,7 @@ void UCombatComponent::FindNearestOverlappingWeapon()
 		{
 			if (AWeapon* NearestWeapon = Cast<AWeapon>(NearestActor))
 			{
-				OwnerCharacter->SetOverlappingWeapon(NearestWeapon);
+				OwnerCharacter->SetOverlappingWeapon(NearestWeapon, true);
 			}	
 		}
 	}
