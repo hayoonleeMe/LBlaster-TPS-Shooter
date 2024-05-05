@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class MULTIPLAYERSESSIONS_API UMainMenu : public UMainMenuUserWidget
+class LBLASTER_API UMainMenu : public UMainMenuUserWidget
 {
 	GENERATED_BODY()
 
