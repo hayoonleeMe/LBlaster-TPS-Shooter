@@ -13,6 +13,9 @@ void USessionListMenu::MenuSetup()
 {
 	Super::MenuSetup();
 
+	// 로딩 효과 표시
+	SetLoadingOverlayVisibility(true);
+	
 	if (JoinButton)
 	{
 		JoinButton->SetIsEnabled(false);
@@ -37,9 +40,12 @@ void USessionListMenu::InitializeSessionListView(const TArray<FOnlineSessionSear
 	// Find Session 실패
 	if (!bWasSuccessful)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("Find Session Failed"));
+		UE_LOG(LogTemp, Error, TEXT("FindSessions Failed"));
 		return;
 	}
+
+	// 로딩 효과 끄기
+	SetLoadingOverlayVisibility(false);
 
 	if (SessionListView && IsValidOwnerController())
 	{
@@ -60,6 +66,14 @@ void USessionListMenu::InitializeSessionListView(const TArray<FOnlineSessionSear
 				}	
 			}
 		}
+	}
+}
+
+void USessionListMenu::SetLoadingOverlayVisibility(bool bShow)
+{
+	if (LoadingOverlay)
+	{
+		LoadingOverlay->SetVisibility(bShow ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
 	}
 }
 
@@ -86,6 +100,9 @@ void USessionListMenu::OnReturnButtonClicked()
 
 void USessionListMenu::OnRefreshButtonClicked()
 {
+	// 로딩 효과 표시
+	SetLoadingOverlayVisibility(true);
+	
 	if (SessionListView)
 	{
 		SessionListView->ClearListItems();

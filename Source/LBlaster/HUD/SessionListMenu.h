@@ -18,6 +18,8 @@ public:
 	virtual void MenuSetup() override;
 	void InitializeSessionListView(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful);
 	
+	void SetLoadingOverlayVisibility(bool bShow); 
+	
 private:
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<class UListView> SessionListView;
@@ -42,4 +44,10 @@ private:
 
 	UFUNCTION()
 	void OnRefreshButtonClicked();
+
+	/*
+	 *	Loading Overlay
+	 */
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UUserWidget> LoadingOverlay;
 };
