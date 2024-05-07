@@ -53,8 +53,12 @@ private:
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<class UOptionSelector> GameModeSelector;
 
+	FString GetMatchModeString();
+
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<class USliderWithNumericInput> MaxPlayerSlider;
+
+	int32 GetMaxPlayerValue();
 
 	float SliderInitialValue = 1.f;
 	float SliderMinValue = 1.f;

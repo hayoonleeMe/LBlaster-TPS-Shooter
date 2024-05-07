@@ -26,8 +26,7 @@ public:
 	/*
 	* To handle session functionality. The Menu class will call these
 	*/
-	void SessionSetup(int32 InNumPublicConnections, const FString& InMatchType, const FString& InLobbyPath);
-	void CreateSession();
+	void CreateSession(const FString& MatchModeString, int32 NumMaxPlayer);
 	void FindSessions(int32 InMaxSearchResults);
 	void JoinSession(const FOnlineSessionSearchResult& SessionResult);
 	void DestroySession();
@@ -71,10 +70,15 @@ private:
 	FDelegateHandle OnDestroySessionCompleteDelegateHandle;
 	FOnStartSessionCompleteDelegate OnStartSessionCompleteDelegate;
 	FDelegateHandle OnStartSessionCompleteDelegateHandle;
-	
-	int32 NumPublicConnections{ 4 };
-	FString MatchType{ TEXT("FreeForAll") };
-	FString LobbyPath{ TEXT("") };
+
+	UPROPERTY(EditAnywhere, Category="Multiplayer Sessions Subsystem")
+	FString LobbyPath;
+
+	UPROPERTY()
+	FString MatchMode;
+
+	UPROPERTY()
+	int32 NumPublicConnections;
 	
 	/*
 	 *	세션을 생성할 때 이미 세션이 존재하면 그 세션 제거가 완료될 때 다시 세션 생성하기 위한 트리거

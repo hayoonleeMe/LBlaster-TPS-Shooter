@@ -23,7 +23,8 @@ protected:
 public:
 	void InitializeOptions();
 	void SetActiveIndex(int32 InActiveIndex);
-
+	int32 GetActiveIndex() const;
+ 
 	UFUNCTION()
 	void SelectRightOption();
 

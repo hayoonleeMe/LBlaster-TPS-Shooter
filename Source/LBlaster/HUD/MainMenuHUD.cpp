@@ -11,23 +11,6 @@
 #include "StartMenu.h"
 #include "Blueprint/UserWidget.h"
 
-void AMainMenuHUD::InitializeMultiplayerSessions(int32 InNumPublicConnections, const FString& InMatchType, const FString& InLobbyPath)
-{
-	// MultiplayerSessionsSubsystem
-	if (UGameInstance* GameInstance = GetGameInstance())
-	{
-		MultiplayerSessionsSubsystem = GameInstance->GetSubsystem<UMultiplayerSessionsSubsystem>();
-	}
-
-	if (MultiplayerSessionsSubsystem)
-	{
-		MultiplayerSessionsSubsystem->SessionSetup(InNumPublicConnections, InMatchType, InLobbyPath);
-		MultiplayerSessionsSubsystem->LBOnCreateSessionCompleteDelegate.AddUObject(this, &ThisClass::OnCreateSessionComplete);
-		MultiplayerSessionsSubsystem->LBOnFindSessionsCompleteDelegate.AddUObject(this, &ThisClass::OnFindSessionsComplete);
-		MultiplayerSessionsSubsystem->LBOnJoinSessionCompleteDelegate.AddUObject(this, &ThisClass::OnJoinSessionComplete);
-	}
-}
-
 void AMainMenuHUD::CreateStartMenu()
 {
 	if (StartMenuClass && !StartMenu)
@@ -101,11 +84,11 @@ void AMainMenuHUD::ReturnMenu()
 	}
 }
 
-void AMainMenuHUD::OnCreateSessionButtonClicked()
+void AMainMenuHUD::OnCreateSessionButtonClicked(const FString& MatchModeString, int32 NumMaxPlayer)
 {
 	if (MultiplayerSessionsSubsystem)
 	{
-		MultiplayerSessionsSubsystem->CreateSession();
+		MultiplayerSessionsSubsystem->CreateSession(MatchModeString, NumMaxPlayer);
 	}
 }
 
@@ -125,6 +108,24 @@ void AMainMenuHUD::RefreshSessionList()
 	if (MultiplayerSessionsSubsystem)
 	{
 		MultiplayerSessionsSubsystem->FindSessions(10000);
+	}
+}
+
+void AMainMenuHUD::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// MultiplayerSessionsSubsystem
+	if (UGameInstance* GameInstance = GetGameInstance())
+	{
+		MultiplayerSessionsSubsystem = GameInstance->GetSubsystem<UMultiplayerSessionsSubsystem>();
+	}
+
+	if (MultiplayerSessionsSubsystem)
+	{
+		MultiplayerSessionsSubsystem->LBOnCreateSessionCompleteDelegate.AddUObject(this, &ThisClass::OnCreateSessionComplete);
+		MultiplayerSessionsSubsystem->LBOnFindSessionsCompleteDelegate.AddUObject(this, &ThisClass::OnFindSessionsComplete);
+		MultiplayerSessionsSubsystem->LBOnJoinSessionCompleteDelegate.AddUObject(this, &ThisClass::OnJoinSessionComplete);
 	}
 }
 

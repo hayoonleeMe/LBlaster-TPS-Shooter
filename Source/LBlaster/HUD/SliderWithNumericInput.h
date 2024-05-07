@@ -20,6 +20,8 @@ public:
 	void InitializeValues(float InInitialValue, float InSliderMinValue, float InSliderMaxValue, float InSliderStepSize);
 
 	FOnSliderValueChanged OnSliderValueChanged;
+
+	FORCEINLINE float GetSliderValue() const { return LastInputValue; };
 	
 protected:
 	virtual void NativeConstruct() override;

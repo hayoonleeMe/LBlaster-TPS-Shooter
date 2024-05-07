@@ -17,13 +17,6 @@ class LBLASTER_API AMainMenuHUD : public AHUD
 
 public:
 	/*
-	 *	Multiplayer Sessions
-	 */
-	UFUNCTION(BlueprintCallable)
-	void InitializeMultiplayerSessions(int32 InNumPublicConnections = 4, const FString& InMatchType = FString(TEXT("FreeForAll")), const FString& InLobbyPath = FString(TEXT("/Game/LBlaster/Maps/Lobby")));
-	// TODO : 매직 넘버를 상수로 대체 및 블루프린트에서의 호출을 C++에서 호출로 대체
-
-	/*
 	 *	Menus
 	 */
 	void CreateStartMenu();
@@ -35,11 +28,12 @@ public:
 	/*
 	 *	Start Menu
 	 */
-	void OnCreateSessionButtonClicked();
+	void OnCreateSessionButtonClicked(const FString& MatchModeString, int32 NumMaxPlayer);
 	void OnFindSessionsButtonClicked();
 	void RefreshSessionList();
 
 protected:
+	virtual void BeginPlay() override;
 	virtual void PostInitializeComponents() override;
 
 private:
@@ -52,7 +46,7 @@ private:
 	void OnCreateSessionComplete(bool bWasSuccessful);
 	void OnFindSessionsComplete(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful);
 	void OnJoinSessionComplete(EOnJoinSessionCompleteResult::Type Result);
-	
+
 	/*
 	 *	Owner
 	 */
