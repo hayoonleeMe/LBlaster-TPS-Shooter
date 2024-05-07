@@ -4,7 +4,10 @@
 #include "StartMenu.h"
 
 #include "MainMenu.h"
+#include "OptionSelector.h"
+#include "SliderWithNumericInput.h"
 #include "Components/Button.h"
+#include "Components/Overlay.h"
 #include "HUD/MainMenuHUD.h"
 
 void UStartMenu::MenuSetup()
@@ -12,9 +15,9 @@ void UStartMenu::MenuSetup()
 	Super::MenuSetup();
 
 	/* Widgets */
-	if (HostButton && !HostButton->OnClicked.IsBound())
+	if (CreateSessionButton && !CreateSessionButton->OnClicked.IsBound())
 	{
-		HostButton->OnClicked.AddDynamic(this, &ThisClass::OnHostButtonClicked);
+		CreateSessionButton->OnClicked.AddDynamic(this, &ThisClass::OnCreateSessionButtonClicked);
 	}
 	if (FindSessionsButton && !FindSessionsButton->OnClicked.IsBound())
 	{
@@ -24,15 +27,28 @@ void UStartMenu::MenuSetup()
 	{
 		ReturnButton->OnClicked.AddDynamic(this, &ThisClass::OnReturnButtonClicked);
 	}
+
+	if (MaxPlayerSlider)
+	{
+		MaxPlayerSlider->InitializeValues(SliderInitialValue, SliderMinValue, SliderMaxValue, SliderStepSize);
+	}
+	if (AlertCreateSessionButton && !AlertCreateSessionButton->OnClicked.IsBound())
+	{
+		AlertCreateSessionButton->OnClicked.AddDynamic(this, &ThisClass::OnAlertCreateSessionButtonClicked);
+	}
+	if (AlertCancelButton && !AlertCancelButton->OnClicked.IsBound())
+	{
+		AlertCancelButton->OnClicked.AddDynamic(this, &ThisClass::OnAlertCancelButtonClicked);
+	}
 }
 
 void UStartMenu::OnCreateSessionComplete(bool bWasSuccessful)
 {
 	if (!bWasSuccessful)
 	{
-		if (HostButton)
+		if (CreateSessionButton)
 		{
-			HostButton->SetIsEnabled(true);
+			CreateSessionButton->SetIsEnabled(true);
 		}
 	}
 }
@@ -48,16 +64,12 @@ void UStartMenu::OnJoinSessionComplete(EOnJoinSessionCompleteResult::Type Result
     }
 }
 
-void UStartMenu::OnHostButtonClicked()
+void UStartMenu::OnCreateSessionButtonClicked()
 {
-	if (HostButton)
+	// Create Session Alert Overlay 표시
+	if (CreateSessionAlertOverlay)
 	{
-		HostButton->SetIsEnabled(false);
-	}
-
-	if (IsValidOwnerHUD())
-	{
-		OwnerHUD->OnHostButtonClicked();
+		CreateSessionAlertOverlay->SetVisibility(ESlateVisibility::Visible);
 	}
 }
 
@@ -75,4 +87,27 @@ void UStartMenu::OnReturnButtonClicked()
 	{
 		OwnerHUD->ReturnMenu();
 	}		
+}
+
+void UStartMenu::OnAlertCreateSessionButtonClicked()
+{
+}
+
+void UStartMenu::OnAlertCancelButtonClicked()
+{
+	// Input 위젯 초기화
+	if (GameModeSelector)
+	{
+		GameModeSelector->InitializeOptions();
+	}
+	if (MaxPlayerSlider)
+	{
+		MaxPlayerSlider->InitializeValues(SliderInitialValue, SliderMinValue, SliderMaxValue, SliderStepSize);
+	}
+
+	// Create Session Alert Overlay 숨김
+	if (CreateSessionAlertOverlay)
+	{
+		CreateSessionAlertOverlay->SetVisibility(ESlateVisibility::Collapsed);
+	}
 }
