@@ -27,10 +27,10 @@ private:
 	 *	Widgets
 	 */
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> HostButton;
+	TObjectPtr<class UButton> CreateSessionButton;
 
 	UFUNCTION()
-	void OnHostButtonClicked();
+	void OnCreateSessionButtonClicked();
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> FindSessionsButton;
@@ -43,4 +43,33 @@ private:
 
 	UFUNCTION()
 	void OnReturnButtonClicked();
+
+	/*
+	 *	Create Session Alert Overlay
+	 */
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<class UOverlay> CreateSessionAlertOverlay;
+
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<class UOptionSelector> GameModeSelector;
+
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<class USliderWithNumericInput> MaxPlayerSlider;
+
+	float SliderInitialValue = 1.f;
+	float SliderMinValue = 1.f;
+	float SliderMaxValue = 10.f;
+	float SliderStepSize = 1.f;
+
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UButton> AlertCreateSessionButton;
+
+	UFUNCTION()
+	void OnAlertCreateSessionButtonClicked();
+
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UButton> AlertCancelButton;
+
+	UFUNCTION()
+	void OnAlertCancelButtonClicked();
 };

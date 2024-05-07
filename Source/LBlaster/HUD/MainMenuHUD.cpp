@@ -101,7 +101,7 @@ void AMainMenuHUD::ReturnMenu()
 	}
 }
 
-void AMainMenuHUD::OnHostButtonClicked()
+void AMainMenuHUD::OnCreateSessionButtonClicked()
 {
 	if (MultiplayerSessionsSubsystem)
 	{
