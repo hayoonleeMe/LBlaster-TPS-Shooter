@@ -6,16 +6,6 @@
 #include "Components/EditableText.h"
 #include "Components/Slider.h"
 
-void USliderWithNumericInput::SetInitialValue(float InValue)
-{
-	if (Slider && InputValue)
-	{
-		LastInputValue = InValue;
-		Slider->SetValue(LastInputValue);
-		InputValue->SetText(FText::AsNumber(FMath::RoundToInt32(LastInputValue)));
-	}
-}
-
 void USliderWithNumericInput::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -30,6 +20,28 @@ void USliderWithNumericInput::NativeConstruct()
 	}
 }
 
+void USliderWithNumericInput::InitializeValues(float InInitialValue, float InSliderMinValue, float InSliderMaxValue, float InSliderStepSize)
+{
+	SetInitialValue(InInitialValue);
+	if (Slider)
+	{
+		Slider->SetMinValue(InSliderMinValue);
+		Slider->SetMaxValue(InSliderMaxValue);
+		Slider->SetStepSize(InSliderStepSize);	
+	}
+}
+
+void USliderWithNumericInput::SetInitialValue(float InValue)
+{
+	LastInputValue = InValue;
+	
+	if (Slider && InputValue)
+	{
+		Slider->SetValue(LastInputValue);
+		InputValue->SetText(FText::AsNumber(FMath::RoundToInt32(LastInputValue)));
+	}
+}
+
 void USliderWithNumericInput::OnValueChanged(float Value)
 {
 	LastInputValue = Value;
@@ -37,7 +49,10 @@ void USliderWithNumericInput::OnValueChanged(float Value)
 	{
 		InputValue->SetText(FText::AsNumber(FMath::RoundToInt32(LastInputValue)));
 	}
-	OnSliderValueChanged.Execute(LastInputValue);
+	if (OnSliderValueChanged.IsBound())
+	{
+		OnSliderValueChanged.Execute(LastInputValue);
+	}
 }
 
 void USliderWithNumericInput::OnInputTextCommitted(const FText& Text, ETextCommit::Type CommitMethod)
@@ -49,10 +64,13 @@ void USliderWithNumericInput::OnInputTextCommitted(const FText& Text, ETextCommi
 
 	if (Text.IsNumeric())
 	{
-		LastInputValue = FMath::Clamp(FCString::Atof(*Text.ToString()), 0.f, 100.f);
+		LastInputValue = FMath::Clamp(FCString::Atof(*Text.ToString()), Slider->GetMinValue(), Slider->GetMaxValue());
 		InputValue->SetText(FText::AsNumber(FMath::RoundToInt32(LastInputValue)));
 		Slider->SetValue(LastInputValue);
-		OnSliderValueChanged.Execute(LastInputValue);
+		if (OnSliderValueChanged.IsBound())
+		{
+			OnSliderValueChanged.Execute(LastInputValue);
+		}
 	}
 	else
 	{

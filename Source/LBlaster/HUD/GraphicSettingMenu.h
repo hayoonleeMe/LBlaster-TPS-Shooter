@@ -89,9 +89,13 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class USliderWithNumericInput> ScreenBrightnessSlider;
 
-	bool bChangedScreenBrightness = false;
-
 	void OnScreenBrightnessSliderChanged(float InSliderValue);
+
+	float SliderMinValue = 0.f;
+	float SliderMaxValue = 100.f;
+	float SliderStepSize = 1.f;
+	
+	bool bChangedScreenBrightness = false;
 
 	/*
 	 *	Selector

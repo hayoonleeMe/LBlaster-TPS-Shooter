@@ -33,7 +33,7 @@ void UGraphicSettingMenu::MenuSetup()
 		}
 		
 		OriginalSettings.ScreenBrightnessValue = GameUserSettings->GetScreenBrightnessValue();
-		ScreenBrightnessSlider->SetInitialValue(GameUserSettings->GetScreenBrightnessValue());
+		ScreenBrightnessSlider->InitializeValues(GameUserSettings->GetScreenBrightnessValue(), SliderMinValue, SliderMaxValue, SliderStepSize);
 	}
 	
 	/* Selector */
