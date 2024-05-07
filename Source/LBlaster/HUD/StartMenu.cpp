@@ -78,8 +78,7 @@ void UStartMenu::OnJoinButtonClicked()
 	{
 		JoinButton->SetIsEnabled(false);
 	}
-	// TODO : Session 목록 UI 열기
-
+	
 	if (IsValidOwnerHUD())
 	{
 		OwnerHUD->OnJoinButtonClicked();

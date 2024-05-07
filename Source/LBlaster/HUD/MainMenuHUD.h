@@ -29,6 +29,7 @@ public:
 	void CreateStartMenu();
 	void CreateSettingMenu();
 	void CreateGraphicSettingMenu();
+	void CreateSessionListMenu();
 	void ReturnMenu();
 
 	/*
@@ -82,6 +83,15 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UStartMenu> StartMenu;
+
+	/*
+	 *	Session List Menu
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Session List Menu")
+	TSubclassOf<class USessionListMenu> SessionListMenuClass;
+
+	UPROPERTY()
+	TObjectPtr<USessionListMenu> SessionListMenu;
 
 	/*
 	 *	Setting Menu
