@@ -23,6 +23,7 @@ void USliderWithNumericInput::NativeConstruct()
 void USliderWithNumericInput::InitializeValues(float InInitialValue, float InSliderMinValue, float InSliderMaxValue, float InSliderStepSize)
 {
 	SetInitialValue(InInitialValue);
+	
 	if (Slider)
 	{
 		Slider->SetMinValue(InSliderMinValue);
@@ -45,6 +46,7 @@ void USliderWithNumericInput::SetInitialValue(float InValue)
 void USliderWithNumericInput::OnValueChanged(float Value)
 {
 	LastInputValue = Value;
+	
 	if (InputValue)
 	{
 		InputValue->SetText(FText::AsNumber(FMath::RoundToInt32(LastInputValue)));

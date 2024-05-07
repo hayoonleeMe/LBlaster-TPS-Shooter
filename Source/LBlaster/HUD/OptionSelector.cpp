@@ -3,10 +3,8 @@
 
 #include "HUD/OptionSelector.h"
 
-#include "LBlaster.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Button.h"
-#include "Components/EditableText.h"
 #include "Components/TextBlock.h"
 #include "Components/WidgetSwitcher.h"
 
@@ -56,6 +54,15 @@ void UOptionSelector::SetActiveIndex(int32 InActiveIndex)
 	{
 		Switcher->SetActiveWidgetIndex(InActiveIndex);
 	}
+}
+
+int32 UOptionSelector::GetActiveIndex() const
+{
+	if (Switcher)
+	{
+		return Switcher->GetActiveWidgetIndex();
+	}
+	return 0;
 }
 
 void UOptionSelector::SelectRightOption()

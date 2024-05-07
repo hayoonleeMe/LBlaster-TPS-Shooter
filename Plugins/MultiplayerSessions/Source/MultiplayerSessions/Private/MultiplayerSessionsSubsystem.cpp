@@ -14,21 +14,19 @@ UMultiplayerSessionsSubsystem::UMultiplayerSessionsSubsystem() :
 	OnDestroySessionCompleteDelegate(FOnDestroySessionCompleteDelegate::CreateUObject(this, &UMultiplayerSessionsSubsystem::OnDestroySessionComplete)),
 	OnStartSessionCompleteDelegate(FOnStartSessionCompleteDelegate::CreateUObject(this, &UMultiplayerSessionsSubsystem::OnStartSessionComplete))
 {
+	LobbyPath = FString(TEXT("/Game/LBlaster/Maps/Lobby"));
 }
 
-void UMultiplayerSessionsSubsystem::SessionSetup(int32 InNumPublicConnections, const FString& InMatchType, const FString& InLobbyPath)
-{
-	NumPublicConnections = InNumPublicConnections;
-	MatchType = InMatchType;
-	LobbyPath = FString::Printf(TEXT("%s?listen"), *InLobbyPath);
-}
-
-void UMultiplayerSessionsSubsystem::CreateSession()
+void UMultiplayerSessionsSubsystem::CreateSession(const FString& MatchModeString, int32 NumMaxPlayer)
 {
 	if (!IsValidSessionInterface())
 	{
 		return;
 	}
+
+	// Session Data Caching
+	MatchMode = MatchModeString;
+	NumPublicConnections = NumMaxPlayer;
 
 	// 이미 세션이 존재하면 세션 제거. 제거가 완료되면 다시 CreateSession() 호출됨
 	if (SessionInterface->GetNamedSession(NAME_GameSession))
@@ -40,20 +38,31 @@ void UMultiplayerSessionsSubsystem::CreateSession()
 
 	// Store the delegate in a FDelegateHandle so we can later remove it from the delegate list
 	OnCreateSessionCompleteDelegateHandle = SessionInterface->AddOnCreateSessionCompleteDelegate_Handle(OnCreateSessionCompleteDelegate);
-
-	// TODO : 방장 입맛 따라 세션 설정 할 수 있게
-	
 	LastSessionSettings = MakeShareable(new FOnlineSessionSettings());
+	
 	// OnlineSubsystem을 사용하지 않으면 LANMatch
-	LastSessionSettings->bIsLANMatch = IOnlineSubsystem::Get()->GetSubsystemName() == TEXT("NULL");	
-	LastSessionSettings->NumPublicConnections = NumPublicConnections;		// 게임에 존재할 수 있는 최대 플레이어의 수
-	LastSessionSettings->bAllowJoinInProgress = true;						// 세션이 작동중일 때 다른 플레이어가 참가할 수 있는지 여부
-	LastSessionSettings->bAllowJoinViaPresence = true;						// Presence로 참가할 수 있는지 여부, Presence : 게임을 찾을 때 같은 지역의 플레이어만 참가할 수 있도록 하는 것 
-	LastSessionSettings->bShouldAdvertise = true;							// 스팀이 세션을 광고하여 다른 플레이어가 세션을 찾아서 참가할 수 있는지 여부
-	LastSessionSettings->bUsesPresence = true;								// 유저 Presence 정보를 표시할 것인지 여부
+	LastSessionSettings->bIsLANMatch = IOnlineSubsystem::Get()->GetSubsystemName() == TEXT("NULL");
+
+	// 게임에 존재할 수 있는 최대 플레이어의 수
+	LastSessionSettings->NumPublicConnections = NumPublicConnections;		
+
+	// 세션이 작동중일 때 다른 플레이어가 참가할 수 있는지 여부
+	LastSessionSettings->bAllowJoinInProgress = true;						
+
+	// Presence로 참가할 수 있는지 여부, Presence : 게임을 찾을 때 같은 지역의 플레이어만 참가할 수 있도록 하는 것
+	LastSessionSettings->bAllowJoinViaPresence = true;
+
+	// 스팀이 세션을 광고하여 다른 플레이어가 세션을 찾아서 참가할 수 있는지 여부
+	LastSessionSettings->bShouldAdvertise = true;
+
+	// 유저 Presence 정보를 표시할 것인지 여부
+	LastSessionSettings->bUsesPresence = true;
+	
 	LastSessionSettings->bUseLobbiesIfAvailable = true;
+	
 	// MatchType이라는 FName Key에 FreeForAll이라는 FString Value를 저장, 이 값들은 개발자 의도대로 관리
-	LastSessionSettings->Set(FName(TEXT("MatchType")), MatchType, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+	LastSessionSettings->Set(FName(TEXT("MatchType")), MatchMode, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+	
 	// 1로 설정하면 여러 유저가 각각 고유의 빌드와 호스팅을 할 수 있다. 이후 유효한 게임 세션을 검색할 때 각각의 여러 세션들을 검색하고 참가할 수 있다. 만약 1이 아니면 다른 유저들의 세션들을 볼 수 없고 첫번째로 열리는 게임 세션에 참가하려고 할 것이다.
 	LastSessionSettings->BuildUniqueId = 1;	
 	
@@ -81,12 +90,7 @@ void UMultiplayerSessionsSubsystem::OnCreateSessionComplete(FName SessionName, b
 	{
 		if (GEngine)
 		{
-			GEngine->AddOnScreenDebugMessage(
-				-1,
-				15.f,
-				FColor::Yellow,
-				FString(TEXT("Session created successfully!"))
-			);
+			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString(TEXT("Session created successfully!")));
 		}
 
 		if (UWorld* World = GetWorld())
@@ -98,12 +102,7 @@ void UMultiplayerSessionsSubsystem::OnCreateSessionComplete(FName SessionName, b
 	{
 		if (GEngine)
 		{
-			GEngine->AddOnScreenDebugMessage(
-				-1,
-				15.f,
-				FColor::Red,
-				FString(TEXT("Failed to create session!"))
-			);
+			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, FString(TEXT("Failed to create session!")));
 		}
 	}
 }
@@ -150,9 +149,9 @@ void UMultiplayerSessionsSubsystem::OnFindSessionComplete(bool bWasSuccessful)
 		Result.Session.SessionSettings.Get(FName(TEXT("MatchType")), SettingsValue);
 
 		// Session 찾음
-		if (SettingsValue == MatchType)
+		if (SettingsValue == MatchMode)
 		{
-			JoinSession(Result);
+			//JoinSession(Result);
 			return;
 		}
 	}
@@ -226,7 +225,7 @@ void UMultiplayerSessionsSubsystem::OnDestroySessionComplete(FName SessionName, 
 	if (bWasSuccessful && bCreateSessionOnDestroy)
 	{
 		bCreateSessionOnDestroy = false;
-		CreateSession();
+		CreateSession(MatchMode, NumPublicConnections);
 	}
 }
 

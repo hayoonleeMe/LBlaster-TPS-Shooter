@@ -89,8 +89,43 @@ void UStartMenu::OnReturnButtonClicked()
 	}		
 }
 
+FString UStartMenu::GetMatchModeString()
+{
+	if (GameModeSelector)
+	{
+		const int32 ActiveIndex = GameModeSelector->GetActiveIndex();
+		// 개인전
+		if (ActiveIndex == 0)
+		{
+			return FString(TEXT("FreeForAll"));
+		}
+		// 팀 데스매치
+		if (ActiveIndex == 1)
+		{
+			return FString(TEXT("TeamDeathMatch"));
+		}
+	}
+	return FString();
+}
+
+int32 UStartMenu::GetMaxPlayerValue()
+{
+	if (MaxPlayerSlider)
+	{
+		return FMath::RoundToInt32(MaxPlayerSlider->GetSliderValue());
+	}
+	return 0;
+}
+
 void UStartMenu::OnAlertCreateSessionButtonClicked()
 {
+	const FString MatchModeString = GetMatchModeString();
+	const int32 NumMaxPlayer = GetMaxPlayerValue();
+	
+	if (IsValidOwnerHUD())
+	{
+		OwnerHUD->OnCreateSessionButtonClicked(MatchModeString, NumMaxPlayer);
+	}
 }
 
 void UStartMenu::OnAlertCancelButtonClicked()
