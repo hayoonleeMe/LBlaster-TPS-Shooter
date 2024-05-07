@@ -41,6 +41,11 @@ private:
 	int32 NumOfMaxPlayers;
 
 	/*
+	 *	Toggle
+	 */
+	bool bClicked = false;
+
+	/*
 	 *	Widgets
 	 */
 	UPROPERTY(meta=(BindWidget))

@@ -120,6 +120,14 @@ void AMainMenuHUD::OnJoinButtonClicked()
 	}
 }
 
+void AMainMenuHUD::RefreshSessionList()
+{
+	if (MultiplayerSessionsSubsystem)
+	{
+		MultiplayerSessionsSubsystem->FindSessions(10000);
+	}
+}
+
 void AMainMenuHUD::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();

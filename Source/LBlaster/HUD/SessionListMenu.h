@@ -36,4 +36,10 @@ private:
 
 	UFUNCTION()
 	void OnReturnButtonClicked();
+
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UButton> RefreshButton;
+
+	UFUNCTION()
+	void OnRefreshButtonClicked();
 };
