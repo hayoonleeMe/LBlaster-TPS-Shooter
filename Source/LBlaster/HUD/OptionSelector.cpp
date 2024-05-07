@@ -64,7 +64,10 @@ void UOptionSelector::SelectRightOption()
 	{
 		const int32 NewIndex = GetNewIndex(1);
 		Switcher->SetActiveWidgetIndex(NewIndex);
-		OnSwitcherActiveIndexChanged.Execute(NewIndex);
+		if (OnSwitcherActiveIndexChanged.IsBound())
+		{
+			OnSwitcherActiveIndexChanged.Execute(NewIndex);
+		}
 	}
 }
 
@@ -74,7 +77,10 @@ void UOptionSelector::SelectLeftOption()
 	{
 		const int32 NewIndex = GetNewIndex(-1);
 		Switcher->SetActiveWidgetIndex(NewIndex);
-		OnSwitcherActiveIndexChanged.Execute(NewIndex);
+		if (OnSwitcherActiveIndexChanged.IsBound())
+		{
+			OnSwitcherActiveIndexChanged.Execute(NewIndex);
+		}
 	}
 }
 
