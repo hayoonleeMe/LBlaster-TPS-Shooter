@@ -8,6 +8,7 @@
 #include "SessionListRow.h"
 #include "Components/Button.h"
 #include "Components/ListView.h"
+#include "Components/Overlay.h"
 
 void USessionListMenu::MenuSetup()
 {
@@ -33,6 +34,10 @@ void USessionListMenu::MenuSetup()
 	{
 		RefreshButton->OnClicked.AddDynamic(this, &ThisClass::OnRefreshButtonClicked);
 	}
+	if (AlertReturnButton && !AlertReturnButton->OnClicked.IsBound())
+	{
+		AlertReturnButton->OnClicked.AddDynamic(this, &ThisClass::OnReturnButtonClicked);
+	}
 }
 
 void USessionListMenu::InitializeSessionListView(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful)
@@ -40,7 +45,11 @@ void USessionListMenu::InitializeSessionListView(const TArray<FOnlineSessionSear
 	// Find Session 실패
 	if (!bWasSuccessful)
 	{
-		UE_LOG(LogTemp, Error, TEXT("FindSessions Failed"));
+		// Fail Alert 표시
+		if (FindSessionsFailAlertOverlay)
+		{
+			FindSessionsFailAlertOverlay->SetVisibility(ESlateVisibility::Visible);
+		}
 		return;
 	}
 
@@ -92,6 +101,10 @@ void USessionListMenu::OnJoinButtonClicked()
 
 void USessionListMenu::OnReturnButtonClicked()
 {
+	if (SessionListView)
+	{
+		SessionListView->ClearListItems();
+	}
 	if (IsValidOwnerHUD())
 	{
 		OwnerHUD->ReturnMenu();

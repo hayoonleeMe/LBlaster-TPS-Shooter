@@ -50,4 +50,13 @@ private:
 	 */
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UUserWidget> LoadingOverlay;
+
+	/*
+	 *	Find Sessions Fail Alert Overlay
+	 */
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<class UOverlay> FindSessionsFailAlertOverlay;
+
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UButton> AlertReturnButton;
 };
