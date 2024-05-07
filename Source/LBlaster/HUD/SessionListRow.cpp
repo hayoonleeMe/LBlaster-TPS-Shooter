@@ -20,7 +20,12 @@ void USessionListRow::NativeOnListItemObjectSet(UObject* ListItemObject)
 		MatchModeString = Data->MatchModeString;
 		NumOfCurrentPlayers = Data->NumOfCurrentPlayers;
 		NumOfMaxPlayers = Data->NumOfMaxPlayers;
-		
+		bClicked = Data->bClicked;
+
+		if (RowBorder)
+		{
+			RowBorder->SetBrushColor(bClicked ? SelectedColor : NormalColor);
+		}
 		if (HostNameTextBlock)
 		{
 			HostNameTextBlock->SetText(FText::FromString(HostNameString));
@@ -40,6 +45,7 @@ void USessionListRow::NativeOnItemSelectionChanged(bool bIsSelected)
 {
 	IUserObjectListEntry::NativeOnItemSelectionChanged(bIsSelected);
 
+	bClicked = bIsSelected;
 	if (RowBorder)
 	{
 		RowBorder->SetBrushColor(bIsSelected ? SelectedColor : NormalColor);

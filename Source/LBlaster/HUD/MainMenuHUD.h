@@ -37,6 +37,7 @@ public:
 	 */
 	void OnHostButtonClicked();
 	void OnJoinButtonClicked();
+	void RefreshSessionList();
 
 protected:
 	virtual void PostInitializeComponents() override;

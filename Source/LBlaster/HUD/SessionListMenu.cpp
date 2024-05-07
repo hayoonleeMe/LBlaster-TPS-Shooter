@@ -26,6 +26,10 @@ void USessionListMenu::MenuSetup()
 	{
 		ReturnButton->OnClicked.AddDynamic(this, &ThisClass::OnReturnButtonClicked);
 	}
+	if (RefreshButton && !RefreshButton->OnClicked.IsBound())
+	{
+		RefreshButton->OnClicked.AddDynamic(this, &ThisClass::OnRefreshButtonClicked);
+	}
 }
 
 void USessionListMenu::InitializeSessionListView(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful)
@@ -77,5 +81,17 @@ void USessionListMenu::OnReturnButtonClicked()
 	if (IsValidOwnerHUD())
 	{
 		OwnerHUD->ReturnMenu();
+	}
+}
+
+void USessionListMenu::OnRefreshButtonClicked()
+{
+	if (SessionListView)
+	{
+		SessionListView->ClearListItems();
+	}
+	if (IsValidOwnerHUD())
+	{
+		OwnerHUD->RefreshSessionList();
 	}
 }
