@@ -20,7 +20,6 @@ public:
 	virtual void MenuSetup() override;
 	
 	void OnCreateSessionComplete(bool bWasSuccessful);
-	void OnFindSessionsComplete(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful);
 	void OnJoinSessionComplete(EOnJoinSessionCompleteResult::Type Result);
 
 private:
@@ -34,10 +33,10 @@ private:
 	void OnHostButtonClicked();
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UButton> JoinButton;
+	TObjectPtr<UButton> FindSessionsButton;
 
 	UFUNCTION()
-	void OnJoinButtonClicked();
+	void OnFindSessionsButtonClicked();
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> ReturnButton;

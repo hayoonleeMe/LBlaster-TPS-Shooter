@@ -36,7 +36,7 @@ public:
 	 *	Start Menu
 	 */
 	void OnHostButtonClicked();
-	void OnJoinButtonClicked();
+	void OnFindSessionsButtonClicked();
 	void RefreshSessionList();
 
 protected:

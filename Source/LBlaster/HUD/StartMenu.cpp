@@ -16,9 +16,9 @@ void UStartMenu::MenuSetup()
 	{
 		HostButton->OnClicked.AddDynamic(this, &ThisClass::OnHostButtonClicked);
 	}
-	if (JoinButton && !JoinButton->OnClicked.IsBound())
+	if (FindSessionsButton && !FindSessionsButton->OnClicked.IsBound())
 	{
-		JoinButton->OnClicked.AddDynamic(this, &ThisClass::OnJoinButtonClicked);
+		FindSessionsButton->OnClicked.AddDynamic(this, &ThisClass::OnFindSessionsButtonClicked);
 	}
 	if (ReturnButton && !ReturnButton->OnClicked.IsBound())
 	{
@@ -37,24 +37,13 @@ void UStartMenu::OnCreateSessionComplete(bool bWasSuccessful)
 	}
 }
 
-void UStartMenu::OnFindSessionsComplete(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful)
-{
-	if (!bWasSuccessful || SessionResults.Num() <= 0)
-	{
-		if (JoinButton)
-		{
-			JoinButton->SetIsEnabled(true);
-		}
-	}
-}
-
 void UStartMenu::OnJoinSessionComplete(EOnJoinSessionCompleteResult::Type Result)
 {
 	if (Result != EOnJoinSessionCompleteResult::Success)
     {
-	    if (JoinButton)
+	    if (FindSessionsButton)
 	    {
-		    JoinButton->SetIsEnabled(true);
+		    FindSessionsButton->SetIsEnabled(true);
 	    }	
     }
 }
@@ -72,16 +61,11 @@ void UStartMenu::OnHostButtonClicked()
 	}
 }
 
-void UStartMenu::OnJoinButtonClicked()
+void UStartMenu::OnFindSessionsButtonClicked()
 {
-	if (JoinButton)
-	{
-		JoinButton->SetIsEnabled(false);
-	}
-	
 	if (IsValidOwnerHUD())
 	{
-		OwnerHUD->OnJoinButtonClicked();
+		OwnerHUD->OnFindSessionsButtonClicked();
 	}
 }
 
