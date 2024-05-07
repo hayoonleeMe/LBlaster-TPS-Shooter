@@ -6,6 +6,7 @@
 #include "MultiplayerSessionsSubsystem.h"
 #include "GraphicSettingMenuForMainMenu.h"
 #include "MainMenu.h"
+#include "SessionListMenu.h"
 #include "SettingMenuForMainMenu.h"
 #include "StartMenu.h"
 #include "Blueprint/UserWidget.h"
@@ -66,6 +67,19 @@ void AMainMenuHUD::CreateGraphicSettingMenu()
 	AddNewMenuToStack(GraphicSettingMenu);
 }
 
+void AMainMenuHUD::CreateSessionListMenu()
+{
+	if (SessionListMenuClass && !SessionListMenu)
+	{
+		if (IsValidOwnerController())
+		{
+			SessionListMenu = CreateWidget<USessionListMenu>(OwnerController, SessionListMenuClass);
+		}
+	}
+
+	AddNewMenuToStack(SessionListMenu);
+}
+
 void AMainMenuHUD::ReturnMenu()
 {
 	int32 LastMenuIndex = MenuStack.Num() - 1;
@@ -91,13 +105,15 @@ void AMainMenuHUD::OnHostButtonClicked()
 {
 	if (MultiplayerSessionsSubsystem)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("OnHostButtonClicked Called"));
 		MultiplayerSessionsSubsystem->CreateSession();
 	}
 }
 
 void AMainMenuHUD::OnJoinButtonClicked()
 {
+	// Session List Menu 생성
+	CreateSessionListMenu();
+	
 	if (MultiplayerSessionsSubsystem)
 	{
 		MultiplayerSessionsSubsystem->FindSessions(10000);
@@ -115,7 +131,6 @@ void AMainMenuHUD::OnCreateSessionComplete(bool bWasSuccessful)
 {
 	if (StartMenu)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("OnCreateSessioNComplete Called"));
 		StartMenu->OnCreateSessionComplete(bWasSuccessful);
 	}
 }
@@ -125,6 +140,10 @@ void AMainMenuHUD::OnFindSessionsComplete(const TArray<FOnlineSessionSearchResul
 	if (StartMenu)
 	{
 		StartMenu->OnFindSessionsComplete(SessionResults, bWasSuccessful);
+	}
+	if (SessionListMenu)
+	{
+		SessionListMenu->InitializeSessionListView(SessionResults, bWasSuccessful);
 	}
 }
 
