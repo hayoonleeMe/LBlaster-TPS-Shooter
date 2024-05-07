@@ -109,7 +109,7 @@ void AMainMenuHUD::OnHostButtonClicked()
 	}
 }
 
-void AMainMenuHUD::OnJoinButtonClicked()
+void AMainMenuHUD::OnFindSessionsButtonClicked()
 {
 	// Session List Menu 생성
 	CreateSessionListMenu();
@@ -145,10 +145,6 @@ void AMainMenuHUD::OnCreateSessionComplete(bool bWasSuccessful)
 
 void AMainMenuHUD::OnFindSessionsComplete(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful)
 {
-	if (StartMenu)
-	{
-		StartMenu->OnFindSessionsComplete(SessionResults, bWasSuccessful);
-	}
 	if (SessionListMenu)
 	{
 		SessionListMenu->InitializeSessionListView(SessionResults, bWasSuccessful);
