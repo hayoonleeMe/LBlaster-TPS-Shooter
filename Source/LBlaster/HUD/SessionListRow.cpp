@@ -3,6 +3,7 @@
 
 #include "HUD/SessionListRow.h"
 
+#include "MultiplayerSessionsSubsystem.h"
 #include "Components/Border.h"
 #include "Components/ListViewBase.h"
 #include "Components/TextBlock.h"
@@ -16,10 +17,7 @@ void USessionListRow::NativeOnListItemObjectSet(UObject* ListItemObject)
 
 	if (USessionListRow* Data = Cast<USessionListRow>(ListItemObject))
 	{
-		HostNameString = Data->HostNameString;
-		MatchModeString = Data->MatchModeString;
-		NumOfCurrentPlayers = Data->NumOfCurrentPlayers;
-		NumOfMaxPlayers = Data->NumOfMaxPlayers;
+		SetSessionResult(Data->SessionResult);
 		bClicked = Data->bClicked;
 
 		if (RowBorder)
@@ -32,7 +30,14 @@ void USessionListRow::NativeOnListItemObjectSet(UObject* ListItemObject)
 		}
 		if (MatchModeTextBlock)
 		{
-			MatchModeTextBlock->SetText(FText::FromString(MatchModeString));
+			if (MatchModeType == EMatchMode::FreeForAll)
+			{
+				MatchModeTextBlock->SetText(FText::FromString(FString(TEXT("개인전"))));
+			}
+			else if (MatchModeType == EMatchMode::TeamDeathMatch)
+			{
+				MatchModeTextBlock->SetText(FText::FromString(FString(TEXT("팀 데스매치"))));
+			}
 		}
 		if (NumPlayerTextBlock)
 		{
@@ -52,14 +57,15 @@ void USessionListRow::NativeOnItemSelectionChanged(bool bIsSelected)
 	}
 }
 
-void USessionListRow::SetMatchModeString(const FString& InString)
+void USessionListRow::SetSessionResult(const FOnlineSessionSearchResult& InSessionResult)
 {
-	if (InString.Equals(FString(TEXT("FreeForAll"))))
-	{
-		MatchModeString = FString(TEXT("개인전"));
-	}
-	else if (InString.Equals(FString(TEXT("TeamDeathMatch"))))
-	{
-		MatchModeString = FString(TEXT("팀 데스매치"));
-	}
+	SessionResult = InSessionResult;
+	HostNameString = SessionResult.Session.OwningUserName;
+	
+	int32 IntMatchModeType;
+	SessionResult.Session.SessionSettings.Get(UMultiplayerSessionsSubsystem::MatchModeKey, IntMatchModeType);
+	MatchModeType = static_cast<EMatchMode>(IntMatchModeType);
+	
+	NumOfCurrentPlayers = SessionResult.Session.SessionSettings.NumPublicConnections - SessionResult.Session.NumOpenPublicConnections;
+	NumOfMaxPlayers = SessionResult.Session.SessionSettings.NumPublicConnections;
 }

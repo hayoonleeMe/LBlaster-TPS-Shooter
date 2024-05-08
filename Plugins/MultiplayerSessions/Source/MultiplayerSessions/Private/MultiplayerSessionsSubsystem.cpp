@@ -14,10 +14,9 @@ UMultiplayerSessionsSubsystem::UMultiplayerSessionsSubsystem() :
 	OnDestroySessionCompleteDelegate(FOnDestroySessionCompleteDelegate::CreateUObject(this, &UMultiplayerSessionsSubsystem::OnDestroySessionComplete)),
 	OnStartSessionCompleteDelegate(FOnStartSessionCompleteDelegate::CreateUObject(this, &UMultiplayerSessionsSubsystem::OnStartSessionComplete))
 {
-	LobbyPath = FString(TEXT("/Game/LBlaster/Maps/Lobby"));
 }
 
-void UMultiplayerSessionsSubsystem::CreateSession(const FString& MatchModeString, int32 NumMaxPlayer)
+void UMultiplayerSessionsSubsystem::CreateSession(EMatchMode InMatchModeType, int32 InNumMaxPlayer)
 {
 	if (!IsValidSessionInterface())
 	{
@@ -25,8 +24,8 @@ void UMultiplayerSessionsSubsystem::CreateSession(const FString& MatchModeString
 	}
 
 	// Session Data Caching
-	MatchMode = MatchModeString;
-	NumPublicConnections = NumMaxPlayer;
+	MatchModeType = InMatchModeType;
+	NumPublicConnections = InNumMaxPlayer;
 
 	// 이미 세션이 존재하면 세션 제거. 제거가 완료되면 다시 CreateSession() 호출됨
 	if (SessionInterface->GetNamedSession(NAME_GameSession))
@@ -61,7 +60,7 @@ void UMultiplayerSessionsSubsystem::CreateSession(const FString& MatchModeString
 	LastSessionSettings->bUseLobbiesIfAvailable = true;
 	
 	// MatchType이라는 FName Key에 FreeForAll이라는 FString Value를 저장, 이 값들은 개발자 의도대로 관리
-	LastSessionSettings->Set(FName(TEXT("MatchType")), MatchMode, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+	LastSessionSettings->Set(UMultiplayerSessionsSubsystem::MatchModeKey, static_cast<int32>(MatchModeType), EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 	
 	// 1로 설정하면 여러 유저가 각각 고유의 빌드와 호스팅을 할 수 있다. 이후 유효한 게임 세션을 검색할 때 각각의 여러 세션들을 검색하고 참가할 수 있다. 만약 1이 아니면 다른 유저들의 세션들을 볼 수 없고 첫번째로 열리는 게임 세션에 참가하려고 할 것이다.
 	LastSessionSettings->BuildUniqueId = 1;	
@@ -118,9 +117,12 @@ void UMultiplayerSessionsSubsystem::FindSessions(int32 InMaxSearchResults)
     OnFindSessionsCompleteDelegateHandle = SessionInterface->AddOnFindSessionsCompleteDelegate_Handle(OnFindSessionsCompleteDelegate);
 
     LastSessionSearch = MakeShareable(new FOnlineSessionSearch());
+	
 	// 최대 세션검색 결과의 수, 현재 Dev App Id를 480으로 쓰므로 크게 설정한다.
     LastSessionSearch->MaxSearchResults = InMaxSearchResults;
+	
 	LastSessionSearch->bIsLanQuery = IOnlineSubsystem::Get()->GetSubsystemName() == TEXT("NULL");
+	
 	// 우리가 찾는 세션이 Presence를 사용하는 것을 명시하도록 쿼리세팅 설정
     LastSessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);	
 
@@ -141,19 +143,6 @@ void UMultiplayerSessionsSubsystem::OnFindSessionComplete(bool bWasSuccessful)
 	if (IsValidSessionInterface())
 	{
 		SessionInterface->ClearOnFindSessionsCompleteDelegate_Handle(OnFindSessionsCompleteDelegateHandle);
-	}
-
-	for (FOnlineSessionSearchResult Result : LastSessionSearch->SearchResults)
-	{
-		FString SettingsValue;
-		Result.Session.SessionSettings.Get(FName(TEXT("MatchType")), SettingsValue);
-
-		// Session 찾음
-		if (SettingsValue == MatchMode)
-		{
-			//JoinSession(Result);
-			return;
-		}
 	}
 }
 
@@ -187,7 +176,7 @@ void UMultiplayerSessionsSubsystem::OnJoinSessionComplete(FName SessionName, EOn
 	SessionInterface->ClearOnJoinSessionCompleteDelegate_Handle(OnJoinSessionCompleteDelegateHandle);
 	
 	FString Address;
-	if (SessionInterface->GetResolvedConnectString(NAME_GameSession, Address))
+	if (SessionInterface->GetResolvedConnectString(SessionName, Address))
 	{
 		if (APlayerController* PlayerController = GetGameInstance()->GetFirstLocalPlayerController())
 		{
@@ -225,7 +214,7 @@ void UMultiplayerSessionsSubsystem::OnDestroySessionComplete(FName SessionName, 
 	if (bWasSuccessful && bCreateSessionOnDestroy)
 	{
 		bCreateSessionOnDestroy = false;
-		CreateSession(MatchMode, NumPublicConnections);
+		CreateSession(MatchModeType, NumPublicConnections);
 	}
 }
 
