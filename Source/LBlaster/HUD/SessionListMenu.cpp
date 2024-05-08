@@ -105,6 +105,10 @@ void USessionListMenu::OnReturnButtonClicked()
 	{
 		SessionListView->ClearListItems();
 	}
+	if (FindSessionsFailAlertOverlay)
+	{
+		FindSessionsFailAlertOverlay->SetVisibility(ESlateVisibility::Collapsed);
+	}
 	if (IsValidOwnerHUD())
 	{
 		OwnerHUD->ReturnMenu();
