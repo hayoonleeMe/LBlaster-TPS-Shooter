@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MatchModeTypes.h"
 #include "GameFramework/HUD.h"
 #include "Interfaces/OnlineSessionInterface.h"
 #include "MainMenuHUD.generated.h"
@@ -28,9 +29,10 @@ public:
 	/*
 	 *	Start Menu
 	 */
-	void OnCreateSessionButtonClicked(const FString& MatchModeString, int32 NumMaxPlayer);
-	void OnFindSessionsButtonClicked();
+	void CreateSessionFromMenu(EMatchMode MatchModeType, int32 NumMaxPlayer);
+	void FindSessionsFromMenu();
 	void RefreshSessionList();
+	void JoinSessionFromMenu(const FOnlineSessionSearchResult& SessionResult);
 
 protected:
 	virtual void BeginPlay() override;

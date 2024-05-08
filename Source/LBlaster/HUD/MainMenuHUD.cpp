@@ -84,15 +84,15 @@ void AMainMenuHUD::ReturnMenu()
 	}
 }
 
-void AMainMenuHUD::OnCreateSessionButtonClicked(const FString& MatchModeString, int32 NumMaxPlayer)
+void AMainMenuHUD::CreateSessionFromMenu(EMatchMode MatchModeType, int32 NumMaxPlayer)
 {
 	if (MultiplayerSessionsSubsystem)
 	{
-		MultiplayerSessionsSubsystem->CreateSession(MatchModeString, NumMaxPlayer);
+		MultiplayerSessionsSubsystem->CreateSession(MatchModeType, NumMaxPlayer);
 	}
 }
 
-void AMainMenuHUD::OnFindSessionsButtonClicked()
+void AMainMenuHUD::FindSessionsFromMenu()
 {
 	// Session List Menu 생성
 	CreateSessionListMenu();
@@ -108,6 +108,14 @@ void AMainMenuHUD::RefreshSessionList()
 	if (MultiplayerSessionsSubsystem)
 	{
 		MultiplayerSessionsSubsystem->FindSessions(10000);
+	}
+}
+
+void AMainMenuHUD::JoinSessionFromMenu(const FOnlineSessionSearchResult& SessionResult)
+{
+	if (MultiplayerSessionsSubsystem)
+	{
+		MultiplayerSessionsSubsystem->JoinSession(SessionResult);
 	}
 }
 

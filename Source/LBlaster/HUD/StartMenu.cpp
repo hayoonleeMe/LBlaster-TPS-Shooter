@@ -77,7 +77,7 @@ void UStartMenu::OnFindSessionsButtonClicked()
 {
 	if (IsValidOwnerHUD())
 	{
-		OwnerHUD->OnFindSessionsButtonClicked();
+		OwnerHUD->FindSessionsFromMenu();
 	}
 }
 
@@ -89,23 +89,24 @@ void UStartMenu::OnReturnButtonClicked()
 	}		
 }
 
-FString UStartMenu::GetMatchModeString()
+EMatchMode UStartMenu::GetMatchModeType()
 {
 	if (GameModeSelector)
 	{
 		const int32 ActiveIndex = GameModeSelector->GetActiveIndex();
+		
 		// 개인전
 		if (ActiveIndex == 0)
 		{
-			return FString(TEXT("FreeForAll"));
+			return EMatchMode::FreeForAll;
 		}
 		// 팀 데스매치
 		if (ActiveIndex == 1)
 		{
-			return FString(TEXT("TeamDeathMatch"));
+			return EMatchMode::TeamDeathMatch;
 		}
 	}
-	return FString();
+	return EMatchMode();
 }
 
 int32 UStartMenu::GetMaxPlayerValue()
@@ -119,12 +120,12 @@ int32 UStartMenu::GetMaxPlayerValue()
 
 void UStartMenu::OnAlertCreateSessionButtonClicked()
 {
-	const FString MatchModeString = GetMatchModeString();
+	const EMatchMode MatchModeType = GetMatchModeType();
 	const int32 NumMaxPlayer = GetMaxPlayerValue();
 	
 	if (IsValidOwnerHUD())
 	{
-		OwnerHUD->OnCreateSessionButtonClicked(MatchModeString, NumMaxPlayer);
+		OwnerHUD->CreateSessionFromMenu(MatchModeType, NumMaxPlayer);
 	}
 }
 

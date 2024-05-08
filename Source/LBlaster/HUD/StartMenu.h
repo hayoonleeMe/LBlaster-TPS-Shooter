@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "HUD/MainMenuUserWidget.h"
 #include "Interfaces/OnlineSessionInterface.h"
+#include "MatchModeTypes.h"
 #include "StartMenu.generated.h"
 
 /**
@@ -53,7 +54,7 @@ private:
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<class UOptionSelector> GameModeSelector;
 
-	FString GetMatchModeString();
+	EMatchMode GetMatchModeType();
 
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<class USliderWithNumericInput> MaxPlayerSlider;

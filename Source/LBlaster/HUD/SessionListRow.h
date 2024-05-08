@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MatchModeTypes.h"
+#include "OnlineSessionSettings.h"
 #include "Blueprint/IUserObjectListEntry.h"
 #include "Blueprint/UserWidget.h"
 #include "SessionListRow.generated.h"
@@ -16,23 +18,24 @@ class LBLASTER_API USessionListRow : public UUserWidget, public IUserObjectListE
 	GENERATED_BODY()
 
 public:
+	void SetSessionResult(const FOnlineSessionSearchResult& InSessionResult);
+	FORCEINLINE FOnlineSessionSearchResult GetSessionResult() const { return SessionResult; }
+
+protected:
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
 	virtual void NativeOnItemSelectionChanged(bool bIsSelected) override;
-
-	FORCEINLINE void SetHostNameString(const FString& InString) { HostNameString = InString; }
-	void SetMatchModeString(const FString& InString);
-	FORCEINLINE void SetNumOfCurrentPlayers(int32 InValue) { NumOfCurrentPlayers = InValue; }
-	FORCEINLINE void SetNumOfMaxPlayers(int32 InValue) { NumOfMaxPlayers = InValue; }
 	
 private:
 	/*
 	 *	Data
 	 */
+	FOnlineSessionSearchResult SessionResult;
+	
 	UPROPERTY()
 	FString HostNameString;
 
 	UPROPERTY()
-	FString MatchModeString;
+	EMatchMode MatchModeType;
 
 	UPROPERTY()
 	int32 NumOfCurrentPlayers;

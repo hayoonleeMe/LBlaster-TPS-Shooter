@@ -4,6 +4,7 @@
 #include "HUD/SessionListMenu.h"
 
 #include "MainMenuHUD.h"
+#include "MultiplayerSessionsSubsystem.h"
 #include "OnlineSessionSettings.h"
 #include "SessionListRow.h"
 #include "Components/Button.h"
@@ -60,20 +61,18 @@ void USessionListMenu::InitializeSessionListView(const TArray<FOnlineSessionSear
 	{
 		for (const FOnlineSessionSearchResult& SessionResult : SessionResults)
 		{
-			for (int32 i = 0; i < 20; ++i)	// TODO : Remove Test Code
+			// 이 게임에서 사용하는 유효한 키를 가지는 세션만 띄움
+			int32 Value;
+			if (!SessionResult.Session.SessionSettings.Get(UMultiplayerSessionsSubsystem::MatchModeKey, Value))
 			{
-				if (USessionListRow* SessionListRow = CreateWidget<USessionListRow>(OwnerController, USessionListRow::StaticClass()))
-				{
-					SessionListRow->SetHostNameString(i % 2 == 0 ? SessionResult.Session.OwningUserName : TEXT("Test Name")); // TODO : Remove Test Code
-					FString MatchTypeString;
-					SessionResult.Session.SessionSettings.Get(FName(TEXT("MatchType")), MatchTypeString);
-					SessionListRow->SetMatchModeString(MatchTypeString);
-					SessionListRow->SetNumOfCurrentPlayers(SessionResult.Session.SessionSettings.NumPublicConnections - SessionResult.Session.NumOpenPublicConnections);
-					SessionListRow->SetNumOfMaxPlayers(SessionResult.Session.SessionSettings.NumPublicConnections);
-
-					SessionListView->AddItem(SessionListRow);
-				}	
+				continue;
 			}
+			
+			if (USessionListRow* SessionListRow = CreateWidget<USessionListRow>(OwnerController, USessionListRow::StaticClass()))
+			{
+				SessionListRow->SetSessionResult(SessionResult);
+				SessionListView->AddItem(SessionListRow);
+			}	
 		}
 	}
 }
@@ -97,6 +96,16 @@ void USessionListMenu::OnListViewItemSelectionChanged(bool bIsSelected)
 
 void USessionListMenu::OnJoinButtonClicked()
 {
+	if (SessionListView)
+	{
+		if (USessionListRow* SelectedRow = SessionListView->GetSelectedItem<USessionListRow>())
+		{
+			if (IsValidOwnerHUD())
+			{
+				OwnerHUD->JoinSessionFromMenu(SelectedRow->GetSessionResult());
+			}
+		}
+	}
 }
 
 void USessionListMenu::OnReturnButtonClicked()
