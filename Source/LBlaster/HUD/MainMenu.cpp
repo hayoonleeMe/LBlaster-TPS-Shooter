@@ -38,25 +38,6 @@ void UMainMenu::MenuSetup()
 	}
 }
 
-void UMainMenu::MenuTearDown()
-{
-	Super::MenuTearDown();
-
-	/* Input Mode */
-	if (IsValidOwnerController())
-	{
-		FInputModeGameOnly InputModeData;
-		OwnerController->SetInputMode(InputModeData);
-		OwnerController->SetShowMouseCursor(false);
-	}
-}
-
-void UMainMenu::NativeDestruct()
-{
-	MenuTearDown();
-	Super::NativeDestruct();
-}
-
 void UMainMenu::OnStartButtonClicked()
 {
 	if (IsValidOwnerHUD())

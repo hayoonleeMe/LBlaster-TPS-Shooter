@@ -123,7 +123,7 @@ void AMainMenuHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// MultiplayerSessionsSubsystem
+	/* MultiplayerSessionsSubsystem */
 	if (UGameInstance* GameInstance = GetGameInstance())
 	{
 		MultiplayerSessionsSubsystem = GameInstance->GetSubsystem<UMultiplayerSessionsSubsystem>();
@@ -135,12 +135,8 @@ void AMainMenuHUD::BeginPlay()
 		MultiplayerSessionsSubsystem->LBOnFindSessionsCompleteDelegate.AddUObject(this, &ThisClass::OnFindSessionsComplete);
 		MultiplayerSessionsSubsystem->LBOnJoinSessionCompleteDelegate.AddUObject(this, &ThisClass::OnJoinSessionComplete);
 	}
-}
 
-void AMainMenuHUD::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-
+	/* Main Menu */
 	AddMainMenu();
 }
 

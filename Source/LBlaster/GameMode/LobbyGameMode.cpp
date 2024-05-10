@@ -3,17 +3,18 @@
 
 #include "GameMode/LobbyGameMode.h"
 
-#include "Character/LBlasterCharacter.h"
+#include "Player/SessionHelperPlayerController.h"
 
 ALobbyGameMode::ALobbyGameMode()
 {
 	bUseSeamlessTravel = true;
-	
-	static ConstructorHelpers::FClassFinder<ALBlasterCharacter> LBlasterCharacterClassRef(TEXT("/Script/Engine.Blueprint'/Game/LBlaster/Actors/Manny/BP_LBlasterCharacter.BP_LBlasterCharacter_C'"));
-	if (LBlasterCharacterClassRef.Class)
-	{
-		DefaultPawnClass = LBlasterCharacterClassRef.Class; 
-	}
+
+	// static ConstructorHelpers::FClassFinder<ASessionHelperPlayerController> SessionHelperPlayerControllerClassRef(TEXT(""));
+	// if (SessionHelperPlayerControllerClassRef.Class)
+	// {
+	// 	PlayerControllerClass = SessionHelperPlayerControllerClassRef.Class;
+	// }
+	PlayerControllerClass = ASessionHelperPlayerController::StaticClass();
 }
 
 void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
