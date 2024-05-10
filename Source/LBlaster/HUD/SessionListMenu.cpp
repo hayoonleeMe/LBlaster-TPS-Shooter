@@ -35,14 +35,21 @@ void USessionListMenu::MenuSetup()
 	{
 		RefreshButton->OnClicked.AddDynamic(this, &ThisClass::OnRefreshButtonClicked);
 	}
-	if (AlertReturnButton && !AlertReturnButton->OnClicked.IsBound())
+	if (FindFailAlertReturnButton && !FindFailAlertReturnButton->OnClicked.IsBound())
 	{
-		AlertReturnButton->OnClicked.AddDynamic(this, &ThisClass::OnReturnButtonClicked);
+		FindFailAlertReturnButton->OnClicked.AddDynamic(this, &ThisClass::OnReturnButtonClicked);
+	}
+	if (JoinFailAlertReturnButton && !JoinFailAlertReturnButton->OnClicked.IsBound())
+	{
+		JoinFailAlertReturnButton->OnClicked.AddDynamic(this, &ThisClass::OnReturnButtonClicked);
 	}
 }
 
 void USessionListMenu::InitializeSessionListView(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful)
 {
+	// 로딩 효과 끄기
+	SetLoadingOverlayVisibility(false);
+	
 	// Find Session 실패
 	if (!bWasSuccessful)
 	{
@@ -53,9 +60,6 @@ void USessionListMenu::InitializeSessionListView(const TArray<FOnlineSessionSear
 		}
 		return;
 	}
-
-	// 로딩 효과 끄기
-	SetLoadingOverlayVisibility(false);
 
 	if (SessionListView && IsValidOwnerController())
 	{
@@ -73,6 +77,21 @@ void USessionListMenu::InitializeSessionListView(const TArray<FOnlineSessionSear
 				SessionListRow->SetSessionResult(SessionResult);
 				SessionListView->AddItem(SessionListRow);
 			}	
+		}
+	}
+}
+
+void USessionListMenu::OnJoinSessionComplete(EOnJoinSessionCompleteResult::Type Result)
+{
+	// Join Session 실패
+	if (Result != EOnJoinSessionCompleteResult::Success)
+	{
+		SetLoadingOverlayVisibility(false);
+		
+		// Fail Alert 표시
+		if (JoinSessionFailAlertOverlay)
+		{
+			JoinSessionFailAlertOverlay->SetVisibility(ESlateVisibility::Visible);
 		}
 	}
 }
@@ -96,6 +115,9 @@ void USessionListMenu::OnListViewItemSelectionChanged(bool bIsSelected)
 
 void USessionListMenu::OnJoinButtonClicked()
 {
+	// 로딩 효과 표시
+	SetLoadingOverlayVisibility(true);
+	
 	if (SessionListView)
 	{
 		if (USessionListRow* SelectedRow = SessionListView->GetSelectedItem<USessionListRow>())
@@ -117,6 +139,10 @@ void USessionListMenu::OnReturnButtonClicked()
 	if (FindSessionsFailAlertOverlay)
 	{
 		FindSessionsFailAlertOverlay->SetVisibility(ESlateVisibility::Collapsed);
+	}
+	if (JoinSessionFailAlertOverlay)
+	{
+		JoinSessionFailAlertOverlay->SetVisibility(ESlateVisibility::Collapsed);
 	}
 	if (IsValidOwnerHUD())
 	{

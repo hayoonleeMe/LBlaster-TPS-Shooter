@@ -53,17 +53,6 @@ void UStartMenu::OnCreateSessionComplete(bool bWasSuccessful)
 	}
 }
 
-void UStartMenu::OnJoinSessionComplete(EOnJoinSessionCompleteResult::Type Result)
-{
-	if (Result != EOnJoinSessionCompleteResult::Success)
-    {
-	    if (FindSessionsButton)
-	    {
-		    FindSessionsButton->SetIsEnabled(true);
-	    }	
-    }
-}
-
 void UStartMenu::OnCreateSessionButtonClicked()
 {
 	// Create Session Alert Overlay 표시

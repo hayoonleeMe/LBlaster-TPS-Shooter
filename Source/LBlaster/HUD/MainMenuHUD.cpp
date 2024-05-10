@@ -158,9 +158,9 @@ void AMainMenuHUD::OnFindSessionsComplete(const TArray<FOnlineSessionSearchResul
 
 void AMainMenuHUD::OnJoinSessionComplete(EOnJoinSessionCompleteResult::Type Result)
 {
-	if (StartMenu)
+	if (SessionListMenu)
 	{
-		StartMenu->OnJoinSessionComplete(Result);
+		SessionListMenu->OnJoinSessionComplete(Result);
 	}
 }
 

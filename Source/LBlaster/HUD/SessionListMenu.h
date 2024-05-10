@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "HUD/MainMenuUserWidget.h"
+#include "Interfaces/OnlineSessionInterface.h"
 #include "SessionListMenu.generated.h"
 
 /**
@@ -17,8 +18,9 @@ class LBLASTER_API USessionListMenu : public UMainMenuUserWidget
 public:
 	virtual void MenuSetup() override;
 	void InitializeSessionListView(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful);
+	void OnJoinSessionComplete(EOnJoinSessionCompleteResult::Type Result);
 	
-	void SetLoadingOverlayVisibility(bool bShow); 
+	void SetLoadingOverlayVisibility(bool bShow);
 	
 private:
 	UPROPERTY(meta=(BindWidget))
@@ -58,5 +60,14 @@ private:
 	TObjectPtr<class UOverlay> FindSessionsFailAlertOverlay;
 
 	UPROPERTY(meta=(BindWidget))
-	TObjectPtr<UButton> AlertReturnButton;
+	TObjectPtr<UButton> FindFailAlertReturnButton;
+
+	/*
+	 *	Join Session Fail Alert Overlay
+	 */
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UOverlay> JoinSessionFailAlertOverlay;
+
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UButton> JoinFailAlertReturnButton;
 };
