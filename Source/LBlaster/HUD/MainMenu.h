@@ -16,10 +16,6 @@ class LBLASTER_API UMainMenu : public UMainMenuUserWidget
 
 public:
 	virtual void MenuSetup() override;
-	virtual void MenuTearDown() override;
-
-protected:
-	virtual void NativeDestruct() override;
 
 private:
 	/*
