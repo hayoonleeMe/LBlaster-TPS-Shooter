@@ -21,7 +21,6 @@ public:
 	virtual void MenuSetup() override;
 	
 	void OnCreateSessionComplete(bool bWasSuccessful);
-	void OnJoinSessionComplete(EOnJoinSessionCompleteResult::Type Result);
 
 private:
 	/*
