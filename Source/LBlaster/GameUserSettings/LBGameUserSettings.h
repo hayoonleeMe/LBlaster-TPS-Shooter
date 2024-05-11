@@ -18,16 +18,16 @@ public:
 	FORCEINLINE bool IsEnabledFPSIndicator() const { return bFPSIndicatorEnabled; }
 	FORCEINLINE float GetScreenBrightnessValue() const { return ScreenBrightnessValue; }
 	FORCEINLINE float GetMotionBlurValue() const { return MotionBlurValue; }
-	FORCEINLINE float GetGraphicPresetValue() const { return GraphicPresetValue; }
+	FORCEINLINE int32 GetGraphicPresetValue() const { return GraphicPresetValue; }
 
 	FORCEINLINE void SetFPSIndicatorEnabled(bool bEnable) { bFPSIndicatorEnabled = bEnable; }
 	FORCEINLINE void SetScreenBrightnessValue(float InValue) { ScreenBrightnessValue = InValue; }
 	FORCEINLINE void SetMotionBlurValue(float InValue) { MotionBlurValue = InValue; }
-	FORCEINLINE void SetGraphicPresetValue(float InValue) { GraphicPresetValue = InValue; }
+	FORCEINLINE void SetGraphicPresetValue(int32 InValue) { GraphicPresetValue = InValue; }
 
 	void ApplyCustomSettings(bool bCheckForCommandLineOverrides, const UObject* WorldContextObject);
+	void SetGraphicOptionByAutoDetect(bool bFirstExecute = false);
 
-	virtual void SetToDefaults() override;
 	
 private:
 	/*
@@ -52,5 +52,5 @@ private:
 	 *	Graphic Preset
 	 */
 	UPROPERTY(config)
-	float GraphicPresetValue = 0.f;
+	int32 GraphicPresetValue = 0;
 };

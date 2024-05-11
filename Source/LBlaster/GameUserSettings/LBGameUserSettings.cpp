@@ -12,8 +12,6 @@ void ULBGameUserSettings::ApplyCustomSettings(bool bCheckForCommandLineOverrides
 {
 	Super::ApplySettings(bCheckForCommandLineOverrides);
 	
-	UE_LOG(LogTemp, Warning, TEXT("ULBGameUserSettings::ApplySettings, ScreenBrightnessValue %f, MotionBlurValue %f, bFPSIndicatorEnabled %d"), ScreenBrightnessValue, MotionBlurValue, bFPSIndicatorEnabled)
-
 	if (WorldContextObject)
 	{
 		if (APostProcessVolume* PostProcessVolume = Cast<APostProcessVolume>(UGameplayStatics::GetActorOfClass(WorldContextObject, APostProcessVolume::StaticClass())))
@@ -38,15 +36,36 @@ void ULBGameUserSettings::ApplyCustomSettings(bool bCheckForCommandLineOverrides
 	// TODO : 구현
 }
 
-void ULBGameUserSettings::SetToDefaults()
+void ULBGameUserSettings::SetGraphicOptionByAutoDetect(bool bFirstExecute)
 {
-	Super::SetToDefaults();
-
-	/* UGameUserSettings */
-	// TODO : 초기 게임 설정 초기화 필요
+	RunHardwareBenchmark();
 	
-	/* ULBGameUserSettings */
-	bFPSIndicatorEnabled = false;
-	ScreenBrightnessValue = 50.f;
-	MotionBlurValue = 0.f;
+	// Auto-Detect를 해도 Resolution Scale은 항상 100으로 고정
+	SetResolutionScaleValueEx(100.f);
+
+	// 첫 실행일 때 기본 설정
+	if (bFirstExecute)
+	{
+		SetScreenResolution(FIntPoint{ 1920, 1080 });
+		SetFullscreenMode(EWindowMode::WindowedFullscreen);
+		SetFrameRateLimit(120.f);
+		bFPSIndicatorEnabled = true;
+	}
+	
+	ApplyHardwareBenchmarkResults();
+	
+	// 하드웨어에 맞춰 자동으로 설정된 설정에 따라 커스텀 프리셋 값 저장
+	const int32 AAQuality = GetAntiAliasingQuality();
+	if (AAQuality == GetViewDistanceQuality() && AAQuality == GetShadowQuality() && AAQuality == GetGlobalIlluminationQuality() && AAQuality == GetReflectionQuality() && AAQuality == GetPostProcessingQuality() && AAQuality == GetTextureQuality() && AAQuality == GetVisualEffectQuality() && AAQuality == GetFoliageQuality() && AAQuality == GetShadingQuality())
+	{
+		GraphicPresetValue = AAQuality;
+	}
+	else
+	{
+		// 커스텀
+		GraphicPresetValue = 5;
+	}
+
+	// 한번 더 저장.
+	SaveSettings();
 }
