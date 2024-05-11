@@ -76,4 +76,24 @@ private:
 
 	UFUNCTION()
 	void OnAlertCancelButtonClicked();
+
+	/*
+	 *	Loading Overlay
+	 */
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UUserWidget> LoadingOverlay;
+
+	void SetLoadingOverlayVisibility(bool bShow);
+
+	/*
+	 *	Create Session Fail Alert Overlay
+	 */
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UOverlay> CreateSessionFailAlertOverlay;
+	
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UButton> CreateFailAlertReturnButton;
+
+	UFUNCTION()
+	void OnCreateFailAlertReturnButton();
 };

@@ -20,8 +20,6 @@ public:
 	void InitializeSessionListView(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful);
 	void OnJoinSessionComplete(EOnJoinSessionCompleteResult::Type Result);
 	
-	void SetLoadingOverlayVisibility(bool bShow);
-	
 private:
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<class UListView> SessionListView;
@@ -52,6 +50,8 @@ private:
 	 */
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UUserWidget> LoadingOverlay;
+
+	void SetLoadingOverlayVisibility(bool bShow);
 
 	/*
 	 *	Find Sessions Fail Alert Overlay
