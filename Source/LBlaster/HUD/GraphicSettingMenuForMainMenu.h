@@ -14,10 +14,6 @@ class LBLASTER_API UGraphicSettingMenuForMainMenu : public UGraphicSettingMenu
 {
 	GENERATED_BODY()
 
-public:
-	virtual void MenuSetup() override;
-	
-private:
-	UFUNCTION()
-	void MainMenuReturnButtonClicked();
+	virtual void OnReturnButtonClicked() override;
+	virtual void OnAlertAcceptButtonClicked() override;
 };
