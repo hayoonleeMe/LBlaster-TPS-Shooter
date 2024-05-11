@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
-#include "GameFramework/PlayerController.h"
+#include "SessionHelperPlayerController.h"
 #include "LBTypes/EquipSlot.h"
 #include "LBTypes/WeaponTypes.h"
 #include "LBlasterPlayerController.generated.h"
@@ -13,7 +13,7 @@
  * 
  */
 UCLASS()
-class LBLASTER_API ALBlasterPlayerController : public APlayerController
+class LBLASTER_API ALBlasterPlayerController : public ASessionHelperPlayerController
 {
 	GENERATED_BODY()
 

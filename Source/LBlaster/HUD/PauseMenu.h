@@ -18,28 +18,28 @@ public:
 	virtual void MenuSetup() override;
 	virtual void MenuTearDown() override;
 
-protected:
-	/*
-	 *	Main Menu Button
-	 */
-	UFUNCTION()
-	void OnDestroySession(bool bWasSuccessful);
-	
-	UFUNCTION()
-    void OnPlayerLeftGame();
-
 private:
 	/*
 	 *	Main Menu Button
 	 */
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> MainMenuButton;
+	TObjectPtr<class UButton> ReturnToMainMenuButton;
 
 	UFUNCTION()
-	void MainMenuButtonClicked();
+	void ReturnToMainMenuButtonClicked();
 
+	/*
+	 *	Multiplayer Sessions
+	 */
 	UPROPERTY()
 	TObjectPtr<class UMultiplayerSessionsSubsystem> MultiplayerSessionsSubsystem;
+
+	void OnDestroySessionComplete(bool bWasSuccessful);
+
+	void DestroyAllClientSession();
+
+	UFUNCTION()
+	void OnPlayerLeftGame();
 
 	/*
 	 *	Resume Button
