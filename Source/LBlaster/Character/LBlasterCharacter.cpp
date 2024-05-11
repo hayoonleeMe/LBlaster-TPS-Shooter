@@ -375,17 +375,6 @@ void ALBlasterCharacter::EquipFinished() const
 	}
 }
 
-void ALBlasterCharacter::ServerLeaveGame_Implementation()
-{
-	if (GetWorld())
-	{
-		if (ALBlasterGameMode* GameMode = GetWorld()->GetAuthGameMode<ALBlasterGameMode>())
-		{
-			GameMode->PlayerLeftGame(this);
-		}	
-	}
-}
-
 void ALBlasterCharacter::SetADSWalkSpeed(bool bEnabled, float InADSMultiplier)
 {
 	if (bEnabled)
@@ -812,11 +801,6 @@ void ALBlasterCharacter::ElimTimerFinished()
 		{
 			GameMode->RequestRespawn(this, Controller);
 		}
-	}
-
-	if (bLeftGame && IsLocallyControlled())
-	{
-		OnLeftGame.Broadcast();
 	}
 }
 

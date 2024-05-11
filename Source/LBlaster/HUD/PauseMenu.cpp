@@ -8,6 +8,7 @@
 #include "../../../Plugins/MultiplayerSessions/Source/MultiplayerSessions/Public/MultiplayerSessionsSubsystem.h"
 #include "Character/LBlasterCharacter.h"
 #include "Components/Button.h"
+#include "Components/Overlay.h"
 #include "GameFramework/GameModeBase.h"
 #include "Player/LBlasterPlayerController.h"
 
@@ -51,6 +52,16 @@ void UPauseMenu::MenuSetup()
 	{
 		SettingButton->OnClicked.AddDynamic(this, &ThisClass::SettingButtonClicked);
 	}
+
+	/* Return To Main Menu Alert Overlay */
+	if (ReturnToMainMenuAlertAcceptButton && !ReturnToMainMenuAlertAcceptButton->OnClicked.IsBound())
+	{
+		ReturnToMainMenuAlertAcceptButton->OnClicked.AddDynamic(this, &ThisClass::OnReturnToMainMenuAlertAcceptButtonClicked);
+	}
+	if (ReturnToMainMenuAlertCancelButton && !ReturnToMainMenuAlertCancelButton->OnClicked.IsBound())
+	{
+		ReturnToMainMenuAlertCancelButton->OnClicked.AddDynamic(this, &ThisClass::OnReturnToMainMenuAlertCancelButtonClicked);
+	}
 }
 
 void UPauseMenu::MenuTearDown()
@@ -67,10 +78,12 @@ void UPauseMenu::MenuTearDown()
 
 void UPauseMenu::OnDestroySessionComplete(bool bWasSuccessful)
 {
-	// DestroySession에 실패하면 다시 ReturnButton을 활성화하고 리턴한다.
+	SetLoadingOverlayVisibility(false);
+
+	// 실패하면 다시 수행.
 	if (!bWasSuccessful)
 	{
-		ReturnToMainMenuButton->SetIsEnabled(true);
+		OnReturnToMainMenuAlertAcceptButtonClicked();
 		return;
 	}
 
@@ -110,49 +123,12 @@ void UPauseMenu::DestroyAllClientSession()
 	}
 }
 
-void UPauseMenu::OnPlayerLeftGame()
-{
-	if (MultiplayerSessionsSubsystem)
-	{
-		if (IsValidOwnerLBController())
-		{
-			if (OwnerLBController->HasAuthority())
-			{
-				DestroyAllClientSession();
-				MultiplayerSessionsSubsystem->DestroySession();
-			}
-			else
-			{
-				MultiplayerSessionsSubsystem->DestroySession();
-			}
-		}
-	}		
-}
-
 void UPauseMenu::ReturnToMainMenuButtonClicked()
 {
-	ReturnToMainMenuButton->SetIsEnabled(false);
-
-	if (IsValidOwnerLBController())
+	if (ReturnToMainMenuAlertOverlay)
 	{
-		if (OwnerLBController->HasAuthority())
-		{
-			// 호스트가 메인 메뉴로 나갈 땐 바로 세션 파괴하고 게임 종료
-			OnPlayerLeftGame();
-		}
-		else
-		{
-			// 클라이언트 유저의 캐릭터를 Kill하고 메인 메뉴로 보냄.
-			if (ALBlasterCharacter* LBCharacter = Cast<ALBlasterCharacter>(OwnerLBController->GetCharacter()))
-			{
-				LBCharacter->OnLeftGame.AddUObject(this, &ThisClass::OnPlayerLeftGame);
-				LBCharacter->ServerLeaveGame();
-			}
-		}
+		ReturnToMainMenuAlertOverlay->SetVisibility(ESlateVisibility::Visible);
 	}
-	
-	// 다시 시도할 수 있게 버튼 활성화
-    ReturnToMainMenuButton->SetIsEnabled(true);
 }
 
 void UPauseMenu::ResumeButtonClicked()
@@ -165,5 +141,42 @@ void UPauseMenu::SettingButtonClicked()
 	if (IsValidLBlasterHUD())
 	{
 		LBlasterHUD->CreateSettingMenu();
+	}
+}
+
+void UPauseMenu::OnReturnToMainMenuAlertAcceptButtonClicked()
+{
+	SetLoadingOverlayVisibility(true);
+
+	if (IsValidOwnerLBController() && MultiplayerSessionsSubsystem)
+	{
+		// 유저 캐릭터를 제거하고 메인 메뉴로 보냄.
+		OwnerLBController->ServerLeaveGame();
+			
+		if (OwnerLBController->HasAuthority())
+		{
+			DestroyAllClientSession();
+			MultiplayerSessionsSubsystem->DestroySession();
+		}
+		else
+		{
+			MultiplayerSessionsSubsystem->DestroySession();
+		}
+	}
+}
+
+void UPauseMenu::OnReturnToMainMenuAlertCancelButtonClicked()
+{
+	if (ReturnToMainMenuAlertOverlay)
+	{
+		ReturnToMainMenuAlertOverlay->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
+void UPauseMenu::SetLoadingOverlayVisibility(bool bShow)
+{
+	if (LoadingOverlay)
+	{
+		LoadingOverlay->SetVisibility(bShow ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
 	}
 }

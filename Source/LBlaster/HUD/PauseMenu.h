@@ -38,9 +38,6 @@ private:
 
 	void DestroyAllClientSession();
 
-	UFUNCTION()
-	void OnPlayerLeftGame();
-
 	/*
 	 *	Resume Button
 	 */
@@ -58,4 +55,30 @@ private:
 	
 	UFUNCTION()
 	void SettingButtonClicked();
+
+	/*
+	 *	Return To Main Menu Alert Overlay
+	 */
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UOverlay> ReturnToMainMenuAlertOverlay;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UButton> ReturnToMainMenuAlertAcceptButton;
+
+	UFUNCTION()
+	void OnReturnToMainMenuAlertAcceptButtonClicked();
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UButton> ReturnToMainMenuAlertCancelButton;
+
+	UFUNCTION()
+	void OnReturnToMainMenuAlertCancelButtonClicked();
+
+	/*
+	 *	Loading Overlay
+	 */
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UUserWidget> LoadingOverlay;
+
+	void SetLoadingOverlayVisibility(bool bShow);
 };

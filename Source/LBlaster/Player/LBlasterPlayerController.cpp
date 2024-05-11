@@ -507,6 +507,20 @@ void ALBlasterPlayerController::ChooseWeaponSlot(EEquipSlot InEquipSlot)
 	}
 }
 
+void ALBlasterPlayerController::ServerLeaveGame_Implementation()
+{
+	if (GetWorld() && GetCharacter())
+	{
+		if (ALBlasterGameMode* GameMode = GetWorld()->GetAuthGameMode<ALBlasterGameMode>())
+		{
+			if (ALBlasterCharacter* LBCharacter = Cast<ALBlasterCharacter>(GetCharacter()))
+			{
+				GameMode->PlayerLeftGame(LBCharacter);
+			}
+		}	
+	}
+}
+
 void ALBlasterPlayerController::ServerSendChatText_Implementation(const FText& InText)
 {
 	if (IsValidGameMode())
