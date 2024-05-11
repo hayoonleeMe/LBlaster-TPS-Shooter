@@ -28,6 +28,7 @@ void UStartMenu::MenuSetup()
 		ReturnButton->OnClicked.AddDynamic(this, &ThisClass::OnReturnButtonClicked);
 	}
 
+	/* Create Session Alert Overlay */
 	if (MaxPlayerSlider)
 	{
 		MaxPlayerSlider->InitializeValues(SliderInitialValue, SliderMinValue, SliderMaxValue, SliderStepSize);
@@ -40,15 +41,23 @@ void UStartMenu::MenuSetup()
 	{
 		AlertCancelButton->OnClicked.AddDynamic(this, &ThisClass::OnAlertCancelButtonClicked);
 	}
+
+	/* Create Session Fail Alert Overlay */
+	if (CreateFailAlertReturnButton && !CreateFailAlertReturnButton->OnClicked.IsBound())
+	{
+		CreateFailAlertReturnButton->OnClicked.AddDynamic(this, &ThisClass::OnCreateFailAlertReturnButton);
+	}
 }
 
 void UStartMenu::OnCreateSessionComplete(bool bWasSuccessful)
 {
 	if (!bWasSuccessful)
 	{
-		if (CreateSessionButton)
+		SetLoadingOverlayVisibility(false);
+
+		if (CreateSessionFailAlertOverlay)
 		{
-			CreateSessionButton->SetIsEnabled(true);
+			CreateSessionFailAlertOverlay->SetVisibility(ESlateVisibility::Visible);
 		}
 	}
 }
@@ -109,6 +118,8 @@ int32 UStartMenu::GetMaxPlayerValue()
 
 void UStartMenu::OnAlertCreateSessionButtonClicked()
 {
+	SetLoadingOverlayVisibility(true);
+	
 	const EMatchMode MatchModeType = GetMatchModeType();
 	const int32 NumMaxPlayer = GetMaxPlayerValue();
 	
@@ -134,5 +145,21 @@ void UStartMenu::OnAlertCancelButtonClicked()
 	if (CreateSessionAlertOverlay)
 	{
 		CreateSessionAlertOverlay->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
+void UStartMenu::SetLoadingOverlayVisibility(bool bShow)
+{
+	if (LoadingOverlay)
+	{
+		LoadingOverlay->SetVisibility(bShow ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+	}
+}
+
+void UStartMenu::OnCreateFailAlertReturnButton()
+{
+	if (CreateSessionFailAlertOverlay)
+	{
+		CreateSessionFailAlertOverlay->SetVisibility(ESlateVisibility::Collapsed);
 	}
 }
