@@ -25,18 +25,19 @@ void UPauseMenu::MenuSetup()
 	}
 
 	/* Main Menu Button */
-	if (MainMenuButton && !MainMenuButton->OnClicked.IsBound())
+	if (ReturnToMainMenuButton && !ReturnToMainMenuButton->OnClicked.IsBound())
 	{
-		MainMenuButton->OnClicked.AddDynamic(this, &ThisClass::UPauseMenu::MainMenuButtonClicked);
+		ReturnToMainMenuButton->OnClicked.AddDynamic(this, &ThisClass::UPauseMenu::ReturnToMainMenuButtonClicked);
 	}
 
+	/* Multiplayer Sessions */
 	if (UGameInstance* GameInstance = GetGameInstance())
 	{
 		MultiplayerSessionsSubsystem = GameInstance->GetSubsystem<UMultiplayerSessionsSubsystem>();
-		if (MultiplayerSessionsSubsystem && !MultiplayerSessionsSubsystem->LBOnDestroySessionCompleteDelegate.IsBound())
-		{
-			MultiplayerSessionsSubsystem->LBOnDestroySessionCompleteDelegate.AddUObject(this, &ThisClass::OnDestroySession);
-		}
+	}
+	if (MultiplayerSessionsSubsystem)
+	{
+		MultiplayerSessionsSubsystem->LBOnDestroySessionCompleteDelegate.AddUObject(this, &ThisClass::OnDestroySessionComplete);
 	}
 
 	/* Resume Button */
@@ -64,12 +65,12 @@ void UPauseMenu::MenuTearDown()
 	}
 }
 
-void UPauseMenu::OnDestroySession(bool bWasSuccessful)
+void UPauseMenu::OnDestroySessionComplete(bool bWasSuccessful)
 {
 	// DestroySession에 실패하면 다시 ReturnButton을 활성화하고 리턴한다.
 	if (!bWasSuccessful)
 	{
-		MainMenuButton->SetIsEnabled(true);
+		ReturnToMainMenuButton->SetIsEnabled(true);
 		return;
 	}
 
@@ -91,31 +92,67 @@ void UPauseMenu::OnDestroySession(bool bWasSuccessful)
 	}
 }
 
+void UPauseMenu::DestroyAllClientSession()
+{
+	// 모든 클라이언트의 플레이어 컨트롤러에서 Client RPC를 호출해 DestroySession을 호출하게 한다.
+	if (IsValidOwnerLBController())
+	{
+		for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+		{
+			if (APlayerController* PlayerController = It->Get(); PlayerController != OwnerLBController)
+			{
+				if (ASessionHelperPlayerController* SHController = Cast<ASessionHelperPlayerController>(PlayerController))
+				{
+					SHController->ClientDestroySession();
+				}
+			}
+		}	
+	}
+}
+
 void UPauseMenu::OnPlayerLeftGame()
 {
 	if (MultiplayerSessionsSubsystem)
 	{
-		MultiplayerSessionsSubsystem->DestroySession();
-	}
+		if (IsValidOwnerLBController())
+		{
+			if (OwnerLBController->HasAuthority())
+			{
+				DestroyAllClientSession();
+				MultiplayerSessionsSubsystem->DestroySession();
+			}
+			else
+			{
+				MultiplayerSessionsSubsystem->DestroySession();
+			}
+		}
+	}		
 }
 
-void UPauseMenu::MainMenuButtonClicked()
+void UPauseMenu::ReturnToMainMenuButtonClicked()
 {
-	MainMenuButton->SetIsEnabled(false);
+	ReturnToMainMenuButton->SetIsEnabled(false);
 
 	if (IsValidOwnerLBController())
 	{
-		if (ALBlasterCharacter* LBCharacter = Cast<ALBlasterCharacter>(OwnerLBController->GetCharacter()))
+		if (OwnerLBController->HasAuthority())
 		{
-			LBCharacter->OnLeftGame.AddUObject(this, &ThisClass::OnPlayerLeftGame);
-			LBCharacter->ServerLeaveGame();
+			// 호스트가 메인 메뉴로 나갈 땐 바로 세션 파괴하고 게임 종료
+			OnPlayerLeftGame();
 		}
 		else
 		{
-			// 다시 시도할 수 있게 버튼 활성화
-			MainMenuButton->SetIsEnabled(true);
+			// 클라이언트 유저의 캐릭터를 Kill하고 메인 메뉴로 보냄.
+			if (ALBlasterCharacter* LBCharacter = Cast<ALBlasterCharacter>(OwnerLBController->GetCharacter()))
+			{
+				LBCharacter->OnLeftGame.AddUObject(this, &ThisClass::OnPlayerLeftGame);
+				LBCharacter->ServerLeaveGame();
+			}
 		}
 	}
+	
+	// 다시 시도할 수 있게 버튼 활성화
+    ReturnToMainMenuButton->SetIsEnabled(true);
 }
 
 void UPauseMenu::ResumeButtonClicked()

@@ -96,17 +96,20 @@ void ULobbyMenu::Travel()
 
 void ULobbyMenu::OnQuitButtonClicked()
 {
-	if (APlayerController* OwnerController = GetOwningPlayer())
+	if (MultiplayerSessionsSubsystem)
 	{
-		if (OwnerController->HasAuthority())
+		if (APlayerController* OwnerController = GetOwningPlayer())
 		{
-			bWantServerTravel = true;
-			DestroyAllClientSession();
-			MultiplayerSessionsSubsystem->DestroySession();
-		}
-		else
-		{
-			MultiplayerSessionsSubsystem->DestroySession();
+			if (OwnerController->HasAuthority())
+			{
+				bWantServerTravel = true;
+				DestroyAllClientSession();
+				MultiplayerSessionsSubsystem->DestroySession();
+			}
+			else
+			{
+				MultiplayerSessionsSubsystem->DestroySession();
+			}
 		}
 	}
 }
