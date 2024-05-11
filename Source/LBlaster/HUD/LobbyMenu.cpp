@@ -45,8 +45,10 @@ void ULobbyMenu::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 
 void ULobbyMenu::OnDestroySessionComplete(bool bWasSuccessful)
 {
+	// 실패하면 다시 수행.
 	if (!bWasSuccessful)
 	{
+		OnQuitButtonClicked();
 		return;
 	}
 
