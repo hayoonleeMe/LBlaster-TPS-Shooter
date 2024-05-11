@@ -4,23 +4,9 @@
 #include "HUD/GraphicSettingMenuForMainMenu.h"
 
 #include "MainMenuHUD.h"
-#include "Components/Button.h"
 #include "Components/Overlay.h"
 
-void UGraphicSettingMenuForMainMenu::MenuSetup()
-{
-	Super::MenuSetup();
-
-	/* Return Button */
-	// AMainMenuHUD로 돌아가도록 변경
-	if (ReturnButton)
-	{
-		ReturnButton->OnClicked.Clear();
-		ReturnButton->OnClicked.AddDynamic(this, &ThisClass::MainMenuReturnButtonClicked);
-	}
-}
-
-void UGraphicSettingMenuForMainMenu::MainMenuReturnButtonClicked()
+void UGraphicSettingMenuForMainMenu::OnReturnButtonClicked()
 {
 	if (ShouldApplyChange())
 	{
@@ -32,9 +18,21 @@ void UGraphicSettingMenuForMainMenu::MainMenuReturnButtonClicked()
 	}
 	else
 	{
+		// Main Menu로 돌아감
 		if (IsValidOwnerHUD())
 		{
 			OwnerHUD->ReturnMenu();
 		}	
 	}
+}
+
+void UGraphicSettingMenuForMainMenu::OnAlertAcceptButtonClicked()
+{
+	Super::OnAlertAcceptButtonClicked();
+
+	// Main Menu로 돌아감
+	if (IsValidOwnerHUD())
+	{
+		OwnerHUD->ReturnMenu();
+	}	
 }

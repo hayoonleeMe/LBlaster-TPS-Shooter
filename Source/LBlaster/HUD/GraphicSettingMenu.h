@@ -239,7 +239,7 @@ protected:
 	TObjectPtr<UButton> ReturnButton;
 
 	UFUNCTION()
-	void OnReturnButtonClicked();
+	virtual void OnReturnButtonClicked();
 
 	/*
 	 *	NoApplyAlertOverlay
@@ -251,7 +251,7 @@ protected:
 	TObjectPtr<UButton> AlertAcceptButton;
 
 	UFUNCTION()
-	void OnAlertAcceptButtonClicked();
+	virtual void OnAlertAcceptButtonClicked();
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> AlertCancelButton;
