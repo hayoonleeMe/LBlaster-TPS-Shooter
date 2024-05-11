@@ -18,7 +18,6 @@ void UMainMenu::MenuSetup()
 		FInputModeUIOnly InputModeData;
 		InputModeData.SetWidgetToFocus(TakeWidget());
 		// 마우스 커서가 게임 화면 밖으로 나갈 수 있도록 한다. 
-		InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 		OwnerController->SetInputMode(InputModeData);
 		OwnerController->SetShowMouseCursor(true);
 	}
