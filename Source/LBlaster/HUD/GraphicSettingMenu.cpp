@@ -12,9 +12,6 @@
 #include "GameUserSettings/LBGameUserSettings.h"
 #include "Kismet/GameplayStatics.h"
 
-// 화면 해상도 프리셋
-static TArray<FIntPoint> ScreenResolutionArray({ { 1280, 720 }, { 1280, 800 }, { 1366, 768 }, { 1600, 900 }, { 1920, 1080 } });
-
 void UGraphicSettingMenu::MenuSetup()
 {
 	Super::MenuSetup();
@@ -45,7 +42,6 @@ void UGraphicSettingMenu::MenuSetup()
 		}
 
 		OriginalSettings.FullScreenMode = GameUserSettings->GetFullscreenMode();
-		UE_LOG(LogTemp, Warning, TEXT("MenuSetup, FullScreenMode %d"), GameUserSettings->GetFullscreenMode());
 		switch (GameUserSettings->GetFullscreenMode())
 		{
 		case EWindowMode::Windowed:
@@ -68,11 +64,10 @@ void UGraphicSettingMenu::MenuSetup()
 		}
 		
 		OriginalSettings.ScreenResolution = GameUserSettings->GetScreenResolution();
-		for (int32 Index = 0; Index < ScreenResolutionArray.Num(); ++Index)
+		for (int32 Index = 0; Index < ULBGameUserSettings::ScreenResolutionArray.Num(); ++Index)
 		{
-			if (ScreenResolutionArray[Index] == GameUserSettings->GetScreenResolution())
+			if (ULBGameUserSettings::ScreenResolutionArray[Index] == GameUserSettings->GetScreenResolution())
 			{
-				UE_LOG(LogTemp, Warning, TEXT("MenuSetup, Res %s"), *ScreenResolutionArray[Index].ToString());
 				ResolutionSelector->SetActiveIndex(Index);
 				break;
 			}
@@ -330,7 +325,7 @@ void UGraphicSettingMenu::OnScreenResolutionChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
-		GameUserSettings->SetScreenResolution(ScreenResolutionArray[InActiveIndex]);
+		GameUserSettings->SetScreenResolution(ULBGameUserSettings::ScreenResolutionArray[InActiveIndex]);
 		
 		bChangedScreenResolution = GameUserSettings->GetScreenResolution() != OriginalSettings.ScreenResolution;
 		EnableApplyButton();

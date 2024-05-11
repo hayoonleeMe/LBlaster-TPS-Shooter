@@ -87,21 +87,9 @@ void UMultiplayerSessionsSubsystem::OnCreateSessionComplete(FName SessionName, b
 
 	if (bWasSuccessful)
 	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString(TEXT("Session created successfully!")));
-		}
-
 		if (UWorld* World = GetWorld())
 		{
 			World->ServerTravel(LobbyPath);
-		}
-	}
-	else
-	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, FString(TEXT("Failed to create session!")));
 		}
 	}
 }
@@ -233,16 +221,6 @@ bool UMultiplayerSessionsSubsystem::IsValidSessionInterface()
 		if (IOnlineSubsystem* OnlineSubsystem = IOnlineSubsystem::Get())
 		{
 			SessionInterface = OnlineSubsystem->GetSessionInterface();
-    
-			/*if (GEngine)
-			{
-				GEngine->AddOnScreenDebugMessage(
-					-1,
-					15.f,
-					FColor::Blue,
-					FString::Printf(TEXT("Found Subsystem %s"), *OnlineSubsystem->GetSubsystemName().ToString())
-				);
-			}*/
 		}
 	}
 	return SessionInterface.IsValid();
