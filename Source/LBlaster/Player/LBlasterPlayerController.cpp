@@ -575,6 +575,10 @@ void ALBlasterPlayerController::BeginPlay()
 	{
 		StartCheckPing();
 	}
+
+	/* Input Mode */
+	SetInputMode(FInputModeGameOnly());
+	SetShowMouseCursor(false);
 }
 
 void ALBlasterPlayerController::OnPossess(APawn* InPawn)

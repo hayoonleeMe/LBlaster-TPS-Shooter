@@ -32,19 +32,6 @@ void ULobbyMenu::NativeConstruct()
 	}
 }
 
-void ULobbyMenu::NativeDestruct()
-{
-	Super::NativeDestruct();
-
-	/* Input Mode */
-	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
-	{
-		FInputModeGameOnly InputModeData;
-		PlayerController->SetInputMode(InputModeData);
-		PlayerController->SetShowMouseCursor(false);
-	}
-}
-
 void ULobbyMenu::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
