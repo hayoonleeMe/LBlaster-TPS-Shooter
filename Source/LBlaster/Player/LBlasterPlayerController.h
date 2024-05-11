@@ -58,6 +58,12 @@ public:
 	void SetWeaponSlotIcon(EEquipSlot InEquipSlot, EWeaponType InWeaponType);
 	void ChooseWeaponSlot(EEquipSlot InEquipSlot);
 
+	/*
+	 *	Leave Game
+	 */
+	UFUNCTION(Server, Reliable)
+	void ServerLeaveGame();
+
 protected:
 	/*
 	 *	Input

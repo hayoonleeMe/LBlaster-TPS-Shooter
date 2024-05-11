@@ -56,14 +56,6 @@ public:
 	void EquipFinished() const;
 
 	/*
-	 *	Leave Game
-	 */
-	UFUNCTION(Server, Reliable)
-	void ServerLeaveGame();
-
-	FOnLeftGame OnLeftGame;
-
-	/*
 	 *	LBlasterPlayerController
 	 */
 	void UpdateHUDHealth() const;
