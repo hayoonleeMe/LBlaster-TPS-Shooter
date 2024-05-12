@@ -35,6 +35,8 @@ void UOptionSelector::InitializeOptions()
 	{
 		return;
 	}
+
+	SetActiveIndex(0);
 	
 	for (const FString& Option : Options)
 	{
