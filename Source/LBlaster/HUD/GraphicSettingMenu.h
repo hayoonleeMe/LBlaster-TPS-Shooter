@@ -76,6 +76,8 @@ class LBLASTER_API UGraphicSettingMenu : public ULBlasterUserWidget
 
 public:
 	virtual void MenuSetup() override;
+	virtual bool IsOverlayOpened() override;
+	virtual void CloseOverlay() override;
 
 protected:
 	UPROPERTY()
@@ -248,14 +250,14 @@ protected:
 	TObjectPtr<class UOverlay> NoApplyAlertOverlay;
 	
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UButton> AlertAcceptButton;
+	TObjectPtr<UButton> NoApplyAlertAcceptButton;
 
 	UFUNCTION()
-	virtual void OnAlertAcceptButtonClicked();
+	virtual void OnNoApplyAlertAcceptButtonClicked();
 	
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UButton> AlertCancelButton;
+	TObjectPtr<UButton> NoApplyAlertCancelButton;
 
 	UFUNCTION()
-	void OnAlertCancelButtonClicked();
+	void OnNoApplyAlertCancelButtonClicked();
 };

@@ -17,6 +17,20 @@ void UMainMenuUserWidget::MenuTearDown()
 	RemoveFromParent();
 }
 
+bool UMainMenuUserWidget::IsOverlayOpened()
+{
+	return false;
+}
+
+void UMainMenuUserWidget::CloseOverlay()
+{
+}
+
+bool UMainMenuUserWidget::CanReturn()
+{
+	return true;
+}
+
 bool UMainMenuUserWidget::IsValidOwnerController()
 {
 	if (!OwnerController && GetOwningPlayer())

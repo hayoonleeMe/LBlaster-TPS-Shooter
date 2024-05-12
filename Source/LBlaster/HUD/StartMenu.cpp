@@ -49,6 +49,40 @@ void UStartMenu::MenuSetup()
 	}
 }
 
+bool UStartMenu::IsOverlayOpened()
+{
+	if (CreateSessionFailAlertOverlay && CreateSessionFailAlertOverlay->IsVisible())
+	{
+		return true;
+	}
+	if (CreateSessionAlertOverlay && CreateSessionAlertOverlay->IsVisible())
+	{
+		return true;
+	}
+	return false;
+}
+
+void UStartMenu::CloseOverlay()
+{
+	if (CreateSessionFailAlertOverlay && CreateSessionFailAlertOverlay->IsVisible())
+	{
+		OnCreateFailAlertReturnButton();
+	}
+	else if (CreateSessionAlertOverlay && CreateSessionAlertOverlay->IsVisible())
+	{
+		OnAlertCancelButtonClicked();
+	}
+}
+
+bool UStartMenu::CanReturn()
+{
+	if (LoadingOverlay && LoadingOverlay->IsVisible())
+	{
+		return false;
+	}
+	return true;
+}
+
 void UStartMenu::OnCreateSessionComplete(bool bWasSuccessful)
 {
 	if (!bWasSuccessful)

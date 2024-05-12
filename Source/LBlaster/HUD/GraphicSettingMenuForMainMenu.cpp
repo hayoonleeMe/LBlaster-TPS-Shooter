@@ -6,6 +6,18 @@
 #include "MainMenuHUD.h"
 #include "Components/Overlay.h"
 
+void UGraphicSettingMenuForMainMenu::CloseOverlay()
+{
+	if (NoApplyAlertOverlay && NoApplyAlertOverlay->IsVisible())
+	{
+		OnNoApplyAlertCancelButtonClicked();
+	}
+	else
+	{
+		OnReturnButtonClicked();
+	}
+}
+
 void UGraphicSettingMenuForMainMenu::OnReturnButtonClicked()
 {
 	if (ShouldApplyChange())
@@ -26,13 +38,13 @@ void UGraphicSettingMenuForMainMenu::OnReturnButtonClicked()
 	}
 }
 
-void UGraphicSettingMenuForMainMenu::OnAlertAcceptButtonClicked()
+void UGraphicSettingMenuForMainMenu::OnNoApplyAlertAcceptButtonClicked()
 {
-	Super::OnAlertAcceptButtonClicked();
+	Super::OnNoApplyAlertAcceptButtonClicked();
 
 	// Main Menu로 돌아감
 	if (IsValidOwnerHUD())
 	{
-		OwnerHUD->ReturnMenu();
+		OwnerHUD->ReturnMenu(true);
 	}	
 }

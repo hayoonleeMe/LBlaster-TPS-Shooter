@@ -17,6 +17,10 @@ class LBLASTER_API USessionListMenu : public UMainMenuUserWidget
 
 public:
 	virtual void MenuSetup() override;
+	virtual bool IsOverlayOpened() override;
+	virtual void CloseOverlay() override;
+	virtual bool CanReturn() override;
+	
 	void InitializeSessionListView(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful);
 	void OnJoinSessionComplete(EOnJoinSessionCompleteResult::Type Result);
 	

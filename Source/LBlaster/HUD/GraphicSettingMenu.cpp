@@ -277,14 +277,39 @@ void UGraphicSettingMenu::MenuSetup()
 		NoApplyAlertOverlay->SetVisibility(ESlateVisibility::Hidden);
 	}
 	
-	if (AlertAcceptButton && !AlertAcceptButton->OnClicked.IsBound())
+	if (NoApplyAlertAcceptButton && !NoApplyAlertAcceptButton->OnClicked.IsBound())
 	{
-		AlertAcceptButton->OnClicked.AddDynamic(this, &ThisClass::OnAlertAcceptButtonClicked);
+		NoApplyAlertAcceptButton->OnClicked.AddDynamic(this, &ThisClass::OnNoApplyAlertAcceptButtonClicked);
 	}
 
-	if (AlertCancelButton && !AlertCancelButton->OnClicked.IsBound())
+	if (NoApplyAlertCancelButton && !NoApplyAlertCancelButton->OnClicked.IsBound())
 	{
-		AlertCancelButton->OnClicked.AddDynamic(this, &ThisClass::OnAlertCancelButtonClicked);
+		NoApplyAlertCancelButton->OnClicked.AddDynamic(this, &ThisClass::OnNoApplyAlertCancelButtonClicked);
+	}
+}
+
+bool UGraphicSettingMenu::IsOverlayOpened()
+{
+	if (NoApplyAlertOverlay && NoApplyAlertOverlay->IsVisible())
+	{
+		return true;
+	}
+	if (ShouldApplyChange())
+	{
+		return true;
+	}
+	return false;
+}
+
+void UGraphicSettingMenu::CloseOverlay()
+{
+	if (NoApplyAlertOverlay && NoApplyAlertOverlay->IsVisible())
+	{
+		OnNoApplyAlertCancelButtonClicked();
+	}
+	else
+	{
+		OnReturnButtonClicked();
 	}
 }
 
@@ -688,7 +713,7 @@ void UGraphicSettingMenu::OnReturnButtonClicked()
 	}
 }
 
-void UGraphicSettingMenu::OnAlertAcceptButtonClicked()
+void UGraphicSettingMenu::OnNoApplyAlertAcceptButtonClicked()
 {
 	// 변경사항 되돌리기
 	if (GameUserSettings)
@@ -783,6 +808,8 @@ void UGraphicSettingMenu::OnAlertAcceptButtonClicked()
 			GameUserSettings->SetShadingQuality(OriginalSettings.ShadingQualityValue);
 		}	
 	}
+
+	bChangedFullScreenMode = bChangedScreenResolution = bChangedEnableFPSIndicator = bChangedFrameLimitValue = bChangedScreenBrightness = bChangedEnableVSync = bChangedMotionBlur = bChangedGraphicPresetValue = bChangedAntiAliasing = bChangedViewDistance = bChangedShadowQuality = bChangedGlobalIlluminationQuality = bChangedReflectionQuality = bChangedPostProcessing = bChangedTextureQuality = bChangedEffectQuality = bChangedBackgroundQuality = bChangedShadingQuality = false;
 	
 	if (IsValidLBlasterHUD())
 	{
@@ -790,7 +817,7 @@ void UGraphicSettingMenu::OnAlertAcceptButtonClicked()
 	}	
 }
 
-void UGraphicSettingMenu::OnAlertCancelButtonClicked()
+void UGraphicSettingMenu::OnNoApplyAlertCancelButtonClicked()
 {
 	if (NoApplyAlertOverlay)
 	{

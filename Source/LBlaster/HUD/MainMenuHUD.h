@@ -24,7 +24,7 @@ public:
 	void CreateSettingMenu();
 	void CreateGraphicSettingMenu();
 	void CreateSessionListMenu();
-	void ReturnMenu();
+	void ReturnMenu(bool bForceReturn = false);
 
 	/*
 	 *	Start Menu
