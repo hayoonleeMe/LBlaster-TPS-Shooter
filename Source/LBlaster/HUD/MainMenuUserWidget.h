@@ -18,6 +18,10 @@ public:
 	virtual void MenuSetup();
 	virtual void MenuTearDown();
 
+	virtual bool IsOverlayOpened();
+	virtual void CloseOverlay();
+	virtual bool CanReturn();
+
 protected:
 	/*
 	 *	Owner

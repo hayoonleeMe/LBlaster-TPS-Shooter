@@ -45,6 +45,36 @@ void USessionListMenu::MenuSetup()
 	}
 }
 
+bool USessionListMenu::IsOverlayOpened()
+{
+	if (JoinSessionFailAlertOverlay && JoinSessionFailAlertOverlay->IsVisible())
+	{
+		return true;
+	}
+	if (FindSessionsFailAlertOverlay && FindSessionsFailAlertOverlay->IsVisible())
+	{
+		return true;
+	}
+	return false;
+}
+
+void USessionListMenu::CloseOverlay()
+{
+	if ((JoinSessionFailAlertOverlay && JoinSessionFailAlertOverlay->IsVisible()) || (FindSessionsFailAlertOverlay && FindSessionsFailAlertOverlay->IsVisible()))
+	{
+		OnReturnButtonClicked();
+	}
+}
+
+bool USessionListMenu::CanReturn()
+{
+	if (LoadingOverlay && LoadingOverlay->IsVisible())
+	{
+		return false;
+	}
+	return true;
+}
+
 void USessionListMenu::InitializeSessionListView(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful)
 {
 	// 로딩 효과 끄기

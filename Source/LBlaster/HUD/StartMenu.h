@@ -19,6 +19,9 @@ class LBLASTER_API UStartMenu : public UMainMenuUserWidget
 	
 public:
 	virtual void MenuSetup() override;
+	virtual bool IsOverlayOpened() override;
+	virtual void CloseOverlay() override;
+	virtual bool CanReturn() override;
 	
 	void OnCreateSessionComplete(bool bWasSuccessful);
 
