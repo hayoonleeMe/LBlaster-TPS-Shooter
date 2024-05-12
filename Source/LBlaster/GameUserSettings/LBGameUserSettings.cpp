@@ -8,6 +8,15 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
+void ULBGameUserSettings::SetFPSIndicatorEnabled(bool bEnable)
+{
+	if (bFPSIndicatorEnabled != bEnable)
+	{
+		bFPSIndicatorEnabled = bEnable;
+		OnFPSIndicatorEnabledChanged.Broadcast(bFPSIndicatorEnabled);
+	}
+}
+
 void ULBGameUserSettings::ApplyCustomSettings(bool bCheckForCommandLineOverrides, const UObject* WorldContextObject)
 {
 	Super::ApplySettings(bCheckForCommandLineOverrides);
@@ -31,9 +40,6 @@ void ULBGameUserSettings::ApplyCustomSettings(bool bCheckForCommandLineOverrides
 			PostProcessSettings.MotionBlurPerObjectSize = MotionBlurValue;  // 개체 크기에 따른 모션 블러의 변화량
 		}
 	}
-
-	/* FPS Indicator */
-	// TODO : 구현
 }
 
 void ULBGameUserSettings::SetGraphicOptionByAutoDetect(bool bFirstExecute)

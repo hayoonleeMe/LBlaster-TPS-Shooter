@@ -6,6 +6,8 @@
 #include "GameFramework/GameUserSettings.h"
 #include "LBGameUserSettings.generated.h"
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnFPSIndicatorEnabledChangedDelegate, bool /* bFPSIndicatorEnabled */);
+
 /**
  * 
  */
@@ -20,7 +22,7 @@ public:
 	FORCEINLINE float GetMotionBlurValue() const { return MotionBlurValue; }
 	FORCEINLINE int32 GetGraphicPresetValue() const { return GraphicPresetValue; }
 
-	FORCEINLINE void SetFPSIndicatorEnabled(bool bEnable) { bFPSIndicatorEnabled = bEnable; }
+	void SetFPSIndicatorEnabled(bool bEnable);
 	FORCEINLINE void SetScreenBrightnessValue(float InValue) { ScreenBrightnessValue = InValue; }
 	FORCEINLINE void SetMotionBlurValue(float InValue) { MotionBlurValue = InValue; }
 	FORCEINLINE void SetGraphicPresetValue(int32 InValue) { GraphicPresetValue = InValue; }
@@ -30,6 +32,8 @@ public:
 
 	// 화면 해상도 프리셋
 	inline const static TArray<FIntPoint> ScreenResolutionArray{{ { 1280, 720 }, { 1280, 800 }, { 1366, 768 }, { 1600, 900 }, { 1920, 1080 } }};
+
+	FOnFPSIndicatorEnabledChangedDelegate OnFPSIndicatorEnabledChanged;
 	
 private:
 	/*
