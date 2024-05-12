@@ -4,6 +4,7 @@
 #include "GameMode/MainMenuGameMode.h"
 
 #include "HUD/MainMenuHUD.h"
+#include "Player/MainMenuPlayerController.h"
 
 AMainMenuGameMode::AMainMenuGameMode()
 {
@@ -13,4 +14,6 @@ AMainMenuGameMode::AMainMenuGameMode()
 	{
 		HUDClass = MainMenuHUDClassRef.Class;
 	}
+
+	PlayerControllerClass = AMainMenuPlayerController::StaticClass();
 }
