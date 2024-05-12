@@ -73,7 +73,7 @@ public:
 	void ScrollChatBox(float InScrollValue) const;
 	void SetWeaponSlotIcon(EEquipSlot InEquipSlot, EWeaponType InWeaponType) const;
 	void ChooseWeaponSlot(EEquipSlot InEquipSlot) const;
-	void ReturnMenu();
+	void ReturnMenu(bool bForceReturn = false);
 	
 	void CreateSettingMenu();
 	void CreateGraphicSettingMenu();

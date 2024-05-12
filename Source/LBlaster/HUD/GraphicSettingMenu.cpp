@@ -813,7 +813,7 @@ void UGraphicSettingMenu::OnNoApplyAlertAcceptButtonClicked()
 	
 	if (IsValidLBlasterHUD())
 	{
-		LBlasterHUD->ReturnMenu();
+		LBlasterHUD->ReturnMenu(true);
 	}	
 }
 
