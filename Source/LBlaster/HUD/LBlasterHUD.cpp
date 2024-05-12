@@ -228,14 +228,29 @@ void ALBlasterHUD::AddNewMenuToStack(ULBlasterUserWidget* InNewMenu)
 	InNewMenu->MenuSetup();
 }
 
-void ALBlasterHUD::ReturnMenu()
+void ALBlasterHUD::ReturnMenu(bool bForceReturn)
 {
 	int32 LastMenuIndex = MenuStack.Num() - 1;
 	if (MenuStack.IsValidIndex(LastMenuIndex))
 	{
-		MenuStack[LastMenuIndex]->MenuTearDown();
-		MenuStack.RemoveAt(LastMenuIndex);
-		--LastMenuIndex;
+		// 현재 메뉴에서 Return할 수 없는 작업을 수행 중이면 Early Return
+		if (!MenuStack[LastMenuIndex]->CanReturn())
+		{
+			return;
+		}
+
+		// 이전 메뉴로 이동
+		if (!MenuStack[LastMenuIndex]->IsOverlayOpened() || bForceReturn)
+		{
+			MenuStack[LastMenuIndex]->MenuTearDown();
+			MenuStack.RemoveAt(LastMenuIndex);
+			--LastMenuIndex;
+		}
+		// 열린 Overlay 닫음
+		else
+		{
+			MenuStack[LastMenuIndex]->CloseOverlay();
+		}
 	}
 
 	// Pause Menu로 돌아감
