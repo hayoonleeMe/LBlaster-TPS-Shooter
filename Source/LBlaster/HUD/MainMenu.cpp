@@ -15,7 +15,7 @@ void UMainMenu::MenuSetup()
 	if (IsValidOwnerController())
 	{
 		// 위젯이 생성되고 메뉴 셋업이 끝나면 InputMode를 세팅한다. UIOnly이므로 다른 Pawn들 말고 UI에만 입력을 적용한다.
-		FInputModeUIOnly InputModeData;
+		FInputModeGameAndUI InputModeData;
 		InputModeData.SetWidgetToFocus(TakeWidget());
 		// 마우스 커서가 게임 화면 밖으로 나갈 수 있도록 한다. 
 		OwnerController->SetInputMode(InputModeData);
