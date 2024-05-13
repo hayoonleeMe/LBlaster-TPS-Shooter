@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/HUD.h"
+#include "BaseHUD.h"
 #include "LBTypes/EquipSlot.h"
 #include "LBTypes/WeaponTypes.h"
 #include "LBlasterHUD.generated.h"
@@ -39,7 +39,7 @@ struct FHUDPackage
  * 
  */
 UCLASS()
-class LBLASTER_API ALBlasterHUD : public AHUD
+class LBLASTER_API ALBlasterHUD : public ABaseHUD
 {
 	GENERATED_BODY()
 
@@ -73,10 +73,13 @@ public:
 	void ScrollChatBox(float InScrollValue) const;
 	void SetWeaponSlotIcon(EEquipSlot InEquipSlot, EWeaponType InWeaponType) const;
 	void ChooseWeaponSlot(EEquipSlot InEquipSlot) const;
-	void ReturnMenu(bool bForceReturn = false);
 	
-	void CreateSettingMenu();
-	void CreateGraphicSettingMenu();
+	/*
+	 *	BaseHUD
+	 */
+	virtual void CreateSettingMenu() override;
+	virtual void CreateGraphicSettingMenu() override;	
+	virtual void ReturnMenu(bool bForceReturn = false) override;
 
 protected:
 	virtual void PostInitializeComponents() override;

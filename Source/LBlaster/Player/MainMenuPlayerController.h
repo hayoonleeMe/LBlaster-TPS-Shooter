@@ -38,7 +38,7 @@ private:
 	 *	Owning
 	 */
 	UPROPERTY()
-	TObjectPtr<class AMainMenuHUD> OwnerHUD;
+	TObjectPtr<class AMainMenuHUD> OwningHUD;
 
-	bool IsValidOwnerHUD();
+	bool IsValidOwningHUD();
 };

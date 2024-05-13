@@ -25,16 +25,16 @@ void USettingMenu::MenuSetup()
 
 void USettingMenu::GraphicSettingButtonClicked()
 {
-	if (IsValidLBlasterHUD())
+	if (IsValidOwnerHUD())
 	{
-		LBlasterHUD->CreateGraphicSettingMenu();
+		OwnerHUD->CreateGraphicSettingMenu();
 	}
 }
 
 void USettingMenu::ReturnButtonClicked()
 {
-	if (IsValidLBlasterHUD())
+	if (IsValidOwnerHUD())
 	{
-		LBlasterHUD->ReturnMenu();
+		OwnerHUD->ReturnMenu();
 	}
 }

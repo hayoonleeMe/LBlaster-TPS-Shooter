@@ -54,17 +54,17 @@ void AMainMenuPlayerController::SetupInputComponent()
 
 void AMainMenuPlayerController::ReturnMenu()
 {
-	if (IsValidOwnerHUD())
+	if (IsValidOwningHUD())
 	{
-		OwnerHUD->ReturnMenu();
+		OwningHUD->ReturnMenu();
 	}
 }
 
-bool AMainMenuPlayerController::IsValidOwnerHUD()
+bool AMainMenuPlayerController::IsValidOwningHUD()
 {
-	if (!OwnerHUD && GetHUD())
+	if (!OwningHUD && GetHUD())
 	{
-		OwnerHUD = Cast<AMainMenuHUD>(GetHUD());
+		OwningHUD = Cast<AMainMenuHUD>(GetHUD());
 	}
-	return OwnerHUD != nullptr;
+	return OwningHUD != nullptr;
 }

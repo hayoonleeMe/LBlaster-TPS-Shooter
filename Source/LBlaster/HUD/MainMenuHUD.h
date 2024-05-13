@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BaseHUD.h"
 #include "MatchModeTypes.h"
-#include "GameFramework/HUD.h"
 #include "Interfaces/OnlineSessionInterface.h"
 #include "MainMenuHUD.generated.h"
 
@@ -12,7 +12,7 @@
  * 
  */
 UCLASS()
-class LBLASTER_API AMainMenuHUD : public AHUD
+class LBLASTER_API AMainMenuHUD : public ABaseHUD
 {
 	GENERATED_BODY()
 
@@ -21,33 +21,23 @@ public:
 	 *	Menus
 	 */
 	void CreateStartMenu();
-	void CreateSettingMenu();
-	void CreateGraphicSettingMenu();
 	void CreateSessionListMenu();
-	void ReturnMenu(bool bForceReturn = false);
-
-	/*
-	 *	Start Menu
-	 */
 	void CreateSessionFromMenu(EMatchMode MatchModeType, int32 NumMaxPlayer);
 	void FindSessionsFromMenu();
 	void RefreshSessionList();
 	void JoinSessionFromMenu(const FOnlineSessionSearchResult& SessionResult);
 
+	/*
+	 * BaseHUD
+	 */
+	virtual void CreateSettingMenu() override;
+	virtual void CreateGraphicSettingMenu() override;
+	virtual void ReturnMenu(bool bForceReturn = false) override;
+	
 protected:
 	virtual void BeginPlay() override;
 
 private:
-	/*
-	 *	Multiplayer Sessions
-	 */
-	// The subsystem designed to handle all online session functionality
-	TObjectPtr<class UMultiplayerSessionsSubsystem> MultiplayerSessionsSubsystem;
-
-	void OnCreateSessionComplete(bool bWasSuccessful);
-	void OnFindSessionsComplete(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful);
-	void OnJoinSessionComplete(EOnJoinSessionCompleteResult::Type Result);
-
 	/*
 	 *	Owner
 	 */
@@ -55,6 +45,15 @@ private:
 	TObjectPtr<APlayerController> OwnerController;
 
 	bool IsValidOwnerController();
+	
+	/*
+	 *	Multiplayer Sessions
+	 */
+	TObjectPtr<class UMultiplayerSessionsSubsystem> MultiplayerSessionsSubsystem;
+
+	void OnCreateSessionComplete(bool bWasSuccessful);
+	void OnFindSessionsComplete(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful);
+	void OnJoinSessionComplete(EOnJoinSessionCompleteResult::Type Result);
 
 	/*
 	 *	Main Menu
@@ -67,9 +66,9 @@ private:
 
 	void AddMainMenu();
 
-	TArray<class UMainMenuUserWidget*> MenuStack;
+	TArray<class ULBlasterUserWidget*> MenuStack;
 
-	void AddNewMenuToStack(UMainMenuUserWidget* InNewMenu);
+	void AddNewMenuToStack(ULBlasterUserWidget* InNewMenu);
 
 	/*
 	 *	Start Menu
@@ -93,17 +92,17 @@ private:
 	 *	Setting Menu
 	 */
 	UPROPERTY(EditAnywhere, Category="LBlaster|Setting Menu")
-	TSubclassOf<class USettingMenuForMainMenu> SettingMenuClass;
+	TSubclassOf<class USettingMenu> SettingMenuClass;
 
 	UPROPERTY()
-	TObjectPtr<USettingMenuForMainMenu> SettingMenu;
+	TObjectPtr<USettingMenu> SettingMenu;
 
 	/*
 	 *	Graphic Setting Menu
 	 */
 	UPROPERTY(EditAnywhere, Category="LBlaster|Graphic Setting Menu")
-	TSubclassOf<class UGraphicSettingMenuForMainMenu> GraphicSettingMenuClass;
+	TSubclassOf<class UGraphicSettingMenu> GraphicSettingMenuClass;
 
 	UPROPERTY()
-	TObjectPtr<UGraphicSettingMenuForMainMenu> GraphicSettingMenu;
+	TObjectPtr<UGraphicSettingMenu> GraphicSettingMenu;
 };

@@ -16,13 +16,16 @@ void UPauseMenu::MenuSetup()
 {
 	Super::MenuSetup();
 
-	if (IsValidOwnerLBController())
+	if (IsValidOwnerController())
 	{
-		OwnerLBController->EnablePauseMenuMappingContext();
-		FInputModeGameAndUI InputModeData;
-		InputModeData.SetWidgetToFocus(TakeWidget());
-		OwnerLBController->SetInputMode(InputModeData);
-		OwnerLBController->SetShowMouseCursor(true);
+		if (ALBlasterPlayerController* LBOwnerController = Cast<ALBlasterPlayerController>(OwnerController))
+		{
+			LBOwnerController->EnablePauseMenuMappingContext();
+			FInputModeGameAndUI InputModeData;
+			InputModeData.SetWidgetToFocus(TakeWidget());
+			LBOwnerController->SetInputMode(InputModeData);
+			LBOwnerController->SetShowMouseCursor(true);
+		}
 	}
 
 	/* Main Menu Button */
@@ -68,11 +71,14 @@ void UPauseMenu::MenuTearDown()
 {
 	Super::MenuTearDown();
 	
-	if (IsValidOwnerLBController())
+	if (IsValidOwnerController())
 	{
-		OwnerLBController->DisablePauseMenuMappingContext();
-		OwnerLBController->SetInputMode(FInputModeGameOnly());
-		OwnerLBController->SetShowMouseCursor(false);
+		if (ALBlasterPlayerController* LBOwnerController = Cast<ALBlasterPlayerController>(OwnerController))
+		{
+			LBOwnerController->DisablePauseMenuMappingContext();
+			LBOwnerController->SetInputMode(FInputModeGameOnly());
+			LBOwnerController->SetShowMouseCursor(false);	
+		}
 	}
 }
 
@@ -97,9 +103,9 @@ void UPauseMenu::OnDestroySessionComplete(bool bWasSuccessful)
 		// Client
 		else
 		{
-			if (IsValidOwnerLBController())
+			if (IsValidOwnerController())
 			{
-				OwnerLBController->ClientReturnToMainMenuWithTextReason(FText());
+				OwnerController->ClientReturnToMainMenuWithTextReason(FText());
 			}
 		}
 	}
@@ -108,11 +114,11 @@ void UPauseMenu::OnDestroySessionComplete(bool bWasSuccessful)
 void UPauseMenu::DestroyAllClientSession()
 {
 	// 모든 클라이언트의 플레이어 컨트롤러에서 Client RPC를 호출해 DestroySession을 호출하게 한다.
-	if (IsValidOwnerLBController())
+	if (IsValidOwnerController())
 	{
 		for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 		{
-			if (APlayerController* PlayerController = It->Get(); PlayerController != OwnerLBController)
+			if (APlayerController* PlayerController = It->Get(); PlayerController != OwnerController)
 			{
 				if (ASessionHelperPlayerController* SHController = Cast<ASessionHelperPlayerController>(PlayerController))
 				{
@@ -138,9 +144,9 @@ void UPauseMenu::ResumeButtonClicked()
 
 void UPauseMenu::SettingButtonClicked()
 {
-	if (IsValidLBlasterHUD())
+	if (IsValidOwnerHUD())
 	{
-		LBlasterHUD->CreateSettingMenu();
+		OwnerHUD->CreateSettingMenu();
 	}
 }
 
@@ -148,19 +154,22 @@ void UPauseMenu::OnReturnToMainMenuAlertAcceptButtonClicked()
 {
 	SetLoadingOverlayVisibility(true);
 
-	if (IsValidOwnerLBController() && MultiplayerSessionsSubsystem)
+	if (IsValidOwnerController() && MultiplayerSessionsSubsystem)
 	{
-		// 유저 캐릭터를 제거하고 메인 메뉴로 보냄.
-		OwnerLBController->ServerLeaveGame();
-			
-		if (OwnerLBController->HasAuthority())
+		if (ALBlasterPlayerController* LBOwnerController = Cast<ALBlasterPlayerController>(OwnerController))
 		{
-			DestroyAllClientSession();
-			MultiplayerSessionsSubsystem->DestroySession();
-		}
-		else
-		{
-			MultiplayerSessionsSubsystem->DestroySession();
+			// 유저 캐릭터를 제거하고 메인 메뉴로 보냄.
+			LBOwnerController->ServerLeaveGame();
+
+			if (LBOwnerController->HasAuthority())
+			{
+				DestroyAllClientSession();
+				MultiplayerSessionsSubsystem->DestroySession();
+			}
+			else
+			{
+				MultiplayerSessionsSubsystem->DestroySession();
+			}
 		}
 	}
 }
