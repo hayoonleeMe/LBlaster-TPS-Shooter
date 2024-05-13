@@ -14,3 +14,9 @@ void ABaseHUD::CreateGraphicSettingMenu()
 void ABaseHUD::ReturnMenu(bool bForceReturn)
 {
 }
+
+void ABaseHUD::AddNewMenuToStack(ULBlasterUserWidget* InNewMenu)
+{
+}
+
+

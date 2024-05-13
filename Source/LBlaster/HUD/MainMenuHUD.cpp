@@ -99,6 +99,31 @@ void AMainMenuHUD::ReturnMenu(bool bForceReturn)
 	}
 }
 
+void AMainMenuHUD::AddNewMenuToStack(ULBlasterUserWidget* InNewMenu)
+{
+	if (!InNewMenu)
+	{
+		return;
+	}
+	
+	// Main Menu에서 새로운 메뉴 오픈
+	if (MenuStack.Num() == 0)
+	{
+		MainMenu->SetVisibility(ESlateVisibility::Hidden);
+	}
+	else
+	{
+		const int32 LastMenuIndex = MenuStack.Num() - 1;
+		if (MenuStack.IsValidIndex(LastMenuIndex))
+		{
+			MenuStack[LastMenuIndex]->SetVisibility(ESlateVisibility::Hidden);
+		}	
+	}
+	
+	MenuStack.Emplace(InNewMenu);
+	InNewMenu->MenuSetup();
+}
+
 void AMainMenuHUD::CreateSessionFromMenu(EMatchMode MatchModeType, int32 NumMaxPlayer)
 {
 	if (MultiplayerSessionsSubsystem)
@@ -193,31 +218,6 @@ void AMainMenuHUD::AddMainMenu()
 	{
 		MainMenu->MenuSetup();
 	}
-}
-
-void AMainMenuHUD::AddNewMenuToStack(ULBlasterUserWidget* InNewMenu)
-{
-	if (!InNewMenu)
-	{
-		return;
-	}
-	
-	// Main Menu에서 새로운 메뉴 오픈
-	if (MenuStack.Num() == 0)
-	{
-		MainMenu->SetVisibility(ESlateVisibility::Hidden);
-	}
-	else
-	{
-		const int32 LastMenuIndex = MenuStack.Num() - 1;
-		if (MenuStack.IsValidIndex(LastMenuIndex))
-		{
-			MenuStack[LastMenuIndex]->SetVisibility(ESlateVisibility::Hidden);
-		}	
-	}
-	
-	MenuStack.Emplace(InNewMenu);
-	InNewMenu->MenuSetup();
 }
 
 bool AMainMenuHUD::IsValidOwnerController()

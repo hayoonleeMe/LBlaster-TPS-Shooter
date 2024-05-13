@@ -198,36 +198,6 @@ void ALBlasterHUD::ElimAnnouncementTimerFinished(UElimAnnouncement* MessageToRem
 	}
 }
 
-void ALBlasterHUD::AddNewMenuToStack(ULBlasterUserWidget* InNewMenu)
-{
-	if (!InNewMenu)
-	{
-		return;
-	}
-	
-	// Pause Menu에서 새로운 메뉴 오픈
-	if (MenuStack.Num() == 0)
-	{
-		PauseMenu->SetVisibility(ESlateVisibility::Hidden);
-		
-		if (IsValidOwnerController())
-		{
-			OwnerController->EnableMenuMappingContext();
-		}
-	}
-	else
-	{
-		const int32 LastMenuIndex = MenuStack.Num() - 1;
-		if (MenuStack.IsValidIndex(LastMenuIndex))
-		{
-			MenuStack[LastMenuIndex]->SetVisibility(ESlateVisibility::Hidden);
-		}	
-	}
-	
-	MenuStack.Emplace(InNewMenu);
-	InNewMenu->MenuSetup();
-}
-
 void ALBlasterHUD::ReturnMenu(bool bForceReturn)
 {
 	int32 LastMenuIndex = MenuStack.Num() - 1;
@@ -267,6 +237,36 @@ void ALBlasterHUD::ReturnMenu(bool bForceReturn)
 	{
 		MenuStack[LastMenuIndex]->SetVisibility(ESlateVisibility::Visible);
 	}
+}
+
+void ALBlasterHUD::AddNewMenuToStack(ULBlasterUserWidget* InNewMenu)
+{
+	if (!InNewMenu)
+	{
+		return;
+	}
+	
+	// Pause Menu에서 새로운 메뉴 오픈
+	if (MenuStack.Num() == 0)
+	{
+		PauseMenu->SetVisibility(ESlateVisibility::Hidden);
+		
+		if (IsValidOwnerController())
+		{
+			OwnerController->EnableMenuMappingContext();
+		}
+	}
+	else
+	{
+		const int32 LastMenuIndex = MenuStack.Num() - 1;
+		if (MenuStack.IsValidIndex(LastMenuIndex))
+		{
+			MenuStack[LastMenuIndex]->SetVisibility(ESlateVisibility::Hidden);
+		}	
+	}
+	
+	MenuStack.Emplace(InNewMenu);
+	InNewMenu->MenuSetup();
 }
 
 void ALBlasterHUD::AddAnnouncement()

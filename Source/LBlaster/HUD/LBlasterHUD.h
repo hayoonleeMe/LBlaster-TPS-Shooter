@@ -80,6 +80,7 @@ public:
 	virtual void CreateSettingMenu() override;
 	virtual void CreateGraphicSettingMenu() override;	
 	virtual void ReturnMenu(bool bForceReturn = false) override;
+	virtual void AddNewMenuToStack(ULBlasterUserWidget* InNewMenu) override;
 
 protected:
 	virtual void PostInitializeComponents() override;
@@ -164,10 +165,6 @@ private:
 
 	bool bShowedPauseMenu = false;
 
-	TArray<class ULBlasterUserWidget*> MenuStack;
-
-	void AddNewMenuToStack(ULBlasterUserWidget* InNewMenu);
-	
 	/*
 	 *	Setting Menu
 	 */
