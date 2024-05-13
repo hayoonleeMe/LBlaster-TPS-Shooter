@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "HUD/MainMenuUserWidget.h"
+#include "LBlasterUserWidget.h"
 #include "Interfaces/OnlineSessionInterface.h"
 #include "SessionListMenu.generated.h"
 
@@ -11,7 +11,7 @@
  * 
  */
 UCLASS()
-class LBLASTER_API USessionListMenu : public UMainMenuUserWidget
+class LBLASTER_API USessionListMenu : public ULBlasterUserWidget
 {
 	GENERATED_BODY()
 

@@ -154,7 +154,11 @@ void USessionListMenu::OnJoinButtonClicked()
 		{
 			if (IsValidOwnerHUD())
 			{
-				OwnerHUD->JoinSessionFromMenu(SelectedRow->GetSessionResult());
+				if (AMainMenuHUD* MainMenuHUD = Cast<AMainMenuHUD>(OwnerHUD))
+				{
+					MainMenuHUD->JoinSessionFromMenu(SelectedRow->GetSessionResult());
+				}
+
 			}
 		}
 	}
@@ -191,6 +195,10 @@ void USessionListMenu::OnRefreshButtonClicked()
 	}
 	if (IsValidOwnerHUD())
 	{
-		OwnerHUD->RefreshSessionList();
+		if (AMainMenuHUD* MainMenuHUD = Cast<AMainMenuHUD>(OwnerHUD))
+		{
+			MainMenuHUD->RefreshSessionList();
+		}
+
 	}
 }

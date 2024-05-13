@@ -3,11 +3,11 @@
 
 #include "HUD/MainMenuHUD.h"
 
+#include "GraphicSettingMenu.h"
 #include "MultiplayerSessionsSubsystem.h"
-#include "GraphicSettingMenuForMainMenu.h"
 #include "MainMenu.h"
 #include "SessionListMenu.h"
-#include "SettingMenuForMainMenu.h"
+#include "SettingMenu.h"
 #include "StartMenu.h"
 #include "Blueprint/UserWidget.h"
 
@@ -30,7 +30,7 @@ void AMainMenuHUD::CreateSettingMenu()
 	{
 		if (IsValidOwnerController())
 		{
-			SettingMenu = CreateWidget<USettingMenuForMainMenu>(OwnerController, SettingMenuClass);
+			SettingMenu = CreateWidget<USettingMenu>(OwnerController, SettingMenuClass);
 		}
 	}
 
@@ -43,7 +43,7 @@ void AMainMenuHUD::CreateGraphicSettingMenu()
 	{
 		if (IsValidOwnerController())
 		{
-			GraphicSettingMenu = CreateWidget<UGraphicSettingMenuForMainMenu>(OwnerController, GraphicSettingMenuClass);
+			GraphicSettingMenu = CreateWidget<UGraphicSettingMenu>(OwnerController, GraphicSettingMenuClass);
 		}
 	}
 
@@ -195,7 +195,7 @@ void AMainMenuHUD::AddMainMenu()
 	}
 }
 
-void AMainMenuHUD::AddNewMenuToStack(UMainMenuUserWidget* InNewMenu)
+void AMainMenuHUD::AddNewMenuToStack(ULBlasterUserWidget* InNewMenu)
 {
 	if (!InNewMenu)
 	{

@@ -109,7 +109,10 @@ void UStartMenu::OnFindSessionsButtonClicked()
 {
 	if (IsValidOwnerHUD())
 	{
-		OwnerHUD->FindSessionsFromMenu();
+		if (AMainMenuHUD* MainMenuHUD = Cast<AMainMenuHUD>(OwnerHUD))
+		{
+			MainMenuHUD->FindSessionsFromMenu();
+		}
 	}
 }
 
@@ -159,7 +162,10 @@ void UStartMenu::OnAlertCreateSessionButtonClicked()
 	
 	if (IsValidOwnerHUD())
 	{
-		OwnerHUD->CreateSessionFromMenu(MatchModeType, NumMaxPlayer);
+		if (AMainMenuHUD* MainMenuHUD = Cast<AMainMenuHUD>(OwnerHUD))
+		{
+			MainMenuHUD->CreateSessionFromMenu(MatchModeType, NumMaxPlayer);
+		}
 	}
 }
 

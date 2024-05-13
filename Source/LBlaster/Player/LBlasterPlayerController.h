@@ -132,19 +132,19 @@ private:
 	 *	Owning
 	 */
 	UPROPERTY()
-	TObjectPtr<class ALBlasterCharacter> LBlasterCharacter;
+	TObjectPtr<class ALBlasterCharacter> OwningCharacter;
 
-	bool IsValidCharacter();
+	bool IsValidOwningCharacter();
 	
 	UPROPERTY()
-	TObjectPtr<class ALBlasterHUD> LBlasterHUD;
+	TObjectPtr<class ALBlasterHUD> OwningHUD;
 
-	bool IsValidHUD();
+	bool IsValidOwningHUD();
 
 	UPROPERTY()
-	TObjectPtr<class ALBlasterGameMode> LBlasterGameMode;
+	TObjectPtr<class ALBlasterGameMode> OwnerGameMode;
 
-	bool IsValidGameMode();
+	bool IsValidOwnerGameMode();
 
 	/*
      *	Match Countdown

@@ -127,9 +127,9 @@ void ALBlasterPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 
 void ALBlasterPlayerController::SetHUDTime()
 {
-	if (HasAuthority() && IsValidGameMode())
+	if (HasAuthority() && IsValidOwnerGameMode())
 	{
-		LevelStartingTime = LBlasterGameMode->LevelStartingTime;
+		LevelStartingTime = OwnerGameMode->LevelStartingTime;
 	}
 	
 	float TimeLeft = 0.f;
@@ -146,9 +146,9 @@ void ALBlasterPlayerController::SetHUDTime()
 		TimeLeft = WarmupTime + MatchTime + CooldownTime - GetServerTime() + LevelStartingTime;
 	}
 	uint32 SecondsLeft = FMath::CeilToInt(TimeLeft);
-	if (HasAuthority() && IsValidGameMode())
+	if (HasAuthority() && IsValidOwnerGameMode())
 	{
-		SecondsLeft = FMath::CeilToInt(LBlasterGameMode->GetCountdownTime());
+		SecondsLeft = FMath::CeilToInt(OwnerGameMode->GetCountdownTime());
 	}
 	
 	if (CountdownInt != SecondsLeft)
@@ -196,13 +196,13 @@ void ALBlasterPlayerController::CheckTimeSync(float DeltaTime)
 
 void ALBlasterPlayerController::ServerCheckMatchState_Implementation()
 {
-	if (IsValidGameMode())
+	if (IsValidOwnerGameMode())
 	{
-		WarmupTime = LBlasterGameMode->WarmupTime;
-		MatchTime = LBlasterGameMode->MatchTime;
-		CooldownTime = LBlasterGameMode->CooldownTime;
-		LevelStartingTime = LBlasterGameMode->LevelStartingTime;
-		MatchState = LBlasterGameMode->GetMatchState();
+		WarmupTime = OwnerGameMode->WarmupTime;
+		MatchTime = OwnerGameMode->MatchTime;
+		CooldownTime = OwnerGameMode->CooldownTime;
+		LevelStartingTime = OwnerGameMode->LevelStartingTime;
+		MatchState = OwnerGameMode->GetMatchState();
 		ClientJoinMidGame(MatchState, WarmupTime, MatchTime, CooldownTime, LevelStartingTime);
 	}
 }
@@ -216,89 +216,89 @@ void ALBlasterPlayerController::ClientJoinMidGame_Implementation(FName StateOfMa
 	MatchState = StateOfMatch;
 	OnMatchStateSet(MatchState);
 
-	if (IsValidHUD() && MatchState == MatchState::WaitingToStart)
+	if (IsValidOwningHUD() && MatchState == MatchState::WaitingToStart)
 	{
-		LBlasterHUD->AddAnnouncement();
+		OwningHUD->AddAnnouncement();
 	}	
 }
 
 void ALBlasterPlayerController::SetHUDHealth(float InHealth, float InMaxHealth)
 {
-	if (IsValidHUD())
+	if (IsValidOwningHUD())
 	{
-		LBlasterHUD->SetHUDHealth(InHealth, InMaxHealth);
+		OwningHUD->SetHUDHealth(InHealth, InMaxHealth);
 	}
 }
 
 void ALBlasterPlayerController::SetHUDScore(float InScore)
 {
-	if (IsValidHUD())
+	if (IsValidOwningHUD())
 	{
-		LBlasterHUD->SetHUDScore(InScore);
+		OwningHUD->SetHUDScore(InScore);
 	}
 }
 
 void ALBlasterPlayerController::SetHUDDeath(int32 InDeath)
 {
-	if (IsValidHUD())
+	if (IsValidOwningHUD())
 	{
-		LBlasterHUD->SetHUDDeath(InDeath);
+		OwningHUD->SetHUDDeath(InDeath);
 	}
 }
 
 void ALBlasterPlayerController::SetHUDAmmo(int32 InAmmo)
 {
-	if (IsValidHUD())
+	if (IsValidOwningHUD())
 	{
-		LBlasterHUD->SetHUDAmmo(InAmmo);
+		OwningHUD->SetHUDAmmo(InAmmo);
 	}
 }
 
 void ALBlasterPlayerController::SetHUDCarriedAmmo(int32 InCarriedAmmo)
 {
-	if (IsValidHUD())
+	if (IsValidOwningHUD())
 	{
-		LBlasterHUD->SetHUDCarriedAmmo(InCarriedAmmo);
+		OwningHUD->SetHUDCarriedAmmo(InCarriedAmmo);
 	}
 }
 
 void ALBlasterPlayerController::SetHUDWeaponTypeText(const FString& InWeaponTypeString)
 {
-	if (IsValidHUD())
+	if (IsValidOwningHUD())
 	{
-		LBlasterHUD->SetHUDWeaponTypeText(InWeaponTypeString);
+		OwningHUD->SetHUDWeaponTypeText(InWeaponTypeString);
 	}
 }
 
 void ALBlasterPlayerController::SetHUDMatchCountdown(float InCountdownTime)
 {
-	if (IsValidHUD())
+	if (IsValidOwningHUD())
 	{
-		LBlasterHUD->SetHUDMatchCountdown(InCountdownTime);
+		OwningHUD->SetHUDMatchCountdown(InCountdownTime);
 	}
 }
 
 void ALBlasterPlayerController::SetHUDAnnouncementCountdown(float InCountdownTime)
 {
-	if (IsValidHUD())
+	if (IsValidOwningHUD())
 	{
-		LBlasterHUD->SetHUDAnnouncementCountdown(InCountdownTime);
+		OwningHUD->SetHUDAnnouncementCountdown(InCountdownTime);
 	}
 }
 
 void ALBlasterPlayerController::UpdateHUDGrenadeAmount()
 {
-	if (IsValidCharacter())
+	if (IsValidOwningCharacter())
 	{
-		UpdateHUDGrenadeAmount(LBlasterCharacter->GetGrenadeAmount());
+		UpdateHUDGrenadeAmount(OwningCharacter->GetGrenadeAmount());
 	}
 }
 
 void ALBlasterPlayerController::UpdateHUDGrenadeAmount(int32 InGrenadeAmount)
 {
-	if (IsValidHUD())
+	if (IsValidOwningHUD())
 	{
-		LBlasterHUD->SetHUDGrenadeAmount(InGrenadeAmount);
+		OwningHUD->SetHUDGrenadeAmount(InGrenadeAmount);
 	}
 }
 
@@ -341,7 +341,7 @@ void ALBlasterPlayerController::StartCheckPing()
 
 void ALBlasterPlayerController::CheckPing()
 {
-	if (IsValidCharacter() && GetPlayerState<APlayerState>())
+	if (IsValidOwningCharacter() && GetPlayerState<APlayerState>())
 	{
 		if (GEngine)
 		{
@@ -351,79 +351,79 @@ void ALBlasterPlayerController::CheckPing()
 		// SSR 제한
 		if (GetPlayerState<APlayerState>()->GetCompressedPing() * 4 > HighPingThreshold)
 		{
-			if (IsValidHUD())
+			if (IsValidOwningHUD())
 			{
-				LBlasterCharacter->EnableServerSideRewind(false);
-				LBlasterHUD->HighPingWarning(WarningDuration);
+				OwningCharacter->EnableServerSideRewind(false);
+				OwningHUD->HighPingWarning(WarningDuration);
 			}	
 		}
 		// SSR 사용 가능
 		else
 		{
-			LBlasterCharacter->EnableServerSideRewind(true);
+			OwningCharacter->EnableServerSideRewind(true);
 		}
 	}
 }
 
 void ALBlasterPlayerController::ClientAddChatText_Implementation(const FText& InText)
 {
-	if (IsValidHUD())
+	if (IsValidOwningHUD())
 	{
-		LBlasterHUD->AddChatMessage(InText);
+		OwningHUD->AddChatMessage(InText);
 	}
 }
 
 void ALBlasterPlayerController::ClientElimAnnouncement_Implementation(APlayerState* AttackerState, APlayerState* VictimState)
 {
-	if (const APlayerState* SelfState = GetPlayerState<APlayerState>(); AttackerState && VictimState && IsValidHUD())
+	if (const APlayerState* SelfState = GetPlayerState<APlayerState>(); AttackerState && VictimState && IsValidOwningHUD())
 	{
 		if (AttackerState == SelfState && VictimState != SelfState)
 		{
-			LBlasterHUD->AddElimAnnouncement(TEXT("You"), VictimState->GetPlayerName());
+			OwningHUD->AddElimAnnouncement(TEXT("You"), VictimState->GetPlayerName());
 			return;
 		}
 		if (VictimState == SelfState && AttackerState != SelfState)
 		{
-			LBlasterHUD->AddElimAnnouncement(AttackerState->GetPlayerName(), TEXT("You"));
+			OwningHUD->AddElimAnnouncement(AttackerState->GetPlayerName(), TEXT("You"));
 			return;
 		}
 		if (AttackerState == VictimState && AttackerState == SelfState)
 		{
-			LBlasterHUD->AddElimAnnouncement(TEXT("You"), TEXT("Yourself"));
+			OwningHUD->AddElimAnnouncement(TEXT("You"), TEXT("Yourself"));
 			return;
 		}
 		if (AttackerState == VictimState && AttackerState != SelfState)
 		{
-			LBlasterHUD->AddElimAnnouncement(AttackerState->GetPlayerName(), AttackerState->GetPlayerName());
+			OwningHUD->AddElimAnnouncement(AttackerState->GetPlayerName(), AttackerState->GetPlayerName());
 			return;
 		}
-		LBlasterHUD->AddElimAnnouncement(AttackerState->GetPlayerName(), VictimState->GetPlayerName());
+		OwningHUD->AddElimAnnouncement(AttackerState->GetPlayerName(), VictimState->GetPlayerName());
 	}
 }
 
 void ALBlasterPlayerController::UpdateHUDHealth()
 {
-	if (IsValidCharacter())
+	if (IsValidOwningCharacter())
 	{
-		LBlasterCharacter->UpdateHUDHealth();
+		OwningCharacter->UpdateHUDHealth();
 	}
 }
 
 void ALBlasterPlayerController::HandleMatchHasStarted()
 {
-	if (IsValidHUD())
+	if (IsValidOwningHUD())
 	{
-		LBlasterHUD->AddCharacterOverlay();
-		LBlasterHUD->HideAnnouncement();
+		OwningHUD->AddCharacterOverlay();
+		OwningHUD->HideAnnouncement();
 	}
 }
 
 void ALBlasterPlayerController::HandleCooldown()
 {
-	if (IsValidHUD())
+	if (IsValidOwningHUD())
 	{
-		LBlasterHUD->RemoveCharacterOverlay();
-		LBlasterHUD->SetCooldownAnnouncement();
+		OwningHUD->RemoveCharacterOverlay();
+		OwningHUD->SetCooldownAnnouncement();
 	}
 }
 
@@ -499,17 +499,17 @@ void ALBlasterPlayerController::BroadcastChatText(const FText& InText)
 
 void ALBlasterPlayerController::SetWeaponSlotIcon(EEquipSlot InEquipSlot, EWeaponType InWeaponType)
 {
-	if (IsValidHUD())
+	if (IsValidOwningHUD())
 	{
-		LBlasterHUD->SetWeaponSlotIcon(InEquipSlot, InWeaponType);
+		OwningHUD->SetWeaponSlotIcon(InEquipSlot, InWeaponType);
 	}
 }
 
 void ALBlasterPlayerController::ChooseWeaponSlot(EEquipSlot InEquipSlot)
 {
-	if (IsValidHUD())
+	if (IsValidOwningHUD())
 	{
-		LBlasterHUD->ChooseWeaponSlot(InEquipSlot);
+		OwningHUD->ChooseWeaponSlot(InEquipSlot);
 	}
 }
 
@@ -529,44 +529,44 @@ void ALBlasterPlayerController::ServerLeaveGame_Implementation()
 
 void ALBlasterPlayerController::ServerSendChatText_Implementation(const FText& InText)
 {
-	if (IsValidGameMode())
+	if (IsValidOwnerGameMode())
 	{
-		LBlasterGameMode->SendChatText(InText);
+		OwnerGameMode->SendChatText(InText);
 	}
 }
 
 void ALBlasterPlayerController::ShowPauseMenu()
 {
-	if (IsValidCharacter() && IsValidHUD())
+	if (IsValidOwningCharacter() && IsValidOwningHUD())
 	{
-		if (LBlasterHUD->ShowPauseMenu())
+		if (OwningHUD->ShowPauseMenu())
 		{
-			LBlasterCharacter->ReleaseCombatState();
+			OwningCharacter->ReleaseCombatState();
 		}
 	}		
 }
 
 void ALBlasterPlayerController::FocusChat()
 {
-	if (IsValidHUD())
+	if (IsValidOwningHUD())
 	{
-		LBlasterHUD->FocusChat();
+		OwningHUD->FocusChat();
 	}
 }
 
 void ALBlasterPlayerController::ChatScroll(const FInputActionValue& ActionValue)
 {
-	if (IsValidHUD())
+	if (IsValidOwningHUD())
 	{
-		LBlasterHUD->ScrollChatBox(ActionValue.Get<float>());
+		OwningHUD->ScrollChatBox(ActionValue.Get<float>());
 	}
 }
 
 void ALBlasterPlayerController::ReturnMenu()
 {
-	if (IsValidHUD())
+	if (IsValidOwningHUD())
 	{
-		LBlasterHUD->ReturnMenu();
+		OwningHUD->ReturnMenu();
 	}
 }
 
@@ -603,29 +603,29 @@ void ALBlasterPlayerController::OnPossess(APawn* InPawn)
 	}
 }
 
-bool ALBlasterPlayerController::IsValidCharacter()
+bool ALBlasterPlayerController::IsValidOwningCharacter()
 {
-	if (!LBlasterCharacter && GetCharacter())
+	if (!OwningCharacter && GetCharacter())
 	{
-		LBlasterCharacter = Cast<ALBlasterCharacter>(GetCharacter());
+		OwningCharacter = Cast<ALBlasterCharacter>(GetCharacter());
 	}
-	return LBlasterCharacter != nullptr;
+	return OwningCharacter != nullptr;
 }
 
-bool ALBlasterPlayerController::IsValidHUD()
+bool ALBlasterPlayerController::IsValidOwningHUD()
 {
-	if (!LBlasterHUD && GetHUD())
+	if (!OwningHUD && GetHUD())
 	{
-		LBlasterHUD = Cast<ALBlasterHUD>(GetHUD());
+		OwningHUD = Cast<ALBlasterHUD>(GetHUD());
 	}
-	return LBlasterHUD != nullptr;
+	return OwningHUD != nullptr;
 }
 
-bool ALBlasterPlayerController::IsValidGameMode()
+bool ALBlasterPlayerController::IsValidOwnerGameMode()
 {
-	if (!LBlasterGameMode && UGameplayStatics::GetGameMode(this))
+	if (!OwnerGameMode && UGameplayStatics::GetGameMode(this))
 	{
-		LBlasterGameMode = Cast<ALBlasterGameMode>(UGameplayStatics::GetGameMode(this));
+		OwnerGameMode = Cast<ALBlasterGameMode>(UGameplayStatics::GetGameMode(this));
 	}
-	return LBlasterGameMode != nullptr;
+	return OwnerGameMode != nullptr;
 }

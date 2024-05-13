@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "LBlasterUserWidget.h"
 #include "Blueprint/UserWidget.h"
-#include "HUD/MainMenuUserWidget.h"
 #include "Interfaces/OnlineSessionInterface.h"
 #include "MatchModeTypes.h"
 #include "StartMenu.generated.h"
@@ -13,7 +13,7 @@
  * 
  */
 UCLASS()
-class LBLASTER_API UStartMenu : public UMainMenuUserWidget
+class LBLASTER_API UStartMenu : public ULBlasterUserWidget
 {
 	GENERATED_BODY()
 	

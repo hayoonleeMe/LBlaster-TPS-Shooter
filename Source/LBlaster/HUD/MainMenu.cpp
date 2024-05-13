@@ -41,7 +41,11 @@ void UMainMenu::OnStartButtonClicked()
 {
 	if (IsValidOwnerHUD())
 	{
-		OwnerHUD->CreateStartMenu();
+		if (AMainMenuHUD* MainMenuHUD = Cast<AMainMenuHUD>(OwnerHUD))
+		{
+			MainMenuHUD->CreateStartMenu();
+		}
+
 	}
 }
 

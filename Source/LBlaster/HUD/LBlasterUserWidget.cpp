@@ -3,23 +3,48 @@
 
 #include "HUD/LBlasterUserWidget.h"
 
-#include "LBlasterHUD.h"
-#include "Player/LBlasterPlayerController.h"
+#include "BaseHUD.h"
 
-bool ULBlasterUserWidget::IsValidOwnerLBController()
+void ULBlasterUserWidget::MenuSetup()
 {
-	if (!OwnerLBController && GetOwningPlayer())
-	{
-		OwnerLBController = Cast<ALBlasterPlayerController>(GetOwningPlayer());
-	}
-	return OwnerLBController != nullptr;
+	AddToViewport();
+	SetVisibility(ESlateVisibility::Visible);
+	SetIsFocusable(true);
 }
 
-bool ULBlasterUserWidget::IsValidLBlasterHUD()
+void ULBlasterUserWidget::MenuTearDown()
 {
-	if (!LBlasterHUD && IsValidOwnerLBController() && OwnerLBController->GetHUD())
+	RemoveFromParent();
+}
+
+bool ULBlasterUserWidget::IsOverlayOpened()
+{
+	return false;
+}
+
+void ULBlasterUserWidget::CloseOverlay()
+{
+}
+
+bool ULBlasterUserWidget::CanReturn()
+{
+	return true;
+}
+
+bool ULBlasterUserWidget::IsValidOwnerController()
+{
+	if (!OwnerController && GetOwningPlayer())
 	{
-		LBlasterHUD = Cast<ALBlasterHUD>(OwnerLBController->GetHUD());
+		OwnerController = GetOwningPlayer();
 	}
-	return LBlasterHUD != nullptr;
+	return OwnerController != nullptr;
+}
+
+bool ULBlasterUserWidget::IsValidOwnerHUD()
+{
+	if (!OwnerHUD && IsValidOwnerController() && OwnerController->GetHUD())
+	{
+		OwnerHUD = Cast<ABaseHUD>(OwnerController->GetHUD());
+	}
+	return OwnerHUD != nullptr;
 }

@@ -706,9 +706,9 @@ void UGraphicSettingMenu::OnReturnButtonClicked()
 	}
 	else
 	{
-		if (IsValidLBlasterHUD())
+		if (IsValidOwnerHUD())
 		{
-			LBlasterHUD->ReturnMenu();
+			OwnerHUD->ReturnMenu();
 		}	
 	}
 }
@@ -811,9 +811,9 @@ void UGraphicSettingMenu::OnNoApplyAlertAcceptButtonClicked()
 
 	bChangedFullScreenMode = bChangedScreenResolution = bChangedEnableFPSIndicator = bChangedFrameLimitValue = bChangedScreenBrightness = bChangedEnableVSync = bChangedMotionBlur = bChangedGraphicPresetValue = bChangedAntiAliasing = bChangedViewDistance = bChangedShadowQuality = bChangedGlobalIlluminationQuality = bChangedReflectionQuality = bChangedPostProcessing = bChangedTextureQuality = bChangedEffectQuality = bChangedBackgroundQuality = bChangedShadingQuality = false;
 	
-	if (IsValidLBlasterHUD())
+	if (IsValidOwnerHUD())
 	{
-		LBlasterHUD->ReturnMenu(true);
+		OwnerHUD->ReturnMenu(true);
 	}	
 }
 
