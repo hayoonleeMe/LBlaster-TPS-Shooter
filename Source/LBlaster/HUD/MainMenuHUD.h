@@ -33,6 +33,7 @@ public:
 	virtual void CreateSettingMenu() override;
 	virtual void CreateGraphicSettingMenu() override;
 	virtual void ReturnMenu(bool bForceReturn = false) override;
+	virtual void AddNewMenuToStack(ULBlasterUserWidget* InNewMenu) override;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -65,10 +66,6 @@ private:
 	TObjectPtr<class UMainMenu> MainMenu;
 
 	void AddMainMenu();
-
-	TArray<class ULBlasterUserWidget*> MenuStack;
-
-	void AddNewMenuToStack(ULBlasterUserWidget* InNewMenu);
 
 	/*
 	 *	Start Menu

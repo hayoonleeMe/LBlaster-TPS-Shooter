@@ -18,4 +18,8 @@ public:
 	virtual void CreateSettingMenu();
 	virtual void CreateGraphicSettingMenu();
 	virtual void ReturnMenu(bool bForceReturn = false);
+	virtual void AddNewMenuToStack(class ULBlasterUserWidget* InNewMenu);
+
+protected:
+	TArray<ULBlasterUserWidget*> MenuStack;
 };
