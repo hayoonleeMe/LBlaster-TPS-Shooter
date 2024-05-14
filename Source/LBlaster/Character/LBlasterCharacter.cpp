@@ -2,6 +2,7 @@
 
 
 #include "Character/LBlasterCharacter.h"
+
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputAction.h"
@@ -21,6 +22,7 @@
 #include "HUD/OverheadWidget.h"
 #include "Net/UnrealNetwork.h"
 #include "Player/LBlasterPlayerController.h"
+#include "Player/LBlasterPlayerState.h"
 #include "Weapon/Weapon.h"
 #include "Weapon/DamageType/DamageType_Explosive.h"
 
@@ -216,6 +218,8 @@ void ALBlasterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	PollInit();
+	
 	//HideMeshIfCameraClose();
 }
 
@@ -680,6 +684,18 @@ void ALBlasterCharacter::ReleaseCombatState() const
 	}
 }
 
+void ALBlasterCharacter::SetCharacterMaterialsByTeam(const FTeamCharacterMaterials& TeamCharacterMaterials)
+{
+	if (GetMesh())
+	{
+		GetMesh()->SetMaterial(0, TeamCharacterMaterials.MaterialInst2);
+		GetMesh()->SetMaterial(1, TeamCharacterMaterials.MaterialInst1);
+		DissolveMaterialInstances.Empty(2);
+		DissolveMaterialInstances.Add(TeamCharacterMaterials.DissolveInst1);
+		DissolveMaterialInstances.Add(TeamCharacterMaterials.DissolveInst2);
+	}
+}
+
 void ALBlasterCharacter::PlayHitReactMontage(const FVector& HitNormal) const
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -704,6 +720,25 @@ void ALBlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const
 	if (HealthComponent)
 	{
 		HealthComponent->ReceiveDamage(Damage, InstigatorController);
+	}
+}
+
+void ALBlasterCharacter::PollInit()
+{
+	if (!bInitTeam)
+	{
+		if (GetPlayerState() && GetWorld() && GetWorld()->GetGameState())
+		{
+			if (ALBlasterPlayerState* LBPlayerState = GetPlayerState<ALBlasterPlayerState>())
+			{
+				if (LBPlayerState->GetTeam() != ETeam::ET_MAX)
+				{
+					bInitTeam = true;
+					LBPlayerState->InitTeam();
+					SetCharacterMaterialsByTeam(LBPlayerState->GetCharacterMaterials());
+				}
+			}
+		}
 	}
 }
 

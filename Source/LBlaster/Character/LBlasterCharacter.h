@@ -8,6 +8,7 @@
 #include "GameFramework/Character.h"
 #include "Interface/HitReceiverInterface.h"
 #include "Interface/LBCharacterPickupInterface.h"
+#include "Player/LBlasterPlayerState.h"
 #include "LBlasterCharacter.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FOnLeftGame);
@@ -63,6 +64,11 @@ public:
 	void UpdatePlayerNameToOverheadWidget();
 	void EquipDefaultWeapon() const;
 	void ReleaseCombatState() const;
+
+	/*
+	 *	LBlasterPlayerState
+	 */
+	void SetCharacterMaterialsByTeam(const FTeamCharacterMaterials& TeamCharacterMaterials);
 	
 	/*
 	 *	Combat
@@ -162,6 +168,13 @@ protected:
 	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser);
 	
 private:
+	/*
+	 *	Core
+	 */
+	bool bInitTeam = false;
+
+	void PollInit();
+	
 	/*
 	 *	Movement
 	 */

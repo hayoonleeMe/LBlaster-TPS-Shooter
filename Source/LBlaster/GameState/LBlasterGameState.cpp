@@ -1,0 +1,24 @@
+﻿// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "LBlasterGameState.h"
+
+#include "Net/UnrealNetwork.h"
+
+void ALBlasterGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ALBlasterGameState, RedTeam);
+	DOREPLIFETIME(ALBlasterGameState, RedTeamScore);
+	DOREPLIFETIME(ALBlasterGameState, BlueTeam);
+	DOREPLIFETIME(ALBlasterGameState, BlueTeamScore);
+}
+
+void ALBlasterGameState::OnRep_RedTeamScore()
+{
+}
+
+void ALBlasterGameState::OnRep_BlueTeamScore()
+{
+}

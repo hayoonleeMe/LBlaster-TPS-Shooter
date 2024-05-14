@@ -6,6 +6,7 @@
 #include "MultiplayerSessionsSubsystem.h"
 #include "Components/Button.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Player/LBlasterPlayerState.h"
 #include "Player/SessionHelperPlayerController.h"
 
 void ULobbyMenu::NativeConstruct()
@@ -37,9 +38,15 @@ void ULobbyMenu::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
 	// ServerTravel 가능
-	if (bWantServerTravel && GetWorld() && GetWorld()->GetNumPlayerControllers() == 1)
+	if (bWantServerTravel && GetWorld() && GetWorld()->GetNumPlayerControllers() == 1) // TODO : bWantServerTravel -> bWantReturnToMainMenu
 	{
 		GetWorld()->ServerTravel(FString(TEXT("/Game/LBlaster/Maps/GameStartupMap")));
+	}
+
+	if (MultiplayerSessionsSubsystem)
+	{
+		FString Str = FString::Printf(TEXT("NumOfController %d, SessionInfo %s"), GetWorld()->GetNumPlayerControllers(), *MultiplayerSessionsSubsystem->GetSessionInfo());
+		GEngine->AddOnScreenDebugMessage(0, 5.f, FColor::Orange, Str);
 	}
 }
 
@@ -77,6 +84,19 @@ void ULobbyMenu::OnStartButtonClicked()
 
 void ULobbyMenu::Travel()
 {
+	// TODO : Game Instance에 Team 저장, 현재는 임시로 랜덤한 팀 부여
+	for (FConstControllerIterator It = GetWorld()->GetControllerIterator(); It; ++It)
+	{
+		if (It->IsValid())
+		{
+			if (ALBlasterPlayerState* LBPlayerState = It->Get()->GetPlayerState<ALBlasterPlayerState>())
+			{
+				ETeam Team = FMath::RandBool() ? ETeam::ET_RedTeam : ETeam::ET_BlueTeam;
+				LBPlayerState->SetTeam(Team);
+			}
+		}
+	}
+
 	if (UWorld* World = GetWorld())
 	{
 		World->ServerTravel(FString(TEXT("/Game/LBlaster/Maps/LBlasterMap?listen")));	// TODO : 경로 캐싱
