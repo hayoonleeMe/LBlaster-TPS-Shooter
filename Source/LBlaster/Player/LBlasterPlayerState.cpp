@@ -5,11 +5,15 @@
 
 #include "LBlasterPlayerController.h"
 #include "Character/LBlasterCharacter.h"
+#include "GameState/LBlasterGameState.h"
 #include "Net/UnrealNetwork.h"
 
 ALBlasterPlayerState::ALBlasterPlayerState()
 {
 	NetUpdateFrequency = 10.f;
+
+	/* Team */
+	Team = ETeam::ET_MAX;
 }
 
 void ALBlasterPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -17,6 +21,7 @@ void ALBlasterPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ALBlasterPlayerState, Death);
+	DOREPLIFETIME(ALBlasterPlayerState, Team);
 }
 
 void ALBlasterPlayerState::OnRep_Score()
@@ -54,6 +59,41 @@ void ALBlasterPlayerState::AddToScore(float InScoreAmount)
 	if (IsValidOwnerCharacter() && IsValidOwnerController())
 	{
 		OwnerController->SetHUDScore(GetScore());
+	}
+}
+
+void ALBlasterPlayerState::InitTeam()
+{
+	if (ALBlasterGameState* GameState = GetWorld()->GetGameState<ALBlasterGameState>())
+	{
+		if (Team == ETeam::ET_RedTeam)
+		{
+			GameState->RedTeam.Add(this);
+		}
+		else if (Team == ETeam::ET_BlueTeam)
+		{
+			GameState->BlueTeam.Add(this);
+		}
+	}
+}
+
+FTeamCharacterMaterials ALBlasterPlayerState::GetCharacterMaterials() const
+{
+	if (TeamCharacterMaterialsMap.Contains(Team))
+	{
+		return TeamCharacterMaterialsMap[Team];
+	}
+	return FTeamCharacterMaterials();
+}
+
+void ALBlasterPlayerState::CopyProperties(APlayerState* PlayerState)
+{
+	Super::CopyProperties(PlayerState);
+
+	// 새로 사용할 PlayerState에 이전 PlayerState의 값을 복사한다.
+	if (ALBlasterPlayerState* OutPlayerState = Cast<ALBlasterPlayerState>(PlayerState))
+	{
+		OutPlayerState->Team = Team;
 	}
 }
 

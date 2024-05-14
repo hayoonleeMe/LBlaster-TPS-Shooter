@@ -3,6 +3,7 @@
 
 #include "GameMode/LobbyGameMode.h"
 
+#include "Player/LBlasterPlayerState.h"
 #include "Player/SessionHelperPlayerController.h"
 
 ALobbyGameMode::ALobbyGameMode()
@@ -15,6 +16,8 @@ ALobbyGameMode::ALobbyGameMode()
 	// 	PlayerControllerClass = SessionHelperPlayerControllerClassRef.Class;
 	// }
 	PlayerControllerClass = ASessionHelperPlayerController::StaticClass();
+
+	PlayerStateClass = ALBlasterPlayerState::StaticClass();
 }
 
 void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)

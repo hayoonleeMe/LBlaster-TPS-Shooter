@@ -4,7 +4,26 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
+#include "LBTypes/Team.h"
 #include "LBlasterPlayerState.generated.h"
+
+USTRUCT(BlueprintType)
+struct FTeamCharacterMaterials
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UMaterialInstance> MaterialInst1;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UMaterialInstance> MaterialInst2;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UMaterialInstance> DissolveInst1;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UMaterialInstance> DissolveInst2;
+};
 
 /**
  * 
@@ -18,14 +37,19 @@ public:
 	ALBlasterPlayerState();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void OnRep_Score() override;
-
-	UFUNCTION()
-	virtual void OnRep_Death();
 	
 	void AddToScore(float InScoreAmount);
 	void AddToDeath(int32 InDeathAmount);
-	
 
+	FORCEINLINE ETeam GetTeam() const { return Team; }
+	FORCEINLINE void SetTeam(ETeam InTeam) { Team = InTeam; }
+	void InitTeam();
+
+	FTeamCharacterMaterials GetCharacterMaterials() const;
+
+protected:
+	virtual void CopyProperties(APlayerState* PlayerState) override;
+	
 private:
 	/*
 	 *	Owner
@@ -42,4 +66,16 @@ private:
 
 	UPROPERTY(ReplicatedUsing=OnRep_Death)
 	int32 Death;
+	
+	UFUNCTION()
+    virtual void OnRep_Death();
+
+	/*
+	 *	Team
+	 */
+	UPROPERTY(BlueprintReadOnly, Replicated, meta=(AllowPrivateAccess = true))
+	ETeam Team;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster")
+	TMap<ETeam, FTeamCharacterMaterials> TeamCharacterMaterialsMap;
 };
