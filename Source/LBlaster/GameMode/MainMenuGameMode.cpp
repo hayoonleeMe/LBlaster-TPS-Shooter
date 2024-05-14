@@ -4,6 +4,7 @@
 #include "GameMode/MainMenuGameMode.h"
 
 #include "HUD/MainMenuHUD.h"
+#include "Player/LBlasterPlayerState.h"
 #include "Player/MainMenuPlayerController.h"
 
 AMainMenuGameMode::AMainMenuGameMode()
@@ -16,4 +17,10 @@ AMainMenuGameMode::AMainMenuGameMode()
 	}
 
 	PlayerControllerClass = AMainMenuPlayerController::StaticClass();
+
+	static ConstructorHelpers::FClassFinder<ALBlasterPlayerState> PlayerStateClassRef(TEXT("/Script/Engine.Blueprint'/Game/LBlaster/Core/States/Player/BP_LBlasterPlayerState.BP_LBlasterPlayerState_C'"));
+	if (PlayerStateClassRef.Class)
+	{
+		PlayerStateClass = PlayerStateClassRef.Class;
+	}
 }

@@ -10,6 +10,8 @@
 #include "Components/Button.h"
 #include "Components/ListView.h"
 #include "Components/Overlay.h"
+#include "GameInstance/LBGameInstance.h"
+#include "Player/LBlasterPlayerState.h"
 
 void USessionListMenu::MenuSetup()
 {
@@ -147,6 +149,27 @@ void USessionListMenu::OnJoinButtonClicked()
 {
 	// 로딩 효과 표시
 	SetLoadingOverlayVisibility(true);
+
+	// TODO : 로비가 구현되면 로비의 값을 사용해야함
+	if (ALBlasterPlayerState* LBPlayerState = GetOwningPlayerState<ALBlasterPlayerState>())
+	{
+		LBPlayerState->SetTeam(FMath::RandBool() ? ETeam::ET_RedTeam : ETeam::ET_BlueTeam);
+		if (ULBGameInstance* GameInstance = GetGameInstance<ULBGameInstance>())
+		{
+			FUniqueNetIdRepl NetIdRepl = LBPlayerState->GetUniqueId();
+			if (NetIdRepl.IsValid())
+			{
+				if (GameInstance->MidGameJoinedPlayerTeamMap.Contains(NetIdRepl))
+				{
+					GameInstance->MidGameJoinedPlayerTeamMap[NetIdRepl] = LBPlayerState->GetTeam();
+				}
+				else
+				{
+					GameInstance->MidGameJoinedPlayerTeamMap.Emplace(NetIdRepl, LBPlayerState->GetTeam());
+				}
+			}
+		}
+	}
 	
 	if (SessionListView)
 	{
@@ -158,7 +181,6 @@ void USessionListMenu::OnJoinButtonClicked()
 				{
 					MainMenuHUD->JoinSessionFromMenu(SelectedRow->GetSessionResult());
 				}
-
 			}
 		}
 	}

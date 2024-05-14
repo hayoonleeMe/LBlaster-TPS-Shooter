@@ -18,6 +18,7 @@
 #include "Components/WidgetComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameInstance/LBGameInstance.h"
 #include "GameMode/LBlasterGameMode.h"
 #include "HUD/OverheadWidget.h"
 #include "Net/UnrealNetwork.h"
@@ -731,6 +732,10 @@ void ALBlasterCharacter::PollInit()
 		{
 			if (ALBlasterPlayerState* LBPlayerState = GetPlayerState<ALBlasterPlayerState>())
 			{
+				if (GetLocalRole() == ROLE_AutonomousProxy)
+				{
+					LBPlayerState->InitTeamFromGameInstance();
+				}
 				if (LBPlayerState->GetTeam() != ETeam::ET_MAX)
 				{
 					bInitTeam = true;

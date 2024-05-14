@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "LBTypes/Team.h"
 #include "LBGameInstance.generated.h"
 
 /**
@@ -16,6 +17,10 @@ class LBLASTER_API ULBGameInstance : public UGameInstance
 
 public:
 	virtual void Init() override;
+
+	// 게임 도중 참가하는 플레이어의 ETeam 값을 캐싱
+	UPROPERTY()
+	TMap<FUniqueNetIdRepl, ETeam> MidGameJoinedPlayerTeamMap;
 
 private:
 	inline const static FString SaveGameFileName{ TEXT("MyGame") };

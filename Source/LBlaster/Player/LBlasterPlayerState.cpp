@@ -5,6 +5,7 @@
 
 #include "LBlasterPlayerController.h"
 #include "Character/LBlasterCharacter.h"
+#include "GameInstance/LBGameInstance.h"
 #include "GameState/LBlasterGameState.h"
 #include "Net/UnrealNetwork.h"
 
@@ -42,6 +43,11 @@ void ALBlasterPlayerState::OnRep_Death()
 	}
 }
 
+void ALBlasterPlayerState::ServerSetTeam_Implementation(ETeam InTeam)
+{
+	SetTeam(InTeam);
+}
+
 void ALBlasterPlayerState::AddToDeath(int32 InDeathAmount)
 {
 	Death += InDeathAmount;
@@ -73,6 +79,23 @@ void ALBlasterPlayerState::InitTeam()
 		else if (Team == ETeam::ET_BlueTeam)
 		{
 			GameState->BlueTeam.Add(this);
+		}
+	}
+}
+
+void ALBlasterPlayerState::InitTeamFromGameInstance()
+{
+	// 게임에 참가하기 전에 유저가 GameInstance에 캐싱했던 팀 값을 Autonomous Proxy에서 업데이트
+	if (ULBGameInstance* GameInstance = GetGameInstance<ULBGameInstance>())
+	{
+		FUniqueNetIdRepl NetIdRepl = GetUniqueId();
+		if (NetIdRepl.IsValid())
+		{
+			if (GameInstance->MidGameJoinedPlayerTeamMap.Contains(NetIdRepl))
+			{
+				ServerSetTeam(GameInstance->MidGameJoinedPlayerTeamMap[NetIdRepl]);
+				GameInstance->MidGameJoinedPlayerTeamMap.Remove(NetIdRepl);
+			}
 		}
 	}
 }

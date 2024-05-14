@@ -17,7 +17,11 @@ ALobbyGameMode::ALobbyGameMode()
 	// }
 	PlayerControllerClass = ASessionHelperPlayerController::StaticClass();
 
-	PlayerStateClass = ALBlasterPlayerState::StaticClass();
+	static ConstructorHelpers::FClassFinder<ALBlasterPlayerState> PlayerStateClassRef(TEXT("/Script/Engine.Blueprint'/Game/LBlaster/Core/States/Player/BP_LBlasterPlayerState.BP_LBlasterPlayerState_C'"));
+	if (PlayerStateClassRef.Class)
+	{
+		PlayerStateClass = PlayerStateClassRef.Class;
+	}
 }
 
 void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
