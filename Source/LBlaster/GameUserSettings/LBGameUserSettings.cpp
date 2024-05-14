@@ -56,6 +56,7 @@ void ULBGameUserSettings::SetGraphicOptionByAutoDetect(bool bFirstExecute)
 		SetFullscreenMode(EWindowMode::WindowedFullscreen);
 		SetFrameRateLimit(120.f);
 		bFPSIndicatorEnabled = true;
+		ApplySettings(false);
 	}
 	
 	ApplyHardwareBenchmarkResults();
