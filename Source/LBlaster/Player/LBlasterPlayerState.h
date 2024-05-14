@@ -44,6 +44,7 @@ public:
 	FORCEINLINE ETeam GetTeam() const { return Team; }
 	FORCEINLINE void SetTeam(ETeam InTeam) { Team = InTeam; }
 	void InitTeam();
+	void InitTeamFromGameInstance();
 
 	FTeamCharacterMaterials GetCharacterMaterials() const;
 
@@ -78,4 +79,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category="LBlaster")
 	TMap<ETeam, FTeamCharacterMaterials> TeamCharacterMaterialsMap;
+
+	UFUNCTION(Server, Reliable)
+	void ServerSetTeam(ETeam InTeam);
 };
