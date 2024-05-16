@@ -18,6 +18,7 @@ class LBLASTER_API ULobbyMenuTeamDeathMatch : public ULobbyMenu
 public:
 	virtual void MenuSetup() override;
 	void AddNewPlayer(class ALBlasterPlayerState* InPlayerState);
+	void AddNewPlayerForClient(ETeam InTeam, const FString& InName);
 	void AddRedTeam(ALBlasterPlayerState* InPlayerState, bool bDoBroadcast);
 	void AddRedTeamForClient(const FString& InName);
 	void AddBlueTeam(ALBlasterPlayerState* InPlayerState, bool bDoBroadcast);
@@ -26,6 +27,7 @@ public:
 	void ChangeTeamForClient(ETeam CurrentTeam, ETeam NewTeam, const FString& InName);
 	void RemovePlayerFromRedTeam(const FString& InName, bool bDoBroadcast);
 	void RemovePlayerFromBlueTeam(const FString& InName, bool bDoBroadcast);
+	void RemoveLogoutPlayer(ETeam InTeam, const FString& InName, bool bHasAuthority);
 	
 private:
 	/*

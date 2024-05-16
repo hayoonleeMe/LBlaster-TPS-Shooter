@@ -40,7 +40,23 @@ void ULobbyMenuTeamDeathMatch::AddNewPlayer(ALBlasterPlayerState* InPlayerState)
 		{
 			AddBlueTeam(InPlayerState, true);
 		}
+		
+		AddNumCurrentPlayersText(1);
 	}
+}
+
+void ULobbyMenuTeamDeathMatch::AddNewPlayerForClient(ETeam InTeam, const FString& InName)
+{
+	if (InTeam == ETeam::ET_RedTeam)
+	{
+		AddRedTeamForClient(InName);
+	}
+	else if (InTeam == ETeam::ET_BlueTeam)
+	{
+		AddBlueTeamForClient(InName);
+	}
+
+	AddNumCurrentPlayersText(1);
 }
 
 void ULobbyMenuTeamDeathMatch::AddRedTeam(ALBlasterPlayerState* InPlayerState, bool bDoBroadcast)
@@ -220,6 +236,19 @@ void ULobbyMenuTeamDeathMatch::RemovePlayerFromBlueTeam(const FString& InName, b
 			}
 		}
 	}
+}
+
+void ULobbyMenuTeamDeathMatch::RemoveLogoutPlayer(ETeam InTeam, const FString& InName, bool bHasAuthority)
+{
+	if (InTeam == ETeam::ET_RedTeam)
+	{
+		RemovePlayerFromRedTeam(InName, bHasAuthority);
+	}
+	else if (InTeam == ETeam::ET_BlueTeam)
+	{
+		RemovePlayerFromBlueTeam(InName, bHasAuthority);
+	}
+	AddNumCurrentPlayersText(-1);
 }
 
 bool ULobbyMenuTeamDeathMatch::IsValidOwnerPlayerState()

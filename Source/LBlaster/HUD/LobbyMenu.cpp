@@ -23,6 +23,8 @@ void ULobbyMenu::MenuSetup()
 		OwnerController->SetShowMouseCursor(true);
 	}
 
+	SetNumPlayersText(0, 0);
+
 	if (StartButton && !StartButton->OnClicked.IsBound())
 	{
 		StartButton->OnClicked.AddDynamic(this, &ThisClass::OnStartButtonClicked);
@@ -64,11 +66,31 @@ void ULobbyMenu::OnReturnButtonClicked()
 	}
 }
 
-void ULobbyMenu::SetNumPlayersText(int32 NumCurrentPlayers, int32 NumMaxPlayers)
+
+void ULobbyMenu::SetNumPlayersText()
 {
 	if (NumPlayersText)
 	{
 		FString Str = FString::Printf(TEXT("%d / %d"), NumCurrentPlayers, NumMaxPlayers);
 		NumPlayersText->SetText(FText::FromString(Str));
 	}
+}
+
+void ULobbyMenu::SetNumPlayersText(int32 InNumCurrentPlayers, int32 InNumMaxPlayers)
+{
+	NumCurrentPlayers = InNumCurrentPlayers;
+	NumMaxPlayers = InNumMaxPlayers;
+	SetNumPlayersText();
+}
+
+void ULobbyMenu::AddNumCurrentPlayersText(int32 AmountToAdd)
+{
+	NumCurrentPlayers = FMath::Clamp(NumCurrentPlayers + AmountToAdd, 0, NumMaxPlayers);
+	SetNumPlayersText();
+}
+
+void ULobbyMenu::SetNumMaxPlayersText(int32 InNumMaxPlayers)
+{
+	NumMaxPlayers = InNumMaxPlayers;
+	SetNumPlayersText();
 }

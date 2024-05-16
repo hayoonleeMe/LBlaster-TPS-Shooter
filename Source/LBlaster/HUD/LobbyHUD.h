@@ -63,7 +63,7 @@ private:
 	UPROPERTY()
 	TObjectPtr<ULobbyMenu> LobbyMenu;
 	
-	void AddLobbyMenu();
+	void AddLobbyMenu(int32 NumMaxPlayers);
 	
 	// 서버에서 QuitButton을 눌렀을 때 true로 설정됨. Tick에서 ServerTravel을 할 수 있는지 체크하는 데 사용됨.
 	bool bWantReturnToMainMenu = false;
