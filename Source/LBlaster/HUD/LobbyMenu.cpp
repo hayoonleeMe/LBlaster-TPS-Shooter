@@ -5,6 +5,7 @@
 
 #include "LobbyHUD.h"
 #include "Components/Button.h"
+#include "Components/Overlay.h"
 #include "Components/TextBlock.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -25,6 +26,7 @@ void ULobbyMenu::MenuSetup()
 
 	SetNumPlayersText(0, 0);
 
+	/* Widgets */
 	if (StartButton && !StartButton->OnClicked.IsBound())
 	{
 		StartButton->OnClicked.AddDynamic(this, &ThisClass::OnStartButtonClicked);
@@ -32,6 +34,16 @@ void ULobbyMenu::MenuSetup()
 	if (ReturnButton && !ReturnButton->OnClicked.IsBound())
 	{
 		ReturnButton->OnClicked.AddDynamic(this, &ThisClass::OnReturnButtonClicked);
+	}
+
+	/* Return Alert Overlay */
+	if (ReturnAlertAcceptButton && !ReturnAlertAcceptButton->OnClicked.IsBound())
+	{
+		ReturnAlertAcceptButton->OnClicked.AddDynamic(this, &ThisClass::OnReturnAlertAcceptButtonClicked);
+	}
+	if (ReturnAlertCancelButton && !ReturnAlertCancelButton->OnClicked.IsBound())
+	{
+		ReturnAlertCancelButton->OnClicked.AddDynamic(this, &ThisClass::OnReturnAlertCancelButtonClicked);
 	}
 }
 
@@ -55,8 +67,13 @@ void ULobbyMenu::OnStartButtonClicked()
 	}
 }
 
-void ULobbyMenu::OnReturnButtonClicked()
+void ULobbyMenu::OnReturnAlertAcceptButtonClicked()
 {
+	if (ReturnAlertOverlay)
+	{
+		ReturnAlertOverlay->SetVisibility(ESlateVisibility::Collapsed);
+	}
+		
 	if (IsValidOwnerHUD())
 	{
 		if (ALobbyHUD* LobbyHUD = Cast<ALobbyHUD>(OwnerHUD))
@@ -66,6 +83,21 @@ void ULobbyMenu::OnReturnButtonClicked()
 	}
 }
 
+void ULobbyMenu::OnReturnAlertCancelButtonClicked()
+{
+	if (ReturnAlertOverlay)
+	{
+		ReturnAlertOverlay->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
+void ULobbyMenu::OnReturnButtonClicked()
+{
+	if (ReturnAlertOverlay)
+	{
+		ReturnAlertOverlay->SetVisibility(ESlateVisibility::Visible);
+	}
+}
 
 void ULobbyMenu::SetNumPlayersText()
 {

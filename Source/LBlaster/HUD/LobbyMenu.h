@@ -26,6 +26,9 @@ protected:
 	void AddNumCurrentPlayersText(int32 AmountToAdd);
 	
 private:
+	/*
+	 *	Widgets
+	 */
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<class UButton> StartButton;
 
@@ -43,4 +46,22 @@ private:
 
 	int32 NumCurrentPlayers = 0;
 	int32 NumMaxPlayers = 0;
+
+	/*
+	 *	Return Alert Overlay
+	 */
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<class UOverlay> ReturnAlertOverlay;
+
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UButton> ReturnAlertAcceptButton;
+
+	UFUNCTION()
+	void OnReturnAlertAcceptButtonClicked();
+
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UButton> ReturnAlertCancelButton;
+	
+	UFUNCTION()
+	void OnReturnAlertCancelButtonClicked();
 };
