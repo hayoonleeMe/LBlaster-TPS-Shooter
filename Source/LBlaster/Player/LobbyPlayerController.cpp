@@ -32,3 +32,11 @@ void ALobbyPlayerController::ServerSendTeamChangePlayerList_Implementation(ETeam
 		}	
 	}
 }
+
+void ALobbyPlayerController::ClientSendRemovePlayerList_Implementation(ETeam InTeam, const FString& InName)
+{
+	if (ALobbyHUD* LobbyHUD = GetHUD<ALobbyHUD>())
+	{
+		LobbyHUD->RemoveExitingPlayer(InTeam, InName, false);
+	}
+}

@@ -24,8 +24,8 @@ public:
 	void AddBlueTeamForClient(const FString& InName);
 	void ChangeTeam(ETeam CurrentTeam, ETeam NewTeam, ALBlasterPlayerState* InPlayerState);
 	void ChangeTeamForClient(ETeam CurrentTeam, ETeam NewTeam, const FString& InName);
-	void RemovePlayerFromRedTeam(const FString& InName);
-	void RemovePlayerFromBlueTeam(const FString& InName);
+	void RemovePlayerFromRedTeam(const FString& InName, bool bDoBroadcast);
+	void RemovePlayerFromBlueTeam(const FString& InName, bool bDoBroadcast);
 	
 private:
 	/*
@@ -62,4 +62,5 @@ private:
 
 	void BroadcastAddPlayerList(ETeam InTeam, const FString& InName);
 	void BroadcastTeamChangePlayerList(ETeam CurrentTeam, ETeam NewTeam, const FString& InName);
+	void BroadcastRemovePlayerList(ETeam InTeam, const FString& InName);
 };

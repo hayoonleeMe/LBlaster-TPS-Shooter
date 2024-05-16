@@ -17,4 +17,5 @@ class LBLASTER_API ALobbyGameMode : public AGameMode
 public:
 	ALobbyGameMode();
 	virtual void PostLogin(APlayerController* NewPlayer) override;
+	virtual void Logout(AController* Exiting) override;
 };

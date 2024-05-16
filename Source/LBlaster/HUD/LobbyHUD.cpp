@@ -74,6 +74,24 @@ void ALobbyHUD::ChangePlayerTeamForClient(ETeam CurrentTeam, ETeam NewTeam, cons
 	}
 }
 
+void ALobbyHUD::RemoveExitingPlayer(ETeam InTeam, const FString& InName, bool bHasAuthority)
+{
+	if (LobbyMenu)
+	{
+		if (ULobbyMenuTeamDeathMatch* LobbyMenuTDM = Cast<ULobbyMenuTeamDeathMatch>(LobbyMenu))
+		{
+			if (InTeam == ETeam::ET_RedTeam)
+			{
+				LobbyMenuTDM->RemovePlayerFromRedTeam(InName, bHasAuthority);
+			}
+			else if (InTeam == ETeam::ET_BlueTeam)
+			{
+				LobbyMenuTDM->RemovePlayerFromBlueTeam(InName, bHasAuthority);
+			}
+		}
+	}
+}
+
 void ALobbyHUD::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -166,6 +184,24 @@ void ALobbyHUD::BroadcastTeamChangePlayerList(ETeam CurrentTeam, ETeam NewTeam, 
 				{
 					// 변경사항을 클라이언트에 적용
 					LobbyPlayerController->ClientSendTeamChangePlayerList(CurrentTeam, NewTeam, InName);
+				}
+			}
+		}
+	}
+}
+
+void ALobbyHUD::BroadcastRemovePlayerList(ETeam InTeam, const FString& InName)
+{
+	if (UWorld* World = GetWorld())
+	{
+		for (FConstControllerIterator It = World->GetControllerIterator(); It; ++It)
+		{
+			if (IsValidOwnerController() && OwnerController != It->Get())
+			{
+				if (ALobbyPlayerController* LobbyPlayerController = Cast<ALobbyPlayerController>(It->Get()))
+				{
+					// 변경사항을 클라이언트에 적용
+					LobbyPlayerController->ClientSendRemovePlayerList(InTeam, InName);
 				}
 			}
 		}
