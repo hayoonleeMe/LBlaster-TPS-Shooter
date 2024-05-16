@@ -45,12 +45,17 @@ void ULobbyMenuTeamDeathMatch::AddNewPlayer(ALBlasterPlayerState* InPlayerState)
 
 void ULobbyMenuTeamDeathMatch::AddRedTeam(ALBlasterPlayerState* InPlayerState, bool bDoBroadcast)
 {
-	if (RedTeamBox && IsValidOwnerController() && PlayerListRowClass && InPlayerState)
+	if (RedTeamBox && IsValidOwnerController() && PlayerListRowClass && InPlayerState && IsValidOwnerPlayerState())
 	{
 		if (UPlayerListRow* PlayerListRow = CreateWidget<UPlayerListRow>(OwnerController, PlayerListRowClass))
 		{
 			InPlayerState->SetTeam(ETeam::ET_RedTeam);
 			PlayerListRow->SetNameText(InPlayerState->GetPlayerName());
+			// 로컬 플레이어 이름 강조 표시
+			if (OwnerPlayerState->GetPlayerName() == InPlayerState->GetPlayerName())
+			{
+				PlayerListRow->HighlightNameText();
+			}
 			RedTeamBox->AddChildToVerticalBox(PlayerListRow);
 			if (bDoBroadcast)
 			{
@@ -62,11 +67,16 @@ void ULobbyMenuTeamDeathMatch::AddRedTeam(ALBlasterPlayerState* InPlayerState, b
 
 void ULobbyMenuTeamDeathMatch::AddRedTeamForClient(const FString& InName)
 {
-	if (RedTeamBox && IsValidOwnerController() && PlayerListRowClass)
+	if (RedTeamBox && IsValidOwnerController() && PlayerListRowClass && IsValidOwnerPlayerState())
     {
     	if (UPlayerListRow* PlayerListRow = CreateWidget<UPlayerListRow>(OwnerController, PlayerListRowClass))
     	{
     		PlayerListRow->SetNameText(InName);
+    		// 로컬 플레이어 이름 강조 표시
+    		if (OwnerPlayerState->GetPlayerName() == InName)
+    		{
+    			PlayerListRow->HighlightNameText();
+    		}
     		RedTeamBox->AddChildToVerticalBox(PlayerListRow);
     	}
     }
@@ -74,12 +84,17 @@ void ULobbyMenuTeamDeathMatch::AddRedTeamForClient(const FString& InName)
 
 void ULobbyMenuTeamDeathMatch::AddBlueTeam(ALBlasterPlayerState* InPlayerState, bool bDoBroadcast)
 {
-	if (BlueTeamBox && IsValidOwnerController() && PlayerListRowClass && InPlayerState)
+	if (BlueTeamBox && IsValidOwnerController() && PlayerListRowClass && InPlayerState && IsValidOwnerPlayerState())
 	{
 		if (UPlayerListRow* PlayerListRow = CreateWidget<UPlayerListRow>(OwnerController, PlayerListRowClass))
 		{
 			InPlayerState->SetTeam(ETeam::ET_BlueTeam);
 			PlayerListRow->SetNameText(InPlayerState->GetPlayerName());
+			// 로컬 플레이어 이름 강조 표시
+			if (OwnerPlayerState->GetPlayerName() == InPlayerState->GetPlayerName())
+			{
+				PlayerListRow->HighlightNameText();
+			}
 			BlueTeamBox->AddChildToVerticalBox(PlayerListRow);
 			if (bDoBroadcast)
 			{
@@ -91,11 +106,16 @@ void ULobbyMenuTeamDeathMatch::AddBlueTeam(ALBlasterPlayerState* InPlayerState, 
 
 void ULobbyMenuTeamDeathMatch::AddBlueTeamForClient(const FString& InName)
 {
-	if (BlueTeamBox && IsValidOwnerController() && PlayerListRowClass)
+	if (BlueTeamBox && IsValidOwnerController() && PlayerListRowClass && IsValidOwnerPlayerState())
 	{
 		if (UPlayerListRow* PlayerListRow = CreateWidget<UPlayerListRow>(OwnerController, PlayerListRowClass))
 		{
 			PlayerListRow->SetNameText(InName);
+			// 로컬 플레이어 이름 강조 표시
+			if (OwnerPlayerState->GetPlayerName() == InName)
+			{
+				PlayerListRow->HighlightNameText();
+			}
 			BlueTeamBox->AddChildToVerticalBox(PlayerListRow);
 		}
 	}
