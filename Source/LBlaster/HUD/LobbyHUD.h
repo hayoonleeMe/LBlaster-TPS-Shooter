@@ -44,6 +44,9 @@ private:
 
 	bool IsValidOwnerController();
 
+	bool bFirstTimeInit = false;
+	void PollInit();
+
 	/*
 	 *	Multiplayer Sessions
 	 */

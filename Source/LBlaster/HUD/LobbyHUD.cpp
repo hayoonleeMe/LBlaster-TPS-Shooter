@@ -31,6 +31,13 @@ void ALobbyHUD::AddNewPlayer(ALBlasterPlayerState* InPlayerState) const
 
 void ALobbyHUD::AddNewPlayerForClient(ETeam InTeam, const FString& InName)
 {
+	if (!LobbyMenu || !IsValidOwnerController() || !OwnerController->GetPlayerState<ALBlasterPlayerState>())
+	{
+		// 모든 요소가 제대로 초기화되기 전에 호출되면 캐싱
+		CachedAddNewPlayer.Add(MakeTuple(InTeam, InName));
+		return;
+	}
+	
 	if (LobbyMenu)
 	{
 		if (ULobbyMenuTeamDeathMatch* LobbyMenuTDM = Cast<ULobbyMenuTeamDeathMatch>(LobbyMenu))
@@ -44,11 +51,6 @@ void ALobbyHUD::AddNewPlayerForClient(ETeam InTeam, const FString& InName)
 				LobbyMenuTDM->AddBlueTeamForClient(InName);
 			}	
 		}
-	}
-	// LobbyMenu 생성 전에 호출되면 캐싱
-	else
-	{
-		CachedAddNewPlayer.Add(MakeTuple(InTeam, InName));
 	}
 }
 
@@ -96,6 +98,8 @@ void ALobbyHUD::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	PollInit();
+	
 	// ServerTravel 가능
 	if (bWantReturnToMainMenu && GetWorld() && GetWorld()->GetNumPlayerControllers() == 1)
 	{
@@ -231,15 +235,27 @@ void ALobbyHUD::BeginPlay()
 	}
 
 	AddLobbyMenu();
+}
 
-	// LobbyMenu가 생성되기 전에 AddNewPlayer가 호출되어 캐싱된 작업을 수행
-	if (CachedAddNewPlayer.Num() > 0)
+void ALobbyHUD::PollInit()
+{
+	// 모든 요소가 제대로 초기화될 때 캐싱된 작업 수행
+	if (!bFirstTimeInit)
 	{
-		for (const TTuple<ETeam, FString>& Tuple : CachedAddNewPlayer)
+		if (LobbyMenu && IsValidOwnerController() && OwnerController->GetPlayerState<ALBlasterPlayerState>())
 		{
-			AddNewPlayerForClient(Tuple.Get<0>(), Tuple.Get<1>());
-		}
-		CachedAddNewPlayer.Empty();
+			bFirstTimeInit = true;
+			
+			// 제대로 초기화되기 전에 AddNewPlayer가 호출되어 캐싱된 작업을 수행
+			if (CachedAddNewPlayer.Num() > 0)
+			{
+				for (const TTuple<ETeam, FString>& Tuple : CachedAddNewPlayer)
+				{
+					AddNewPlayerForClient(Tuple.Get<0>(), Tuple.Get<1>());
+				}
+				CachedAddNewPlayer.Empty();
+			}
+		}	
 	}
 }
 

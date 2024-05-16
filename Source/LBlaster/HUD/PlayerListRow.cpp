@@ -13,3 +13,11 @@ void UPlayerListRow::SetNameText(const FString& InName)
 		PlayerName = InName;
 	}
 }
+
+void UPlayerListRow::HighlightNameText()
+{
+	if (NameText)
+	{
+		NameText->SetColorAndOpacity(FSlateColor(HighlightColor));
+	}
+}

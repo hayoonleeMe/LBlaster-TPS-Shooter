@@ -17,6 +17,7 @@ class LBLASTER_API UPlayerListRow : public UUserWidget
 public:
 	void SetNameText(const FString& InName);
 	FORCEINLINE FString GetPlayerName() const { return PlayerName; }
+	void HighlightNameText();
 	
 private:
 	UPROPERTY(meta=(BindWidget))
@@ -27,4 +28,6 @@ private:
 
 	UPROPERTY()
 	FString PlayerName;
+
+	inline constexpr static FLinearColor HighlightColor{ 1.f, 0.9f, 0.26f, 1.f }; 
 };
