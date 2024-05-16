@@ -26,9 +26,11 @@ public:
 	void AddNewPlayerForClient(ETeam InTeam, const FString& InName);
 	void ChangePlayerTeamFromClient(ETeam CurrentTeam, ETeam NewTeam, ALBlasterPlayerState* InPlayerState);
 	void ChangePlayerTeamForClient(ETeam CurrentTeam, ETeam NewTeam, const FString& InName);
+	void RemoveExitingPlayer(ETeam InTeam, const FString& InName, bool bHasAuthority);
 	
 	void BroadcastAddPlayerList(ETeam InTeam, const FString& InName);
 	void BroadcastTeamChangePlayerList(ETeam CurrentTeam, ETeam NewTeam, const FString& InName);
+	void BroadcastRemovePlayerList(ETeam InTeam, const FString& InName);
 
 protected:
 	virtual void BeginPlay() override;

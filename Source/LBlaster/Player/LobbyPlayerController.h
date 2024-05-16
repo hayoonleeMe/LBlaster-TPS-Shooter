@@ -27,4 +27,7 @@ public:
 	
 	UFUNCTION(Client, Reliable)
 	void ClientSendTeamChangePlayerList(ETeam CurrentTeam, ETeam NewTeam, const FString& InName);
+
+	UFUNCTION(Client, Reliable)
+	void ClientSendRemovePlayerList(ETeam InTeam, const FString& InName);
 };

@@ -106,11 +106,11 @@ void ULobbyMenuTeamDeathMatch::ChangeTeam(ETeam CurrentTeam, ETeam NewTeam, ALBl
 	// 기존 PlayerListRow 제거
 	if (CurrentTeam == ETeam::ET_RedTeam)
 	{
-		RemovePlayerFromRedTeam(InPlayerState->GetPlayerName());
+		RemovePlayerFromRedTeam(InPlayerState->GetPlayerName(), false);
 	}
 	else if (CurrentTeam == ETeam::ET_BlueTeam)
 	{
-		RemovePlayerFromBlueTeam(InPlayerState->GetPlayerName());
+		RemovePlayerFromBlueTeam(InPlayerState->GetPlayerName(), false);
 	}
 
 	// 새로운 팀에 추가
@@ -134,11 +134,11 @@ void ULobbyMenuTeamDeathMatch::ChangeTeamForClient(ETeam CurrentTeam, ETeam NewT
 	// 기존 PlayerListRow 제거
 	if (CurrentTeam == ETeam::ET_RedTeam)
 	{
-		RemovePlayerFromRedTeam(InName);
+		RemovePlayerFromRedTeam(InName, false);
 	}
 	else if (CurrentTeam == ETeam::ET_BlueTeam)
 	{
-		RemovePlayerFromBlueTeam(InName);
+		RemovePlayerFromBlueTeam(InName, false);
 	}
 
 	// 새로운 팀에 추가
@@ -155,7 +155,7 @@ void ULobbyMenuTeamDeathMatch::ChangeTeamForClient(ETeam CurrentTeam, ETeam NewT
 	}
 }
 
-void ULobbyMenuTeamDeathMatch::RemovePlayerFromRedTeam(const FString& InName)
+void ULobbyMenuTeamDeathMatch::RemovePlayerFromRedTeam(const FString& InName, bool bDoBroadcast)
 {
 	if (RedTeamBox)
 	{
@@ -167,14 +167,19 @@ void ULobbyMenuTeamDeathMatch::RemovePlayerFromRedTeam(const FString& InName)
 				if (InName == Row->GetPlayerName())
 				{
 					RedTeamBox->RemoveChildAt(Index);
+					if (bDoBroadcast)
+					{
+						BroadcastRemovePlayerList(ETeam::ET_RedTeam, InName);
+					}
 					break;
 				}
 			}
 		}
 	}
+	
 }
 
-void ULobbyMenuTeamDeathMatch::RemovePlayerFromBlueTeam(const FString& InName)
+void ULobbyMenuTeamDeathMatch::RemovePlayerFromBlueTeam(const FString& InName, bool bDoBroadcast)
 {
 	if (BlueTeamBox)
 	{
@@ -186,6 +191,10 @@ void ULobbyMenuTeamDeathMatch::RemovePlayerFromBlueTeam(const FString& InName)
 				if (InName == Row->GetPlayerName())
 				{
 					BlueTeamBox->RemoveChildAt(Index);
+					if (bDoBroadcast)
+					{
+						BroadcastRemovePlayerList(ETeam::ET_BlueTeam, InName);
+					}
 					break;
 				}
 			}
@@ -274,6 +283,17 @@ void ULobbyMenuTeamDeathMatch::BroadcastTeamChangePlayerList(ETeam CurrentTeam, 
 		if (ALobbyHUD* LobbyHUD = Cast<ALobbyHUD>(OwnerHUD))
 		{
 			LobbyHUD->BroadcastTeamChangePlayerList(CurrentTeam, NewTeam, InName);
+		}
+	}
+}
+
+void ULobbyMenuTeamDeathMatch::BroadcastRemovePlayerList(ETeam InTeam, const FString& InName)
+{
+	if (IsValidOwnerController() && OwnerController->HasAuthority() && IsValidOwnerHUD())
+	{
+		if (ALobbyHUD* LobbyHUD = Cast<ALobbyHUD>(OwnerHUD))
+		{
+			LobbyHUD->BroadcastRemovePlayerList(InTeam, InName);
 		}
 	}
 }

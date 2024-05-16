@@ -44,3 +44,22 @@ void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 		}
 	}
 }
+
+void ALobbyGameMode::Logout(AController* Exiting)
+{
+	Super::Logout(Exiting);
+
+	if (ALBlasterPlayerState* LBPlayerState = Exiting->GetPlayerState<ALBlasterPlayerState>())
+	{
+		if (UWorld* World = GetWorld())
+		{
+			if (APlayerController* PlayerController = World->GetFirstPlayerController())
+			{
+				if (ALobbyHUD* LobbyHUD = PlayerController->GetHUD<ALobbyHUD>())
+				{
+					LobbyHUD->RemoveExitingPlayer(LBPlayerState->GetTeam(), LBPlayerState->GetPlayerName(), true);
+				}
+			}
+		}
+	}
+}
