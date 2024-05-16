@@ -18,6 +18,12 @@ public:
 	virtual void MenuSetup() override;
 
 	void OnDestroySessionComplete(bool bWasSuccessful);
+	void SetNumMaxPlayersText(int32 InNumMaxPlayers);
+
+protected:
+	void SetNumPlayersText();
+	void SetNumPlayersText(int32 InNumCurrentPlayers, int32 InNumMaxPlayers);
+	void AddNumCurrentPlayersText(int32 AmountToAdd);
 	
 private:
 	UPROPERTY(meta=(BindWidget))
@@ -35,5 +41,6 @@ private:
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<class UTextBlock> NumPlayersText;
 
-	void SetNumPlayersText(int32 NumCurrentPlayers, int32 NumMaxPlayers);
+	int32 NumCurrentPlayers = 0;
+	int32 NumMaxPlayers = 0;
 };

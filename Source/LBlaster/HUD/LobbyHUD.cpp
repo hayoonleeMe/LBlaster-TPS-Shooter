@@ -42,14 +42,7 @@ void ALobbyHUD::AddNewPlayerForClient(ETeam InTeam, const FString& InName)
 	{
 		if (ULobbyMenuTeamDeathMatch* LobbyMenuTDM = Cast<ULobbyMenuTeamDeathMatch>(LobbyMenu))
 		{
-			if (InTeam == ETeam::ET_RedTeam)
-			{
-				LobbyMenuTDM->AddRedTeamForClient(InName);
-			}
-			else if (InTeam == ETeam::ET_BlueTeam)
-			{
-				LobbyMenuTDM->AddBlueTeamForClient(InName);
-			}	
+			LobbyMenuTDM->AddNewPlayerForClient(InTeam, InName);
 		}
 	}
 }
@@ -82,14 +75,7 @@ void ALobbyHUD::RemoveExitingPlayer(ETeam InTeam, const FString& InName, bool bH
 	{
 		if (ULobbyMenuTeamDeathMatch* LobbyMenuTDM = Cast<ULobbyMenuTeamDeathMatch>(LobbyMenu))
 		{
-			if (InTeam == ETeam::ET_RedTeam)
-			{
-				LobbyMenuTDM->RemovePlayerFromRedTeam(InName, bHasAuthority);
-			}
-			else if (InTeam == ETeam::ET_BlueTeam)
-			{
-				LobbyMenuTDM->RemovePlayerFromBlueTeam(InName, bHasAuthority);
-			}
+			LobbyMenuTDM->RemoveLogoutPlayer(InTeam, InName, bHasAuthority);
 		}
 	}
 }
@@ -231,10 +217,11 @@ void ALobbyHUD::BeginPlay()
 			int32 Value;
 			NamedOnlineSession->SessionSettings.Get(UMultiplayerSessionsSubsystem::MatchModeKey, Value);
 			MatchMode = static_cast<EMatchMode>(Value);
+			
+			AddLobbyMenu(NamedOnlineSession->SessionSettings.NumPublicConnections);
 		}
 	}
 
-	AddLobbyMenu();
 }
 
 void ALobbyHUD::PollInit()
@@ -296,7 +283,7 @@ void ALobbyHUD::OnDestroySessionComplete(bool bWasSuccessful)
 	}
 }
 
-void ALobbyHUD::AddLobbyMenu()
+void ALobbyHUD::AddLobbyMenu(int32 NumMaxPlayers)
 {
 	if (LobbyMenuClassByMatchModeMap.Contains(MatchMode) && LobbyMenuClassByMatchModeMap[MatchMode] && !LobbyMenu)
 	{
@@ -309,6 +296,7 @@ void ALobbyHUD::AddLobbyMenu()
 	if (LobbyMenu)
 	{
 		LobbyMenu->MenuSetup();
+		LobbyMenu->SetNumMaxPlayersText(NumMaxPlayers);
 
 		// 호스트를 리스트에 추가
 		if (IsValidOwnerController() && OwnerController->HasAuthority())
