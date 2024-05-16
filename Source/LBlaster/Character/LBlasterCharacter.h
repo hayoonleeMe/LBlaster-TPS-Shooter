@@ -171,7 +171,7 @@ private:
 	/*
 	 *	Core
 	 */
-	bool bInitTeam = false;
+	bool bFirstTimeInit = false;
 
 	void PollInit();
 	
