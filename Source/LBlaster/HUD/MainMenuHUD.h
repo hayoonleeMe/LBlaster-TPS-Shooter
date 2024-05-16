@@ -60,10 +60,10 @@ private:
 	 *	Main Menu
 	 */
 	UPROPERTY(EditAnywhere, Category="LBlaster|Main Menu")
-	TSubclassOf<UUserWidget> MainMenuClass;
+	TSubclassOf<class UMainMenu> MainMenuClass;
 
 	UPROPERTY()
-	TObjectPtr<class UMainMenu> MainMenu;
+	TObjectPtr<UMainMenu> MainMenu;
 
 	void AddMainMenu();
 
