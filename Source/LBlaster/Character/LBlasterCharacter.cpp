@@ -726,7 +726,7 @@ void ALBlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const
 
 void ALBlasterCharacter::PollInit()
 {
-	if (!bInitTeam)
+	if (!bFirstTimeInit)
 	{
 		if (GetPlayerState() && GetWorld() && GetWorld()->GetGameState())
 		{
@@ -738,7 +738,7 @@ void ALBlasterCharacter::PollInit()
 				}
 				if (LBPlayerState->GetTeam() != ETeam::ET_MAX)
 				{
-					bInitTeam = true;
+					bFirstTimeInit = true;
 					LBPlayerState->InitTeam();
 					SetCharacterMaterialsByTeam(LBPlayerState->GetCharacterMaterials());
 				}
