@@ -15,6 +15,7 @@ void ULobbyMenuTeamDeathMatch::MenuSetup()
 {
 	Super::MenuSetup();
 
+	/* Player List */
 	if (RedTeamButton && !RedTeamButton->OnClicked.IsBound())
 	{
 		RedTeamButton->OnClicked.AddDynamic(this, &ThisClass::OnRedTeamButtonClicked);
