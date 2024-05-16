@@ -115,19 +115,6 @@ void ALobbyHUD::ReturnToMainMenu()
 
 void ALobbyHUD::TravelToMatch()
 {
-	// TODO : Game Instance에 Team 저장, 현재는 임시로 랜덤한 팀 부여
-	for (FConstControllerIterator It = GetWorld()->GetControllerIterator(); It; ++It)
-	{
-		if (It->IsValid())
-		{
-			if (ALBlasterPlayerState* LBPlayerState = It->Get()->GetPlayerState<ALBlasterPlayerState>())
-			{
-				ETeam Team = FMath::RandBool() ? ETeam::ET_RedTeam : ETeam::ET_BlueTeam;
-				LBPlayerState->SetTeam(Team);
-			}
-		}
-	}
-
 	if (UWorld* World = GetWorld())
 	{
 		World->ServerTravel(FString(TEXT("/Game/LBlaster/Maps/LBlasterMap?listen")));	// TODO : 경로 캐싱
