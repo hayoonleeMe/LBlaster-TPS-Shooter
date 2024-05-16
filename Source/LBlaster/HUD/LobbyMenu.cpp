@@ -3,50 +3,33 @@
 
 #include "HUD/LobbyMenu.h"
 
-#include "MultiplayerSessionsSubsystem.h"
+#include "LobbyHUD.h"
 #include "Components/Button.h"
+#include "Components/TextBlock.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "Player/LBlasterPlayerState.h"
-#include "Player/SessionHelperPlayerController.h"
 
-void ULobbyMenu::NativeConstruct()
+void ULobbyMenu::MenuSetup()
 {
-	Super::NativeConstruct();
+	Super::MenuSetup();
+
+	/* Input Mode */
+	if (IsValidOwnerController())
+	{
+		// 위젯이 생성되고 메뉴 셋업이 끝나면 InputMode를 세팅한다. UIOnly이므로 다른 Pawn들 말고 UI에만 입력을 적용한다.
+		FInputModeGameAndUI InputModeData;
+		InputModeData.SetWidgetToFocus(TakeWidget());
+		// 마우스 커서가 게임 화면 밖으로 나갈 수 있도록 한다. 
+		OwnerController->SetInputMode(InputModeData);
+		OwnerController->SetShowMouseCursor(true);
+	}
 
 	if (StartButton && !StartButton->OnClicked.IsBound())
 	{
 		StartButton->OnClicked.AddDynamic(this, &ThisClass::OnStartButtonClicked);
 	}
-	if (QuitButton && !QuitButton->OnClicked.IsBound())
+	if (ReturnButton && !ReturnButton->OnClicked.IsBound())
 	{
-		QuitButton->OnClicked.AddDynamic(this, &ThisClass::OnQuitButtonClicked);
-	}
-
-	if (UGameInstance* GameInstance = GetGameInstance())
-	{
-		MultiplayerSessionsSubsystem = GameInstance->GetSubsystem<UMultiplayerSessionsSubsystem>();
-	}
-
-	if (MultiplayerSessionsSubsystem)
-	{
-		MultiplayerSessionsSubsystem->LBOnDestroySessionCompleteDelegate.AddUObject(this, &ThisClass::OnDestroySessionComplete);
-	}
-}
-
-void ULobbyMenu::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
-{
-	Super::NativeTick(MyGeometry, InDeltaTime);
-
-	// ServerTravel 가능
-	if (bWantServerTravel && GetWorld() && GetWorld()->GetNumPlayerControllers() == 1) // TODO : bWantServerTravel -> bWantReturnToMainMenu
-	{
-		GetWorld()->ServerTravel(FString(TEXT("/Game/LBlaster/Maps/GameStartupMap")));
-	}
-
-	if (MultiplayerSessionsSubsystem)
-	{
-		FString Str = FString::Printf(TEXT("NumOfController %d, SessionInfo %s"), GetWorld()->GetNumPlayerControllers(), *MultiplayerSessionsSubsystem->GetSessionInfo());
-		GEngine->AddOnScreenDebugMessage(0, 5.f, FColor::Orange, Str);
+		ReturnButton->OnClicked.AddDynamic(this, &ThisClass::OnReturnButtonClicked);
 	}
 }
 
@@ -55,88 +38,37 @@ void ULobbyMenu::OnDestroySessionComplete(bool bWasSuccessful)
 	// 실패하면 다시 수행.
 	if (!bWasSuccessful)
 	{
-		OnQuitButtonClicked();
-		return;
-	}
-
-	// DestroySession 성공하면 MainMenu Map으로 이동
-	if (APlayerController* PlayerController = GetOwningPlayer())
-	{
-		if (PlayerController->HasAuthority())
-		{
-			// 해당 세션에 연결된 모든 클라이언트가 세션에서 빠져나가고 호스트만 남으면 메인메뉴로 이동
-			if (GetWorld()->GetNumPlayerControllers() == 1)
-			{
-				GetWorld()->ServerTravel(FString(TEXT("/Game/LBlaster/Maps/GameStartupMap")));	// TODO : 경로 캐싱
-			}
-		}
-		else
-		{
-			PlayerController->ClientTravel(FString(TEXT("/Game/LBlaster/Maps/GameStartupMap")), TRAVEL_Absolute);	// TODO : 경로 캐싱
-		}
+		OnReturnButtonClicked();
 	}
 }
 
 void ULobbyMenu::OnStartButtonClicked()
 {
-	Travel();
-}
-
-void ULobbyMenu::Travel()
-{
-	// TODO : Game Instance에 Team 저장, 현재는 임시로 랜덤한 팀 부여
-	for (FConstControllerIterator It = GetWorld()->GetControllerIterator(); It; ++It)
+	if (IsValidOwnerHUD())
 	{
-		if (It->IsValid())
+		if (ALobbyHUD* LobbyHUD = Cast<ALobbyHUD>(OwnerHUD))
 		{
-			if (ALBlasterPlayerState* LBPlayerState = It->Get()->GetPlayerState<ALBlasterPlayerState>())
-			{
-				ETeam Team = FMath::RandBool() ? ETeam::ET_RedTeam : ETeam::ET_BlueTeam;
-				LBPlayerState->SetTeam(Team);
-			}
-		}
-	}
-
-	if (UWorld* World = GetWorld())
-	{
-		World->ServerTravel(FString(TEXT("/Game/LBlaster/Maps/LBlasterMap?listen")));	// TODO : 경로 캐싱
-	}
-}
-
-void ULobbyMenu::OnQuitButtonClicked()
-{
-	if (MultiplayerSessionsSubsystem)
-	{
-		if (APlayerController* OwnerController = GetOwningPlayer())
-		{
-			if (OwnerController->HasAuthority())
-			{
-				bWantServerTravel = true;
-				DestroyAllClientSession();
-				MultiplayerSessionsSubsystem->DestroySession();
-			}
-			else
-			{
-				MultiplayerSessionsSubsystem->DestroySession();
-			}
+			LobbyHUD->TravelToMatch();
 		}
 	}
 }
 
-void ULobbyMenu::DestroyAllClientSession()
+void ULobbyMenu::OnReturnButtonClicked()
 {
-	// 모든 클라이언트의 플레이어 컨트롤러에서 Client RPC를 호출해 DestroySession을 호출하게 한다.
-	if (APlayerController* OwnerController = GetOwningPlayer())
+	if (IsValidOwnerHUD())
 	{
-		for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+		if (ALobbyHUD* LobbyHUD = Cast<ALobbyHUD>(OwnerHUD))
 		{
-			if (APlayerController* PlayerController = It->Get(); PlayerController != OwnerController)
-			{
-				if (ASessionHelperPlayerController* SHController = Cast<ASessionHelperPlayerController>(PlayerController))
-				{
-					SHController->ClientDestroySession();
-				}
-			}
-		}	
+			LobbyHUD->ReturnToMainMenu();
+		}
+	}
+}
+
+void ULobbyMenu::SetNumPlayersText(int32 NumCurrentPlayers, int32 NumMaxPlayers)
+{
+	if (NumPlayersText)
+	{
+		FString Str = FString::Printf(TEXT("%d / %d"), NumCurrentPlayers, NumMaxPlayers);
+		NumPlayersText->SetText(FText::FromString(Str));
 	}
 }

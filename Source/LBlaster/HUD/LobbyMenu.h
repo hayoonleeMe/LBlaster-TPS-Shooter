@@ -3,42 +3,37 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "LBlasterUserWidget.h"
 #include "LobbyMenu.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class LBLASTER_API ULobbyMenu : public UUserWidget
+class LBLASTER_API ULobbyMenu : public ULBlasterUserWidget
 {
 	GENERATED_BODY()
 
-protected:
-	virtual void NativeConstruct() override;
-	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+public:
+	virtual void MenuSetup() override;
 
-private:
-	TObjectPtr<class UMultiplayerSessionsSubsystem> MultiplayerSessionsSubsystem;
-	
 	void OnDestroySessionComplete(bool bWasSuccessful);
-
+	
+private:
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<class UButton> StartButton;
 
 	UFUNCTION()
 	void OnStartButtonClicked();
-	
-	void Travel();
 
 	UPROPERTY(meta=(BindWidget))
-	TObjectPtr<UButton> QuitButton;
+	TObjectPtr<UButton> ReturnButton;
 
 	UFUNCTION()
-	void OnQuitButtonClicked();
+	void OnReturnButtonClicked();
 
-	void DestroyAllClientSession();
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<class UTextBlock> NumPlayersText;
 
-	// 서버에서 QuitButton을 눌렀을 때 true로 설정됨. Tick에서 ServerTravel을 할 수 있는지 체크하는 데 사용됨.
-	bool bWantServerTravel = false;
+	void SetNumPlayersText(int32 NumCurrentPlayers, int32 NumMaxPlayers);
 };

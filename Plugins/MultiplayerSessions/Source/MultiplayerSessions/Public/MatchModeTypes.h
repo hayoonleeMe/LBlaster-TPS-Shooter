@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-UENUM()
+UENUM(BlueprintType)
 enum class EMatchMode : uint8
 {
 	FreeForAll,
