@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "LBlasterPlayerState.h"
 #include "SessionHelperPlayerController.h"
 #include "LBTypes/Team.h"
 #include "LobbyPlayerController.generated.h"
@@ -17,17 +16,44 @@ class LBLASTER_API ALobbyPlayerController : public ASessionHelperPlayerControlle
 	GENERATED_BODY()
 
 public:
+	ALobbyPlayerController();
+	
 	UFUNCTION(Client, Reliable)
 	void ClientSendAddPlayerList(ETeam InTeam, const FString& InName);
 
 	bool bFirstTimeConnected = true;
 
 	UFUNCTION(Server, Reliable)
-	void ServerSendTeamChangePlayerList(ETeam CurrentTeam, ETeam NewTeam, ALBlasterPlayerState* InPlayerState);
+	void ServerSendTeamChangePlayerList(ETeam CurrentTeam, ETeam NewTeam, class ALBlasterPlayerState* InPlayerState);
 	
 	UFUNCTION(Client, Reliable)
 	void ClientSendTeamChangePlayerList(ETeam CurrentTeam, ETeam NewTeam, const FString& InName);
 
 	UFUNCTION(Client, Reliable)
 	void ClientSendRemovePlayerList(ETeam InTeam, const FString& InName);
+
+protected:
+	virtual void BeginPlay() override;
+
+	/*
+	 *	Input
+	 */
+	virtual void SetupInputComponent() override;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
+	TObjectPtr<class UInputMappingContext> MenuMappingContext;
+	
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
+	TObjectPtr<class UInputAction> ReturnMenuAction;
+
+	void ReturnMenu();
+
+private:
+	/*
+	 *	Owning
+	 */
+	UPROPERTY()
+	TObjectPtr<class ALobbyHUD> OwningHUD;
+
+	bool IsValidOwningHUD();
 };

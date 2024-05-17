@@ -21,6 +21,7 @@ public:
 
 	void ReturnToMainMenu();
 	void TravelToMatch();
+	virtual void ReturnMenu(bool bForceReturn) override;
 	
 	void AddNewPlayer(class ALBlasterPlayerState* InPlayerState) const;
 	void AddNewPlayerForClient(ETeam InTeam, const FString& InName);

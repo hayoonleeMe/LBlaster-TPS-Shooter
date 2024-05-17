@@ -20,6 +20,8 @@ public:
 	void OnDestroySessionComplete(bool bWasSuccessful);
 	void SetNumMaxPlayersText(int32 InNumMaxPlayers);
 
+	void ReturnMenuByKeyboard();
+	
 protected:
 	void SetNumPlayersText();
 	void SetNumPlayersText(int32 InNumCurrentPlayers, int32 InNumMaxPlayers);
@@ -55,9 +57,6 @@ private:
 
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UButton> ReturnAlertAcceptButton;
-
-	UFUNCTION()
-	void OnReturnAlertAcceptButtonClicked();
 
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UButton> ReturnAlertCancelButton;
