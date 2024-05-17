@@ -32,28 +32,49 @@ private:
 	 *	Widgets
 	 */
 	UPROPERTY(meta=(BindWidget))
-	TObjectPtr<class UButton> StartButton;
-
-	UFUNCTION()
-	void OnStartButtonClicked();
-
-	UPROPERTY(meta=(BindWidget))
-	TObjectPtr<UButton> ReturnButton;
-
-	UFUNCTION()
-	void OnReturnButtonClicked();
-
-	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<class UTextBlock> NumPlayersText;
 
 	int32 NumCurrentPlayers = 0;
 	int32 NumMaxPlayers = 0;
 
 	/*
+	 *	Server Menu Button
+	 */
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<class UHorizontalBox> ServerBox;
+	
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<class UButton> StartButton;
+
+	UFUNCTION()
+	void OnStartButtonClicked();
+
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UButton> ServerReturnButton;
+
+	UFUNCTION()
+	void OnReturnButtonClicked();
+
+	/*
+	 *	Client Menu Button
+	 */
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UHorizontalBox> ClientBox;
+	
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UButton> ClientReturnButton;
+
+	/*
 	 *	Return Alert Overlay
 	 */
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<class UOverlay> ReturnAlertOverlay;
+
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UTextBlock> ReturnAlertTextBlock;
+
+	inline const static FString ServerReturnAlertText{ TEXT("세션을 제거하시겠습니까?") };
+	inline const static FString ClientReturnAlertText{ TEXT("세션에서 나가시겠습니까?") };
 
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UButton> ReturnAlertAcceptButton;
