@@ -5,6 +5,7 @@
 
 #include "LobbyHUD.h"
 #include "Components/Button.h"
+#include "Components/HorizontalBox.h"
 #include "Components/Overlay.h"
 #include "Components/TextBlock.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -24,6 +25,34 @@ void ULobbyMenu::MenuSetup()
 		OwnerController->SetShowMouseCursor(true);
 	}
 
+	/* Menu Button */
+	if (IsValidOwnerController())
+	{
+		if (OwnerController->HasAuthority())
+		{
+			if (ServerBox)
+			{
+				ServerBox->SetVisibility(ESlateVisibility::Visible);
+			}
+			if (ReturnAlertTextBlock)
+			{
+				ReturnAlertTextBlock->SetText(FText::FromString(ServerReturnAlertText));
+			}
+		}
+		else
+		{
+			if (ClientBox)
+			{
+				ClientBox->SetVisibility(ESlateVisibility::Visible);
+			}
+			if (ReturnAlertTextBlock)
+			{
+				ReturnAlertTextBlock->SetText(FText::FromString(ClientReturnAlertText));
+			}
+		}
+	}
+
+	/* Players Text */
 	SetNumPlayersText(0, 0);
 
 	/* Widgets */
@@ -31,9 +60,13 @@ void ULobbyMenu::MenuSetup()
 	{
 		StartButton->OnClicked.AddDynamic(this, &ThisClass::OnStartButtonClicked);
 	}
-	if (ReturnButton && !ReturnButton->OnClicked.IsBound())
+	if (ServerReturnButton && !ServerReturnButton->OnClicked.IsBound())
 	{
-		ReturnButton->OnClicked.AddDynamic(this, &ThisClass::OnReturnButtonClicked);
+		ServerReturnButton->OnClicked.AddDynamic(this, &ThisClass::OnReturnButtonClicked);
+	}
+	if (ClientReturnButton && !ClientReturnButton->OnClicked.IsBound())
+	{
+		ClientReturnButton->OnClicked.AddDynamic(this, &ThisClass::OnReturnButtonClicked);
 	}
 
 	/* Return Alert Overlay */
