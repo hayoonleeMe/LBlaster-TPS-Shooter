@@ -39,7 +39,7 @@ void ULobbyMenu::MenuSetup()
 	/* Return Alert Overlay */
 	if (ReturnAlertAcceptButton && !ReturnAlertAcceptButton->OnClicked.IsBound())
 	{
-		ReturnAlertAcceptButton->OnClicked.AddDynamic(this, &ThisClass::OnReturnAlertAcceptButtonClicked);
+		ReturnAlertAcceptButton->OnClicked.AddDynamic(this, &ThisClass::OnReturnButtonClicked);
 	}
 	if (ReturnAlertCancelButton && !ReturnAlertCancelButton->OnClicked.IsBound())
 	{
@@ -67,22 +67,6 @@ void ULobbyMenu::OnStartButtonClicked()
 	}
 }
 
-void ULobbyMenu::OnReturnAlertAcceptButtonClicked()
-{
-	if (ReturnAlertOverlay)
-	{
-		ReturnAlertOverlay->SetVisibility(ESlateVisibility::Collapsed);
-	}
-		
-	if (IsValidOwnerHUD())
-	{
-		if (ALobbyHUD* LobbyHUD = Cast<ALobbyHUD>(OwnerHUD))
-		{
-			LobbyHUD->ReturnToMainMenu();
-		}
-	}
-}
-
 void ULobbyMenu::OnReturnAlertCancelButtonClicked()
 {
 	if (ReturnAlertOverlay)
@@ -95,7 +79,25 @@ void ULobbyMenu::OnReturnButtonClicked()
 {
 	if (ReturnAlertOverlay)
 	{
-		ReturnAlertOverlay->SetVisibility(ESlateVisibility::Visible);
+		if (ReturnAlertOverlay->IsVisible())
+		{
+			if (ReturnAlertOverlay)
+			{
+				ReturnAlertOverlay->SetVisibility(ESlateVisibility::Collapsed);
+			}
+		
+			if (IsValidOwnerHUD())
+			{
+				if (ALobbyHUD* LobbyHUD = Cast<ALobbyHUD>(OwnerHUD))
+				{
+					LobbyHUD->ReturnToMainMenu();
+				}
+			}
+		}
+		else
+		{
+			ReturnAlertOverlay->SetVisibility(ESlateVisibility::Visible);
+		}
 	}
 }
 
@@ -125,4 +127,19 @@ void ULobbyMenu::SetNumMaxPlayersText(int32 InNumMaxPlayers)
 {
 	NumMaxPlayers = InNumMaxPlayers;
 	SetNumPlayersText();
+}
+
+void ULobbyMenu::ReturnMenuByKeyboard()
+{
+	if (ReturnAlertOverlay)
+	{
+		if (!ReturnAlertOverlay->IsVisible())
+		{
+			ReturnAlertOverlay->SetVisibility(ESlateVisibility::Visible);
+		}
+		else
+		{
+			OnReturnAlertCancelButtonClicked();
+		}
+	}
 }

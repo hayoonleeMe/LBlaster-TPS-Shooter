@@ -121,6 +121,14 @@ void ALobbyHUD::TravelToMatch()
 	}
 }
 
+void ALobbyHUD::ReturnMenu(bool bForceReturn)
+{
+	if (LobbyMenu)
+	{
+		LobbyMenu->ReturnMenuByKeyboard();
+	}
+}
+
 void ALobbyHUD::BroadcastAddPlayerList(ETeam InTeam, const FString& InName)
 {
 	if (UWorld* World = GetWorld())
