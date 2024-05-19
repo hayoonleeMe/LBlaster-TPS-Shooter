@@ -15,18 +15,13 @@ class LBLASTER_API UChatEntry : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void SetChatEntryPrefix(const FText& InText, const FLinearColor& InLinearColor) const;
-	void EmptyChatEntryPrefix() const;
-	void SetChatEntryPlayerName(const FText& InText, const FLinearColor& InLinearColor) const;
-	void SetChatEntryText(const FText& InText) const;
+	void SetChatEntryText(FString ChatTarget, const FString& PlayerName, const FText& Text, const FString& TextStyle);
 
-private:
-	UPROPERTY(meta=(BindWidget))
-	TObjectPtr<class UTextBlock> ChatEntryPrefix;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> ChatEntryPlayerName;
+	inline const static FString FriendlyTeamTextStyle{ TEXT("FriendlyTeam") };
+	inline const static FString OpponentTeamTextStyle{ TEXT("OpponentTeam") };
+	inline const static FString DefaultTextStyle{ TEXT("Default") };
 	
+private:
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> ChatEntryText;
+	TObjectPtr<class URichTextBlock> ChatEntryText;
 };

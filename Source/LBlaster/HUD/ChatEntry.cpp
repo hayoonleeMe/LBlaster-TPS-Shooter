@@ -3,38 +3,17 @@
 
 #include "HUD/ChatEntry.h"
 
-#include "Components/TextBlock.h"
+#include "Components/RichTextBlock.h"
 
-void UChatEntry::SetChatEntryPrefix(const FText& InText, const FLinearColor& InLinearColor) const
-{
-	if (ChatEntryPrefix)
-	{
-		ChatEntryPrefix->SetText(InText);
-		ChatEntryPrefix->SetColorAndOpacity(FSlateColor(InLinearColor));
-	}
-}
-
-void UChatEntry::EmptyChatEntryPrefix() const
-{
-	if (ChatEntryPrefix)
-	{
-		ChatEntryPrefix->SetText(FText());
-	}
-}
-
-void UChatEntry::SetChatEntryPlayerName(const FText& InText, const FLinearColor& InLinearColor) const
-{
-	if (ChatEntryPlayerName)
-	{
-		ChatEntryPlayerName->SetText(InText);
-		ChatEntryPlayerName->SetColorAndOpacity(FSlateColor(InLinearColor));
-	}
-}
-
-void UChatEntry::SetChatEntryText(const FText& InText) const
+void UChatEntry::SetChatEntryText(FString ChatTarget, const FString& PlayerName, const FText& Text, const FString& TextStyle)
 {
 	if (ChatEntryText)
 	{
-		ChatEntryText->SetText(InText);
+		if (!ChatTarget.IsEmpty())
+		{
+			ChatTarget = FString::Printf(TEXT("<%s>%s</> "), *TextStyle, *ChatTarget);
+		}
+		const FString FinalPlayerName = FString::Printf(TEXT("<%s>%s:</> "), *TextStyle, *PlayerName);
+		ChatEntryText->SetText(FText::FromString(ChatTarget + FinalPlayerName + Text.ToString()));
 	}
 }

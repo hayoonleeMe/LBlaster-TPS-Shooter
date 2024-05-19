@@ -54,29 +54,24 @@ void UChatBox::AddChatMessage(const FString& InPlayerName, const FText& InText, 
 	{
 		if (UChatEntry* ChatEntry = CreateWidget<UChatEntry>(OwnerController, ChatEntryClass))
 		{
-			const FText FormattedPlayerName = FText::FromString(FString::Printf(TEXT("%s : "), *InPlayerName));
 			if (InChatMode == EChatMode::ECM_All)
 			{
 				if (ALBlasterPlayerState* LBPlayerState = OwnerController->GetPlayerState<ALBlasterPlayerState>())
 				{
 					const bool bFriendlyTeam = LBPlayerState->GetTeam() == SourceTeam;
-					const FLinearColor& ColorToUse = bFriendlyTeam ? AllForFriendlyTeamColor : AllForOpponentTeamColor;
-					ChatEntry->SetChatEntryPrefix(FText::FromString(TEXT("[전체] ")), ColorToUse);
-					ChatEntry->SetChatEntryPlayerName(FormattedPlayerName, ColorToUse);
+					const FString& TextStyleToUse = bFriendlyTeam ? UChatEntry::FriendlyTeamTextStyle : UChatEntry::OpponentTeamTextStyle;
+					ChatEntry->SetChatEntryText(TEXT("[전체]"), InPlayerName, InText, TextStyleToUse);
 				}
 			}
 			else if (InChatMode == EChatMode::ECM_FriendlyTeam)
 			{
-				ChatEntry->EmptyChatEntryPrefix();
-				ChatEntry->SetChatEntryPlayerName(FormattedPlayerName, AllForFriendlyTeamColor);
+				ChatEntry->SetChatEntryText(FString(), InPlayerName, InText, UChatEntry::FriendlyTeamTextStyle);
 			}
 			else if (InChatMode == EChatMode::ECM_OnlyAll)
 			{
 				// TODO : 개인전 구현 후 다시 테스트
-				ChatEntry->EmptyChatEntryPrefix();
-				ChatEntry->SetChatEntryPlayerName(FormattedPlayerName, AllForNormalColor);
+				ChatEntry->SetChatEntryText(FString(), InPlayerName, InText, UChatEntry::DefaultTextStyle);
 			}
-			ChatEntry->SetChatEntryText(InText);
 			
 			ScrollBox->AddChild(ChatEntry);
 			ScrollBox->ScrollToEnd();
