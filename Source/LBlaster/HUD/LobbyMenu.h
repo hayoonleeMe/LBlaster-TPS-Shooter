@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "LBlasterUserWidget.h"
+#include "LBTypes/ChatMode.h"
 #include "LobbyMenu.generated.h"
 
 /**
@@ -19,7 +20,9 @@ public:
 
 	void OnDestroySessionComplete(bool bWasSuccessful);
 	void SetNumMaxPlayersText(int32 InNumMaxPlayers);
+	void InitializeChatBox(EChatMode InChatMode, bool bIsAlwaysExposed);
 
+	void FocusChatEdit() const;
 	void ReturnMenuByKeyboard();
 	
 protected:
@@ -84,4 +87,10 @@ private:
 	
 	UFUNCTION()
 	void OnReturnAlertCancelButtonClicked();
+
+	/*
+	 *	Chat Box
+	 */
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<class UChatBox> ChatBox;
 };

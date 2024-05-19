@@ -9,6 +9,8 @@
 #include "ElimAnnouncement.h"
 #include "GraphicSettingMenu.h"
 #include "LBlaster.h"
+#include "MultiplayerSessionsSubsystem.h"
+#include "OnlineSessionSettings.h"
 #include "PauseMenu.h"
 #include "SettingMenu.h"
 #include "SniperScope.h"
@@ -327,12 +329,12 @@ void ALBlasterHUD::AddChatUI()
 	if (IsValidOwnerController() && ChatUIClass)
 	{
 		ChatUI = CreateWidget<UChatUI>(OwnerController, ChatUIClass);
-		if (ChatUI)
+		if (ChatUI && ChatUI->ChatBox)
 		{
 			ChatUI->AddToViewport();
+			ChatUI->ChatBox->InitializeChatBox(GetMatchModeType() == EMatchMode::TeamDeathMatch ? EChatMode::ECM_FriendlyTeam : EChatMode::ECM_All, false);
 		}
 	}
-		
 }
 
 void ALBlasterHUD::SetCooldownAnnouncement()
@@ -412,23 +414,23 @@ bool ALBlasterHUD::ShowPauseMenu()
 
 void ALBlasterHUD::FocusChat() const
 {
-	if (ChatUI)
+	if (ChatUI && ChatUI->ChatBox)
 	{
 		ChatUI->ChatBox->FocusChatEdit();
 	}
 }
 
-void ALBlasterHUD::AddChatMessage(const FText& InText) const
+void ALBlasterHUD::AddChatMessage(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam) const
 {
-	if (ChatUI)
+	if (ChatUI && ChatUI->ChatBox)
 	{
-		ChatUI->ChatBox->AddChatMessage(InText);
+		ChatUI->ChatBox->AddChatMessage(InPlayerName, InText, InChatMode, SourceTeam);
 	}
 }
 
 void ALBlasterHUD::ScrollChatBox(float InScrollValue) const
 {
-	if (ChatUI)
+	if (ChatUI && ChatUI->ChatBox)
 	{
 		ChatUI->ChatBox->Scroll(InScrollValue);
 	}
@@ -447,6 +449,14 @@ void ALBlasterHUD::ChooseWeaponSlot(EEquipSlot InEquipSlot) const
 	if (CharacterOverlay)
 	{
 		CharacterOverlay->ChooseWeaponSlot(InEquipSlot);
+	}
+}
+
+void ALBlasterHUD::ChangeChatMode() const
+{
+	if (ChatUI && ChatUI->ChatBox)
+	{
+		ChatUI->ChatBox->ChangeChatMode();
 	}
 }
 

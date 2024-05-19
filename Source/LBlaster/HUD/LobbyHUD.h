@@ -18,7 +18,9 @@ class LBLASTER_API ALobbyHUD : public ABaseHUD
 
 public:
 	virtual void Tick(float DeltaSeconds) override;
+	class FNamedOnlineSession* GetNamedSession() const;
 
+	void FocusChat() const;
 	void ReturnToMainMenu();
 	void TravelToMatch();
 	virtual void ReturnMenu(bool bForceReturn) override;
@@ -72,9 +74,4 @@ private:
 	void DestroyAllClientSession();
 
 	TArray<TTuple<ETeam, FString>> CachedAddNewPlayer;
-
-	/*
-	 *	MatchMode
-	 */
-	EMatchMode MatchMode;
 };

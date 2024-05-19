@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MatchModeTypes.h"
 #include "GameFramework/HUD.h"
 #include "BaseHUD.generated.h"
 
@@ -20,6 +21,16 @@ public:
 	virtual void ReturnMenu(bool bForceReturn = false);
 	virtual void AddNewMenuToStack(class ULBlasterUserWidget* InNewMenu);
 
+	FORCEINLINE EMatchMode GetMatchModeType() const { return MatchModeType; }
+	
+protected:
+	virtual void BeginPlay() override;
+
 protected:
 	TArray<ULBlasterUserWidget*> MenuStack;
+
+	/*
+	 * Match Mode
+	 */
+	EMatchMode MatchModeType;
 };

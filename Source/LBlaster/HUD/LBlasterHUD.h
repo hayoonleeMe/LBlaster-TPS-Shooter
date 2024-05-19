@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "BaseHUD.h"
+#include "LBTypes/ChatMode.h"
 #include "LBTypes/EquipSlot.h"
+#include "LBTypes/Team.h"
 #include "LBTypes/WeaponTypes.h"
 #include "LBlasterHUD.generated.h"
 
@@ -69,10 +71,11 @@ public:
 	void HighPingWarning(float InDuration) const;
 	bool ShowPauseMenu();
 	void FocusChat() const;
-	void AddChatMessage(const FText& InText) const;
+	void AddChatMessage(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam) const;
 	void ScrollChatBox(float InScrollValue) const;
 	void SetWeaponSlotIcon(EEquipSlot InEquipSlot, EWeaponType InWeaponType) const;
 	void ChooseWeaponSlot(EEquipSlot InEquipSlot) const;
+	void ChangeChatMode() const;
 	
 	/*
 	 *	BaseHUD
