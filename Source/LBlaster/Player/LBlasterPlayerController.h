@@ -5,7 +5,9 @@
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
 #include "SessionHelperPlayerController.h"
+#include "LBTypes/ChatMode.h"
 #include "LBTypes/EquipSlot.h"
+#include "LBTypes/Team.h"
 #include "LBTypes/WeaponTypes.h"
 #include "LBlasterPlayerController.generated.h"
 
@@ -50,10 +52,13 @@ public:
 	void DisableMenuMappingContext() const;
 
 	void BroadcastElim(APlayerState* AttackerState, APlayerState* VictimState);
-	void BroadcastChatText(const FText& InText);
+	void BroadcastChatText(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam = ETeam::ET_MAX);
 
 	UFUNCTION(Server, Reliable)
-	void ServerSendChatText(const FText& InText);
+	void ServerSendChatTextToAll(const FString& InPlayerName, const FText& InText, EChatMode InChatMode);
+
+	UFUNCTION(Server, Reliable)
+	void ServerSendChatTextToSameTeam(const FString& InPlayerName, const FText& InText, EChatMode InChatMode);
 
 	void SetWeaponSlotIcon(EEquipSlot InEquipSlot, EWeaponType InWeaponType);
 	void ChooseWeaponSlot(EEquipSlot InEquipSlot);
@@ -87,6 +92,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
 	TObjectPtr<UInputAction> ChatScrollAction;
+	
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
+	TObjectPtr<UInputAction> ChangeChatModeAction;
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
 	TObjectPtr<UInputAction> ReturnMenuAction;
@@ -94,6 +102,7 @@ protected:
 	void ShowPauseMenu();
 	void FocusChat();
 	void ChatScroll(const FInputActionValue& ActionValue);
+	void ChangeChatMode();
 	void ReturnMenu();
 
 protected:
@@ -187,5 +196,5 @@ private:
 	 *	Chat
 	 */
 	UFUNCTION(Client, Reliable)
-	void ClientAddChatText(const FText& InText);
+	void ClientAddChatText(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam = ETeam::ET_MAX);
 };

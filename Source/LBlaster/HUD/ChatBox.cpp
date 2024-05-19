@@ -5,24 +5,37 @@
 
 #include "ChatEntry.h"
 #include "LBlasterHUD.h"
+#include "LobbyHUD.h"
+#include "Components/Border.h"
 #include "Components/EditableText.h"
 #include "Components/ScrollBox.h"
+#include "Components/TextBlock.h"
 #include "GameFramework/PlayerState.h"
 #include "Player/LBlasterPlayerController.h"
+#include "Player/LBlasterPlayerState.h"
+
+void UChatBox::InitializeChatBox(EChatMode InChatMode, bool bIsAlwaysExposed)
+{
+	SetIsFocusable(true);
+	AddToViewport();
+	SetFrameBorderVisibility(bIsAlwaysExposed);
+	bAlwaysExposed = bIsAlwaysExposed;
+	SetChatMode(InChatMode);
+}
 
 void UChatBox::FocusChatEdit()
 {
 	if (ChatEditText)
-	{	
+	{
+		if (IsValidOwnerController())
+		{
+			OwnerController->SetInputMode(FInputModeUIOnly());
+		}
+		
 		ChatEditText->SetIsEnabled(true);
 		ChatEditText->SetFocus();
+		SetFrameBorderVisibility(true);
 	}
-	if (ChatBoxFadeOut)
-	{
-		StopAnimation(ChatBoxFadeOut);
-	}
-	GetWorld()->GetTimerManager().ClearTimer(ChatBoxFadeOutTimer);
-	SetRenderOpacity(1.f);
 }
 
 void UChatBox::ExitChatEdit()
@@ -31,27 +44,42 @@ void UChatBox::ExitChatEdit()
 	{
 		ChatEditText->SetText(FText::GetEmpty());
 		ChatEditText->SetIsEnabled(false);
+		SetFrameBorderVisibility(false);
 	}
-
-	StartChatBoxFadeOutTimer();
 }
 
-void UChatBox::AddChatMessage(const FText& InText)
+void UChatBox::AddChatMessage(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam)
 {
 	if (ScrollBox && ChatEntryClass && IsValidOwnerController())
 	{
 		if (UChatEntry* ChatEntry = CreateWidget<UChatEntry>(OwnerController, ChatEntryClass))
 		{
+			const FText FormattedPlayerName = FText::FromString(FString::Printf(TEXT("%s : "), *InPlayerName));
+			if (InChatMode == EChatMode::ECM_All)
+			{
+				if (ALBlasterPlayerState* LBPlayerState = OwnerController->GetPlayerState<ALBlasterPlayerState>())
+				{
+					const bool bFriendlyTeam = LBPlayerState->GetTeam() == SourceTeam;
+					const FLinearColor& ColorToUse = bFriendlyTeam ? AllForFriendlyTeamColor : AllForOpponentTeamColor;
+					ChatEntry->SetChatEntryPrefix(FText::FromString(TEXT("[전체] ")), ColorToUse);
+					ChatEntry->SetChatEntryPlayerName(FormattedPlayerName, ColorToUse);
+				}
+			}
+			else if (InChatMode == EChatMode::ECM_FriendlyTeam)
+			{
+				ChatEntry->EmptyChatEntryPrefix();
+				ChatEntry->SetChatEntryPlayerName(FormattedPlayerName, AllForFriendlyTeamColor);
+			}
+			else if (InChatMode == EChatMode::ECM_OnlyAll)
+			{
+				// TODO : 개인전 구현 후 다시 테스트
+				ChatEntry->EmptyChatEntryPrefix();
+				ChatEntry->SetChatEntryPlayerName(FormattedPlayerName, AllForNormalColor);
+			}
 			ChatEntry->SetChatEntryText(InText);
+			
 			ScrollBox->AddChild(ChatEntry);
 			ScrollBox->ScrollToEnd();
-
-			if (ChatBoxFadeOut)
-			{
-				StopAnimation(ChatBoxFadeOut);
-			}
-			SetRenderOpacity(1.f);
-			StartChatBoxFadeOutTimer();
 		}
 	}
 }
@@ -66,6 +94,16 @@ void UChatBox::Scroll(float InScrollValue) const
 	}
 }
 
+void UChatBox::ChangeChatMode()
+{
+	// 0 ~ 1
+	if (IsValidOwnerController() && ChatEditText && ChatEditText->HasUserFocus(OwnerController))
+	{
+		const EChatMode NewChatMode = static_cast<EChatMode>((static_cast<uint8>(ChatModeType) + 1) % (static_cast<uint8>(EChatMode::ECM_Max) - 1));
+		SetChatMode(NewChatMode);	
+	}
+}
+
 void UChatBox::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -76,24 +114,64 @@ void UChatBox::NativeConstruct()
 	}
 }
 
-void UChatBox::StartChatBoxFadeOutTimer()
+void UChatBox::SetChatMode(EChatMode InChatMode)
 {
-	// Wait Time을 기다리고 Fade Out 애니메이션 재생
-	GetWorld()->GetTimerManager().SetTimer(ChatBoxFadeOutTimer, FTimerDelegate::CreateLambda([&]()
+	ChatModeType = InChatMode;
+
+	if (ChatTargetText)
 	{
-		GetWorld()->GetTimerManager().SetTimer(ChatBoxFadeOutTimer, FTimerDelegate::CreateLambda([&]()
+		switch (ChatModeType)
 		{
-			if (ChatBoxFadeOut)
-			{
-				PlayAnimation(ChatBoxFadeOut);
-			}
-		}), ChatBoxFadeOutDuration, false);
-	}), ChatBoxFadeOutWaitTime, false);
+		case EChatMode::ECM_All:
+			ChatTargetText->SetText(FText::FromString(TEXT("[전체]")));
+			break;
+
+		case EChatMode::ECM_FriendlyTeam:
+			ChatTargetText->SetText(FText::FromString(TEXT("[팀]")));
+			break;
+
+		case EChatMode::ECM_OnlyAll:
+			ChatTargetText->SetText(FText());
+			break;
+		}	
+	}
+}
+
+FReply UChatBox::NativeOnPreviewKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
+{
+	if (InKeyEvent.GetKey() == EKeys::Tab)
+	{
+		ChangeChatMode();
+		return FReply::Handled();
+	}
+	return Super::NativeOnPreviewKeyDown(InGeometry, InKeyEvent);
+}
+
+void UChatBox::SetFrameBorderVisibility(bool bVisible)
+{
+	// 항상 보이게
+	if (bAlwaysExposed)
+	{
+		return;
+	}
+
+	if (FrameBorder)
+	{
+		FrameBorder->SetVisibility(bVisible ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
+	}
+	if (TextFrameBorder)
+	{
+		TextFrameBorder->SetVisibility(bVisible ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
+	}
+	if (ScrollBox)
+	{
+		ScrollBox->SetScrollBarVisibility(bVisible ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
+	}
 }
 
 void UChatBox::OnTextCommitted(const FText& Text, ETextCommit::Type CommitMethod)
 {
-	if (!IsValidOwnerController())
+	if (!IsValidOwnerController() || !IsValidOwnerHUD())
 	{
 		return;
 	}
@@ -104,11 +182,27 @@ void UChatBox::OnTextCommitted(const FText& Text, ETextCommit::Type CommitMethod
 		{
 			if (ALBlasterPlayerController* LBOwnerController = Cast<ALBlasterPlayerController>(OwnerController))
 			{
-				const FText ChatText = FText::FromString(FString::Printf(TEXT("%s : %s"), *PlayerState->GetPlayerName(), *Text.ToString()));
-				LBOwnerController->ServerSendChatText(ChatText);
+				if (ChatModeType == EChatMode::ECM_All)
+				{
+					LBOwnerController->ServerSendChatTextToAll(PlayerState->GetPlayerName(), Text, ChatModeType);
+				}
+				else if (ChatModeType == EChatMode::ECM_FriendlyTeam)
+				{
+					LBOwnerController->ServerSendChatTextToSameTeam(PlayerState->GetPlayerName(), Text, ChatModeType);
+				}
 			}
 		}
 	}
 	ExitChatEdit();
-	OwnerController->SetInputMode(FInputModeGameOnly());
+
+	// 로비에서 생성됨
+	if (OwnerHUD->IsA<ALobbyHUD>())
+	{
+		OwnerController->SetInputMode(FInputModeGameAndUI());
+	}
+	// 게임 내에서 생성됨
+	else if (OwnerHUD->IsA<ALBlasterHUD>())
+	{
+		OwnerController->SetInputMode(FInputModeGameOnly());
+	}
 }

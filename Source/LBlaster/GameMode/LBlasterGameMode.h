@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
+#include "LBTypes/ChatMode.h"
+#include "LBTypes/Team.h"
 #include "LBlasterGameMode.generated.h"
 
 namespace MatchState
@@ -39,7 +41,8 @@ public:
 
 	float LevelStartingTime = 0.f;
 
-	void SendChatText(const FText& InText) const;
+	void SendChatTextToAll(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam) const;
+	void SendChatTextToSameTeam(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam) const;
 
 protected:
 	virtual void BeginPlay() override;

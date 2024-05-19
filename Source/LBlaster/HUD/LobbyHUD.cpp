@@ -15,14 +15,14 @@ void ALobbyHUD::AddNewPlayer(ALBlasterPlayerState* InPlayerState) const
 {
 	if (LobbyMenu)
 	{
-		if (MatchMode == EMatchMode::TeamDeathMatch)
+		if (GetMatchModeType() == EMatchMode::TeamDeathMatch)
 		{
 			if (ULobbyMenuTeamDeathMatch* LobbyMenuTDM = Cast<ULobbyMenuTeamDeathMatch>(LobbyMenu))
 			{
 				LobbyMenuTDM->AddNewPlayer(InPlayerState);
 			}
 		}
-		else if (MatchMode == EMatchMode::FreeForAll)
+		else if (GetMatchModeType() == EMatchMode::FreeForAll)
 		{
 			// TODO : FreeForAll	
 		}
@@ -90,6 +90,23 @@ void ALobbyHUD::Tick(float DeltaSeconds)
 	if (bWantReturnToMainMenu && GetWorld() && GetWorld()->GetNumPlayerControllers() == 1)
 	{
 		GetWorld()->ServerTravel(FString(TEXT("/Game/LBlaster/Maps/GameStartupMap")));
+	}
+}
+
+FNamedOnlineSession* ALobbyHUD::GetNamedSession() const
+{
+	if (MultiplayerSessionsSubsystem)
+	{
+		return MultiplayerSessionsSubsystem->GetNamedOnlineSession();
+	}
+	return nullptr;
+}
+
+void ALobbyHUD::FocusChat() const
+{
+	if (LobbyMenu)
+	{
+		LobbyMenu->FocusChatEdit();
 	}
 }
 
@@ -209,14 +226,9 @@ void ALobbyHUD::BeginPlay()
 
 		if (FNamedOnlineSession* NamedOnlineSession = MultiplayerSessionsSubsystem->GetNamedOnlineSession())
 		{
-			int32 Value;
-			NamedOnlineSession->SessionSettings.Get(UMultiplayerSessionsSubsystem::MatchModeKey, Value);
-			MatchMode = static_cast<EMatchMode>(Value);
-			
 			AddLobbyMenu(NamedOnlineSession->SessionSettings.NumPublicConnections);
 		}
 	}
-
 }
 
 void ALobbyHUD::PollInit()
@@ -280,11 +292,11 @@ void ALobbyHUD::OnDestroySessionComplete(bool bWasSuccessful)
 
 void ALobbyHUD::AddLobbyMenu(int32 NumMaxPlayers)
 {
-	if (LobbyMenuClassByMatchModeMap.Contains(MatchMode) && LobbyMenuClassByMatchModeMap[MatchMode] && !LobbyMenu)
+	if (LobbyMenuClassByMatchModeMap.Contains(GetMatchModeType()) && LobbyMenuClassByMatchModeMap[GetMatchModeType()] && !LobbyMenu)
 	{
 		if (IsValidOwnerController())
 		{
-			LobbyMenu = CreateWidget<ULobbyMenu>(OwnerController, LobbyMenuClassByMatchModeMap[MatchMode]);
+			LobbyMenu = CreateWidget<ULobbyMenu>(OwnerController, LobbyMenuClassByMatchModeMap[GetMatchModeType()]);
 		}
 	}
 
@@ -292,20 +304,21 @@ void ALobbyHUD::AddLobbyMenu(int32 NumMaxPlayers)
 	{
 		LobbyMenu->MenuSetup();
 		LobbyMenu->SetNumMaxPlayersText(NumMaxPlayers);
+		LobbyMenu->InitializeChatBox(EChatMode::ECM_OnlyAll, true);
 
 		// 호스트를 리스트에 추가
 		if (IsValidOwnerController() && OwnerController->HasAuthority())
 		{
 			if (ALBlasterPlayerState* LBPlayerState = OwnerController->GetPlayerState<ALBlasterPlayerState>())
 			{
-				if (MatchMode == EMatchMode::TeamDeathMatch)
+				if (GetMatchModeType() == EMatchMode::TeamDeathMatch)
 				{
 					if (ULobbyMenuTeamDeathMatch* LobbyMenuTDM = Cast<ULobbyMenuTeamDeathMatch>(LobbyMenu))
 					{
 						LobbyMenuTDM->AddNewPlayer(LBPlayerState);
 					}
 				}
-				else if (MatchMode == EMatchMode::FreeForAll)
+				else if (GetMatchModeType() == EMatchMode::FreeForAll)
 				{
 					// TODO : FreeForAll	
 				}				

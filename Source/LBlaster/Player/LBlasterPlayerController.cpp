@@ -62,6 +62,12 @@ ALBlasterPlayerController::ALBlasterPlayerController()
 	{
 		ChatScrollAction = ChatScrollActionRef.Object;
 	}
+	
+	static ConstructorHelpers::FObjectFinder<UInputAction> ChangeChatModeActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_ChangeChatMode.IA_ChangeChatMode'"));
+	if (ChangeChatModeActionRef.Object)
+	{
+		ChangeChatModeAction = ChangeChatModeActionRef.Object;
+	}
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> ReturnMenuActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_ReturnMenu.IA_ReturnMenu'"));
 	if (ReturnMenuActionRef.Object)
@@ -87,6 +93,7 @@ void ALBlasterPlayerController::SetupInputComponent()
 	/* IMC_LBContext */
 	EnhancedInputComponent->BindAction(FocusChatAction, ETriggerEvent::Triggered, this, &ThisClass::FocusChat);
 	EnhancedInputComponent->BindAction(ChatScrollAction, ETriggerEvent::Triggered, this, &ThisClass::ChatScroll);
+	EnhancedInputComponent->BindAction(ChangeChatModeAction, ETriggerEvent::Triggered, this, &ThisClass::ChangeChatMode);
 
 	/* IMC_PauseMenuContext */
 	EnhancedInputComponent->BindAction(PauseMenuAction, ETriggerEvent::Triggered, this, &ThisClass::ShowPauseMenu);
@@ -365,11 +372,11 @@ void ALBlasterPlayerController::CheckPing()
 	}
 }
 
-void ALBlasterPlayerController::ClientAddChatText_Implementation(const FText& InText)
+void ALBlasterPlayerController::ClientAddChatText_Implementation(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam)
 {
 	if (IsValidOwningHUD())
 	{
-		OwningHUD->AddChatMessage(InText);
+		OwningHUD->AddChatMessage(InPlayerName, InText, InChatMode, SourceTeam);
 	}
 }
 
@@ -492,9 +499,9 @@ void ALBlasterPlayerController::BroadcastElim(APlayerState* AttackerState, APlay
 	ClientElimAnnouncement(AttackerState, VictimState);
 }
 
-void ALBlasterPlayerController::BroadcastChatText(const FText& InText)
+void ALBlasterPlayerController::BroadcastChatText(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam)
 {
-	ClientAddChatText(InText);
+	ClientAddChatText(InPlayerName, InText, InChatMode, SourceTeam);
 }
 
 void ALBlasterPlayerController::SetWeaponSlotIcon(EEquipSlot InEquipSlot, EWeaponType InWeaponType)
@@ -527,11 +534,25 @@ void ALBlasterPlayerController::ServerLeaveGame_Implementation()
 	}
 }
 
-void ALBlasterPlayerController::ServerSendChatText_Implementation(const FText& InText)
+void ALBlasterPlayerController::ServerSendChatTextToAll_Implementation(const FString& InPlayerName, const FText& InText, EChatMode InChatMode)
 {
-	if (IsValidOwnerGameMode())
+	if (ALBlasterPlayerState* LBPlayerState = GetPlayerState<ALBlasterPlayerState>())
 	{
-		OwnerGameMode->SendChatText(InText);
+		if (IsValidOwnerGameMode())
+		{
+			OwnerGameMode->SendChatTextToAll(InPlayerName, InText, InChatMode, LBPlayerState->GetTeam());
+		}	
+	}
+}
+
+void ALBlasterPlayerController::ServerSendChatTextToSameTeam_Implementation(const FString& InPlayerName, const FText& InText, EChatMode InChatMode)
+{
+	if (ALBlasterPlayerState* LBPlayerState = GetPlayerState<ALBlasterPlayerState>())
+	{
+		if (IsValidOwnerGameMode())
+		{
+			OwnerGameMode->SendChatTextToSameTeam(InPlayerName, InText, InChatMode, LBPlayerState->GetTeam());
+		}	
 	}
 }
 
@@ -559,6 +580,14 @@ void ALBlasterPlayerController::ChatScroll(const FInputActionValue& ActionValue)
 	if (IsValidOwningHUD())
 	{
 		OwningHUD->ScrollChatBox(ActionValue.Get<float>());
+	}
+}
+
+void ALBlasterPlayerController::ChangeChatMode()
+{
+	if (IsValidOwningHUD())
+	{
+		OwningHUD->ChangeChatMode();
 	}
 }
 

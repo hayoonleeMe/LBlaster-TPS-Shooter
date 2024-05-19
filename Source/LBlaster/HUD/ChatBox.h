@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "LBlasterUserWidget.h"
+#include "LBTypes/ChatMode.h"
+#include "LBTypes/Team.h"
 #include "ChatBox.generated.h"
 
 /**
@@ -15,18 +17,30 @@ class LBLASTER_API UChatBox : public ULBlasterUserWidget
 	GENERATED_BODY()
 
 public:
+	void InitializeChatBox(EChatMode InChatMode, bool bIsAlwaysExposed);
 	void FocusChatEdit();
 	void ExitChatEdit();
-	void AddChatMessage(const FText& InText);
+	void AddChatMessage(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam);
 	void Scroll(float InScrollValue) const;
+	void ChangeChatMode();
+
+	FORCEINLINE EChatMode GetChatMode() const { return ChatModeType; }
 
 	UFUNCTION()
 	void OnTextCommitted(const FText& Text, ETextCommit::Type CommitMethod);
 	
 protected:
 	virtual void NativeConstruct() override;
+	void SetChatMode(EChatMode InChatMode);
+	virtual FReply NativeOnPreviewKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 
 private:
+	inline constexpr static FLinearColor AllForFriendlyTeamColor { 0.f, 0.2f, 0.75f };
+	inline constexpr static FLinearColor AllForOpponentTeamColor { 1.f, 0.f, 0.f };
+	inline constexpr static FLinearColor AllForNormalColor { 1.f, 1.f, 1.f };
+
+	bool bAlwaysExposed = false;
+	
 	/*
 	 *	Chat
 	 */
@@ -42,16 +56,22 @@ private:
 	UPROPERTY(EditAnywhere, Category="LBlaster|Chat")
 	float ScrollModifier = 60.f;
 
-	UPROPERTY(Transient, meta = (BindWidgetAnim))
-	TObjectPtr<UWidgetAnimation> ChatBoxFadeOut;
-	
-	UPROPERTY(EditAnywhere, Category="LBlaster|Chat")
-	float ChatBoxFadeOutWaitTime = 3.f;
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<class UTextBlock> ChatTargetText;
 
-	UPROPERTY(EditAnywhere, Category="LBlaster|Chat")
-	float ChatBoxFadeOutDuration = 3.f;
-	
-	FTimerHandle ChatBoxFadeOutTimer;
+	/*
+	 *	Frame Border
+	 */
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<class UBorder> FrameBorder;
 
-	void StartChatBoxFadeOutTimer();
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UBorder> TextFrameBorder;
+
+	void SetFrameBorderVisibility(bool bVisible);
+
+	/*
+	 *	Chat Mode
+	 */
+	EChatMode ChatModeType = EChatMode::ECM_All;
 };

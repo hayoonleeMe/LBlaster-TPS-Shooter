@@ -3,6 +3,7 @@
 
 #include "HUD/LobbyMenu.h"
 
+#include "ChatBox.h"
 #include "LobbyHUD.h"
 #include "Components/Button.h"
 #include "Components/HorizontalBox.h"
@@ -160,6 +161,22 @@ void ULobbyMenu::SetNumMaxPlayersText(int32 InNumMaxPlayers)
 {
 	NumMaxPlayers = InNumMaxPlayers;
 	SetNumPlayersText();
+}
+
+void ULobbyMenu::InitializeChatBox(EChatMode InChatMode, bool bIsAlwaysExposed)
+{
+	if (ChatBox)
+	{
+		ChatBox->InitializeChatBox(InChatMode, bIsAlwaysExposed);
+	}
+}
+
+void ULobbyMenu::FocusChatEdit() const
+{
+	if (ChatBox)
+	{
+		ChatBox->FocusChatEdit();
+	}
 }
 
 void ULobbyMenu::ReturnMenuByKeyboard()

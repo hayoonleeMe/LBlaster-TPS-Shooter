@@ -33,6 +33,8 @@ public:
 	void DestroySession();
 	void StartSession();
 
+	FNamedOnlineSession* GetNamedOnlineSession(FName SessionName = NAME_GameSession);
+	
 	FLBOnCreateSessionCompleteDelegate LBOnCreateSessionCompleteDelegate;
 	FLBOnFindSessionsCompleteDelegate LBOnFindSessionsCompleteDelegate;
 	FLBOnJoinSessionCompleteDelegate LBOnJoinSessionCompleteDelegate;

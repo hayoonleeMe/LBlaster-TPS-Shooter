@@ -210,6 +210,15 @@ void UMultiplayerSessionsSubsystem::StartSession()
 {
 }
 
+FNamedOnlineSession* UMultiplayerSessionsSubsystem::GetNamedOnlineSession(FName SessionName)
+{
+	if (SessionInterface)
+	{
+		return SessionInterface->GetNamedSession(SessionName);
+	}
+	return nullptr;
+}
+
 void UMultiplayerSessionsSubsystem::OnStartSessionComplete(FName SessionName, bool bWasSuccessful)
 {
 }
