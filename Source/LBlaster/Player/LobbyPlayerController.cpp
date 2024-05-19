@@ -17,6 +17,12 @@ ALobbyPlayerController::ALobbyPlayerController()
 	{
 		MenuMappingContext = MenuMappingContextRef.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> FocusChatActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_FocusChat.IA_FocusChat'"));
+	if (FocusChatActionRef.Object)
+	{
+		FocusChatAction = FocusChatActionRef.Object;
+	}
 	
 	static ConstructorHelpers::FObjectFinder<UInputAction> ReturnMenuActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_ReturnMenu.IA_ReturnMenu'"));
 	if (ReturnMenuActionRef.Object)
@@ -84,7 +90,16 @@ void ALobbyPlayerController::SetupInputComponent()
 	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
 
 	/* IMC_MenuContext */
+	EnhancedInputComponent->BindAction(FocusChatAction, ETriggerEvent::Triggered, this, &ThisClass::FocusChat);
 	EnhancedInputComponent->BindAction(ReturnMenuAction, ETriggerEvent::Triggered, this, &ThisClass::ReturnMenu);
+}
+
+void ALobbyPlayerController::FocusChat()
+{
+	if (IsValidOwningHUD())
+	{
+		OwningHUD->FocusChat();
+	}
 }
 
 void ALobbyPlayerController::ReturnMenu()
