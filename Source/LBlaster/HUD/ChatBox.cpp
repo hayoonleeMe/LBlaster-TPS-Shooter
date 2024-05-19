@@ -16,7 +16,6 @@
 
 void UChatBox::InitializeChatBox(EChatMode InChatMode, bool bIsAlwaysExposed)
 {
-	SetIsFocusable(true);
 	AddToViewport();
 	SetFrameBorderVisibility(bIsAlwaysExposed);
 	bAlwaysExposed = bIsAlwaysExposed;
@@ -32,7 +31,6 @@ void UChatBox::FocusChatEdit()
 			OwnerController->SetInputMode(FInputModeUIOnly());
 		}
 		
-		ChatEditText->SetIsEnabled(true);
 		ChatEditText->SetFocus();
 		SetFrameBorderVisibility(true);
 	}
@@ -43,7 +41,6 @@ void UChatBox::ExitChatEdit()
 	if (ChatEditText)
 	{
 		ChatEditText->SetText(FText::GetEmpty());
-		ChatEditText->SetIsEnabled(false);
 		SetFrameBorderVisibility(false);
 	}
 }
@@ -193,7 +190,9 @@ void UChatBox::OnTextCommitted(const FText& Text, ETextCommit::Type CommitMethod
 	// 로비에서 생성됨
 	if (OwnerHUD->IsA<ALobbyHUD>())
 	{
-		OwnerController->SetInputMode(FInputModeGameAndUI());
+		FInputModeGameAndUI InputMode;
+		InputMode.SetWidgetToFocus(GetParent()->TakeWidget());
+		OwnerController->SetInputMode(InputMode);
 	}
 	// 게임 내에서 생성됨
 	else if (OwnerHUD->IsA<ALBlasterHUD>())

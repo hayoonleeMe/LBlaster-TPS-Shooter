@@ -42,10 +42,14 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
 	TObjectPtr<class UInputMappingContext> MenuMappingContext;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
+	TObjectPtr<class UInputAction> FocusChatAction;
 	
 	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
-	TObjectPtr<class UInputAction> ReturnMenuAction;
+	TObjectPtr<UInputAction> ReturnMenuAction;
 
+	void FocusChat();
 	void ReturnMenu();
 
 private:
