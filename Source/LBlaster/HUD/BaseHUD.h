@@ -24,10 +24,11 @@ public:
 	FORCEINLINE EMatchMode GetMatchModeType() const { return MatchModeType; }
 	
 protected:
-	virtual void BeginPlay() override;
+	virtual void PostInitializeComponents() override;
 
 protected:
-	TArray<ULBlasterUserWidget*> MenuStack;
+	UPROPERTY()
+	TArray<TObjectPtr<ULBlasterUserWidget>> MenuStack;
 
 	/*
 	 * Match Mode

@@ -22,10 +22,10 @@ void ABaseHUD::AddNewMenuToStack(ULBlasterUserWidget* InNewMenu)
 {
 }
 
-void ABaseHUD::BeginPlay()
+void ABaseHUD::PostInitializeComponents()
 {
-	Super::BeginPlay();
-
+	Super::PostInitializeComponents();
+	
 	if (GetGameInstance())
 	{
 		if (UMultiplayerSessionsSubsystem* MultiplayerSessionsSubsystem = GetGameInstance()->GetSubsystem<UMultiplayerSessionsSubsystem>())
@@ -39,5 +39,3 @@ void ABaseHUD::BeginPlay()
 		}
 	}
 }
-
-
