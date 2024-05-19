@@ -332,7 +332,15 @@ void ALBlasterHUD::AddChatUI()
 		if (ChatUI && ChatUI->ChatBox)
 		{
 			ChatUI->AddToViewport();
-			ChatUI->ChatBox->InitializeChatBox(GetMatchModeType() == EMatchMode::TeamDeathMatch ? EChatMode::ECM_FriendlyTeam : EChatMode::ECM_All, false);
+
+			if (GetMatchModeType() == EMatchMode::TeamDeathMatch)
+			{
+				ChatUI->ChatBox->InitializeChatBox(EChatMode::ECM_FriendlyTeam, false);
+			}
+			else if (GetMatchModeType() == EMatchMode::FreeForAll)
+			{
+				ChatUI->ChatBox->InitializeChatBox(EChatMode::ECM_FreeForAll, false);
+			}
 		}
 	}
 }

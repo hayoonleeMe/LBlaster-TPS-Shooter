@@ -64,9 +64,13 @@ void UChatBox::AddChatMessage(const FString& InPlayerName, const FText& InText, 
 			{
 				ChatEntry->SetChatEntryText(FString(), InPlayerName, InText, UChatEntry::FriendlyTeamTextStyle);
 			}
-			else if (InChatMode == EChatMode::ECM_OnlyAll)
+			else if (InChatMode == EChatMode::ECM_FreeForAll)
 			{
 				// TODO : 개인전 구현 후 다시 테스트
+				ChatEntry->SetChatEntryText(TEXT("[전체]"), InPlayerName, InText, UChatEntry::DefaultTextStyle);
+			}
+			else if (InChatMode == EChatMode::ECM_Lobby)
+			{
 				ChatEntry->SetChatEntryText(FString(), InPlayerName, InText, UChatEntry::DefaultTextStyle);
 			}
 			
@@ -88,10 +92,15 @@ void UChatBox::Scroll(float InScrollValue) const
 
 void UChatBox::ChangeChatMode()
 {
+	if (ChatModeType != EChatMode::ECM_All || ChatModeType != EChatMode::ECM_FriendlyTeam)
+	{
+		return;
+	}
+	
 	// 0 ~ 1
 	if (IsValidOwnerController() && ChatEditText && ChatEditText->HasUserFocus(OwnerController))
 	{
-		const EChatMode NewChatMode = static_cast<EChatMode>((static_cast<uint8>(ChatModeType) + 1) % (static_cast<uint8>(EChatMode::ECM_Max) - 1));
+		const EChatMode NewChatMode = static_cast<EChatMode>((static_cast<uint8>(ChatModeType) + 1) % 2);
 		SetChatMode(NewChatMode);	
 	}
 }
@@ -115,15 +124,13 @@ void UChatBox::SetChatMode(EChatMode InChatMode)
 		switch (ChatModeType)
 		{
 		case EChatMode::ECM_All:
+		case EChatMode::ECM_FreeForAll:
+		case EChatMode::ECM_Lobby:
 			ChatTargetText->SetText(FText::FromString(TEXT("[전체]")));
 			break;
 
 		case EChatMode::ECM_FriendlyTeam:
 			ChatTargetText->SetText(FText::FromString(TEXT("[팀]")));
-			break;
-
-		case EChatMode::ECM_OnlyAll:
-			ChatTargetText->SetText(FText());
 			break;
 		}	
 	}
@@ -174,7 +181,7 @@ void UChatBox::OnTextCommitted(const FText& Text, ETextCommit::Type CommitMethod
 		{
 			if (ALBlasterPlayerController* LBOwnerController = Cast<ALBlasterPlayerController>(OwnerController))
 			{
-				if (ChatModeType == EChatMode::ECM_All)
+				if (ChatModeType == EChatMode::ECM_All || ChatModeType == EChatMode::ECM_FreeForAll || ChatModeType == EChatMode::ECM_Lobby)
 				{
 					LBOwnerController->ServerSendChatTextToAll(PlayerState->GetPlayerName(), Text, ChatModeType);
 				}

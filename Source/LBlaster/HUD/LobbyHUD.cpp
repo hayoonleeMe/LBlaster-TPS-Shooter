@@ -304,7 +304,7 @@ void ALobbyHUD::AddLobbyMenu(int32 NumMaxPlayers)
 	{
 		LobbyMenu->MenuSetup();
 		LobbyMenu->SetNumMaxPlayersText(NumMaxPlayers);
-		LobbyMenu->InitializeChatBox(EChatMode::ECM_OnlyAll, true);
+		LobbyMenu->InitializeChatBox(EChatMode::ECM_Lobby, true);
 
 		// 호스트를 리스트에 추가
 		if (IsValidOwnerController() && OwnerController->HasAuthority())
