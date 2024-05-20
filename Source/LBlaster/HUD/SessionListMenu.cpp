@@ -150,8 +150,6 @@ void USessionListMenu::OnJoinButtonClicked()
 	// 로딩 효과 표시
 	SetLoadingOverlayVisibility(true);
 
-	// TODO : 로비가 구현되면 로비의 값을 사용해야함
-	
 	if (SessionListView)
 	{
 		if (USessionListRow* SelectedRow = SessionListView->GetSelectedItem<USessionListRow>())

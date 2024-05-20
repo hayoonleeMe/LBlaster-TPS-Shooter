@@ -16,5 +16,6 @@ class LBLASTER_API ATeamGameMode : public ALBlasterGameMode
 
 public:
 	ATeamGameMode();
+	virtual void PostLogin(APlayerController* NewPlayer) override;
 	virtual void Logout(AController* Exiting) override;
 };
