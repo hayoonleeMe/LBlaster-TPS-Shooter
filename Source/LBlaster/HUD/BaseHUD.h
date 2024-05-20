@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "MatchModeTypes.h"
 #include "GameFramework/HUD.h"
+#include "LBTypes/ChatMode.h"
+#include "LBTypes/Team.h"
 #include "BaseHUD.generated.h"
 
 /**
@@ -20,6 +22,7 @@ public:
 	virtual void CreateGraphicSettingMenu();
 	virtual void ReturnMenu(bool bForceReturn = false);
 	virtual void AddNewMenuToStack(class ULBlasterUserWidget* InNewMenu);
+	virtual void AddChatMessage(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam);
 
 	FORCEINLINE EMatchMode GetMatchModeType() const { return MatchModeType; }
 	

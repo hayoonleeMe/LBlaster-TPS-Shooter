@@ -159,22 +159,6 @@ void ULobbyMenu::SetNumMaxPlayersText(int32 InNumMaxPlayers)
 	SetNumPlayersText();
 }
 
-void ULobbyMenu::InitializeChatBox(EChatMode InChatMode, bool bIsAlwaysExposed)
-{
-	if (ChatBox)
-	{
-		ChatBox->InitializeChatBox(InChatMode, bIsAlwaysExposed);
-	}
-}
-
-void ULobbyMenu::FocusChatEdit() const
-{
-	if (ChatBox)
-	{
-		ChatBox->FocusChatEdit();
-	}
-}
-
 void ULobbyMenu::ReturnMenuByKeyboard()
 {
 	if (ReturnAlertOverlay)

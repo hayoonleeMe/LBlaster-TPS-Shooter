@@ -5,18 +5,16 @@
 
 #include "ChatEntry.h"
 #include "LBlasterHUD.h"
-#include "LobbyHUD.h"
 #include "Components/Border.h"
 #include "Components/EditableText.h"
 #include "Components/ScrollBox.h"
 #include "Components/TextBlock.h"
 #include "GameFramework/PlayerState.h"
-#include "Player/LBlasterPlayerController.h"
+#include "Player/BasePlayerController.h"
 #include "Player/LBlasterPlayerState.h"
 
 void UChatBox::InitializeChatBox(EChatMode InChatMode, bool bIsAlwaysExposed)
 {
-	AddToViewport();
 	SetFrameBorderVisibility(bIsAlwaysExposed);
 	bAlwaysExposed = bIsAlwaysExposed;
 	SetChatMode(InChatMode);
@@ -92,7 +90,7 @@ void UChatBox::Scroll(float InScrollValue) const
 
 void UChatBox::ChangeChatMode()
 {
-	if (ChatModeType != EChatMode::ECM_All || ChatModeType != EChatMode::ECM_FriendlyTeam)
+	if (ChatModeType != EChatMode::ECM_All && ChatModeType != EChatMode::ECM_FriendlyTeam)
 	{
 		return;
 	}
@@ -138,7 +136,7 @@ void UChatBox::SetChatMode(EChatMode InChatMode)
 
 FReply UChatBox::NativeOnPreviewKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 {
-	if (InKeyEvent.GetKey() == EKeys::Tab)
+	if (ChatModeType != EChatMode::ECM_Lobby && InKeyEvent.GetKey() == EKeys::Tab)
 	{
 		ChangeChatMode();
 		return FReply::Handled();
@@ -179,31 +177,47 @@ void UChatBox::OnTextCommitted(const FText& Text, ETextCommit::Type CommitMethod
 	{
 		if (APlayerState* PlayerState = OwnerController->GetPlayerState<APlayerState>())
 		{
-			if (ALBlasterPlayerController* LBOwnerController = Cast<ALBlasterPlayerController>(OwnerController))
+			if (ABasePlayerController* BasePlayerController = Cast<ABasePlayerController>(OwnerController))
 			{
 				if (ChatModeType == EChatMode::ECM_All || ChatModeType == EChatMode::ECM_FreeForAll || ChatModeType == EChatMode::ECM_Lobby)
 				{
-					LBOwnerController->ServerSendChatTextToAll(PlayerState->GetPlayerName(), Text, ChatModeType);
+					BasePlayerController->ServerSendChatTextToAll(PlayerState->GetPlayerName(), Text, ChatModeType);
 				}
 				else if (ChatModeType == EChatMode::ECM_FriendlyTeam)
 				{
-					LBOwnerController->ServerSendChatTextToSameTeam(PlayerState->GetPlayerName(), Text, ChatModeType);
+					BasePlayerController->ServerSendChatTextToSameTeam(PlayerState->GetPlayerName(), Text, ChatModeType);
 				}
 			}
 		}
 	}
-	ExitChatEdit();
 
 	// 로비에서 생성됨
-	if (OwnerHUD->IsA<ALobbyHUD>())
+	if (ChatModeType == EChatMode::ECM_Lobby)
 	{
-		FInputModeGameAndUI InputMode;
-		InputMode.SetWidgetToFocus(GetParent()->TakeWidget());
-		OwnerController->SetInputMode(InputMode);
+		if (CommitMethod == ETextCommit::OnEnter)
+		{
+			if (ChatEditText)
+			{
+				ChatEditText->SetText(FText::GetEmpty());
+			}
+		}
+		else
+		{
+			FInputModeGameAndUI InputMode;
+			OwnerController->SetInputMode(InputMode);
+		}
 	}
 	// 게임 내에서 생성됨
-	else if (OwnerHUD->IsA<ALBlasterHUD>())
+	else
 	{
+		if (CommitMethod == ETextCommit::OnEnter)
+		{
+			if (ChatEditText)
+			{
+				ChatEditText->SetText(FText::GetEmpty());
+			}
+		}
+		SetFrameBorderVisibility(false);
 		OwnerController->SetInputMode(FInputModeGameOnly());
 	}
 }

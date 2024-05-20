@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SessionHelperPlayerController.h"
+#include "BasePlayerController.h"
 #include "LBTypes/Team.h"
 #include "LobbyPlayerController.generated.h"
 
@@ -11,7 +11,7 @@
  * 
  */
 UCLASS()
-class LBLASTER_API ALobbyPlayerController : public ASessionHelperPlayerController
+class LBLASTER_API ALobbyPlayerController : public ABasePlayerController
 {
 	GENERATED_BODY()
 

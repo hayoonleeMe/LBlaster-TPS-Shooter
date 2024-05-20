@@ -22,6 +22,10 @@ void ABaseHUD::AddNewMenuToStack(ULBlasterUserWidget* InNewMenu)
 {
 }
 
+void ABaseHUD::AddChatMessage(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam)
+{
+}
+
 void ABaseHUD::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
