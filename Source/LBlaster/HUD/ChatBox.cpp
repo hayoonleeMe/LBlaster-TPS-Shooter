@@ -24,7 +24,7 @@ void UChatBox::FocusChatEdit()
 {
 	if (ChatEditText)
 	{
-		if (IsValidOwnerController())
+		if (ChatModeType != EChatMode::ECM_Lobby && IsValidOwnerController())
 		{
 			OwnerController->SetInputMode(FInputModeUIOnly());
 		}
@@ -200,11 +200,6 @@ void UChatBox::OnTextCommitted(const FText& Text, ETextCommit::Type CommitMethod
 			{
 				ChatEditText->SetText(FText::GetEmpty());
 			}
-		}
-		else
-		{
-			FInputModeGameAndUI InputMode;
-			OwnerController->SetInputMode(InputMode);
 		}
 	}
 	// 게임 내에서 생성됨
