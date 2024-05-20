@@ -135,34 +135,6 @@ void ALBlasterGameMode::PlayerLeftGame(ALBlasterCharacter* LeftCharacter)
 	}
 }
 
-void ALBlasterGameMode::SendChatTextToAll(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam) const
-{
-	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
-	{
-		if (ALBlasterPlayerController* LBPlayerController = Cast<ALBlasterPlayerController>(It->Get()))
-		{
-			LBPlayerController->BroadcastChatText(InPlayerName, InText, InChatMode, SourceTeam);
-		}
-	}
-}
-
-void ALBlasterGameMode::SendChatTextToSameTeam(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam) const
-{
-	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
-	{
-		if (ALBlasterPlayerController* LBPlayerController = Cast<ALBlasterPlayerController>(It->Get()))
-		{
-			if (ALBlasterPlayerState* LBPlayerState = It->Get()->GetPlayerState<ALBlasterPlayerState>())
-			{
-				if (LBPlayerState->GetTeam() == SourceTeam)
-				{
-					LBPlayerController->BroadcastChatText(InPlayerName, InText, InChatMode, SourceTeam);	
-				}
-			}			
-		}
-	}
-}
-
 void ALBlasterGameMode::BeginPlay()
 {
 	Super::BeginPlay();

@@ -35,6 +35,11 @@ public:
 	void BroadcastTeamChangePlayerList(ETeam CurrentTeam, ETeam NewTeam, const FString& InName);
 	void BroadcastRemovePlayerList(ETeam InTeam, const FString& InName);
 
+	/*
+	 *	BaseHUD
+	 */
+	virtual void AddChatMessage(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam) override;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -74,4 +79,15 @@ private:
 	void DestroyAllClientSession();
 
 	TArray<TTuple<ETeam, FString>> CachedAddNewPlayer;
+
+	/*
+	 *	Chat
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Chat")
+	TSubclassOf<class UChatUI> ChatUIClass;
+
+	UPROPERTY()
+	TObjectPtr<UChatUI> ChatUI;
+
+	void AddChatUI();
 };

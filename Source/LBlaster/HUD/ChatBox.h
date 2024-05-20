@@ -35,10 +35,6 @@ protected:
 	virtual FReply NativeOnPreviewKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 
 private:
-	inline constexpr static FLinearColor AllForFriendlyTeamColor { 0.f, 0.2f, 0.75f };
-	inline constexpr static FLinearColor AllForOpponentTeamColor { 1.f, 0.f, 0.f };
-	inline constexpr static FLinearColor AllForNormalColor { 1.f, 1.f, 1.f };
-
 	bool bAlwaysExposed = false;
 	
 	/*

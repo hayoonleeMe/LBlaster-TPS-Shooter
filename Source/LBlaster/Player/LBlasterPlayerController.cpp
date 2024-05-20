@@ -9,7 +9,6 @@
 #include "InputMappingContext.h"
 #include "LBlaster.h"
 #include "Character/LBlasterCharacter.h"
-#include "GameFramework/GameMode.h"
 #include "GameFramework/PlayerState.h"
 #include "GameMode/LBlasterGameMode.h"
 #include "HUD/LBlasterHUD.h"
@@ -372,14 +371,6 @@ void ALBlasterPlayerController::CheckPing()
 	}
 }
 
-void ALBlasterPlayerController::ClientAddChatText_Implementation(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam)
-{
-	if (IsValidOwningHUD())
-	{
-		OwningHUD->AddChatMessage(InPlayerName, InText, InChatMode, SourceTeam);
-	}
-}
-
 void ALBlasterPlayerController::ClientElimAnnouncement_Implementation(APlayerState* AttackerState, APlayerState* VictimState)
 {
 	if (const APlayerState* SelfState = GetPlayerState<APlayerState>(); AttackerState && VictimState && IsValidOwningHUD())
@@ -499,11 +490,6 @@ void ALBlasterPlayerController::BroadcastElim(APlayerState* AttackerState, APlay
 	ClientElimAnnouncement(AttackerState, VictimState);
 }
 
-void ALBlasterPlayerController::BroadcastChatText(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam)
-{
-	ClientAddChatText(InPlayerName, InText, InChatMode, SourceTeam);
-}
-
 void ALBlasterPlayerController::SetWeaponSlotIcon(EEquipSlot InEquipSlot, EWeaponType InWeaponType)
 {
 	if (IsValidOwningHUD())
@@ -534,27 +520,7 @@ void ALBlasterPlayerController::ServerLeaveGame_Implementation()
 	}
 }
 
-void ALBlasterPlayerController::ServerSendChatTextToAll_Implementation(const FString& InPlayerName, const FText& InText, EChatMode InChatMode)
-{
-	if (ALBlasterPlayerState* LBPlayerState = GetPlayerState<ALBlasterPlayerState>())
-	{
-		if (IsValidOwnerGameMode())
-		{
-			OwnerGameMode->SendChatTextToAll(InPlayerName, InText, InChatMode, LBPlayerState->GetTeam());
-		}	
-	}
-}
 
-void ALBlasterPlayerController::ServerSendChatTextToSameTeam_Implementation(const FString& InPlayerName, const FText& InText, EChatMode InChatMode)
-{
-	if (ALBlasterPlayerState* LBPlayerState = GetPlayerState<ALBlasterPlayerState>())
-	{
-		if (IsValidOwnerGameMode())
-		{
-			OwnerGameMode->SendChatTextToSameTeam(InPlayerName, InText, InChatMode, LBPlayerState->GetTeam());
-		}	
-	}
-}
 
 void ALBlasterPlayerController::ShowPauseMenu()
 {

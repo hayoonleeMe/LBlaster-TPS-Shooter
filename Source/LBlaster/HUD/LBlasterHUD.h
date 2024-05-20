@@ -64,14 +64,12 @@ public:
 	void AddAnnouncement();
 	void HideAnnouncement();
 	void AddElimAnnouncement(const FString& AttackerName, const FString& VictimName);
-	void AddChatUI();
 	void SetCooldownAnnouncement();
 	void InitSniperScope(const TSubclassOf<UUserWidget>& InSniperScopeClass);
 	void ShowSniperScopeWidget(bool bShowScope);
 	void HighPingWarning(float InDuration) const;
 	bool ShowPauseMenu();
 	void FocusChat() const;
-	void AddChatMessage(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam) const;
 	void ScrollChatBox(float InScrollValue) const;
 	void SetWeaponSlotIcon(EEquipSlot InEquipSlot, EWeaponType InWeaponType) const;
 	void ChooseWeaponSlot(EEquipSlot InEquipSlot) const;
@@ -84,6 +82,7 @@ public:
 	virtual void CreateGraphicSettingMenu() override;	
 	virtual void ReturnMenu(bool bForceReturn = false) override;
 	virtual void AddNewMenuToStack(ULBlasterUserWidget* InNewMenu) override;
+	virtual void AddChatMessage(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam) override;
 
 protected:
 	virtual void PostInitializeComponents() override;
@@ -156,6 +155,8 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UChatUI> ChatUI;
+
+	void AddChatUI();
 
 	/*
 	 *	Pause Menu

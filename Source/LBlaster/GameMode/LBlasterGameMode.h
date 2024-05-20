@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameMode.h"
+#include "BaseGameMode.h"
 #include "LBTypes/ChatMode.h"
 #include "LBTypes/Team.h"
 #include "LBlasterGameMode.generated.h"
@@ -17,7 +17,7 @@ namespace MatchState
  * 
  */
 UCLASS()
-class LBLASTER_API ALBlasterGameMode : public AGameMode
+class LBLASTER_API ALBlasterGameMode : public ABaseGameMode
 {
 	GENERATED_BODY()
 
@@ -40,9 +40,6 @@ public:
 	float CooldownTime;
 
 	float LevelStartingTime = 0.f;
-
-	void SendChatTextToAll(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam) const;
-	void SendChatTextToSameTeam(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam) const;
 
 protected:
 	virtual void BeginPlay() override;

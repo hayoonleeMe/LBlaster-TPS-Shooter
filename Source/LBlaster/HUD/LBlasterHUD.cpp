@@ -271,6 +271,14 @@ void ALBlasterHUD::AddNewMenuToStack(ULBlasterUserWidget* InNewMenu)
 	InNewMenu->MenuSetup();
 }
 
+void ALBlasterHUD::AddChatMessage(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam)
+{
+	if (ChatUI && ChatUI->ChatBox)
+    {
+    	ChatUI->ChatBox->AddChatMessage(InPlayerName, InText, InChatMode, SourceTeam);
+    }
+}
+
 void ALBlasterHUD::AddAnnouncement()
 {
 	if (IsValidOwnerController())
@@ -425,14 +433,6 @@ void ALBlasterHUD::FocusChat() const
 	if (ChatUI && ChatUI->ChatBox)
 	{
 		ChatUI->ChatBox->FocusChatEdit();
-	}
-}
-
-void ALBlasterHUD::AddChatMessage(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam) const
-{
-	if (ChatUI && ChatUI->ChatBox)
-	{
-		ChatUI->ChatBox->AddChatMessage(InPlayerName, InText, InChatMode, SourceTeam);
 	}
 }
 

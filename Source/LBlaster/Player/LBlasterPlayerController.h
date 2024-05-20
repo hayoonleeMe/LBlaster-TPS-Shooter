@@ -4,10 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
-#include "SessionHelperPlayerController.h"
-#include "LBTypes/ChatMode.h"
+#include "BasePlayerController.h"
 #include "LBTypes/EquipSlot.h"
-#include "LBTypes/Team.h"
 #include "LBTypes/WeaponTypes.h"
 #include "LBlasterPlayerController.generated.h"
 
@@ -15,7 +13,7 @@
  * 
  */
 UCLASS()
-class LBLASTER_API ALBlasterPlayerController : public ASessionHelperPlayerController
+class LBLASTER_API ALBlasterPlayerController : public ABasePlayerController
 {
 	GENERATED_BODY()
 
@@ -52,13 +50,6 @@ public:
 	void DisableMenuMappingContext() const;
 
 	void BroadcastElim(APlayerState* AttackerState, APlayerState* VictimState);
-	void BroadcastChatText(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam = ETeam::ET_MAX);
-
-	UFUNCTION(Server, Reliable)
-	void ServerSendChatTextToAll(const FString& InPlayerName, const FText& InText, EChatMode InChatMode);
-
-	UFUNCTION(Server, Reliable)
-	void ServerSendChatTextToSameTeam(const FString& InPlayerName, const FText& InText, EChatMode InChatMode);
 
 	void SetWeaponSlotIcon(EEquipSlot InEquipSlot, EWeaponType InWeaponType);
 	void ChooseWeaponSlot(EEquipSlot InEquipSlot);
@@ -191,10 +182,4 @@ private:
 	 */
 	UFUNCTION(Client, Reliable)
 	void ClientElimAnnouncement(APlayerState* AttackerState, APlayerState* VictimState);
-
-	/*
-	 *	Chat
-	 */
-	UFUNCTION(Client, Reliable)
-	void ClientAddChatText(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam = ETeam::ET_MAX);
 };

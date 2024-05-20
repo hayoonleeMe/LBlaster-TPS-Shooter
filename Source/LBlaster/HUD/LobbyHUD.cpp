@@ -3,7 +3,8 @@
 
 #include "HUD/LobbyHUD.h"
 
-#include "LobbyMenu.h"
+#include "ChatBox.h"
+#include "ChatUI.h"
 #include "LobbyMenuTeamDeathMatch.h"
 #include "MultiplayerSessionsSubsystem.h"
 #include "OnlineSessionSettings.h"
@@ -104,9 +105,9 @@ FNamedOnlineSession* ALobbyHUD::GetNamedSession() const
 
 void ALobbyHUD::FocusChat() const
 {
-	if (LobbyMenu)
+	if (ChatUI && ChatUI->ChatBox)
 	{
-		LobbyMenu->FocusChatEdit();
+		ChatUI->ChatBox->FocusChatEdit();
 	}
 }
 
@@ -210,6 +211,14 @@ void ALobbyHUD::BroadcastRemovePlayerList(ETeam InTeam, const FString& InName)
 	}
 }
 
+void ALobbyHUD::AddChatMessage(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam)
+{
+	if (ChatUI && ChatUI->ChatBox)
+	{
+		ChatUI->ChatBox->AddChatMessage(InPlayerName, InText, InChatMode, SourceTeam);
+	}
+}
+
 void ALobbyHUD::BeginPlay()
 {
 	Super::BeginPlay();
@@ -229,6 +238,7 @@ void ALobbyHUD::BeginPlay()
 			AddLobbyMenu(NamedOnlineSession->SessionSettings.NumPublicConnections);
 		}
 	}
+	AddChatUI();
 }
 
 void ALobbyHUD::PollInit()
@@ -304,7 +314,6 @@ void ALobbyHUD::AddLobbyMenu(int32 NumMaxPlayers)
 	{
 		LobbyMenu->MenuSetup();
 		LobbyMenu->SetNumMaxPlayersText(NumMaxPlayers);
-		LobbyMenu->InitializeChatBox(EChatMode::ECM_Lobby, true);
 
 		// 호스트를 리스트에 추가
 		if (IsValidOwnerController() && OwnerController->HasAuthority())
@@ -336,11 +345,24 @@ void ALobbyHUD::DestroyAllClientSession()
 		{
 			if (APlayerController* PlayerController = It->Get(); PlayerController != OwnerController)
 			{
-				if (ASessionHelperPlayerController* SHController = Cast<ASessionHelperPlayerController>(PlayerController))
+				if (ABasePlayerController* SHController = Cast<ABasePlayerController>(PlayerController))
 				{
 					SHController->ClientDestroySession();
 				}
 			}
 		}	
+	}
+}
+
+void ALobbyHUD::AddChatUI()
+{
+	if (IsValidOwnerController() && ChatUIClass)
+	{
+		ChatUI = CreateWidget<UChatUI>(OwnerController, ChatUIClass);
+		if (ChatUI && ChatUI->ChatBox)
+		{
+			ChatUI->AddToViewport();
+			ChatUI->ChatBox->InitializeChatBox(EChatMode::ECM_Lobby, true);
+		}
 	}
 }

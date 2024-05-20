@@ -120,7 +120,7 @@ void UPauseMenu::DestroyAllClientSession()
 		{
 			if (APlayerController* PlayerController = It->Get(); PlayerController != OwnerController)
 			{
-				if (ASessionHelperPlayerController* SHController = Cast<ASessionHelperPlayerController>(PlayerController))
+				if (ABasePlayerController* SHController = Cast<ABasePlayerController>(PlayerController))
 				{
 					SHController->ClientDestroySession();
 				}
