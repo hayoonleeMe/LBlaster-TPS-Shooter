@@ -10,6 +10,7 @@
 #include "Components/Overlay.h"
 #include "Components/TextBlock.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Player/LBlasterPlayerState.h"
 
 void ULobbyMenu::MenuSetup()
 {
@@ -151,6 +152,15 @@ void ULobbyMenu::AddNumCurrentPlayersText(int32 AmountToAdd)
 {
 	NumCurrentPlayers = FMath::Clamp(NumCurrentPlayers + AmountToAdd, 0, NumMaxPlayers);
 	SetNumPlayersText();
+}
+
+bool ULobbyMenu::IsValidOwnerPlayerState()
+{
+	if (!OwnerPlayerState && IsValidOwnerController())
+	{
+		OwnerPlayerState = OwnerController->GetPlayerState<ALBlasterPlayerState>();
+	}
+	return OwnerPlayerState != nullptr;
 }
 
 void ULobbyMenu::SetNumMaxPlayersText(int32 InNumMaxPlayers)

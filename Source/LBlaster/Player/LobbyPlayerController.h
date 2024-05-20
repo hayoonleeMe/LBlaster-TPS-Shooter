@@ -20,6 +20,9 @@ public:
 	
 	UFUNCTION(Client, Reliable)
 	void ClientSendAddPlayerList(ETeam InTeam, const FString& InName);
+	
+	UFUNCTION(Client, Reliable)
+	void ClientSendAddPlayerListFFA(const FString& InName);
 
 	bool bFirstTimeConnected = true;
 
@@ -31,6 +34,9 @@ public:
 
 	UFUNCTION(Client, Reliable)
 	void ClientSendRemovePlayerList(ETeam InTeam, const FString& InName);
+
+	UFUNCTION(Client, Reliable)
+	void ClientSendRemovePlayerListFFA(const FString& InName);
 
 protected:
 	virtual void BeginPlay() override;

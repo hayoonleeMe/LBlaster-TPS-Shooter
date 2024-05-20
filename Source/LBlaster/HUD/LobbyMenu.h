@@ -27,6 +27,17 @@ protected:
 	void SetNumPlayersText();
 	void SetNumPlayersText(int32 InNumCurrentPlayers, int32 InNumMaxPlayers);
 	void AddNumCurrentPlayersText(int32 AmountToAdd);
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Player List")
+	TSubclassOf<class UPlayerListRow> PlayerListRowClass;
+
+	/*
+	 *	Owner
+	 */
+	UPROPERTY()
+	TObjectPtr<class ALBlasterPlayerState> OwnerPlayerState;
+
+	bool IsValidOwnerPlayerState();
 	
 private:
 	/*

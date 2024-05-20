@@ -39,6 +39,14 @@ void ALobbyPlayerController::ClientSendAddPlayerList_Implementation(ETeam InTeam
 	}
 }
 
+void ALobbyPlayerController::ClientSendAddPlayerListFFA_Implementation(const FString& InName)
+{
+	if (ALobbyHUD* LobbyHUD = GetHUD<ALobbyHUD>())
+	{
+		LobbyHUD->AddNewPlayerForClient(ETeam::ET_NoTeam, InName);
+	}
+}
+
 void ALobbyPlayerController::ClientSendTeamChangePlayerList_Implementation(ETeam CurrentTeam, ETeam NewTeam, const FString& InName)
 {
 	if (ALobbyHUD* LobbyHUD = GetHUD<ALobbyHUD>())
@@ -63,6 +71,14 @@ void ALobbyPlayerController::ClientSendRemovePlayerList_Implementation(ETeam InT
 	if (ALobbyHUD* LobbyHUD = GetHUD<ALobbyHUD>())
 	{
 		LobbyHUD->RemoveExitingPlayer(InTeam, InName, false);
+	}
+}
+
+void ALobbyPlayerController::ClientSendRemovePlayerListFFA_Implementation(const FString& InName)
+{
+	if (ALobbyHUD* LobbyHUD = GetHUD<ALobbyHUD>())
+	{
+		LobbyHUD->RemoveExitingPlayer(ETeam::ET_NoTeam, InName, false);
 	}
 }
 
