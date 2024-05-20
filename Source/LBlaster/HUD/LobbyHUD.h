@@ -34,6 +34,8 @@ public:
 	void BroadcastAddPlayerList(ETeam InTeam, const FString& InName);
 	void BroadcastTeamChangePlayerList(ETeam CurrentTeam, ETeam NewTeam, const FString& InName);
 	void BroadcastRemovePlayerList(ETeam InTeam, const FString& InName);
+	void BroadcastAddPlayerList(const FString& InName);
+	void BroadcastRemovePlayerList(const FString& InName);
 
 	/*
 	 *	BaseHUD

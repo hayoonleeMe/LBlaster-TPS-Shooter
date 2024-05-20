@@ -5,6 +5,7 @@
 
 #include "ChatBox.h"
 #include "ChatUI.h"
+#include "LobbyMenuFreeForAll.h"
 #include "LobbyMenuTeamDeathMatch.h"
 #include "MultiplayerSessionsSubsystem.h"
 #include "OnlineSessionSettings.h"
@@ -16,16 +17,13 @@ void ALobbyHUD::AddNewPlayer(ALBlasterPlayerState* InPlayerState) const
 {
 	if (LobbyMenu)
 	{
-		if (GetMatchModeType() == EMatchMode::TeamDeathMatch)
+		if (ULobbyMenuTeamDeathMatch* LobbyMenuTDM = Cast<ULobbyMenuTeamDeathMatch>(LobbyMenu))
 		{
-			if (ULobbyMenuTeamDeathMatch* LobbyMenuTDM = Cast<ULobbyMenuTeamDeathMatch>(LobbyMenu))
-			{
-				LobbyMenuTDM->AddNewPlayer(InPlayerState);
-			}
+			LobbyMenuTDM->AddNewPlayer(InPlayerState);
 		}
-		else if (GetMatchModeType() == EMatchMode::FreeForAll)
+		if (ULobbyMenuFreeForAll* LobbyMenuFFA = Cast<ULobbyMenuFreeForAll>(LobbyMenu))
 		{
-			// TODO : FreeForAll	
+			LobbyMenuFFA->AddNewPlayer(InPlayerState->GetPlayerName());
 		}
 	}
 }
@@ -44,6 +42,10 @@ void ALobbyHUD::AddNewPlayerForClient(ETeam InTeam, const FString& InName)
 		if (ULobbyMenuTeamDeathMatch* LobbyMenuTDM = Cast<ULobbyMenuTeamDeathMatch>(LobbyMenu))
 		{
 			LobbyMenuTDM->AddNewPlayerForClient(InTeam, InName);
+		}
+		if (ULobbyMenuFreeForAll* LobbyMenuFFA = Cast<ULobbyMenuFreeForAll>(LobbyMenu))
+		{
+			LobbyMenuFFA->AddNewPlayerForClient(InName);
 		}
 	}
 }
@@ -77,6 +79,10 @@ void ALobbyHUD::RemoveExitingPlayer(ETeam InTeam, const FString& InName, bool bH
 		if (ULobbyMenuTeamDeathMatch* LobbyMenuTDM = Cast<ULobbyMenuTeamDeathMatch>(LobbyMenu))
 		{
 			LobbyMenuTDM->RemoveLogoutPlayer(InTeam, InName, bHasAuthority);
+		}
+		if (ULobbyMenuFreeForAll* LobbyMenuFFA = Cast<ULobbyMenuFreeForAll>(LobbyMenu))
+		{
+			LobbyMenuFFA->RemoveLogoutPlayer(InName, bHasAuthority);
 		}
 	}
 }
@@ -211,6 +217,52 @@ void ALobbyHUD::BroadcastRemovePlayerList(ETeam InTeam, const FString& InName)
 	}
 }
 
+void ALobbyHUD::BroadcastAddPlayerList(const FString& InName)
+{
+	if (UWorld* World = GetWorld())
+	{
+		for (FConstControllerIterator It = World->GetControllerIterator(); It; ++It)
+		{
+			if (IsValidOwnerController() && OwnerController != It->Get())
+			{
+				if (ALobbyPlayerController* LobbyPlayerController = Cast<ALobbyPlayerController>(It->Get()))
+				{
+					// 처음 연결된 클라이언트라면 호스트 이름도 적용시킴
+					if (LobbyPlayerController->bFirstTimeConnected && IsValidOwnerController())
+					{
+						if (ALBlasterPlayerState* LBPlayerState = OwnerController->GetPlayerState<ALBlasterPlayerState>())
+						{
+							LobbyPlayerController->bFirstTimeConnected = false;
+							LobbyPlayerController->ClientSendAddPlayerListFFA(LBPlayerState->GetPlayerName());
+						}
+					}
+
+					// 변경사항을 클라이언트에 적용
+					LobbyPlayerController->ClientSendAddPlayerListFFA(InName);
+				}
+			}
+		}
+	}
+}
+
+void ALobbyHUD::BroadcastRemovePlayerList(const FString& InName)
+{
+	if (UWorld* World = GetWorld())
+	{
+		for (FConstControllerIterator It = World->GetControllerIterator(); It; ++It)
+		{
+			if (IsValidOwnerController() && OwnerController != It->Get())
+			{
+				if (ALobbyPlayerController* LobbyPlayerController = Cast<ALobbyPlayerController>(It->Get()))
+				{
+					// 변경사항을 클라이언트에 적용
+					LobbyPlayerController->ClientSendRemovePlayerListFFA(InName);
+				}
+			}
+		}
+	}
+}
+
 void ALobbyHUD::AddChatMessage(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam)
 {
 	if (ChatUI && ChatUI->ChatBox)
@@ -320,17 +372,14 @@ void ALobbyHUD::AddLobbyMenu(int32 NumMaxPlayers)
 		{
 			if (ALBlasterPlayerState* LBPlayerState = OwnerController->GetPlayerState<ALBlasterPlayerState>())
 			{
-				if (GetMatchModeType() == EMatchMode::TeamDeathMatch)
+				if (ULobbyMenuTeamDeathMatch* LobbyMenuTDM = Cast<ULobbyMenuTeamDeathMatch>(LobbyMenu))
 				{
-					if (ULobbyMenuTeamDeathMatch* LobbyMenuTDM = Cast<ULobbyMenuTeamDeathMatch>(LobbyMenu))
-					{
-						LobbyMenuTDM->AddNewPlayer(LBPlayerState);
-					}
+					LobbyMenuTDM->AddNewPlayer(LBPlayerState);
 				}
-				else if (GetMatchModeType() == EMatchMode::FreeForAll)
+				if (ULobbyMenuFreeForAll* LobbyMenuFFA = Cast<ULobbyMenuFreeForAll>(LobbyMenu))
 				{
-					// TODO : FreeForAll	
-				}				
+					LobbyMenuFFA->AddNewPlayer(LBPlayerState->GetPlayerName());
+				}
 			}
 		}
 	}

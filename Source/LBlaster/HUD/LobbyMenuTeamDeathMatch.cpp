@@ -252,15 +252,6 @@ void ULobbyMenuTeamDeathMatch::RemoveLogoutPlayer(ETeam InTeam, const FString& I
 	AddNumCurrentPlayersText(-1);
 }
 
-bool ULobbyMenuTeamDeathMatch::IsValidOwnerPlayerState()
-{
-	if (!OwnerPlayerState && IsValidOwnerController())
-	{
-		OwnerPlayerState = OwnerController->GetPlayerState<ALBlasterPlayerState>();
-	}
-	return OwnerPlayerState != nullptr;
-}
-
 void ULobbyMenuTeamDeathMatch::OnRedTeamButtonClicked()
 {
 	if (IsValidOwnerPlayerState())

@@ -31,14 +31,6 @@ public:
 	
 private:
 	/*
-	 *	Owner
-	 */
-	UPROPERTY()
-	TObjectPtr<ALBlasterPlayerState> OwnerPlayerState;
-
-	bool IsValidOwnerPlayerState();
-	
-	/*
 	 *	Player List
 	 */
 	UPROPERTY(meta=(BindWidget))
@@ -58,9 +50,6 @@ private:
 	
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UVerticalBox> BlueTeamBox;
-
-	UPROPERTY(EditAnywhere, Category="LBlaster|Player List")
-	TSubclassOf<class UPlayerListRow> PlayerListRowClass;
 
 	void BroadcastAddPlayerList(ETeam InTeam, const FString& InName);
 	void BroadcastTeamChangePlayerList(ETeam CurrentTeam, ETeam NewTeam, const FString& InName);
