@@ -73,6 +73,12 @@ ALBlasterPlayerController::ALBlasterPlayerController()
 	{
 		ReturnMenuAction = ReturnMenuActionRef.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> ScoreboardActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_Scoreboard.IA_Scoreboard'"));
+	if (ScoreboardActionRef.Object)
+	{
+		ScoreboardAction = ScoreboardActionRef.Object;
+	}
 }
 
 void ALBlasterPlayerController::Tick(float DeltaSeconds)
@@ -93,6 +99,7 @@ void ALBlasterPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(FocusChatAction, ETriggerEvent::Triggered, this, &ThisClass::FocusChat);
 	EnhancedInputComponent->BindAction(ChatScrollAction, ETriggerEvent::Triggered, this, &ThisClass::ChatScroll);
 	EnhancedInputComponent->BindAction(ChangeChatModeAction, ETriggerEvent::Triggered, this, &ThisClass::ChangeChatMode);
+	EnhancedInputComponent->BindAction(ScoreboardAction, ETriggerEvent::Triggered, this, &ThisClass::ShowScoreboard);
 
 	/* IMC_PauseMenuContext */
 	EnhancedInputComponent->BindAction(PauseMenuAction, ETriggerEvent::Triggered, this, &ThisClass::ShowPauseMenu);
@@ -562,6 +569,14 @@ void ALBlasterPlayerController::ReturnMenu()
 	if (IsValidOwningHUD())
 	{
 		OwningHUD->ReturnMenu();
+	}
+}
+
+void ALBlasterPlayerController::ShowScoreboard(const FInputActionValue& ActionValue)
+{
+	if (IsValidOwningHUD())
+	{
+		OwningHUD->SetScoreboardVisibility(ActionValue.Get<bool>());
 	}
 }
 

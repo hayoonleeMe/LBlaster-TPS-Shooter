@@ -89,12 +89,16 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
 	TObjectPtr<UInputAction> ReturnMenuAction;
+	
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
+	TObjectPtr<UInputAction> ScoreboardAction;
 
 	void ShowPauseMenu();
 	void FocusChat();
 	void ChatScroll(const FInputActionValue& ActionValue);
 	void ChangeChatMode();
 	void ReturnMenu();
+	void ShowScoreboard(const FInputActionValue& ActionValue);
 
 protected:
 	virtual void BeginPlay() override;
