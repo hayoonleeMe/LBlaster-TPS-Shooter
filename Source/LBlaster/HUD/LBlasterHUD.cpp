@@ -12,6 +12,7 @@
 #include "MultiplayerSessionsSubsystem.h"
 #include "OnlineSessionSettings.h"
 #include "PauseMenu.h"
+#include "Scoreboard.h"
 #include "SettingMenu.h"
 #include "SniperScope.h"
 #include "Blueprint/UserWidget.h"
@@ -20,6 +21,7 @@
 #include "Player/LBlasterPlayerController.h"
 #include "Components/HorizontalBox.h"
 #include "HUD/ChatUI.h"
+#include "GameState/LBlasterGameState.h"
 
 ALBlasterHUD::ALBlasterHUD()
 {
@@ -279,6 +281,14 @@ void ALBlasterHUD::AddChatMessage(const FString& InPlayerName, const FText& InTe
     }
 }
 
+void ALBlasterHUD::UpdateScoreboard()
+{
+	if (Scoreboard && Scoreboard->IsVisible())
+	{
+		Scoreboard->UpdateBoard();
+	}
+}
+
 void ALBlasterHUD::AddAnnouncement()
 {
 	if (IsValidOwnerController())
@@ -349,6 +359,38 @@ void ALBlasterHUD::AddChatUI()
 			{
 				ChatUI->ChatBox->InitializeChatBox(EChatMode::ECM_FreeForAll, false);
 			}
+		}
+	}
+}
+
+void ALBlasterHUD::AddScoreboard()
+{
+	if (ScoreboardClassByMatchModeMap.Contains(GetMatchModeType()) && ScoreboardClassByMatchModeMap[GetMatchModeType()])
+	{
+		if (IsValidOwnerController())
+		{
+			Scoreboard = CreateWidget<UScoreboard>(OwnerController, ScoreboardClassByMatchModeMap[GetMatchModeType()]);
+			if (Scoreboard)
+			{
+				Scoreboard->MenuSetup();
+				Scoreboard->SetVisibility(ESlateVisibility::Collapsed);
+			}	
+		}
+	}
+}
+
+void ALBlasterHUD::SetScoreboardVisibility(bool bVisible)
+{
+	if (Scoreboard)
+	{
+		if (bVisible)
+		{
+			Scoreboard->SetVisibility(ESlateVisibility::Visible);
+			UpdateScoreboard();		
+		}
+		else
+		{
+			Scoreboard->SetVisibility(ESlateVisibility::Collapsed);
 		}
 	}
 }
@@ -501,6 +543,7 @@ void ALBlasterHUD::PostInitializeComponents()
 	AddCharacterOverlay();
 	HideAnnouncement();
 	AddChatUI();
+	AddScoreboard();
 }
 
 bool ALBlasterHUD::IsValidOwnerController()

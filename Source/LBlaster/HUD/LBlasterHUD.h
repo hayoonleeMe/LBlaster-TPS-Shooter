@@ -84,6 +84,12 @@ public:
 	virtual void AddNewMenuToStack(ULBlasterUserWidget* InNewMenu) override;
 	virtual void AddChatMessage(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam) override;
 
+	/*
+	 *	Scoreboard
+	 */
+	void UpdateScoreboard();
+	void SetScoreboardVisibility(bool bVisible);
+
 protected:
 	virtual void PostInitializeComponents() override;
 	
@@ -186,4 +192,15 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UGraphicSettingMenu> GraphicSettingMenu;
+
+	/*
+	 *	Scoreboard
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Scoreboard")
+	TMap<EMatchMode, TSubclassOf<class UScoreboard>> ScoreboardClassByMatchModeMap; 
+
+	UPROPERTY()
+	TObjectPtr<UScoreboard> Scoreboard;
+
+	void AddScoreboard();
 };
