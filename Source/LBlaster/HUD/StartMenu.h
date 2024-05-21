@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "LBlasterUserWidget.h"
 #include "Blueprint/UserWidget.h"
-#include "Interfaces/OnlineSessionInterface.h"
 #include "MatchModeTypes.h"
 #include "StartMenu.generated.h"
 
@@ -56,29 +55,26 @@ private:
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<class UOptionSelector> GameModeSelector;
 
+	void OnGameModeSelectorChanged(int32 InActiveIndex);
+
 	EMatchMode GetMatchModeType();
 
 	UPROPERTY(meta=(BindWidget))
-	TObjectPtr<class USliderWithNumericInput> MaxPlayerSlider;
-
-	int32 GetMaxPlayerValue();
-
-	float SliderInitialValue = 1.f;
-	float SliderMinValue = 1.f;
-	float SliderMaxValue = 10.f;
-	float SliderStepSize = 1.f;
+	TObjectPtr<class UDropDown> MaxPlayerDropDown;
+	
+	int32 GetMaxPlayerValue() const;
 
 	UPROPERTY(meta=(BindWidget))
-	TObjectPtr<UButton> AlertCreateSessionButton;
+	TObjectPtr<UButton> CreateSessionAlertCreateButton;
 
 	UFUNCTION()
-	void OnAlertCreateSessionButtonClicked();
+	void OnCreateSessionAlertCreateButtonClicked();
 
 	UPROPERTY(meta=(BindWidget))
-	TObjectPtr<UButton> AlertCancelButton;
+	TObjectPtr<UButton> CreateSessionAlertCancelButton;
 
 	UFUNCTION()
-	void OnAlertCancelButtonClicked();
+	void OnCreateSessionAlertCancelButtonClicked();
 
 	/*
 	 *	Loading Overlay

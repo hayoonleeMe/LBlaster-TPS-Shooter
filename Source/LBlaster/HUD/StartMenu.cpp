@@ -3,6 +3,7 @@
 
 #include "StartMenu.h"
 
+#include "DropDown.h"
 #include "MainMenu.h"
 #include "OptionSelector.h"
 #include "SliderWithNumericInput.h"
@@ -29,17 +30,21 @@ void UStartMenu::MenuSetup()
 	}
 
 	/* Create Session Alert Overlay */
-	if (MaxPlayerSlider)
+	if (GameModeSelector && !GameModeSelector->OnSwitcherActiveIndexChanged.IsBound())
 	{
-		MaxPlayerSlider->InitializeValues(SliderInitialValue, SliderMinValue, SliderMaxValue, SliderStepSize);
+		GameModeSelector->OnSwitcherActiveIndexChanged.BindUObject(this, &ThisClass::OnGameModeSelectorChanged);
 	}
-	if (AlertCreateSessionButton && !AlertCreateSessionButton->OnClicked.IsBound())
+	if (MaxPlayerDropDown)
 	{
-		AlertCreateSessionButton->OnClicked.AddDynamic(this, &ThisClass::OnAlertCreateSessionButtonClicked);
+		MaxPlayerDropDown->InitializeOptions(GetMatchModeType());
 	}
-	if (AlertCancelButton && !AlertCancelButton->OnClicked.IsBound())
+	if (CreateSessionAlertCreateButton && !CreateSessionAlertCreateButton->OnClicked.IsBound())
 	{
-		AlertCancelButton->OnClicked.AddDynamic(this, &ThisClass::OnAlertCancelButtonClicked);
+		CreateSessionAlertCreateButton->OnClicked.AddDynamic(this, &ThisClass::OnCreateSessionAlertCreateButtonClicked);
+	}
+	if (CreateSessionAlertCancelButton && !CreateSessionAlertCancelButton->OnClicked.IsBound())
+	{
+		CreateSessionAlertCancelButton->OnClicked.AddDynamic(this, &ThisClass::OnCreateSessionAlertCancelButtonClicked);
 	}
 
 	/* Create Session Fail Alert Overlay */
@@ -70,7 +75,7 @@ void UStartMenu::CloseOverlay()
 	}
 	else if (CreateSessionAlertOverlay && CreateSessionAlertOverlay->IsVisible())
 	{
-		OnAlertCancelButtonClicked();
+		OnCreateSessionAlertCancelButtonClicked();
 	}
 }
 
@@ -124,6 +129,15 @@ void UStartMenu::OnReturnButtonClicked()
 	}		
 }
 
+void UStartMenu::OnGameModeSelectorChanged(int32 InActiveIndex)
+{
+	// MaxPlayerDropDown은 게임 모드에 따라 다른 Option을 표시
+	if (MaxPlayerDropDown)
+	{
+		MaxPlayerDropDown->InitializeOptions(GetMatchModeType());
+	}
+}
+
 EMatchMode UStartMenu::GetMatchModeType()
 {
 	if (GameModeSelector)
@@ -144,16 +158,16 @@ EMatchMode UStartMenu::GetMatchModeType()
 	return EMatchMode();
 }
 
-int32 UStartMenu::GetMaxPlayerValue()
+int32 UStartMenu::GetMaxPlayerValue() const
 {
-	if (MaxPlayerSlider)
+	if (MaxPlayerDropDown)
 	{
-		return FMath::RoundToInt32(MaxPlayerSlider->GetSliderValue());
+		return MaxPlayerDropDown->GetSelectedValue();
 	}
 	return 0;
 }
 
-void UStartMenu::OnAlertCreateSessionButtonClicked()
+void UStartMenu::OnCreateSessionAlertCreateButtonClicked()
 {
 	SetLoadingOverlayVisibility(true);
 	
@@ -169,16 +183,16 @@ void UStartMenu::OnAlertCreateSessionButtonClicked()
 	}
 }
 
-void UStartMenu::OnAlertCancelButtonClicked()
+void UStartMenu::OnCreateSessionAlertCancelButtonClicked()
 {
 	// Input 위젯 초기화
 	if (GameModeSelector)
 	{
 		GameModeSelector->InitializeOptions();
 	}
-	if (MaxPlayerSlider)
+	if (MaxPlayerDropDown)
 	{
-		MaxPlayerSlider->InitializeValues(SliderInitialValue, SliderMinValue, SliderMaxValue, SliderStepSize);
+		MaxPlayerDropDown->InitializeOptions(GetMatchModeType());
 	}
 
 	// Create Session Alert Overlay 숨김
