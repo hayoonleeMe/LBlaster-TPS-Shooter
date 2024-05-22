@@ -3,6 +3,7 @@
 
 #include "LBlasterGameState.h"
 
+#include "HUD/LBlasterHUD.h"
 #include "Net/UnrealNetwork.h"
 
 void ALBlasterGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -13,6 +14,34 @@ void ALBlasterGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(ALBlasterGameState, RedTeamScore);
 	DOREPLIFETIME(ALBlasterGameState, BlueTeam);
 	DOREPLIFETIME(ALBlasterGameState, BlueTeamScore);
+}
+
+void ALBlasterGameState::OnRep_RedTeam()
+{
+	if (GetWorld())
+	{
+		if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+		{
+			if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
+			{
+				HUD->UpdateScoreboard(true);
+			}
+		}
+	}
+}
+
+void ALBlasterGameState::OnRep_BlueTeam()
+{
+	if (GetWorld())
+	{
+		if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+		{
+			if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
+			{
+				HUD->UpdateScoreboard(true);
+			}
+		}
+	}
 }
 
 void ALBlasterGameState::OnRep_RedTeamScore()

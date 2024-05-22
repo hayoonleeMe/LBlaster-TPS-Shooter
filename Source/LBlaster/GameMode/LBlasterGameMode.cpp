@@ -5,6 +5,7 @@
 
 #include "Character/LBlasterCharacter.h"
 #include "GameFramework/PlayerStart.h"
+#include "GameState/LBlasterGameState.h"
 #include "HUD/LBlasterHUD.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/LBlasterPlayerController.h"
@@ -96,6 +97,18 @@ void ALBlasterGameMode::PlayerEliminated(ALBlasterCharacter* EliminatedCharacter
 			{
 				AttackerPlayerState->AddToScore(1.f);
 				VictimPlayerState->AddToDeath(1);
+
+				// Update Scoreboard
+				if (GetWorld())
+				{
+					if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+					{
+						if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
+						{
+							HUD->UpdateScoreboard(false);
+						}	
+					}
+				}
 			}
 			
 			for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)

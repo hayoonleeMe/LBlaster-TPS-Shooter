@@ -4,8 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "BaseGameMode.h"
-#include "LBTypes/ChatMode.h"
-#include "LBTypes/Team.h"
 #include "LBlasterGameMode.generated.h"
 
 namespace MatchState

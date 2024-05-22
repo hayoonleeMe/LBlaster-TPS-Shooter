@@ -47,6 +47,8 @@ public:
 	void InitTeamFromGameInstance();
 
 	FTeamCharacterMaterials GetCharacterMaterials() const;
+	
+	FORCEINLINE int32 GetDeath() const { return Death; }
 
 protected:
 	virtual void CopyProperties(APlayerState* PlayerState) override;

@@ -281,11 +281,11 @@ void ALBlasterHUD::AddChatMessage(const FString& InPlayerName, const FText& InTe
     }
 }
 
-void ALBlasterHUD::UpdateScoreboard()
+void ALBlasterHUD::UpdateScoreboard(bool bTeamChanged)
 {
 	if (Scoreboard && Scoreboard->IsVisible())
 	{
-		Scoreboard->UpdateBoard();
+		Scoreboard->UpdateBoard(bTeamChanged);
 	}
 }
 
@@ -386,7 +386,7 @@ void ALBlasterHUD::SetScoreboardVisibility(bool bVisible)
 		if (bVisible)
 		{
 			Scoreboard->SetVisibility(ESlateVisibility::Visible);
-			UpdateScoreboard();		
+			UpdateScoreboard(false);		
 		}
 		else
 		{
