@@ -3,7 +3,17 @@
 
 #include "Scoreboard.h"
 
-void UScoreboard::UpdateBoard()
+#include "Player/LBlasterPlayerState.h"
+
+void UScoreboard::UpdateBoard(bool bTeamChanged)
 {
-	
+}
+
+bool UScoreboard::IsValidOwnerPlayerState()
+{
+	if (!OwnerPlayerState && IsValidOwnerController())
+	{
+		OwnerPlayerState = OwnerController->GetPlayerState<ALBlasterPlayerState>();
+	}
+	return OwnerPlayerState != nullptr;
 }

@@ -20,8 +20,11 @@ public:
 	/*
 	 *	Team
 	 */
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing=OnRep_RedTeam)
 	TArray<TObjectPtr<class ALBlasterPlayerState>> RedTeam;
+
+	UFUNCTION()
+	void OnRep_RedTeam();
 
 	UPROPERTY(ReplicatedUsing=OnRep_RedTeamScore)
 	float RedTeamScore;
@@ -29,8 +32,11 @@ public:
 	UFUNCTION()
 	void OnRep_RedTeamScore();
 
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing=OnRep_BlueTeam)
 	TArray<TObjectPtr<ALBlasterPlayerState>> BlueTeam;
+
+	UFUNCTION()
+	void OnRep_BlueTeam();
 
 	UPROPERTY(ReplicatedUsing=OnRep_BlueTeamScore)
 	float BlueTeamScore;

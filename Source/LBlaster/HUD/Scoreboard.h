@@ -15,8 +15,17 @@ class LBLASTER_API UScoreboard : public ULBlasterUserWidget
 	GENERATED_BODY()
 
 public:
-	virtual void UpdateBoard();
+	virtual void UpdateBoard(bool bTeamChanged);
 
+protected:
+	/*
+	 *	Owner
+	 */
+	UPROPERTY()
+	TObjectPtr<class ALBlasterPlayerState> OwnerPlayerState;
+
+	bool IsValidOwnerPlayerState();
+	
 private:
 	UPROPERTY(EditAnywhere, Category="LBlaster")
 	TSubclassOf<class UScoreboardRow> ScoreboardRowClass;

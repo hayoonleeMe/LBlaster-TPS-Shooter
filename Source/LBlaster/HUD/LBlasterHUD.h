@@ -87,7 +87,7 @@ public:
 	/*
 	 *	Scoreboard
 	 */
-	void UpdateScoreboard();
+	void UpdateScoreboard(bool bTeamChanged);
 	void SetScoreboardVisibility(bool bVisible);
 
 protected:

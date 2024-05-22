@@ -4,6 +4,7 @@
 #include "TeamGameMode.h"
 
 #include "GameState/LBlasterGameState.h"
+#include "HUD/LBlasterHUD.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/LBlasterPlayerState.h"
 
@@ -51,6 +52,17 @@ void ATeamGameMode::Logout(AController* Exiting)
 			if (LBGameState->BlueTeam.Contains(PlayerState))
 			{
 				LBGameState->BlueTeam.Remove(PlayerState);
+			}
+
+			if (GetWorld())
+			{
+				if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+				{
+					if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
+					{
+						HUD->UpdateScoreboard(true);
+					}
+				}
 			}
 		}
 	}

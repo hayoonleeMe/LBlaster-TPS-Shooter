@@ -7,6 +7,7 @@
 #include "Character/LBlasterCharacter.h"
 #include "GameInstance/LBGameInstance.h"
 #include "GameState/LBlasterGameState.h"
+#include "HUD/LBlasterHUD.h"
 #include "Net/UnrealNetwork.h"
 
 ALBlasterPlayerState::ALBlasterPlayerState()
@@ -33,6 +34,17 @@ void ALBlasterPlayerState::OnRep_Score()
 	{
 		OwnerController->SetHUDScore(GetScore());
 	}
+
+	if (GetWorld())
+	{
+		if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+		{
+			if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
+			{
+				HUD->UpdateScoreboard(false);
+			}	
+		}
+	}
 }
 
 void ALBlasterPlayerState::OnRep_Death()
@@ -40,6 +52,17 @@ void ALBlasterPlayerState::OnRep_Death()
 	if (IsValidOwnerCharacter() && IsValidOwnerController())
 	{
 		OwnerController->SetHUDDeath(Death);
+	}
+
+	if (GetWorld())
+	{
+		if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+		{
+			if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
+			{
+				HUD->UpdateScoreboard(false);
+			}	
+		}
 	}
 }
 
@@ -70,16 +93,30 @@ void ALBlasterPlayerState::AddToScore(float InScoreAmount)
 
 void ALBlasterPlayerState::InitTeam()
 {
-	if (ALBlasterGameState* GameState = GetWorld()->GetGameState<ALBlasterGameState>())
+	if (HasAuthority())
 	{
-		if (Team == ETeam::ET_RedTeam)
+		if (ALBlasterGameState* GameState = GetWorld()->GetGameState<ALBlasterGameState>())
 		{
-			GameState->RedTeam.Add(this);
-		}
-		else if (Team == ETeam::ET_BlueTeam)
-		{
-			GameState->BlueTeam.Add(this);
-		}
+			if (Team == ETeam::ET_RedTeam && !GameState->RedTeam.Contains(this))
+			{
+				GameState->RedTeam.Add(this);
+			}
+			else if (Team == ETeam::ET_BlueTeam && !GameState->BlueTeam.Contains(this))
+			{
+				GameState->BlueTeam.Add(this);
+			}
+
+			if (GetWorld())
+			{
+				if (APlayerController* FirstPlayerController = GetWorld()->GetFirstPlayerController())
+				{
+					if (ALBlasterHUD* HUD = FirstPlayerController->GetHUD<ALBlasterHUD>())
+					{
+						HUD->UpdateScoreboard(false);
+					}		
+				}
+			}
+		}		
 	}
 }
 
