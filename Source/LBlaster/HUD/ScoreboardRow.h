@@ -16,13 +16,13 @@ class LBLASTER_API UScoreboardRow : public UUserWidget
 
 public:
 	void SetScoreboardRowText(const FString& InPlayerName, int32 InScore, int32 InDeath);
-	void EmptyScoreboardRowText();
+	virtual void EmptyScoreboardRowText();
 	void HighlightRowText() const;
 	void UnhighlightRowText() const;
 
 	bool bTextSet = false;
 
-private:
+protected:
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<class UTextBlock> PlayerNameText;
 

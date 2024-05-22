@@ -281,11 +281,11 @@ void ALBlasterHUD::AddChatMessage(const FString& InPlayerName, const FText& InTe
     }
 }
 
-void ALBlasterHUD::UpdateScoreboard(bool bTeamChanged)
+void ALBlasterHUD::UpdateScoreboard(bool bPlayerListChanged)
 {
 	if (Scoreboard && Scoreboard->IsVisible())
 	{
-		Scoreboard->UpdateBoard(bTeamChanged);
+		Scoreboard->UpdateBoard(bPlayerListChanged);
 	}
 }
 

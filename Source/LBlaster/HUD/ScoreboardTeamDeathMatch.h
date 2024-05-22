@@ -15,7 +15,7 @@ class LBLASTER_API UScoreboardTeamDeathMatch : public UScoreboard
 	GENERATED_BODY()
 
 public:
-	virtual void UpdateBoard(bool bTeamChanged) override;
+	virtual void UpdateBoard(bool bPlayerListChanged) override;
 
 private:
 	UPROPERTY(meta=(BindWidget))
