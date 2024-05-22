@@ -8,9 +8,9 @@
 #include "GameState/LBlasterGameState.h"
 #include "Player/LBlasterPlayerState.h"
 
-void UScoreboardTeamDeathMatch::UpdateBoard(bool bTeamChanged)
+void UScoreboardTeamDeathMatch::UpdateBoard(bool bPlayerListChanged)
 {
-	if (GetWorld() && RedTeamBox && BlueTeamBox && IsValidOwnerController() && IsValidOwnerPlayerState())
+	if (GetWorld() && RedTeamBox && BlueTeamBox && IsValidOwnerPlayerState())
 	{
 		if (ALBlasterGameState* LBGameState = GetWorld()->GetGameState<ALBlasterGameState>())
 		{
@@ -49,7 +49,7 @@ void UScoreboardTeamDeathMatch::UpdateBoard(bool bTeamChanged)
 					}
 				}
 			}
-			if (bTeamChanged)
+			if (bPlayerListChanged)
 			{
 				// Text가 설정된 Row가 남아있으면 모두 Text 제거
 				for (; Index < RedTeamBox->GetSlots().Num(); ++Index)
@@ -85,7 +85,7 @@ void UScoreboardTeamDeathMatch::UpdateBoard(bool bTeamChanged)
 					}
 				}
 			}
-			if (bTeamChanged)
+			if (bPlayerListChanged)
 			{
 				// Text가 설정된 Row가 남아있으면 모두 Text 제거
 				for (; Index < BlueTeamBox->GetSlots().Num(); ++Index)

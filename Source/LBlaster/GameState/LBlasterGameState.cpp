@@ -16,6 +16,38 @@ void ALBlasterGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(ALBlasterGameState, BlueTeamScore);
 }
 
+void ALBlasterGameState::AddPlayerState(APlayerState* PlayerState)
+{
+	Super::AddPlayerState(PlayerState);
+
+	if (GetWorld())
+	{
+		if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+		{
+			if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
+			{
+				HUD->UpdateScoreboard(true);
+			}
+		}
+	}
+}
+
+void ALBlasterGameState::RemovePlayerState(APlayerState* PlayerState)
+{
+	Super::RemovePlayerState(PlayerState);
+
+	if (GetWorld())
+    {
+    	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+    	{
+    		if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
+    		{
+    			HUD->UpdateScoreboard(true);
+    		}
+    	}
+	}	
+}
+
 void ALBlasterGameState::OnRep_RedTeam()
 {
 	if (GetWorld())
