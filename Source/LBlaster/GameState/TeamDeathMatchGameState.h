@@ -17,11 +17,24 @@ class LBLASTER_API ATeamDeathMatchGameState : public AGameState
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	void AddUniqueRedTeamPlayer(class ALBlasterPlayerState* InPlayerState);
+	void AddUniqueBlueTeamPlayer(ALBlasterPlayerState* InPlayerState);
+	void RemoveRedTeamPlayer(ALBlasterPlayerState* InPlayerState);
+	void RemoveBlueTeamPlayer(ALBlasterPlayerState* InPlayerState);
+	void SortRedTeamByKda();
+	void SortBlueTeamByKda();
+	
+	FORCEINLINE int32 GetRedTeamNum() const { return RedTeam.Num(); }
+	FORCEINLINE int32 GetBlueTeamNum() const { return BlueTeam.Num(); }
+	const TArray<TObjectPtr<ALBlasterPlayerState>>& GetRedTeam() const { return RedTeam; }
+	const TArray<TObjectPtr<ALBlasterPlayerState>>& GetBlueTeam() const { return BlueTeam; }
+
+private:
 	/*
 	 *	Team
 	 */
 	UPROPERTY(ReplicatedUsing=OnRep_RedTeam)
-	TArray<TObjectPtr<class ALBlasterPlayerState>> RedTeam;
+	TArray<TObjectPtr<ALBlasterPlayerState>> RedTeam;
 
 	UFUNCTION()
 	void OnRep_RedTeam();
