@@ -110,7 +110,10 @@ UCombatComponent::UCombatComponent()
 	if (RightCrosshairRef.Object)
 	{
 		DefaultCrosshair.RightCrosshair = RightCrosshairRef.Object;
-	}	
+	}
+
+	/* Auto Fire */
+	bCanFire = true;
 }
 
 void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

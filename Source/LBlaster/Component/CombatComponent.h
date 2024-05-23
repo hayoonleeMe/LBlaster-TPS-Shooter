@@ -240,6 +240,7 @@ private:
 
 	FTimerHandle EquipDelayTimer;
 
+	UPROPERTY(EditAnywhere, Category="LBlaster|Weapon")
 	float EquipDelay = 0.4f;
 
 	bool bCanEquipWeapon = true;
@@ -384,9 +385,10 @@ private:
 	/*
 	 *	Auto Fire
 	 */
-	bool bCanFire = true;
-	FTimerHandle FireTimer;
+	UPROPERTY()
+	bool bCanFire;
 	
+	FTimerHandle FireTimer;
 	void StartFireTimer();
 	void FireTimerFinished();
 
