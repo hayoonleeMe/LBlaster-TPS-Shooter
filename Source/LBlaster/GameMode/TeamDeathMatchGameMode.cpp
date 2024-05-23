@@ -26,8 +26,8 @@ void ATeamDeathMatchGameMode::PostLogin(APlayerController* NewPlayer)
 	{
 		if (ALBlasterPlayerState* PlayerState = NewPlayer->GetPlayerState<ALBlasterPlayerState>())
 		{
-			const int32 NumRedTeam = TDMGameState->RedTeam.Num();
-			const int32 NumBlueTeam = TDMGameState->BlueTeam.Num();
+			const int32 NumRedTeam = TDMGameState->GetRedTeamNum();
+			const int32 NumBlueTeam = TDMGameState->GetBlueTeamNum();
 
 			if (NumRedTeam <= NumBlueTeam)
 			{
@@ -49,14 +49,8 @@ void ATeamDeathMatchGameMode::Logout(AController* Exiting)
 	{
 		if (ALBlasterPlayerState* PlayerState = Exiting->GetPlayerState<ALBlasterPlayerState>())
 		{
-			if (TDMGameState->RedTeam.Contains(PlayerState))
-			{
-				TDMGameState->RedTeam.Remove(PlayerState);
-			}
-			if (TDMGameState->BlueTeam.Contains(PlayerState))
-			{
-				TDMGameState->BlueTeam.Remove(PlayerState);
-			}
+			TDMGameState->RemoveRedTeamPlayer(PlayerState);
+			TDMGameState->RemoveBlueTeamPlayer(PlayerState);
 
 			if (GetWorld())
 			{

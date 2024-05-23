@@ -15,24 +15,14 @@ void UScoreboardTeamDeathMatch::UpdateBoard(bool bPlayerListChanged)
 		if (ATeamDeathMatchGameState* TDMGameState = GetWorld()->GetGameState<ATeamDeathMatchGameState>())
 		{
 			// KDA로 팀별 PlayerState 정렬
-			Algo::Sort(TDMGameState->RedTeam, [](const ALBlasterPlayerState* A, const ALBlasterPlayerState* B)
-			{
-				const float A_KDA = A->GetDeath() != 0 ? A->GetScore() / A->GetDeath() : A->GetScore();
-				const float B_KDA = B->GetDeath() != 0 ? B->GetScore() / B->GetDeath() : B->GetScore();
-				return A_KDA > B_KDA;
-			});
-			Algo::Sort(TDMGameState->BlueTeam, [](const ALBlasterPlayerState* A, const ALBlasterPlayerState* B)
-			{
-				const float A_Kda = A->GetDeath() != 0 ? A->GetScore() / A->GetDeath() : A->GetScore();
-				const float B_Kda = B->GetDeath() != 0 ? B->GetScore() / B->GetDeath() : B->GetScore();
-				return A_Kda > B_Kda;
-			});
+			TDMGameState->SortRedTeamByKda();
+			TDMGameState->SortBlueTeamByKda();
 
 			// 정렬된 PlayerState들로 RedTeam Vertical Box의 Row의 Text 설정
 			int32 Index = 0;
-			for (; Index < TDMGameState->RedTeam.Num(); ++Index)
+			for (; Index < TDMGameState->GetRedTeamNum(); ++Index)
 			{
-				if (ALBlasterPlayerState* LBPlayerState = TDMGameState->RedTeam[Index])
+				if (ALBlasterPlayerState* LBPlayerState = TDMGameState->GetRedTeam()[Index])
 				{
 					if (UScoreboardRow* Row = Cast<UScoreboardRow>(RedTeamBox->GetSlots()[Index]->Content))
 					{
@@ -66,9 +56,9 @@ void UScoreboardTeamDeathMatch::UpdateBoard(bool bPlayerListChanged)
 
 			// 정렬된 PlayerState들로 BlueTeam Vertical Box의 Row의 Text 설정
 			Index = 0;
-			for (; Index < TDMGameState->BlueTeam.Num(); ++Index)
+			for (; Index < TDMGameState->GetBlueTeamNum(); ++Index)
 			{
-				if (ALBlasterPlayerState* LBPlayerState = TDMGameState->BlueTeam[Index])
+				if (ALBlasterPlayerState* LBPlayerState = TDMGameState->GetBlueTeam()[Index])
 				{
 					if (UScoreboardRow* Row = Cast<UScoreboardRow>(BlueTeamBox->GetSlots()[Index]->Content))
 					{

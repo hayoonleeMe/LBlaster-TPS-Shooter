@@ -97,13 +97,13 @@ void ALBlasterPlayerState::InitTeam()
 	{
 		if (ATeamDeathMatchGameState* TDMGameState = GetWorld()->GetGameState<ATeamDeathMatchGameState>())
 		{
-			if (Team == ETeam::ET_RedTeam && !TDMGameState->RedTeam.Contains(this))
+			if (Team == ETeam::ET_RedTeam)
 			{
-				TDMGameState->RedTeam.Add(this);
+				TDMGameState->AddUniqueRedTeamPlayer(this);
 			}
-			else if (Team == ETeam::ET_BlueTeam && !TDMGameState->BlueTeam.Contains(this))
+			else if (Team == ETeam::ET_BlueTeam)
 			{
-				TDMGameState->BlueTeam.Add(this);
+				TDMGameState->AddUniqueBlueTeamPlayer(this);
 			}
 
 			if (GetWorld())
