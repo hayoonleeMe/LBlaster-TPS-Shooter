@@ -90,6 +90,13 @@ public:
 	void UpdateScoreboard(bool bPlayerListChanged);
 	void SetScoreboardVisibility(bool bVisible);
 
+	/*
+	 *	Mini Scoreboard
+	 */
+	void SetGoalScoreMiniScoreboard(const int32 InGoalScore) const;
+	void UpdateTeamScoreMiniScoreboard(const ETeam InTeam, const int32 InTeamScore) const;
+	void UpdateTotalScoreMiniScoreboard(const int32 InTotalScore) const;
+
 protected:
 	virtual void PostInitializeComponents() override;
 	
@@ -203,4 +210,15 @@ private:
 	TObjectPtr<UScoreboard> Scoreboard;
 
 	void AddScoreboard();
+
+	/*
+	 *	Mini Scoreboard
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Mini Scoreboard")
+	TMap<EMatchMode, TSubclassOf<class UMiniScoreboard>> MiniScoreboardClassByMatchModeMap; 
+
+	UPROPERTY()
+	TObjectPtr<UMiniScoreboard> MiniScoreboard;
+
+	void AddMiniScoreboard();
 };
