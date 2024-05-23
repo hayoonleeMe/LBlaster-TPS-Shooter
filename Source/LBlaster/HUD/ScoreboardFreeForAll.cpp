@@ -6,7 +6,7 @@
 #include "ScoreboardRowWithRank.h"
 #include "Components/VerticalBox.h"
 #include "GameFramework/PlayerState.h"
-#include "GameState/LBlasterGameState.h"
+#include "GameState/FreeForAllGameState.h"
 #include "Player/LBlasterPlayerState.h"
 
 void UScoreboardFreeForAll::UpdateBoard(bool bPlayerListChanged)
@@ -15,10 +15,10 @@ void UScoreboardFreeForAll::UpdateBoard(bool bPlayerListChanged)
 
 	if (GetWorld() && LeftBox && RightBox && IsValidOwnerPlayerState())
 	{
-		if (ALBlasterGameState* LBGameState = GetWorld()->GetGameState<ALBlasterGameState>())
+		if (AFreeForAllGameState* FFAGameState = GetWorld()->GetGameState<AFreeForAllGameState>())
 		{
 			// ALBlasterPlayerState로 캐스팅해 복사
-			for (APlayerState* PlayerState : LBGameState->PlayerArray)
+			for (APlayerState* PlayerState : FFAGameState->PlayerArray)
 			{
 				if (ALBlasterPlayerState* LBPlayerState = Cast<ALBlasterPlayerState>(PlayerState))
 				{

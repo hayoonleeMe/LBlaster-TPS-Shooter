@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "LBlasterGameMode.h"
-#include "TeamGameMode.generated.h"
+#include "TeamDeathMatchGameMode.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class LBLASTER_API ATeamGameMode : public ALBlasterGameMode
+class LBLASTER_API ATeamDeathMatchGameMode : public ALBlasterGameMode
 {
 	GENERATED_BODY()
 
 public:
-	ATeamGameMode();
+	ATeamDeathMatchGameMode();
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	virtual void Logout(AController* Exiting) override;
 };

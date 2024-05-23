@@ -5,7 +5,6 @@
 
 #include "Character/LBlasterCharacter.h"
 #include "GameFramework/PlayerStart.h"
-#include "GameState/LBlasterGameState.h"
 #include "HUD/LBlasterHUD.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/LBlasterPlayerController.h"
