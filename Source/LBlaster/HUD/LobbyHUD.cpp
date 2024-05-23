@@ -10,6 +10,7 @@
 #include "MultiplayerSessionsSubsystem.h"
 #include "OnlineSessionSettings.h"
 #include "Blueprint/UserWidget.h"
+#include "GameMode/LobbyGameMode.h"
 #include "Player/LBlasterPlayerState.h"
 #include "Player/LobbyPlayerController.h"
 
@@ -141,7 +142,14 @@ void ALobbyHUD::TravelToMatch()
 {
 	if (UWorld* World = GetWorld())
 	{
-		World->ServerTravel(FString(TEXT("/Game/LBlaster/Maps/LBlasterMap?listen")));	// TODO : 경로 캐싱
+		if (GetMatchModeType() == EMatchMode::TeamDeathMatch)
+		{
+			World->ServerTravel(ALobbyGameMode::TeamDeathMatchTestMapPath);
+		}
+		else if (GetMatchModeType() == EMatchMode::FreeForAll)
+		{
+			World->ServerTravel(ALobbyGameMode::FreeForAllTestMapPath);
+		}
 	}
 }
 
