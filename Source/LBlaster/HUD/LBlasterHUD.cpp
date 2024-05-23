@@ -21,7 +21,6 @@
 #include "Player/LBlasterPlayerController.h"
 #include "Components/HorizontalBox.h"
 #include "HUD/ChatUI.h"
-#include "GameState/LBlasterGameState.h"
 
 ALBlasterHUD::ALBlasterHUD()
 {

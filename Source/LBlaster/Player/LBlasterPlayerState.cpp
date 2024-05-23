@@ -6,7 +6,7 @@
 #include "LBlasterPlayerController.h"
 #include "Character/LBlasterCharacter.h"
 #include "GameInstance/LBGameInstance.h"
-#include "GameState/LBlasterGameState.h"
+#include "GameState/TeamDeathMatchGameState.h"
 #include "HUD/LBlasterHUD.h"
 #include "Net/UnrealNetwork.h"
 
@@ -95,15 +95,15 @@ void ALBlasterPlayerState::InitTeam()
 {
 	if (HasAuthority())
 	{
-		if (ALBlasterGameState* GameState = GetWorld()->GetGameState<ALBlasterGameState>())
+		if (ATeamDeathMatchGameState* TDMGameState = GetWorld()->GetGameState<ATeamDeathMatchGameState>())
 		{
-			if (Team == ETeam::ET_RedTeam && !GameState->RedTeam.Contains(this))
+			if (Team == ETeam::ET_RedTeam && !TDMGameState->RedTeam.Contains(this))
 			{
-				GameState->RedTeam.Add(this);
+				TDMGameState->RedTeam.Add(this);
 			}
-			else if (Team == ETeam::ET_BlueTeam && !GameState->BlueTeam.Contains(this))
+			else if (Team == ETeam::ET_BlueTeam && !TDMGameState->BlueTeam.Contains(this))
 			{
-				GameState->BlueTeam.Add(this);
+				TDMGameState->BlueTeam.Add(this);
 			}
 
 			if (GetWorld())

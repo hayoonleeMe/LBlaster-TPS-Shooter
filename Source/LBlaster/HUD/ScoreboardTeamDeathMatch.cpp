@@ -5,23 +5,23 @@
 
 #include "ScoreboardRow.h"
 #include "Components/VerticalBox.h"
-#include "GameState/LBlasterGameState.h"
+#include "GameState/TeamDeathMatchGameState.h"
 #include "Player/LBlasterPlayerState.h"
 
 void UScoreboardTeamDeathMatch::UpdateBoard(bool bPlayerListChanged)
 {
 	if (GetWorld() && RedTeamBox && BlueTeamBox && IsValidOwnerPlayerState())
 	{
-		if (ALBlasterGameState* LBGameState = GetWorld()->GetGameState<ALBlasterGameState>())
+		if (ATeamDeathMatchGameState* TDMGameState = GetWorld()->GetGameState<ATeamDeathMatchGameState>())
 		{
 			// KDA로 팀별 PlayerState 정렬
-			Algo::Sort(LBGameState->RedTeam, [](const ALBlasterPlayerState* A, const ALBlasterPlayerState* B)
+			Algo::Sort(TDMGameState->RedTeam, [](const ALBlasterPlayerState* A, const ALBlasterPlayerState* B)
 			{
 				const float A_KDA = A->GetDeath() != 0 ? A->GetScore() / A->GetDeath() : A->GetScore();
 				const float B_KDA = B->GetDeath() != 0 ? B->GetScore() / B->GetDeath() : B->GetScore();
 				return A_KDA > B_KDA;
 			});
-			Algo::Sort(LBGameState->BlueTeam, [](const ALBlasterPlayerState* A, const ALBlasterPlayerState* B)
+			Algo::Sort(TDMGameState->BlueTeam, [](const ALBlasterPlayerState* A, const ALBlasterPlayerState* B)
 			{
 				const float A_Kda = A->GetDeath() != 0 ? A->GetScore() / A->GetDeath() : A->GetScore();
 				const float B_Kda = B->GetDeath() != 0 ? B->GetScore() / B->GetDeath() : B->GetScore();
@@ -30,9 +30,9 @@ void UScoreboardTeamDeathMatch::UpdateBoard(bool bPlayerListChanged)
 
 			// 정렬된 PlayerState들로 RedTeam Vertical Box의 Row의 Text 설정
 			int32 Index = 0;
-			for (; Index < LBGameState->RedTeam.Num(); ++Index)
+			for (; Index < TDMGameState->RedTeam.Num(); ++Index)
 			{
-				if (ALBlasterPlayerState* LBPlayerState = LBGameState->RedTeam[Index])
+				if (ALBlasterPlayerState* LBPlayerState = TDMGameState->RedTeam[Index])
 				{
 					if (UScoreboardRow* Row = Cast<UScoreboardRow>(RedTeamBox->GetSlots()[Index]->Content))
 					{
@@ -66,9 +66,9 @@ void UScoreboardTeamDeathMatch::UpdateBoard(bool bPlayerListChanged)
 
 			// 정렬된 PlayerState들로 BlueTeam Vertical Box의 Row의 Text 설정
 			Index = 0;
-			for (; Index < LBGameState->BlueTeam.Num(); ++Index)
+			for (; Index < TDMGameState->BlueTeam.Num(); ++Index)
 			{
-				if (ALBlasterPlayerState* LBPlayerState = LBGameState->BlueTeam[Index])
+				if (ALBlasterPlayerState* LBPlayerState = TDMGameState->BlueTeam[Index])
 				{
 					if (UScoreboardRow* Row = Cast<UScoreboardRow>(BlueTeamBox->GetSlots()[Index]->Content))
 					{
