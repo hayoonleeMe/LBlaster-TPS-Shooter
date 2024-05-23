@@ -9,6 +9,9 @@
 #include "ElimAnnouncement.h"
 #include "GraphicSettingMenu.h"
 #include "LBlaster.h"
+#include "MiniScoreboard.h"
+#include "MiniScoreboardFreeForAll.h"
+#include "MiniScoreboardTeamDeathMatch.h"
 #include "MultiplayerSessionsSubsystem.h"
 #include "OnlineSessionSettings.h"
 #include "PauseMenu.h"
@@ -378,6 +381,21 @@ void ALBlasterHUD::AddScoreboard()
 	}
 }
 
+void ALBlasterHUD::AddMiniScoreboard()
+{
+	if (MiniScoreboardClassByMatchModeMap.Contains(GetMatchModeType()) && MiniScoreboardClassByMatchModeMap[GetMatchModeType()])
+	{
+		if (IsValidOwnerController())
+		{
+			MiniScoreboard = CreateWidget<UMiniScoreboard>(OwnerController, MiniScoreboardClassByMatchModeMap[GetMatchModeType()]);
+			if (MiniScoreboard)
+			{
+				MiniScoreboard->MenuSetup();
+			}	
+		}
+	}
+}
+
 void ALBlasterHUD::SetScoreboardVisibility(bool bVisible)
 {
 	if (Scoreboard)
@@ -390,6 +408,43 @@ void ALBlasterHUD::SetScoreboardVisibility(bool bVisible)
 		else
 		{
 			Scoreboard->SetVisibility(ESlateVisibility::Collapsed);
+		}
+	}
+}
+
+void ALBlasterHUD::SetGoalScoreMiniScoreboard(const int32 InGoalScore) const
+{
+	if (MiniScoreboard)
+	{
+		MiniScoreboard->SetGoalScoreText(InGoalScore);
+	}
+}
+
+void ALBlasterHUD::UpdateTeamScoreMiniScoreboard(const ETeam InTeam, const int32 InTeamScore) const
+{
+	if (MiniScoreboard)
+	{
+		if (UMiniScoreboardTeamDeathMatch* MiniScoreboardTDM = Cast<UMiniScoreboardTeamDeathMatch>(MiniScoreboard))
+		{
+			if (InTeam == ETeam::ET_RedTeam)
+			{
+				MiniScoreboardTDM->SetRedTeamScoreText(InTeamScore);
+			}
+			else if (InTeam == ETeam::ET_BlueTeam)
+			{
+				MiniScoreboardTDM->SetBlueTeamScoreText(InTeamScore);
+			}
+		}
+	}
+}
+
+void ALBlasterHUD::UpdateTotalScoreMiniScoreboard(const int32 InTotalScore) const
+{
+	if (MiniScoreboard)
+	{
+		if (UMiniScoreboardFreeForAll* MiniScoreboardFFA = Cast<UMiniScoreboardFreeForAll>(MiniScoreboard))
+		{
+			MiniScoreboardFFA->SetTotalScoreText(InTotalScore);
 		}
 	}
 }
@@ -543,6 +598,7 @@ void ALBlasterHUD::PostInitializeComponents()
 	HideAnnouncement();
 	AddChatUI();
 	AddScoreboard();
+	AddMiniScoreboard();
 }
 
 bool ALBlasterHUD::IsValidOwnerController()
