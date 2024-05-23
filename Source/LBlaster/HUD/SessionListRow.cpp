@@ -3,6 +3,7 @@
 
 #include "HUD/SessionListRow.h"
 
+#include "MultiplayerMapPath.h"
 #include "MultiplayerSessionsSubsystem.h"
 #include "Components/Border.h"
 #include "Components/ListViewBase.h"
@@ -63,7 +64,7 @@ void USessionListRow::SetSessionResult(const FOnlineSessionSearchResult& InSessi
 	HostNameString = SessionResult.Session.OwningUserName;
 	
 	int32 IntMatchModeType;
-	SessionResult.Session.SessionSettings.Get(UMultiplayerSessionsSubsystem::MatchModeKey, IntMatchModeType);
+	SessionResult.Session.SessionSettings.Get(FMultiplayerMapPath::MatchModeKey, IntMatchModeType);
 	MatchModeType = static_cast<EMatchMode>(IntMatchModeType);
 	
 	NumOfCurrentPlayers = SessionResult.Session.SessionSettings.NumPublicConnections - SessionResult.Session.NumOpenPublicConnections;

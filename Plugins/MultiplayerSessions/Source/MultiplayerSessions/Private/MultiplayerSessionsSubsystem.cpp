@@ -3,6 +3,7 @@
 
 #include "MultiplayerSessionsSubsystem.h"
 
+#include "MultiplayerMapPath.h"
 #include "OnlineSessionSettings.h"
 #include "OnlineSubsystem.h"
 #include "Online/OnlineSessionNames.h"
@@ -60,7 +61,7 @@ void UMultiplayerSessionsSubsystem::CreateSession(EMatchMode InMatchModeType, in
 	LastSessionSettings->bUseLobbiesIfAvailable = true;
 	
 	// MatchType이라는 FName Key에 FreeForAll이라는 FString Value를 저장, 이 값들은 개발자 의도대로 관리
-	LastSessionSettings->Set(UMultiplayerSessionsSubsystem::MatchModeKey, static_cast<int32>(MatchModeType), EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+	LastSessionSettings->Set(FMultiplayerMapPath::MatchModeKey, static_cast<int32>(MatchModeType), EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 	
 	// 1로 설정하면 여러 유저가 각각 고유의 빌드와 호스팅을 할 수 있다. 이후 유효한 게임 세션을 검색할 때 각각의 여러 세션들을 검색하고 참가할 수 있다. 만약 1이 아니면 다른 유저들의 세션들을 볼 수 없고 첫번째로 열리는 게임 세션에 참가하려고 할 것이다.
 	LastSessionSettings->BuildUniqueId = 1;	
@@ -89,7 +90,7 @@ void UMultiplayerSessionsSubsystem::OnCreateSessionComplete(FName SessionName, b
 	{
 		if (UWorld* World = GetWorld())
 		{
-			World->ServerTravel(LobbyPath);
+			World->ServerTravel(FMultiplayerMapPath::LobbyPath);
 		}
 	}
 }

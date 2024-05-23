@@ -40,12 +40,6 @@ public:
 	FLBOnJoinSessionCompleteDelegate LBOnJoinSessionCompleteDelegate;
 	FLBOnDestroySessionCompleteDelegate LBOnDestroySessionCompleteDelegate;
 
-	// FOnlineSessionSettings에 MatchMode 값을 저장하기 위한 Key
-	inline const static FName MatchModeKey { TEXT("LBlaster_MatchMode") };
-
-	// 세션을 생성하고 ServerTravel로 이동할 로비 맵의 경로
-	inline const static FString LobbyPath { TEXT("/Game/LBlaster/Maps/Lobby?listen") };
-
 protected:
 	/*
 	* Internal callbacks for the delegates we'll add to the Online Session Interface delegate list.

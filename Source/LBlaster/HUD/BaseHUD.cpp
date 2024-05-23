@@ -3,6 +3,7 @@
 
 #include "HUD/BaseHUD.h"
 
+#include "MultiplayerMapPath.h"
 #include "MultiplayerSessionsSubsystem.h"
 #include "OnlineSessionSettings.h"
 
@@ -37,7 +38,7 @@ void ABaseHUD::PostInitializeComponents()
 			if (FNamedOnlineSession* NamedOnlineSession = MultiplayerSessionsSubsystem->GetNamedOnlineSession())
 			{
 				int32 Value;
-				NamedOnlineSession->SessionSettings.Get(UMultiplayerSessionsSubsystem::MatchModeKey, Value);
+				NamedOnlineSession->SessionSettings.Get(FMultiplayerMapPath::MatchModeKey, Value);
 				MatchModeType = static_cast<EMatchMode>(Value);
 			}
 		}
