@@ -4,6 +4,7 @@
 #include "HUD/SessionListMenu.h"
 
 #include "MainMenuHUD.h"
+#include "MultiplayerMapPath.h"
 #include "MultiplayerSessionsSubsystem.h"
 #include "OnlineSessionSettings.h"
 #include "SessionListRow.h"
@@ -99,7 +100,7 @@ void USessionListMenu::InitializeSessionListView(const TArray<FOnlineSessionSear
 		{
 			// 이 게임에서 사용하는 유효한 키를 가지는 세션만 띄움
 			int32 Value;
-			if (!SessionResult.Session.SessionSettings.Get(UMultiplayerSessionsSubsystem::MatchModeKey, Value))
+			if (!SessionResult.Session.SessionSettings.Get(FMultiplayerMapPath::MatchModeKey, Value))
 			{
 				continue;
 			}

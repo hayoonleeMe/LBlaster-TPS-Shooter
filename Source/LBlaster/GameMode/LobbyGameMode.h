@@ -18,6 +18,4 @@ public:
 	ALobbyGameMode();
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	virtual void Logout(AController* Exiting) override;
-	inline static const FString TeamDeathMatchTestMapPath{ TEXT("/Game/LBlaster/Maps/TestMapTeamDeathMatch?listen") };
-	inline static const FString FreeForAllTestMapPath{ TEXT("/Game/LBlaster/Maps/TestMapFreeForAll?listen") };
 };

@@ -7,10 +7,10 @@
 #include "ChatUI.h"
 #include "LobbyMenuFreeForAll.h"
 #include "LobbyMenuTeamDeathMatch.h"
+#include "MultiplayerMapPath.h"
 #include "MultiplayerSessionsSubsystem.h"
 #include "OnlineSessionSettings.h"
 #include "Blueprint/UserWidget.h"
-#include "GameMode/LobbyGameMode.h"
 #include "Player/LBlasterPlayerState.h"
 #include "Player/LobbyPlayerController.h"
 
@@ -97,7 +97,7 @@ void ALobbyHUD::Tick(float DeltaSeconds)
 	// ServerTravel 가능
 	if (bWantReturnToMainMenu && GetWorld() && GetWorld()->GetNumPlayerControllers() == 1)
 	{
-		GetWorld()->ServerTravel(FString(TEXT("/Game/LBlaster/Maps/GameStartupMap")));
+		GetWorld()->ServerTravel(FMultiplayerMapPath::TitleMapPath);
 	}
 }
 
@@ -144,11 +144,11 @@ void ALobbyHUD::TravelToMatch()
 	{
 		if (GetMatchModeType() == EMatchMode::TeamDeathMatch)
 		{
-			World->ServerTravel(ALobbyGameMode::TeamDeathMatchTestMapPath);
+			World->ServerTravel(FMultiplayerMapPath::TeamDeathMatchTestMapPath);
 		}
 		else if (GetMatchModeType() == EMatchMode::FreeForAll)
 		{
-			World->ServerTravel(ALobbyGameMode::FreeForAllTestMapPath);
+			World->ServerTravel(FMultiplayerMapPath::FreeForAllTestMapPath);
 		}
 	}
 }
