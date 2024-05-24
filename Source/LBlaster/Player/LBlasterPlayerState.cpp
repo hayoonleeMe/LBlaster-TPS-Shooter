@@ -32,29 +32,9 @@ void ALBlasterPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	DOREPLIFETIME(ALBlasterPlayerState, KillScore);
 	DOREPLIFETIME(ALBlasterPlayerState, Death);
 	DOREPLIFETIME(ALBlasterPlayerState, Team);
-}
-
-void ALBlasterPlayerState::OnRep_Score()
-{
-	Super::OnRep_Score();
-	
-	if (IsValidOwnerCharacter() && IsValidOwnerController())
-	{
-		OwnerController->SetHUDScore(GetScore());
-	}
-
-	if (GetWorld())
-	{
-		if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
-		{
-			if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
-			{
-				HUD->UpdateScoreboard(false);
-			}	
-		}
-	}
 }
 
 void ALBlasterPlayerState::OnRep_Death()
@@ -91,13 +71,13 @@ void ALBlasterPlayerState::AddToDeath(int32 InDeathAmount)
 	}
 }
 
-void ALBlasterPlayerState::AddToScore(float InScoreAmount)
+void ALBlasterPlayerState::AddToKillScore(int32 InKillScoreAmount)
 {
-	SetScore(GetScore() + InScoreAmount);
+	SetKillScore(GetKillScore() + InKillScoreAmount);
 
 	if (IsValidOwnerCharacter() && IsValidOwnerController())
 	{
-		OwnerController->SetHUDScore(GetScore());
+		OwnerController->SetHUDKillScore(GetKillScore());
 	}
 }
 
@@ -187,7 +167,7 @@ void ALBlasterPlayerState::PollInit()
 
 					if (OwnerController->HasAuthority() && OwnerController->IsLocalController())
 					{
-						TDMGameState->InitGoalScoreFromSession();
+						TDMGameState->InitGoalKillScoreFromSession();
 						TDMGameState->MulticastInitTeamScore();
 					}
 				}
@@ -199,7 +179,7 @@ void ALBlasterPlayerState::PollInit()
 
 				if (OwnerController->HasAuthority() && OwnerController->IsLocalController())
 				{
-					FFAGameState->InitGoalScoreFromSession();
+					FFAGameState->InitGoalKillScoreFromSession();
 					FFAGameState->MulticastInitTotalScore();
 				}
 			}
@@ -223,4 +203,23 @@ bool ALBlasterPlayerState::IsValidOwnerController()
 		OwnerController = Cast<ALBlasterPlayerController>(OwnerCharacter->Controller);
 	}
 	return OwnerController != nullptr;
+}
+
+void ALBlasterPlayerState::OnRep_KillScore()
+{
+	if (IsValidOwnerCharacter() && IsValidOwnerController())
+	{
+		OwnerController->SetHUDKillScore(GetKillScore());
+	}
+
+	if (GetWorld())
+	{
+		if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+		{
+			if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
+			{
+				HUD->UpdateScoreboard(false);
+			}	
+		}
+	}
 }

@@ -45,9 +45,9 @@ void UStartMenu::MenuSetup()
 			MaxPlayerDropDown->InitializeOptions(UDropDown::FreeForAllNumMaxPlayerOptions);
 		}
 	}
-	if (GoalScoreDropDown)
+	if (GoalKillScoreDropDown)
 	{
-		GoalScoreDropDown->InitializeOptions(UDropDown::GoalScoreOptions);
+		GoalKillScoreDropDown->InitializeOptions(UDropDown::GoalKillScoreOptions);
 	}
 	if (CreateSessionAlertCreateButton && !CreateSessionAlertCreateButton->OnClicked.IsBound())
 	{
@@ -185,11 +185,11 @@ int32 UStartMenu::GetMaxPlayerValue() const
 	return 0;
 }
 
-int32 UStartMenu::GetGoalScoreValue() const
+int32 UStartMenu::GetGoalKillScoreValue() const
 {
-	if (GoalScoreDropDown)
+	if (GoalKillScoreDropDown)
 	{
-		return GoalScoreDropDown->GetSelectedValue();
+		return GoalKillScoreDropDown->GetSelectedValue();
 	}
 	return 0;
 }
@@ -200,13 +200,13 @@ void UStartMenu::OnCreateSessionAlertCreateButtonClicked()
 	
 	const EMatchMode MatchModeType = GetMatchModeType();
 	const int32 NumMaxPlayer = GetMaxPlayerValue();
-	const int32 GoalScore = GetGoalScoreValue();
+	const int32 GoalKillScore = GetGoalKillScoreValue();
 	
 	if (IsValidOwnerHUD())
 	{
 		if (AMainMenuHUD* MainMenuHUD = Cast<AMainMenuHUD>(OwnerHUD))
 		{
-			MainMenuHUD->CreateSessionFromMenu(MatchModeType, NumMaxPlayer, GoalScore);
+			MainMenuHUD->CreateSessionFromMenu(MatchModeType, NumMaxPlayer, GoalKillScore);
 		}
 	}
 }
@@ -229,9 +229,9 @@ void UStartMenu::OnCreateSessionAlertCancelButtonClicked()
 			MaxPlayerDropDown->InitializeOptions(UDropDown::FreeForAllNumMaxPlayerOptions);
 		}
 	}
-	if (GoalScoreDropDown)
+	if (GoalKillScoreDropDown)
 	{
-		GoalScoreDropDown->InitializeOptions(UDropDown::GoalScoreOptions);
+		GoalKillScoreDropDown->InitializeOptions(UDropDown::GoalKillScoreOptions);
 	}
 
 	// Create Session Alert Overlay 숨김

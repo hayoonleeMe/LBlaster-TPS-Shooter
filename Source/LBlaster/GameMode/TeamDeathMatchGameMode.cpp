@@ -89,7 +89,7 @@ void ATeamDeathMatchGameMode::PlayerEliminated(ALBlasterCharacter* EliminatedCha
 		{
 			if (AttackerPlayerState != VictimPlayerState)
 			{
-				AttackerPlayerState->AddToScore(1.f);
+				AttackerPlayerState->AddToKillScore(1);
 				VictimPlayerState->AddToDeath(1);
 
 				// Update Mini Scoreboard

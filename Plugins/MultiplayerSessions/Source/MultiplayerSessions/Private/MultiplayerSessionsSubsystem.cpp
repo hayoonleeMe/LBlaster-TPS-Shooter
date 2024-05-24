@@ -17,7 +17,7 @@ UMultiplayerSessionsSubsystem::UMultiplayerSessionsSubsystem() :
 {
 }
 
-void UMultiplayerSessionsSubsystem::CreateSession(EMatchMode InMatchModeType, int32 InNumMaxPlayer, int32 InGoalScore)
+void UMultiplayerSessionsSubsystem::CreateSession(EMatchMode InMatchModeType, int32 InNumMaxPlayer, int32 InGoalKillScore)
 {
 	if (!IsValidSessionInterface())
 	{
@@ -27,7 +27,7 @@ void UMultiplayerSessionsSubsystem::CreateSession(EMatchMode InMatchModeType, in
 	// Session Data Caching
 	MatchModeType = InMatchModeType;
 	NumPublicConnections = InNumMaxPlayer;
-	GoalScore = InGoalScore;
+	GoalKillScore = InGoalKillScore;
 
 	// 이미 세션이 존재하면 세션 제거. 제거가 완료되면 다시 CreateSession() 호출됨
 	if (SessionInterface->GetNamedSession(NAME_GameSession))
@@ -64,8 +64,8 @@ void UMultiplayerSessionsSubsystem::CreateSession(EMatchMode InMatchModeType, in
 	// MatchModeType을 저장, 이 값들은 개발자 의도대로 관리
 	LastSessionSettings->Set(FMultiplayerMapPath::MatchModeKey, static_cast<int32>(MatchModeType), EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
-	// GoalScore를 저장
-	LastSessionSettings->Set(FMultiplayerMapPath::GoalScoreKey, GoalScore, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+	// GoalKillScore를 저장
+	LastSessionSettings->Set(FMultiplayerMapPath::GoalKillScoreKey, GoalKillScore, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 	
 	// 1로 설정하면 여러 유저가 각각 고유의 빌드와 호스팅을 할 수 있다. 이후 유효한 게임 세션을 검색할 때 각각의 여러 세션들을 검색하고 참가할 수 있다. 만약 1이 아니면 다른 유저들의 세션들을 볼 수 없고 첫번째로 열리는 게임 세션에 참가하려고 할 것이다.
 	LastSessionSettings->BuildUniqueId = 1;	
@@ -207,7 +207,7 @@ void UMultiplayerSessionsSubsystem::OnDestroySessionComplete(FName SessionName, 
 	if (bWasSuccessful && bCreateSessionOnDestroy)
 	{
 		bCreateSessionOnDestroy = false;
-		CreateSession(MatchModeType, NumPublicConnections, GoalScore);
+		CreateSession(MatchModeType, NumPublicConnections, GoalKillScore);
 	}
 }
 

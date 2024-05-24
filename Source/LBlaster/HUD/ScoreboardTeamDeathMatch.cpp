@@ -26,7 +26,7 @@ void UScoreboardTeamDeathMatch::UpdateBoard(bool bPlayerListChanged)
 				{
 					if (UScoreboardRow* Row = Cast<UScoreboardRow>(RedTeamBox->GetSlots()[Index]->Content))
 					{
-						Row->SetScoreboardRowText(LBPlayerState->GetPlayerName(), LBPlayerState->GetScore(), LBPlayerState->GetDeath());
+						Row->SetScoreboardRowText(LBPlayerState->GetPlayerName(), LBPlayerState->GetKillScore(), LBPlayerState->GetDeath());
 						// 로컬 플레이어 업데이트 시 강조 표시
 						if (LBPlayerState->GetPlayerName() == OwnerPlayerState->GetPlayerName())
 						{
@@ -62,7 +62,7 @@ void UScoreboardTeamDeathMatch::UpdateBoard(bool bPlayerListChanged)
 				{
 					if (UScoreboardRow* Row = Cast<UScoreboardRow>(BlueTeamBox->GetSlots()[Index]->Content))
 					{
-						Row->SetScoreboardRowText(LBPlayerState->GetPlayerName(), LBPlayerState->GetScore(), LBPlayerState->GetDeath());
+						Row->SetScoreboardRowText(LBPlayerState->GetPlayerName(), LBPlayerState->GetKillScore(), LBPlayerState->GetDeath());
 						// 로컬 플레이어 업데이트 시 강조 표시
 						if (LBPlayerState->GetPlayerName() == OwnerPlayerState->GetPlayerName())
 						{

@@ -243,11 +243,11 @@ void ALBlasterPlayerController::SetHUDHealth(float InHealth, float InMaxHealth)
 	}
 }
 
-void ALBlasterPlayerController::SetHUDScore(float InScore)
+void ALBlasterPlayerController::SetHUDKillScore(int32 InKillScore)
 {
 	if (IsValidOwningHUD())
 	{
-		OwningHUD->SetHUDScore(InScore);
+		OwningHUD->SetHUDKillScore(InKillScore);
 	}
 }
 

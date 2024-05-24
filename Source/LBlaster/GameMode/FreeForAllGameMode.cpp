@@ -54,7 +54,7 @@ void AFreeForAllGameMode::PlayerEliminated(ALBlasterCharacter* EliminatedCharact
 		{
 			if (AttackerPlayerState != VictimPlayerState)
 			{
-				AttackerPlayerState->AddToScore(1.f);
+				AttackerPlayerState->AddToKillScore(1.f);
 				VictimPlayerState->AddToDeath(1);
 
 				// Update Mini Scoreboard
