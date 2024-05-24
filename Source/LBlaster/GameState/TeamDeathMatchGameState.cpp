@@ -124,7 +124,7 @@ void ATeamDeathMatchGameState::OnRep_RedTeam()
 		{
 			if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
 			{
-				HUD->UpdateScoreboard(true);
+				HUD->UpdateScoreboard();
 			}
 		}
 	}
@@ -152,7 +152,7 @@ void ATeamDeathMatchGameState::OnRep_BlueTeam()
 		{
 			if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
 			{
-				HUD->UpdateScoreboard(true);
+				HUD->UpdateScoreboard();
 			}
 		}
 	}

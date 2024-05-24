@@ -5,7 +5,7 @@
 
 #include "Player/LBlasterPlayerState.h"
 
-void UScoreboard::UpdateBoard(bool bPlayerListChanged)
+void UScoreboard::UpdateBoard()
 {
 }
 

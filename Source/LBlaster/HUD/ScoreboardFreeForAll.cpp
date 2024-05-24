@@ -9,7 +9,7 @@
 #include "GameState/FreeForAllGameState.h"
 #include "Player/LBlasterPlayerState.h"
 
-void UScoreboardFreeForAll::UpdateBoard(bool bPlayerListChanged)
+void UScoreboardFreeForAll::UpdateBoard()
 {
 	TArray<ALBlasterPlayerState*> LBlasterPlayerStates;
 
@@ -56,19 +56,16 @@ void UScoreboardFreeForAll::UpdateBoard(bool bPlayerListChanged)
 				}
 			}
 
-			if (bPlayerListChanged)
+			// Text가 설정된 Row가 남아있으면 모두 Text 제거
+			for (; Index < LeftBox->GetSlots().Num() + RightBox->GetSlots().Num(); ++Index)
 			{
-				// Text가 설정된 Row가 남아있으면 모두 Text 제거
-				for (; Index < LeftBox->GetSlots().Num() + RightBox->GetSlots().Num(); ++Index)
+				const UVerticalBox* BoxToUse = Index < LeftBox->GetSlots().Num() ? LeftBox : RightBox;
+				const int32 IndexToUse = Index < LeftBox->GetSlots().Num() ? Index : Index - LeftBox->GetSlots().Num();
+				if (UScoreboardRow* Row = Cast<UScoreboardRow>(BoxToUse->GetSlots()[IndexToUse]->Content))
 				{
-					const UVerticalBox* BoxToUse = Index < LeftBox->GetSlots().Num() ? LeftBox : RightBox;
-					const int32 IndexToUse = Index < LeftBox->GetSlots().Num() ? Index : Index - LeftBox->GetSlots().Num();
-					if (UScoreboardRow* Row = Cast<UScoreboardRow>(BoxToUse->GetSlots()[IndexToUse]->Content))
+					if (Row->bTextSet)
 					{
-						if (Row->bTextSet)
-						{
-							Row->EmptyScoreboardRowText();
-						}
+						Row->EmptyScoreboardRowText();
 					}
 				}
 			}

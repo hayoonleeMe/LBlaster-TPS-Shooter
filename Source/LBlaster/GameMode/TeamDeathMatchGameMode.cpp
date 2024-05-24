@@ -60,7 +60,7 @@ void ATeamDeathMatchGameMode::Logout(AController* Exiting)
 				{
 					if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
 					{
-						HUD->UpdateScoreboard(true);
+						HUD->UpdateScoreboard();
 					}
 				}
 			}
@@ -112,7 +112,7 @@ void ATeamDeathMatchGameMode::PlayerEliminated(ALBlasterCharacter* EliminatedCha
 					{
 						if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
 						{
-							HUD->UpdateScoreboard(false);
+							HUD->UpdateScoreboard();
 						}	
 					}
 				}
