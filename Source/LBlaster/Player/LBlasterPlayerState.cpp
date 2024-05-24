@@ -167,7 +167,7 @@ void ALBlasterPlayerState::PollInit()
 
 					if (OwnerController->HasAuthority() && OwnerController->IsLocalController())
 					{
-						TDMGameState->InitGoalKillScoreFromSession();
+						TDMGameState->MulticastInitGoalKillScore();
 						TDMGameState->MulticastInitTeamScore();
 					}
 				}
@@ -179,7 +179,7 @@ void ALBlasterPlayerState::PollInit()
 
 				if (OwnerController->HasAuthority() && OwnerController->IsLocalController())
 				{
-					FFAGameState->InitGoalKillScoreFromSession();
+					FFAGameState->MulticastInitGoalKillScore();
 					FFAGameState->MulticastInitTotalScore();
 				}
 			}

@@ -42,6 +42,11 @@ void ABaseGameState::InitGoalKillScoreFromSession()
 	UpdateHUDGoalKillScore();
 }
 
+void ABaseGameState::MulticastInitGoalKillScore_Implementation()
+{
+	InitGoalKillScoreFromSession();
+}
+
 void ABaseGameState::OnRep_GoalKillScore()
 {
 	UpdateHUDGoalKillScore();

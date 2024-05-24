@@ -17,7 +17,8 @@ class LBLASTER_API ABaseGameState : public AGameState
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	void InitGoalKillScoreFromSession();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastInitGoalKillScore(); 
 	
 protected:
 	virtual void BeginPlay() override;
@@ -28,5 +29,6 @@ protected:
 	UFUNCTION()
 	void OnRep_GoalKillScore();
 
+	void InitGoalKillScoreFromSession();
 	void UpdateHUDGoalKillScore();
 };
