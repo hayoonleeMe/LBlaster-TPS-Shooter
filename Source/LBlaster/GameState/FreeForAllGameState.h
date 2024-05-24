@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameState.h"
+#include "BaseGameState.h"
 #include "FreeForAllGameState.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class LBLASTER_API AFreeForAllGameState : public AGameState
+class LBLASTER_API AFreeForAllGameState : public ABaseGameState
 {
 	GENERATED_BODY()
 

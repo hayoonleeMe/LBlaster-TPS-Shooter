@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameState.h"
+#include "BaseGameState.h"
 #include "TeamDeathMatchGameState.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class LBLASTER_API ATeamDeathMatchGameState : public AGameState
+class LBLASTER_API ATeamDeathMatchGameState : public ABaseGameState
 {
 	GENERATED_BODY()
 

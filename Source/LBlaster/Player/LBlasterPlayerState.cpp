@@ -185,12 +185,10 @@ void ALBlasterPlayerState::PollInit()
 					bFirstTimeInit = true;
 					InitTeam();
 
-					if (OwnerController->HasAuthority())
+					if (OwnerController->HasAuthority() && OwnerController->IsLocalController())
 					{
-						if (OwnerController->IsLocalController())
-						{
-							TDMGameState->MulticastInitTeamScore();
-						}
+						TDMGameState->InitGoalScoreFromSession();
+						TDMGameState->MulticastInitTeamScore();
 					}
 				}
 			}
@@ -199,12 +197,10 @@ void ALBlasterPlayerState::PollInit()
 			{
 				bFirstTimeInit = true;
 
-				if (OwnerController->HasAuthority())
+				if (OwnerController->HasAuthority() && OwnerController->IsLocalController())
 				{
-					if (OwnerController->IsLocalController())
-					{
-						FFAGameState->MulticastInitTotalScore();
-					}
+					FFAGameState->InitGoalScoreFromSession();
+					FFAGameState->MulticastInitTotalScore();
 				}
 			}
 		}

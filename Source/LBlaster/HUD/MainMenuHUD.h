@@ -22,7 +22,7 @@ public:
 	 */
 	void CreateStartMenu();
 	void CreateSessionListMenu();
-	void CreateSessionFromMenu(EMatchMode InMatchModeType, int32 NumMaxPlayer);
+	void CreateSessionFromMenu(EMatchMode InMatchModeType, int32 NumMaxPlayer, int32 InGoalScore);
 	void FindSessionsFromMenu();
 	void RefreshSessionList();
 	void JoinSessionFromMenu(const FOnlineSessionSearchResult& SessionResult);

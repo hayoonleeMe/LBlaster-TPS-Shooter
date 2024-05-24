@@ -19,8 +19,12 @@ protected:
 	virtual void NativeConstruct() override;
 
 public:
-	void InitializeOptions(EMatchMode InMatchMode);
+	void InitializeOptions(const TArray<FString>& Options);
 	int32 GetSelectedValue() const;
+
+	inline const static TArray<FString> TeamDeathMatchNumMaxPlayerOptions{ TEXT("2"), TEXT("4"), TEXT("6"), TEXT("8"), TEXT("10"), TEXT("12") };
+	inline const static TArray<FString> FreeForAllNumMaxPlayerOptions{ TEXT("1"), TEXT("2"), TEXT("3"), TEXT("4"), TEXT("5"), TEXT("6"), TEXT("7"), TEXT("8"), TEXT("9"), TEXT("10"), TEXT("11"), TEXT("12") };
+	inline const static TArray<FString> GoalScoreOptions{ TEXT("10"), TEXT("20"), TEXT("40"), TEXT("60"), TEXT("80"), TEXT("100") };
 
 private:
 	UPROPERTY(EditAnywhere, Category="LBlaster")
@@ -31,7 +35,4 @@ private:
 
 	UFUNCTION()
 	UWidget* OnComboBoxGenerateWidgetEvent(FString Item);
-
-	inline const static TArray<FString> TeamDeathMatchOptions { TEXT("2"), TEXT("4"), TEXT("6"), TEXT("8"), TEXT("10"), TEXT("12") };
-	inline const static TArray<FString> FreeForAllOptions { TEXT("1"), TEXT("2"), TEXT("3"), TEXT("4"), TEXT("5"), TEXT("6"), TEXT("7"), TEXT("8"), TEXT("9"), TEXT("10"), TEXT("11"), TEXT("12") };
 };
