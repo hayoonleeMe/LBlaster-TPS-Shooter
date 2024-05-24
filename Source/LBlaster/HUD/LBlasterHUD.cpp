@@ -83,11 +83,11 @@ void ALBlasterHUD::SetHUDHealth(float InHealth, float InMaxHealth)
 	}
 }
 
-void ALBlasterHUD::SetHUDScore(float InScore)
+void ALBlasterHUD::SetHUDKillScore(int32 InKillScore)
 {
 	if (CharacterOverlay)
 	{
-		CharacterOverlay->SetScoreAmount(InScore);
+		CharacterOverlay->SetKillScoreAmount(InKillScore);
 	}
 }
 
@@ -161,7 +161,7 @@ void ALBlasterHUD::AddCharacterOverlay()
 			CharacterOverlay = CreateWidget<UCharacterOverlay>(OwnerController, CharacterOverlayClass);
 			CharacterOverlay->AddToViewport();
 
-			SetHUDScore(0.f);
+			SetHUDKillScore(0);
 			SetHUDDeath(0);
 			SetHUDAmmo(0);
 			SetHUDCarriedAmmo(0);
@@ -412,11 +412,11 @@ void ALBlasterHUD::SetScoreboardVisibility(bool bVisible)
 	}
 }
 
-void ALBlasterHUD::SetGoalScoreMiniScoreboard(const int32 InGoalScore) const
+void ALBlasterHUD::SetGoalKillScoreMiniScoreboard(const int32 InGoalKillScore) const
 {
 	if (MiniScoreboard)
 	{
-		MiniScoreboard->SetGoalScoreText(InGoalScore);
+		MiniScoreboard->SetGoalKillScoreText(InGoalKillScore);
 	}
 }
 

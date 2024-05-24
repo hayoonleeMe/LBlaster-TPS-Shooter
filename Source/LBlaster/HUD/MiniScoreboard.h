@@ -15,9 +15,9 @@ class LBLASTER_API UMiniScoreboard : public ULBlasterUserWidget
 	GENERATED_BODY()
 
 public:
-	void SetGoalScoreText(const int32 InGoalScore);
+	void SetGoalKillScoreText(const int32 InGoalKillScore);
 	
 protected:
 	UPROPERTY(meta=(BindWidget))
-	TObjectPtr<class UTextBlock> GoalScoreText;
+	TObjectPtr<class UTextBlock> GoalKillScoreText;
 };

@@ -29,9 +29,9 @@ void UScoreboardFreeForAll::UpdateBoard(bool bPlayerListChanged)
 			// KDA를 기준으로 내림차순 정렬
 			Algo::Sort(LBlasterPlayerStates, [](const ALBlasterPlayerState* A, const ALBlasterPlayerState* B)
 			{
-				const float A_KDA = A->GetDeath() != 0 ? A->GetScore() / A->GetDeath() : A->GetScore();
-				const float B_KDA = B->GetDeath() != 0 ? B->GetScore() / B->GetDeath() : B->GetScore();
-				return A_KDA > B_KDA;
+				const float A_Kda = A->GetDeath() != 0 ? A->GetKillScore() / A->GetDeath() : A->GetKillScore();
+				const float B_Kda = B->GetDeath() != 0 ? B->GetKillScore() / B->GetDeath() : B->GetKillScore();
+				return A_Kda > B_Kda;
 			});
 
 			int32 Index = 0;
@@ -42,7 +42,7 @@ void UScoreboardFreeForAll::UpdateBoard(bool bPlayerListChanged)
 					const UVerticalBox* BoxToUse = Index < LeftBox->GetSlots().Num() ? LeftBox : RightBox;
 					if (UScoreboardRowWithRank* Row = Cast<UScoreboardRowWithRank>(BoxToUse->GetSlots()[Index]->Content))
 					{
-						Row->SetScoreboardRowText(Index + 1, LBPlayerState->GetPlayerName(), LBPlayerState->GetScore(), LBPlayerState->GetDeath());
+						Row->SetScoreboardRowText(Index + 1, LBPlayerState->GetPlayerName(), LBPlayerState->GetKillScore(), LBPlayerState->GetDeath());
 						// 로컬 플레이어 업데이트 시 강조 표시
 						if (LBPlayerState->GetPlayerName() == OwnerPlayerState->GetPlayerName())
 						{

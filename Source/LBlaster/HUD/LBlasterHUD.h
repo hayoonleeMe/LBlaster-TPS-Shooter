@@ -51,7 +51,7 @@ public:
 	
 	FORCEINLINE void SetHUDPackage(const FHUDPackage& InPackage) { HUDPackage = InPackage; }
 	void SetHUDHealth(float InHealth, float InMaxHealth);
-	void SetHUDScore(float InScore);
+	void SetHUDKillScore(int32 InKillScore);
 	void SetHUDDeath(int32 InDeath);
 	void SetHUDAmmo(int32 InAmmo);
 	void SetHUDCarriedAmmo(int32 InCarriedAmmo);
@@ -93,7 +93,7 @@ public:
 	/*
 	 *	Mini Scoreboard
 	 */
-	void SetGoalScoreMiniScoreboard(const int32 InGoalScore) const;
+	void SetGoalKillScoreMiniScoreboard(const int32 InGoalKillScore) const;
 	void UpdateTeamScoreMiniScoreboard(const ETeam InTeam, const int32 InTeamScore) const;
 	void UpdateTotalScoreMiniScoreboard(const int32 InTotalScore) const;
 

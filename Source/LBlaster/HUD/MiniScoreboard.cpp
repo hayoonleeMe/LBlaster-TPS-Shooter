@@ -5,10 +5,10 @@
 
 #include "Components/TextBlock.h"
 
-void UMiniScoreboard::SetGoalScoreText(const int32 InGoalScore)
+void UMiniScoreboard::SetGoalKillScoreText(const int32 InGoalKillScore)
 {
-	if (GoalScoreText)
+	if (GoalKillScoreText)
 	{
-		GoalScoreText->SetText(FText::AsNumber(InGoalScore));
+		GoalKillScoreText->SetText(FText::AsNumber(InGoalKillScore));
 	}
 }

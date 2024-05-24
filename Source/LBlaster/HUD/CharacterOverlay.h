@@ -19,7 +19,7 @@ class LBLASTER_API UCharacterOverlay : public UUserWidget
 public:
 	void SetHealthBar(float InHealth, float InMaxHealth);
 	void SetHealthText(float InHealth, float InMaxHealth);
-	void SetScoreAmount(float InScore);
+	void SetKillScoreAmount(int32 InKillScore);
 	void SetDeathAmount(int32 InDeath);
 	void SetAmmoAmount(int32 InAmmo);
 	void SetCarriedAmmoAmount(int32 InCarriedAmmo);
@@ -44,7 +44,7 @@ private:
 	TObjectPtr<class UTextBlock> HealthText;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> ScoreAmount;
+	TObjectPtr<UTextBlock> KillScoreAmount;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> DeathAmount;

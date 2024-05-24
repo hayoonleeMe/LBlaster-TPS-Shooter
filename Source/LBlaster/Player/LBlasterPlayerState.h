@@ -37,10 +37,12 @@ public:
 	ALBlasterPlayerState();
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	
-	void AddToScore(float InScoreAmount);
-	virtual void OnRep_Score() override;
+
+	void AddToKillScore(int32 InKillScoreAmount);
 	void AddToDeath(int32 InDeathAmount);
+	
+	FORCEINLINE void SetKillScore(int32 InKillScoreAmount) { KillScore = InKillScoreAmount; }
+	FORCEINLINE int32 GetKillScore() const { return KillScore; }
 	FORCEINLINE int32 GetDeath() const { return Death; }
 
 	FORCEINLINE ETeam GetTeam() const { return Team; }
@@ -72,6 +74,15 @@ private:
 	
 	bool IsValidOwnerController();
 
+	/*
+	 *	Kill Score
+	 */
+	UPROPERTY(ReplicatedUsing=OnRep_KillScore)
+	int32 KillScore;
+
+	UFUNCTION()
+	void OnRep_KillScore();
+	
 	/*
 	 *	Death
 	 */

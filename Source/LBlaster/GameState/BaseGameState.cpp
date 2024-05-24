@@ -15,7 +15,7 @@ void ABaseGameState::BeginPlay()
 
 	if (!HasAuthority())
 	{
-		InitGoalScoreFromSession();	
+		InitGoalKillScoreFromSession();	
 	}
 }
 
@@ -23,10 +23,10 @@ void ABaseGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(ABaseGameState, GoalScore);
+	DOREPLIFETIME(ABaseGameState, GoalKillScore);
 }
 
-void ABaseGameState::InitGoalScoreFromSession()
+void ABaseGameState::InitGoalKillScoreFromSession()
 {
 	if (GetGameInstance())
 	{
@@ -34,20 +34,20 @@ void ABaseGameState::InitGoalScoreFromSession()
 		{
 			if (FNamedOnlineSession* NamedOnlineSession = MultiplayerSessionsSubsystem->GetNamedOnlineSession())
 			{
-				NamedOnlineSession->SessionSettings.Get(FMultiplayerMapPath::GoalScoreKey, GoalScore);
+				NamedOnlineSession->SessionSettings.Get(FMultiplayerMapPath::GoalKillScoreKey, GoalKillScore);
 			}
 		}
 	}
 	
-	UpdateHUDGoalScore();
+	UpdateHUDGoalKillScore();
 }
 
-void ABaseGameState::OnRep_GoalScore()
+void ABaseGameState::OnRep_GoalKillScore()
 {
-	UpdateHUDGoalScore();
+	UpdateHUDGoalKillScore();
 }
 
-void ABaseGameState::UpdateHUDGoalScore()
+void ABaseGameState::UpdateHUDGoalKillScore()
 {
 	if (GetWorld())
 	{
@@ -55,7 +55,7 @@ void ABaseGameState::UpdateHUDGoalScore()
 		{
 			if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
 			{
-				HUD->SetGoalScoreMiniScoreboard(GoalScore);
+				HUD->SetGoalKillScoreMiniScoreboard(GoalKillScore);
 			}
 		}
 	}

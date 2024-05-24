@@ -65,9 +65,9 @@ private:
 	int32 GetMaxPlayerValue() const;
 
 	UPROPERTY(meta=(BindWidget))
-	TObjectPtr<UDropDown> GoalScoreDropDown;
+	TObjectPtr<UDropDown> GoalKillScoreDropDown;
 	
-	int32 GetGoalScoreValue() const;
+	int32 GetGoalKillScoreValue() const;
 
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UButton> CreateSessionAlertCreateButton;

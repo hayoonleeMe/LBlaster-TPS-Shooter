@@ -41,9 +41,9 @@ void ATeamDeathMatchGameState::SortRedTeamByKda()
 {
 	Algo::Sort(RedTeam, [](const ALBlasterPlayerState* A, const ALBlasterPlayerState* B)
 	{
-		const float A_KDA = A->GetDeath() != 0 ? A->GetScore() / A->GetDeath() : A->GetScore();
-		const float B_KDA = B->GetDeath() != 0 ? B->GetScore() / B->GetDeath() : B->GetScore();
-		return A_KDA > B_KDA;
+		const float A_Kda = A->GetDeath() != 0 ? A->GetKillScore() / A->GetDeath() : A->GetKillScore();
+		const float B_Kda = B->GetDeath() != 0 ? B->GetKillScore() / B->GetDeath() : B->GetKillScore();
+		return A_Kda > B_Kda;
 	});
 }
 
@@ -51,8 +51,8 @@ void ATeamDeathMatchGameState::SortBlueTeamByKda()
 {
 	Algo::Sort(BlueTeam, [](const ALBlasterPlayerState* A, const ALBlasterPlayerState* B)
 	{
-		const float A_Kda = A->GetDeath() != 0 ? A->GetScore() / A->GetDeath() : A->GetScore();
-		const float B_Kda = B->GetDeath() != 0 ? B->GetScore() / B->GetDeath() : B->GetScore();
+		const float A_Kda = A->GetDeath() != 0 ? A->GetKillScore() / A->GetDeath() : A->GetKillScore();
+		const float B_Kda = B->GetDeath() != 0 ? B->GetKillScore() / B->GetDeath() : B->GetKillScore();
 		return A_Kda > B_Kda;
 	});
 }

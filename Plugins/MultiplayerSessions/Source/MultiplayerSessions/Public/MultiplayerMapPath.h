@@ -8,7 +8,7 @@ namespace FMultiplayerMapPath
 	// FOnlineSessionSettings에 MatchMode 값을 저장하기 위한 Key
 	inline static constexpr const TCHAR* MatchModeKey{ TEXT("LBlaster_MatchMode") };
 
-	inline static constexpr const TCHAR* GoalScoreKey{ TEXT("LBlaster_GoalScore") };
+	inline static constexpr const TCHAR* GoalKillScoreKey{ TEXT("LBlaster_GoalKillScore") };
 
 	/*
 	 *	Path
