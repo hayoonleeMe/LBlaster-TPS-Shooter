@@ -728,18 +728,13 @@ void ALBlasterCharacter::PollInit()
 {
 	if (!bFirstTimeInit)
 	{
-		if (GetPlayerState() && GetWorld() && GetWorld()->GetGameState())
+		if (GetMesh() && GetPlayerState())
 		{
 			if (ALBlasterPlayerState* LBPlayerState = GetPlayerState<ALBlasterPlayerState>())
 			{
-				if (GetLocalRole() == ROLE_AutonomousProxy)
-				{
-					LBPlayerState->InitTeamFromGameInstance();
-				}
 				if (LBPlayerState->GetTeam() != ETeam::ET_MAX)
 				{
 					bFirstTimeInit = true;
-					LBPlayerState->InitTeam();
 					SetCharacterMaterialsByTeam(LBPlayerState->GetCharacterMaterials());
 				}
 			}

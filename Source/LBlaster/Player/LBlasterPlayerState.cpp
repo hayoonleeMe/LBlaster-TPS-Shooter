@@ -3,19 +3,29 @@
 
 #include "Player/LBlasterPlayerState.h"
 
+#include "LBlaster.h"
 #include "LBlasterPlayerController.h"
 #include "Character/LBlasterCharacter.h"
 #include "GameInstance/LBGameInstance.h"
+#include "GameState/FreeForAllGameState.h"
 #include "GameState/TeamDeathMatchGameState.h"
 #include "HUD/LBlasterHUD.h"
 #include "Net/UnrealNetwork.h"
 
 ALBlasterPlayerState::ALBlasterPlayerState()
 {
+	PrimaryActorTick.bCanEverTick = true;
 	NetUpdateFrequency = 10.f;
 
 	/* Team */
 	Team = ETeam::ET_MAX;
+}
+
+void ALBlasterPlayerState::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	PollInit();
 }
 
 void ALBlasterPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -154,6 +164,50 @@ void ALBlasterPlayerState::CopyProperties(APlayerState* PlayerState)
 	if (ALBlasterPlayerState* OutPlayerState = Cast<ALBlasterPlayerState>(PlayerState))
 	{
 		OutPlayerState->Team = Team;
+	}
+}
+
+void ALBlasterPlayerState::PollInit()
+{
+	if (!bFirstTimeInit)
+	{
+		if (IsValidOwnerCharacter() && IsValidOwnerController() && GetWorld() && GetWorld()->GetGameState() && GetWorld()->GetFirstPlayerController() && GetWorld()->GetFirstPlayerController()->GetHUD())
+		{
+			// Team Death Match
+			if (ATeamDeathMatchGameState* TDMGameState = GetWorld()->GetGameState<ATeamDeathMatchGameState>())
+			{
+				if (OwnerController->GetLocalRole() == ROLE_AutonomousProxy)
+				{
+					InitTeamFromGameInstance();
+				}
+				if (Team != ETeam::ET_MAX)
+				{
+					bFirstTimeInit = true;
+					InitTeam();
+
+					if (OwnerController->HasAuthority())
+					{
+						if (OwnerController->IsLocalController())
+						{
+							TDMGameState->MulticastInitTeamScore();
+						}
+					}
+				}
+			}
+			// Free For All
+			else if (AFreeForAllGameState* FFAGameState = GetWorld()->GetGameState<AFreeForAllGameState>())
+			{
+				bFirstTimeInit = true;
+
+				if (OwnerController->HasAuthority())
+				{
+					if (OwnerController->IsLocalController())
+					{
+						FFAGameState->MulticastInitTotalScore();
+					}
+				}
+			}
+		}
 	}
 }
 

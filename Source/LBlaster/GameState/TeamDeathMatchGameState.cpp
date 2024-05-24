@@ -57,6 +57,65 @@ void ATeamDeathMatchGameState::SortBlueTeamByKda()
 	});
 }
 
+void ATeamDeathMatchGameState::IncreaseRedTeamScore()
+{
+	SetRedTeamScore(RedTeamScore + 1, true);
+}
+
+void ATeamDeathMatchGameState::IncreaseBlueTeamScore()
+{
+	SetBlueTeamScore(BlueTeamScore + 1, true);
+}
+
+void ATeamDeathMatchGameState::SetRedTeamScore(const int32 InScore, bool bUpdateHUD)
+{
+	RedTeamScore = InScore;
+
+	if (bUpdateHUD && GetWorld())
+	{
+		if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+		{
+			if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
+			{
+				HUD->UpdateTeamScoreMiniScoreboard(ETeam::ET_RedTeam, RedTeamScore);
+			}
+		}
+	}
+}
+
+void ATeamDeathMatchGameState::SetBlueTeamScore(const int32 InScore, bool bUpdateHUD)
+{
+	BlueTeamScore = InScore;
+
+	if (bUpdateHUD && GetWorld())
+	{
+		if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+		{
+			if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
+			{
+				HUD->UpdateTeamScoreMiniScoreboard(ETeam::ET_BlueTeam, BlueTeamScore);
+			}
+		}
+	}
+}
+
+void ATeamDeathMatchGameState::MulticastInitTeamScore_Implementation()
+{
+	SetRedTeamScore(0, true);
+	SetBlueTeamScore(0, true);
+}
+
+void ATeamDeathMatchGameState::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (!HasAuthority())
+	{
+		SetRedTeamScore(RedTeamScore, true);
+    	SetBlueTeamScore(BlueTeamScore, true);	
+	}
+}
+
 void ATeamDeathMatchGameState::OnRep_RedTeam()
 {
 	if (GetWorld())
@@ -73,7 +132,16 @@ void ATeamDeathMatchGameState::OnRep_RedTeam()
 
 void ATeamDeathMatchGameState::OnRep_RedTeamScore()
 {
-	
+	if (GetWorld())
+	{
+		if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+		{
+			if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
+			{
+				HUD->UpdateTeamScoreMiniScoreboard(ETeam::ET_RedTeam, RedTeamScore);
+			}
+		}
+	}
 }
 
 void ATeamDeathMatchGameState::OnRep_BlueTeam()
@@ -92,4 +160,14 @@ void ATeamDeathMatchGameState::OnRep_BlueTeam()
 
 void ATeamDeathMatchGameState::OnRep_BlueTeamScore()
 {
+	if (GetWorld())
+	{
+		if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+		{
+			if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
+			{
+				HUD->UpdateTeamScoreMiniScoreboard(ETeam::ET_BlueTeam, BlueTeamScore);			
+			}
+		}
+	}
 }
