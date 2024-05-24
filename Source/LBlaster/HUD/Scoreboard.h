@@ -15,7 +15,7 @@ class LBLASTER_API UScoreboard : public ULBlasterUserWidget
 	GENERATED_BODY()
 
 public:
-	virtual void UpdateBoard(bool bPlayerListChanged);
+	virtual void UpdateBoard();
 
 protected:
 	/*

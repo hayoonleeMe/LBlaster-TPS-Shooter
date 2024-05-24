@@ -15,7 +15,7 @@ class LBLASTER_API UScoreboardFreeForAll : public UScoreboard
 	GENERATED_BODY()
 
 public:
-	virtual void UpdateBoard(bool bPlayerListChanged) override;
+	virtual void UpdateBoard() override;
 
 private:
 	UPROPERTY(meta=(BindWidget))

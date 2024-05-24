@@ -8,7 +8,7 @@
 #include "GameState/TeamDeathMatchGameState.h"
 #include "Player/LBlasterPlayerState.h"
 
-void UScoreboardTeamDeathMatch::UpdateBoard(bool bPlayerListChanged)
+void UScoreboardTeamDeathMatch::UpdateBoard()
 {
 	if (GetWorld() && RedTeamBox && BlueTeamBox && IsValidOwnerPlayerState())
 	{
@@ -39,17 +39,14 @@ void UScoreboardTeamDeathMatch::UpdateBoard(bool bPlayerListChanged)
 					}
 				}
 			}
-			if (bPlayerListChanged)
+			// Text가 설정된 Row가 남아있으면 모두 Text 제거
+			for (; Index < RedTeamBox->GetSlots().Num(); ++Index)
 			{
-				// Text가 설정된 Row가 남아있으면 모두 Text 제거
-				for (; Index < RedTeamBox->GetSlots().Num(); ++Index)
+				if (UScoreboardRow* Row = Cast<UScoreboardRow>(RedTeamBox->GetSlots()[Index]->Content))
 				{
-					if (UScoreboardRow* Row = Cast<UScoreboardRow>(RedTeamBox->GetSlots()[Index]->Content))
+					if (Row->bTextSet)
 					{
-						if (Row->bTextSet)
-						{
-							Row->EmptyScoreboardRowText();
-						}
+						Row->EmptyScoreboardRowText();
 					}
 				}
 			}
@@ -75,17 +72,14 @@ void UScoreboardTeamDeathMatch::UpdateBoard(bool bPlayerListChanged)
 					}
 				}
 			}
-			if (bPlayerListChanged)
+			// Text가 설정된 Row가 남아있으면 모두 Text 제거
+			for (; Index < BlueTeamBox->GetSlots().Num(); ++Index)
 			{
-				// Text가 설정된 Row가 남아있으면 모두 Text 제거
-				for (; Index < BlueTeamBox->GetSlots().Num(); ++Index)
+				if (UScoreboardRow* Row = Cast<UScoreboardRow>(BlueTeamBox->GetSlots()[Index]->Content))
 				{
-					if (UScoreboardRow* Row = Cast<UScoreboardRow>(BlueTeamBox->GetSlots()[Index]->Content))
+					if (Row->bTextSet)
 					{
-						if (Row->bTextSet)
-						{
-							Row->EmptyScoreboardRowText();
-						}
+						Row->EmptyScoreboardRowText();
 					}
 				}
 			}

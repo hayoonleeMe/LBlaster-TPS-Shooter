@@ -27,7 +27,7 @@ void AFreeForAllGameMode::Logout(AController* Exiting)
 		{
 			if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
 			{
-				HUD->UpdateScoreboard(true);
+				HUD->UpdateScoreboard();
 			}
 		}
 	}
@@ -70,7 +70,7 @@ void AFreeForAllGameMode::PlayerEliminated(ALBlasterCharacter* EliminatedCharact
 					{
 						if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
 						{
-							HUD->UpdateScoreboard(false);
+							HUD->UpdateScoreboard();
 						}	
 					}
 				}

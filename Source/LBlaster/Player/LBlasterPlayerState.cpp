@@ -50,7 +50,7 @@ void ALBlasterPlayerState::OnRep_Death()
 		{
 			if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
 			{
-				HUD->UpdateScoreboard(false);
+				HUD->UpdateScoreboard();
 			}	
 		}
 	}
@@ -102,7 +102,7 @@ void ALBlasterPlayerState::InitTeam()
 				{
 					if (ALBlasterHUD* HUD = FirstPlayerController->GetHUD<ALBlasterHUD>())
 					{
-						HUD->UpdateScoreboard(false);
+						HUD->UpdateScoreboard();
 					}		
 				}
 			}
@@ -218,7 +218,7 @@ void ALBlasterPlayerState::OnRep_KillScore()
 		{
 			if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
 			{
-				HUD->UpdateScoreboard(false);
+				HUD->UpdateScoreboard();
 			}	
 		}
 	}

@@ -23,7 +23,7 @@ void AFreeForAllGameState::AddPlayerState(APlayerState* PlayerState)
 		{
 			if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
 			{
-				HUD->UpdateScoreboard(true);
+				HUD->UpdateScoreboard();
 			}
 		}
 	}
@@ -39,7 +39,7 @@ void AFreeForAllGameState::RemovePlayerState(APlayerState* PlayerState)
 		{
 			if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
 			{
-				HUD->UpdateScoreboard(true);
+				HUD->UpdateScoreboard();
 			}
 		}
 	}	
