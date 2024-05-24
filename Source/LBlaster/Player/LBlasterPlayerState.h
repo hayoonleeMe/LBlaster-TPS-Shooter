@@ -35,25 +35,30 @@ class LBLASTER_API ALBlasterPlayerState : public APlayerState
 
 public:
 	ALBlasterPlayerState();
+	virtual void Tick(float DeltaSeconds) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	virtual void OnRep_Score() override;
 	
 	void AddToScore(float InScoreAmount);
+	virtual void OnRep_Score() override;
 	void AddToDeath(int32 InDeathAmount);
+	FORCEINLINE int32 GetDeath() const { return Death; }
 
 	FORCEINLINE ETeam GetTeam() const { return Team; }
 	FORCEINLINE void SetTeam(ETeam InTeam) { Team = InTeam; }
 	void InitTeam();
 	void InitTeamFromGameInstance();
-
 	FTeamCharacterMaterials GetCharacterMaterials() const;
-	
-	FORCEINLINE int32 GetDeath() const { return Death; }
 
 protected:
 	virtual void CopyProperties(APlayerState* PlayerState) override;
 	
 private:
+	/*
+	 *	Core
+	 */
+	bool bFirstTimeInit = false;
+	void PollInit();
+
 	/*
 	 *	Owner
 	 */
@@ -67,6 +72,9 @@ private:
 	
 	bool IsValidOwnerController();
 
+	/*
+	 *	Death
+	 */
 	UPROPERTY(ReplicatedUsing=OnRep_Death)
 	int32 Death;
 	

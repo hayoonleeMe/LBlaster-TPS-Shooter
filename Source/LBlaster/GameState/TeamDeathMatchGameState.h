@@ -23,11 +23,22 @@ public:
 	void RemoveBlueTeamPlayer(ALBlasterPlayerState* InPlayerState);
 	void SortRedTeamByKda();
 	void SortBlueTeamByKda();
-	
+
+	void IncreaseRedTeamScore();
+	void IncreaseBlueTeamScore();
+	void SetRedTeamScore(const int32 InScore, bool bUpdateHUD);
+	void SetBlueTeamScore(const int32 InScore, bool bUpdateHUD);
+
 	FORCEINLINE int32 GetRedTeamNum() const { return RedTeam.Num(); }
 	FORCEINLINE int32 GetBlueTeamNum() const { return BlueTeam.Num(); }
 	const TArray<TObjectPtr<ALBlasterPlayerState>>& GetRedTeam() const { return RedTeam; }
 	const TArray<TObjectPtr<ALBlasterPlayerState>>& GetBlueTeam() const { return BlueTeam; }
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastInitTeamScore();
+
+protected:
+	virtual void BeginPlay() override;
 
 private:
 	/*
@@ -40,7 +51,7 @@ private:
 	void OnRep_RedTeam();
 
 	UPROPERTY(ReplicatedUsing=OnRep_RedTeamScore)
-	float RedTeamScore;
+	int32 RedTeamScore;
 
 	UFUNCTION()
 	void OnRep_RedTeamScore();
@@ -52,7 +63,7 @@ private:
 	void OnRep_BlueTeam();
 
 	UPROPERTY(ReplicatedUsing=OnRep_BlueTeamScore)
-	float BlueTeamScore;
+	int32 BlueTeamScore;
 
 	UFUNCTION()
 	void OnRep_BlueTeamScore();
