@@ -17,17 +17,16 @@ void UDropDown::NativeConstruct()
 	}
 }
 
-void UDropDown::InitializeOptions(EMatchMode InMatchMode)
+void UDropDown::InitializeOptions(const TArray<FString>& Options)
 {
 	if (!ComboBox)
 	{
 		return;
 	}
-	
+
 	ComboBox->ClearOptions();
 
-	const TArray<FString>& OptionsToUse = InMatchMode == EMatchMode::TeamDeathMatch ? TeamDeathMatchOptions : FreeForAllOptions;
-	for (const FString& Option : OptionsToUse)
+	for (const FString& Option : Options)
 	{
 		ComboBox->AddOption(Option);
 	}

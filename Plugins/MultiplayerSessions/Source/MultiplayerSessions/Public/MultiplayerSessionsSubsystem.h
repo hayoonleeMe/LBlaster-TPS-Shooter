@@ -27,7 +27,7 @@ public:
 	/*
 	* To handle session functionality. The Menu class will call these
 	*/
-	void CreateSession(EMatchMode InMatchModeType, int32 InNumMaxPlayer);
+	void CreateSession(EMatchMode InMatchModeType, int32 InNumMaxPlayer, int32 InGoalScore);
 	void FindSessions(int32 InMaxSearchResults);
 	void JoinSession(const FOnlineSessionSearchResult& SessionResult);
 	void DestroySession();
@@ -79,6 +79,9 @@ private:
 
 	UPROPERTY()
 	int32 NumPublicConnections;
+
+	UPROPERTY()
+	int32 GoalScore;
 	
 	/*
 	 *	세션을 생성할 때 이미 세션이 존재하면 그 세션 제거가 완료될 때 다시 세션 생성하기 위한 트리거

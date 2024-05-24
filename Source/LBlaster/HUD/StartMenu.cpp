@@ -36,7 +36,18 @@ void UStartMenu::MenuSetup()
 	}
 	if (MaxPlayerDropDown)
 	{
-		MaxPlayerDropDown->InitializeOptions(GetMatchModeType());
+		if (GetMatchModeType() == EMatchMode::TeamDeathMatch)
+		{
+			MaxPlayerDropDown->InitializeOptions(UDropDown::TeamDeathMatchNumMaxPlayerOptions);
+		}
+		else if (GetMatchModeType() == EMatchMode::FreeForAll)
+		{
+			MaxPlayerDropDown->InitializeOptions(UDropDown::FreeForAllNumMaxPlayerOptions);
+		}
+	}
+	if (GoalScoreDropDown)
+	{
+		GoalScoreDropDown->InitializeOptions(UDropDown::GoalScoreOptions);
 	}
 	if (CreateSessionAlertCreateButton && !CreateSessionAlertCreateButton->OnClicked.IsBound())
 	{
@@ -134,7 +145,14 @@ void UStartMenu::OnGameModeSelectorChanged(int32 InActiveIndex)
 	// MaxPlayerDropDown은 게임 모드에 따라 다른 Option을 표시
 	if (MaxPlayerDropDown)
 	{
-		MaxPlayerDropDown->InitializeOptions(GetMatchModeType());
+		if (GetMatchModeType() == EMatchMode::TeamDeathMatch)
+		{
+			MaxPlayerDropDown->InitializeOptions(UDropDown::TeamDeathMatchNumMaxPlayerOptions);
+		}
+		else if (GetMatchModeType() == EMatchMode::FreeForAll)
+		{
+			MaxPlayerDropDown->InitializeOptions(UDropDown::FreeForAllNumMaxPlayerOptions);
+		}
 	}
 }
 
@@ -167,18 +185,28 @@ int32 UStartMenu::GetMaxPlayerValue() const
 	return 0;
 }
 
+int32 UStartMenu::GetGoalScoreValue() const
+{
+	if (GoalScoreDropDown)
+	{
+		return GoalScoreDropDown->GetSelectedValue();
+	}
+	return 0;
+}
+
 void UStartMenu::OnCreateSessionAlertCreateButtonClicked()
 {
 	SetLoadingOverlayVisibility(true);
 	
 	const EMatchMode MatchModeType = GetMatchModeType();
 	const int32 NumMaxPlayer = GetMaxPlayerValue();
+	const int32 GoalScore = GetGoalScoreValue();
 	
 	if (IsValidOwnerHUD())
 	{
 		if (AMainMenuHUD* MainMenuHUD = Cast<AMainMenuHUD>(OwnerHUD))
 		{
-			MainMenuHUD->CreateSessionFromMenu(MatchModeType, NumMaxPlayer);
+			MainMenuHUD->CreateSessionFromMenu(MatchModeType, NumMaxPlayer, GoalScore);
 		}
 	}
 }
@@ -192,7 +220,18 @@ void UStartMenu::OnCreateSessionAlertCancelButtonClicked()
 	}
 	if (MaxPlayerDropDown)
 	{
-		MaxPlayerDropDown->InitializeOptions(GetMatchModeType());
+		if (GetMatchModeType() == EMatchMode::TeamDeathMatch)
+		{
+			MaxPlayerDropDown->InitializeOptions(UDropDown::TeamDeathMatchNumMaxPlayerOptions);
+		}
+		else if (GetMatchModeType() == EMatchMode::FreeForAll)
+		{
+			MaxPlayerDropDown->InitializeOptions(UDropDown::FreeForAllNumMaxPlayerOptions);
+		}
+	}
+	if (GoalScoreDropDown)
+	{
+		GoalScoreDropDown->InitializeOptions(UDropDown::GoalScoreOptions);
 	}
 
 	// Create Session Alert Overlay 숨김

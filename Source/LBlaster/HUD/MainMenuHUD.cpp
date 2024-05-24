@@ -124,11 +124,11 @@ void AMainMenuHUD::AddNewMenuToStack(ULBlasterUserWidget* InNewMenu)
 	InNewMenu->MenuSetup();
 }
 
-void AMainMenuHUD::CreateSessionFromMenu(EMatchMode InMatchModeType, int32 NumMaxPlayer)
+void AMainMenuHUD::CreateSessionFromMenu(EMatchMode InMatchModeType, int32 NumMaxPlayer, int32 InGoalScore)
 {
 	if (MultiplayerSessionsSubsystem)
 	{
-		MultiplayerSessionsSubsystem->CreateSession(InMatchModeType, NumMaxPlayer);
+		MultiplayerSessionsSubsystem->CreateSession(InMatchModeType, NumMaxPlayer, InGoalScore);
 	}
 }
 
