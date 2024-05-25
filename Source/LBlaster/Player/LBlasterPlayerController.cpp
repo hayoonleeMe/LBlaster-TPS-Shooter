@@ -332,6 +332,27 @@ void ALBlasterPlayerController::UpdateHUDGrenadeAmount(int32 InGrenadeAmount)
 	}
 }
 
+void ALBlasterPlayerController::StartRespawnTimer(float InElimDelay, float InRespawnTimerUpdateFrequency)
+{
+	if (IsValidOwningHUD())
+	{
+		OwningHUD->StartRespawnTimer(InElimDelay, InRespawnTimerUpdateFrequency);
+	}
+}
+
+void ALBlasterPlayerController::HideRespawnTimer()
+{
+	if (IsValidOwningHUD())
+	{
+		OwningHUD->HideRespawnTimer();
+	}
+}
+
+void ALBlasterPlayerController::ClientHideRespawnTimer_Implementation()
+{
+	HideRespawnTimer();
+}
+
 void ALBlasterPlayerController::OnMatchStateSet(FName InState)
 {
 	MatchState = InState;

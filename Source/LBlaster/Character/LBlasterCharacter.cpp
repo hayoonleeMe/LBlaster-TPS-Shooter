@@ -204,6 +204,7 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 
 	/* Elim */
 	ElimDelay = 3.f;
+	RespawnTimerUpdateFrequency = 0.1f;
 
 	/* Dissolve Effect */
 	DissolveTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(TEXT("Dissolve Timeline Component"));
@@ -830,6 +831,22 @@ void ALBlasterCharacter::Ragdoll()
 
 void ALBlasterCharacter::ElimTimerFinished()
 {
+	// Respawn Timer 위젯을 숨김
+	if (HasAuthority())
+	{
+		if (ALBlasterPlayerController* PlayerController = GetController<ALBlasterPlayerController>())
+		{
+			if (PlayerController->IsLocalController())
+			{
+				PlayerController->HideRespawnTimer();
+			}
+			else
+			{
+				PlayerController->ClientHideRespawnTimer();
+			}
+		}
+	}
+	
 	if (ALBlasterGameMode* GameMode = GetWorld()->GetAuthGameMode<ALBlasterGameMode>())
 	{
 		if (!bLeftGame)
@@ -877,14 +894,20 @@ void ALBlasterCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
 	// 죽는 중에 중복 타격되지 않도록 충돌 제거
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	// 탄약 UI 0으로 업데이트
 	if (ALBlasterPlayerController* PlayerController = Cast<ALBlasterPlayerController>(Controller))
 	{
+		// 탄약 UI 0으로 업데이트
 		PlayerController->SetHUDAmmo(0);
 		PlayerController->SetHUDCarriedAmmo(0);
 		PlayerController->SetHUDWeaponTypeText();
 		PlayerController->SetWeaponSlotIcon(EEquipSlot::EES_FirstSlot, EWeaponType::EWT_Unarmed);
 		PlayerController->SetWeaponSlotIcon(EEquipSlot::EES_SecondSlot, EWeaponType::EWT_Unarmed);
+
+		// Start Respawn Timer
+		if (IsLocallyControlled())
+		{
+			PlayerController->StartRespawnTimer(ElimDelay, RespawnTimerUpdateFrequency);
+		}
 	}
 
 	/* Ragdoll */

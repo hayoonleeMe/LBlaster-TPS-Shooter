@@ -39,6 +39,11 @@ public:
 	void SetHUDAnnouncementCountdown(float InCountdownTime);
 	void UpdateHUDGrenadeAmount();
 	void UpdateHUDGrenadeAmount(int32 InGrenadeAmount);
+	void StartRespawnTimer(float InElimDelay, float InRespawnTimerUpdateFrequency);
+	void HideRespawnTimer();
+	
+	UFUNCTION(Client, Reliable)
+	void ClientHideRespawnTimer();
 
 	FORCEINLINE float GetSingleTripTime() const { return SingleTripTime; }
 	
