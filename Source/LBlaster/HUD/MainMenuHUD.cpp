@@ -66,7 +66,7 @@ void AMainMenuHUD::CreateSessionListMenu()
 void AMainMenuHUD::ReturnMenu(bool bForceReturn)
 {
 	int32 LastMenuIndex = MenuStack.Num() - 1;
-	if (MenuStack.IsValidIndex(LastMenuIndex))
+	if (MenuStack.IsValidIndex(LastMenuIndex) && MenuStack[LastMenuIndex])
 	{
 		// 현재 메뉴에서 Return할 수 없는 작업을 수행 중이면 Early Return
 		if (!MenuStack[LastMenuIndex]->CanReturn())
@@ -95,7 +95,10 @@ void AMainMenuHUD::ReturnMenu(bool bForceReturn)
 	}
 	else
 	{
-		MenuStack[LastMenuIndex]->SetVisibility(ESlateVisibility::Visible);
+		if (MenuStack[LastMenuIndex])
+		{
+			MenuStack[LastMenuIndex]->SetVisibility(ESlateVisibility::Visible);
+		}
 	}
 }
 
@@ -114,7 +117,7 @@ void AMainMenuHUD::AddNewMenuToStack(ULBlasterUserWidget* InNewMenu)
 	else
 	{
 		const int32 LastMenuIndex = MenuStack.Num() - 1;
-		if (MenuStack.IsValidIndex(LastMenuIndex))
+		if (MenuStack.IsValidIndex(LastMenuIndex) && MenuStack[LastMenuIndex])
 		{
 			MenuStack[LastMenuIndex]->SetVisibility(ESlateVisibility::Hidden);
 		}	
