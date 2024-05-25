@@ -25,6 +25,7 @@ public:
 	// Sync with server clock as soon as possible (Called after this PlayerController's Viewport/net connection is associated with this player controller)
 	virtual void ReceivedPlayer() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void Destroyed() override;
 
 	void SetHUDHealth(float Health, float MaxHealth);
 	void SetHUDKillScore(int32 InKillScore);
@@ -149,6 +150,8 @@ private:
 	TObjectPtr<class ALBlasterGameMode> OwnerGameMode;
 
 	bool IsValidOwnerGameMode();
+
+	bool bAlreadyServerLeaveGame = false;
 
 	/*
      *	Match Countdown

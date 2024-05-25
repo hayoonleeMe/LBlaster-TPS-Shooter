@@ -138,6 +138,17 @@ void ALBlasterPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 	DOREPLIFETIME(ALBlasterPlayerController, MatchState);
 }
 
+void ALBlasterPlayerController::Destroyed()
+{
+	// 클라이언트의 비정상적인 게임 종료(ex.강제종료)로 인해 해당 플레이어의 오브젝트 들이 제대로 제거되지 않았을 때
+	if (HasAuthority() && !bAlreadyServerLeaveGame)
+	{
+		ServerLeaveGame();
+	}
+	
+	Super::Destroyed();
+}
+
 void ALBlasterPlayerController::SetHUDTime()
 {
 	if (HasAuthority() && IsValidOwnerGameMode())
@@ -521,6 +532,11 @@ void ALBlasterPlayerController::ServerLeaveGame_Implementation()
 		{
 			if (ALBlasterCharacter* LBCharacter = Cast<ALBlasterCharacter>(GetCharacter()))
 			{
+				if (!bAlreadyServerLeaveGame)
+				{
+					bAlreadyServerLeaveGame = true;
+				}
+				
 				GameMode->PlayerLeftGame(LBCharacter);
 			}
 		}	
