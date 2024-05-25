@@ -4,8 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "LBlasterUserWidget.h"
-#include "LBTypes/ChatMode.h"
-#include "LBTypes/Team.h"
 #include "LobbyMenu.generated.h"
 
 /**
@@ -41,13 +39,21 @@ protected:
 	
 private:
 	/*
-	 *	Widgets
+	 *	Players Text
 	 */
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<class UTextBlock> NumPlayersText;
 
 	int32 NumCurrentPlayers = 0;
 	int32 NumMaxPlayers = 0;
+
+	/*
+	 *	Goal Kill Score
+	 */
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UTextBlock> GoalKillScoreText;
+
+	void UpdateGoalKillScoreText();
 
 	/*
 	 *	Server Menu Button

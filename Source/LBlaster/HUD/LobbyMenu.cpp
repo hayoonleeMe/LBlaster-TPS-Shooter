@@ -53,6 +53,9 @@ void ULobbyMenu::MenuSetup()
 	/* Players Text */
 	SetNumPlayersText(0, 0);
 
+	/* Goal Kill Score */
+	UpdateGoalKillScoreText();
+
 	/* Widgets */
 	if (StartButton && !StartButton->OnClicked.IsBound())
 	{
@@ -84,6 +87,14 @@ void ULobbyMenu::OnDestroySessionComplete(bool bWasSuccessful)
 	if (!bWasSuccessful)
 	{
 		OnReturnButtonClicked();
+	}
+}
+
+void ULobbyMenu::UpdateGoalKillScoreText()
+{
+	if (IsValidOwnerHUD() && GoalKillScoreText)
+	{
+		GoalKillScoreText->SetText(FText::AsNumber(OwnerHUD->GetGoalKillScore()));
 	}
 }
 

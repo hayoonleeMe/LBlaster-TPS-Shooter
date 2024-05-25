@@ -37,9 +37,13 @@ void ABaseHUD::PostInitializeComponents()
 		{
 			if (FNamedOnlineSession* NamedOnlineSession = MultiplayerSessionsSubsystem->GetNamedOnlineSession())
 			{
+				/* Match Mode */
 				int32 Value;
 				NamedOnlineSession->SessionSettings.Get(FMultiplayerMapPath::MatchModeKey, Value);
 				MatchModeType = static_cast<EMatchMode>(Value);
+
+				/* Goal Kill Score */
+				NamedOnlineSession->SessionSettings.Get(FMultiplayerMapPath::GoalKillScoreKey, GoalKillScore);
 			}
 		}
 	}
