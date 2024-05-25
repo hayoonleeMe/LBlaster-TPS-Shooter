@@ -181,6 +181,7 @@ public:
 	void UpdateHUDGrenadeAmount();
 	void PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount);
 	void EquipFinished();
+	void HideCrosshair();
 
 protected:
 	virtual void BeginPlay() override;
@@ -337,6 +338,8 @@ private:
 	/*
 	 *	Crosshair
 	 */
+	bool bShowCrosshair = true;
+	
 	void SetHUDCrosshair(float DeltaTime);
 
 	FHUDPackage HUDPackage;

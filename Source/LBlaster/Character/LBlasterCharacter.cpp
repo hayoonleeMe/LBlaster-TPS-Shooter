@@ -887,6 +887,12 @@ void ALBlasterCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
 		}
 		// 소지 중인 무기 모두 해제
 		CombatComponent->ElimWeapon();
+
+		if (IsLocallyControlled())
+		{
+			// 크로스헤어 숨김
+			CombatComponent->HideCrosshair();
+		}
 	}
 	
 	PlayDeathMontage(LastHitNormal);
