@@ -97,6 +97,12 @@ public:
 	void UpdateTeamScoreMiniScoreboard(const ETeam InTeam, const int32 InTeamScore) const;
 	void UpdateTotalScoreMiniScoreboard(const int32 InTotalScore) const;
 
+	/*
+	 *	Respawn Timer
+	 */
+	void StartRespawnTimer(float InElimDelay, float InRespawnTimerUpdateFrequency);
+	void HideRespawnTimer() const;
+
 protected:
 	virtual void PostInitializeComponents() override;
 	
@@ -221,4 +227,19 @@ private:
 	TObjectPtr<UMiniScoreboard> MiniScoreboard;
 
 	void AddMiniScoreboard();
+
+	/*
+	 *	Respawn Timer
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Respawn Timer")
+	TSubclassOf<class URespawnTimer> RespawnTimerClass;
+
+	UPROPERTY()
+	TObjectPtr<URespawnTimer> RespawnTimer;
+
+	FTimerHandle RespawnTimerHandle;
+
+	void UpdateHUDRespawnTimer();
+
+	float RespawnTimerUnitPercent = 0.f;
 };

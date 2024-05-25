@@ -15,6 +15,7 @@
 #include "MultiplayerSessionsSubsystem.h"
 #include "OnlineSessionSettings.h"
 #include "PauseMenu.h"
+#include "RespawnTimer.h"
 #include "Scoreboard.h"
 #include "SettingMenu.h"
 #include "SniperScope.h"
@@ -399,6 +400,14 @@ void ALBlasterHUD::AddMiniScoreboard()
 	}
 }
 
+void ALBlasterHUD::UpdateHUDRespawnTimer()
+{
+	if (RespawnTimer)
+	{
+		RespawnTimer->AddProgressPercent(RespawnTimerUnitPercent);
+	}
+}
+
 void ALBlasterHUD::SetScoreboardVisibility(bool bVisible)
 {
 	if (Scoreboard)
@@ -449,6 +458,32 @@ void ALBlasterHUD::UpdateTotalScoreMiniScoreboard(const int32 InTotalScore) cons
 		{
 			MiniScoreboardFFA->SetTotalScoreText(InTotalScore);
 		}
+	}
+}
+
+void ALBlasterHUD::StartRespawnTimer(float InElimDelay, float InRespawnTimerUpdateFrequency)
+{
+	if (!RespawnTimer && RespawnTimerClass && IsValidOwnerController())
+	{
+		RespawnTimer = CreateWidget<URespawnTimer>(OwnerController, RespawnTimerClass);
+	}
+	if (RespawnTimer)
+	{
+		RespawnTimer->MenuSetup();
+	}
+	
+	RespawnTimerUnitPercent = InRespawnTimerUpdateFrequency / InElimDelay;
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().SetTimer(RespawnTimerHandle, this, &ThisClass::UpdateHUDRespawnTimer, InRespawnTimerUpdateFrequency, true);
+	}
+}
+
+void ALBlasterHUD::HideRespawnTimer() const
+{
+	if (RespawnTimer)
+	{
+		RespawnTimer->SetVisibility(ESlateVisibility::Collapsed);
 	}
 }
 

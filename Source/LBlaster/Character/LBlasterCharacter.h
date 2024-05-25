@@ -249,6 +249,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category="LBlaster|Elim")
 	float ElimDelay;
+
+	UPROPERTY(EditDefaultsOnly, Category="LBlaster|Elim")
+	float RespawnTimerUpdateFrequency;
 	
 	FTimerHandle ElimTimer;
 	void ElimTimerFinished();
