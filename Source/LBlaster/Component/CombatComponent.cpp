@@ -133,12 +133,15 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// Tick에서 Trace를 통해 크로스헤어 색상 설정
-	FHitResult HitResult;
-	TraceUnderCrosshair(HitResult);
+	if (bShowCrosshair)
+	{
+		// Tick에서 Trace를 통해 크로스헤어 색상 설정
+		FHitResult HitResult;
+		TraceUnderCrosshair(HitResult);
 	
-	// 크로스헤어 Draw
-	SetHUDCrosshair(DeltaTime);
+		// 크로스헤어 Draw
+		SetHUDCrosshair(DeltaTime);
+	}
 }
 
 void UCombatComponent::SetAiming(bool bInAiming)
@@ -934,6 +937,19 @@ void UCombatComponent::EquipFinished()
 	if (bIsFiring && bCanFire && GetEquippingWeapon() && GetEquippingWeapon()->IsAutomatic())
 	{
 		Fire();
+	}
+}
+
+void UCombatComponent::HideCrosshair()
+{
+	// 이 이후로 크로스헤어를 Tick에서 그리지 않음.
+	bShowCrosshair = false;
+	
+	if (IsValidHUD())
+	{
+		// 크로스헤어를 투명으로 그려 화면에서 보이지 않게 설정.
+		HUDPackage.CrosshairColor = FLinearColor(1.f, 1.f, 1.f, 0.f);
+		HUD->SetHUDPackage(HUDPackage);
 	}
 }
 
