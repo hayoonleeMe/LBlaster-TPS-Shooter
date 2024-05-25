@@ -25,6 +25,7 @@ public:
 	virtual void AddChatMessage(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam);
 
 	FORCEINLINE EMatchMode GetMatchModeType() const { return MatchModeType; }
+	FORCEINLINE int32 GetGoalKillScore() const { return GoalKillScore; }
 	
 protected:
 	virtual void PostInitializeComponents() override;
@@ -37,4 +38,9 @@ protected:
 	 * Match Mode
 	 */
 	EMatchMode MatchModeType;
+
+	/*
+	 *	Goal Kill Score
+	 */
+	int32 GoalKillScore;
 };
