@@ -11,6 +11,7 @@
 #include "Character/LBlasterCharacter.h"
 #include "GameFramework/PlayerState.h"
 #include "GameMode/LBlasterGameMode.h"
+#include "GameUserSettings/LBGameUserSettings.h"
 #include "HUD/LBlasterHUD.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
@@ -616,6 +617,15 @@ void ALBlasterPlayerController::BeginPlay()
 	/* Input Mode */
 	SetInputMode(FInputModeGameOnly());
 	SetShowMouseCursor(false);
+
+	// Apply Game User Setting on Init
+	if (IsLocalController() && GEngine && GetWorld())
+	{
+		if (ULBGameUserSettings* LBGameUserSettings = Cast<ULBGameUserSettings>(GEngine->GetGameUserSettings()))
+		{
+			LBGameUserSettings->ApplyCustomSettings(false, GetWorld());
+		}
+	}
 }
 
 void ALBlasterPlayerController::OnPossess(APawn* InPawn)
