@@ -145,6 +145,11 @@ void ALBlasterPlayerController::Destroyed()
 	{
 		ServerLeaveGame();
 	}
+	// 호스트의 비정상적인 게임 종료(ex. 강제종료)로 인해 클라이언트 플레이어들이 세션에서 해제되지 않았을 때
+	if (!HasAuthority() && !bAlreadyServerLeaveGame)
+	{
+		ClientDestroySession();
+	}
 	
 	Super::Destroyed();
 }
