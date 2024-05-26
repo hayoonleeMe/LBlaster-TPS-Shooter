@@ -105,6 +105,12 @@ public:
 	bool IsServerSideRewindEnabled() const;
 	void EnableServerSideRewind(bool bInEnabled) const;
 
+	/*
+	 *	Mouse Sensitivity
+	 */
+	void SetXAxisSensitivityFromUserSettings(float InXAxisSensitivity);
+	void SetYAxisSensitivityFromUserSettings(float InYAxisSensitivity);
+
 protected:
 	/*
 	 *	Input

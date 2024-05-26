@@ -32,6 +32,28 @@ void UGraphicSettingMenu::MenuSetup()
 		OriginalSettings.ScreenBrightnessValue = GameUserSettings->GetScreenBrightnessValue();
 		ScreenBrightnessSlider->InitializeValues(GameUserSettings->GetScreenBrightnessValue(), SliderMinValue, SliderMaxValue, SliderStepSize);
 	}
+
+	if (XAxisMouseSensitivitySlider)
+	{
+		if (!XAxisMouseSensitivitySlider->OnSliderValueChanged.IsBound())
+		{
+			XAxisMouseSensitivitySlider->OnSliderValueChanged.BindUObject(this, &ThisClass::OnXAxisMouseSensitivitySliderChanged);
+		}
+		
+		OriginalSettings.XAxisMouseSensitivity = GameUserSettings->GetXAxisMouseSensitivity();
+		XAxisMouseSensitivitySlider->InitializeValues(GameUserSettings->GetXAxisMouseSensitivity(), SliderMinValue, SliderMaxValue, SliderStepSize);
+	}
+
+	if (YAxisMouseSensitivitySlider)
+	{
+		if (!YAxisMouseSensitivitySlider->OnSliderValueChanged.IsBound())
+		{
+			YAxisMouseSensitivitySlider->OnSliderValueChanged.BindUObject(this, &ThisClass::OnYAxisMouseSensitivitySliderChanged);
+		}
+		
+		OriginalSettings.YAxisMouseSensitivity = GameUserSettings->GetYAxisMouseSensitivity();
+		YAxisMouseSensitivitySlider->InitializeValues(GameUserSettings->GetYAxisMouseSensitivity(), SliderMinValue, SliderMaxValue, SliderStepSize);
+	}
 	
 	/* Selector */
 	if (DisplayModeSelector)
@@ -320,6 +342,28 @@ void UGraphicSettingMenu::OnScreenBrightnessSliderChanged(float InSliderValue)
 		GameUserSettings->SetScreenBrightnessValue(InSliderValue);
 
 		bChangedScreenBrightness = GameUserSettings->GetScreenBrightnessValue() != OriginalSettings.ScreenBrightnessValue;
+		EnableApplyButton();
+	}
+}
+
+void UGraphicSettingMenu::OnXAxisMouseSensitivitySliderChanged(float InSliderValue)
+{
+	if (GameUserSettings)
+	{
+		GameUserSettings->SetXAxisMouseSensitivity(InSliderValue);
+
+		bChangedXAxisMouseSensitivity = GameUserSettings->GetXAxisMouseSensitivity() != OriginalSettings.XAxisMouseSensitivity;
+		EnableApplyButton();
+	}
+}
+
+void UGraphicSettingMenu::OnYAxisMouseSensitivitySliderChanged(float InSliderValue)
+{
+	if (GameUserSettings)
+	{
+		GameUserSettings->SetYAxisMouseSensitivity(InSliderValue);
+
+		bChangedYAxisMouseSensitivity = GameUserSettings->GetYAxisMouseSensitivity() != OriginalSettings.YAxisMouseSensitivity;
 		EnableApplyButton();
 	}
 }
@@ -690,7 +734,7 @@ void UGraphicSettingMenu::EnableApplyButton()
 
 bool UGraphicSettingMenu::ShouldApplyChange() const
 {
-	const bool bShouldApplyChange = bChangedFullScreenMode || bChangedScreenResolution || bChangedEnableFPSIndicator || bChangedFrameLimitValue || bChangedScreenBrightness || bChangedEnableVSync || bChangedMotionBlur || bChangedGraphicPresetValue || bChangedAntiAliasing || bChangedViewDistance || bChangedShadowQuality || bChangedGlobalIlluminationQuality || bChangedReflectionQuality || bChangedPostProcessing || bChangedTextureQuality || bChangedEffectQuality || bChangedBackgroundQuality || bChangedShadingQuality;
+	const bool bShouldApplyChange = bChangedFullScreenMode || bChangedScreenResolution || bChangedEnableFPSIndicator || bChangedFrameLimitValue || bChangedScreenBrightness || bChangedXAxisMouseSensitivity || bChangedYAxisMouseSensitivity || bChangedEnableVSync || bChangedMotionBlur || bChangedGraphicPresetValue || bChangedAntiAliasing || bChangedViewDistance || bChangedShadowQuality || bChangedGlobalIlluminationQuality || bChangedReflectionQuality || bChangedPostProcessing || bChangedTextureQuality || bChangedEffectQuality || bChangedBackgroundQuality || bChangedShadingQuality;
 	return bShouldApplyChange;
 }
 
@@ -741,6 +785,16 @@ void UGraphicSettingMenu::OnNoApplyAlertAcceptButtonClicked()
 		if (bChangedScreenBrightness)
 		{
 			GameUserSettings->SetScreenBrightnessValue(OriginalSettings.ScreenBrightnessValue);
+		}
+
+		if (bChangedXAxisMouseSensitivity)
+		{
+			GameUserSettings->SetXAxisMouseSensitivity(OriginalSettings.XAxisMouseSensitivity);
+		}
+
+		if (bChangedYAxisMouseSensitivity)
+		{
+			GameUserSettings->SetYAxisMouseSensitivity(OriginalSettings.YAxisMouseSensitivity);
 		}
 
 		if (bChangedEnableVSync)
@@ -809,7 +863,7 @@ void UGraphicSettingMenu::OnNoApplyAlertAcceptButtonClicked()
 		}	
 	}
 
-	bChangedFullScreenMode = bChangedScreenResolution = bChangedEnableFPSIndicator = bChangedFrameLimitValue = bChangedScreenBrightness = bChangedEnableVSync = bChangedMotionBlur = bChangedGraphicPresetValue = bChangedAntiAliasing = bChangedViewDistance = bChangedShadowQuality = bChangedGlobalIlluminationQuality = bChangedReflectionQuality = bChangedPostProcessing = bChangedTextureQuality = bChangedEffectQuality = bChangedBackgroundQuality = bChangedShadingQuality = false;
+	bChangedFullScreenMode = bChangedScreenResolution = bChangedEnableFPSIndicator = bChangedFrameLimitValue = bChangedScreenBrightness = bChangedXAxisMouseSensitivity = bChangedYAxisMouseSensitivity = bChangedEnableVSync = bChangedMotionBlur = bChangedGraphicPresetValue = bChangedAntiAliasing = bChangedViewDistance = bChangedShadowQuality = bChangedGlobalIlluminationQuality = bChangedReflectionQuality = bChangedPostProcessing = bChangedTextureQuality = bChangedEffectQuality = bChangedBackgroundQuality = bChangedShadingQuality = false;
 	
 	if (IsValidOwnerHUD())
 	{
@@ -850,7 +904,7 @@ void UGraphicSettingMenu::OnApplyButtonClicked()
 		OriginalSettings.BackgroundQualityValue = GameUserSettings->GetFoliageQuality();
 		OriginalSettings.ShadingQualityValue = GameUserSettings->GetShadingQuality();
 		
-		bChangedFullScreenMode = bChangedScreenResolution = bChangedEnableFPSIndicator = bChangedFrameLimitValue = bChangedScreenBrightness = bChangedEnableVSync = bChangedMotionBlur = bChangedGraphicPresetValue = bChangedAntiAliasing = bChangedViewDistance = bChangedShadowQuality = bChangedGlobalIlluminationQuality = bChangedReflectionQuality = bChangedPostProcessing = bChangedTextureQuality = bChangedEffectQuality = bChangedBackgroundQuality = bChangedShadingQuality = false;
+		bChangedFullScreenMode = bChangedScreenResolution = bChangedEnableFPSIndicator = bChangedFrameLimitValue = bChangedScreenBrightness = bChangedXAxisMouseSensitivity = bChangedYAxisMouseSensitivity = bChangedEnableVSync = bChangedMotionBlur = bChangedGraphicPresetValue = bChangedAntiAliasing = bChangedViewDistance = bChangedShadowQuality = bChangedGlobalIlluminationQuality = bChangedReflectionQuality = bChangedPostProcessing = bChangedTextureQuality = bChangedEffectQuality = bChangedBackgroundQuality = bChangedShadingQuality = false;
 		
 		if (ApplyButton)
 		{

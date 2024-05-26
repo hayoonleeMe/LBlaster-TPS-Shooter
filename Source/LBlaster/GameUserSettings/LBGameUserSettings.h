@@ -21,11 +21,15 @@ public:
 	FORCEINLINE float GetScreenBrightnessValue() const { return ScreenBrightnessValue; }
 	FORCEINLINE float GetMotionBlurValue() const { return MotionBlurValue; }
 	FORCEINLINE int32 GetGraphicPresetValue() const { return GraphicPresetValue; }
+	FORCEINLINE float GetXAxisMouseSensitivity() const { return XAxisMouseSensitivity; }
+	FORCEINLINE float GetYAxisMouseSensitivity() const { return YAxisMouseSensitivity; }
 
 	void SetFPSIndicatorEnabled(bool bEnable);
 	FORCEINLINE void SetScreenBrightnessValue(float InValue) { ScreenBrightnessValue = InValue; }
 	FORCEINLINE void SetMotionBlurValue(float InValue) { MotionBlurValue = InValue; }
 	FORCEINLINE void SetGraphicPresetValue(int32 InValue) { GraphicPresetValue = InValue; }
+	FORCEINLINE void SetXAxisMouseSensitivity(float InValue) { XAxisMouseSensitivity = InValue; }
+	FORCEINLINE void SetYAxisMouseSensitivity(float InValue) { YAxisMouseSensitivity = InValue; }
 
 	void ApplyCustomSettings(bool bCheckForCommandLineOverrides, const UObject* WorldContextObject);
 	void SetGraphicOptionByAutoDetect(bool bFirstExecute = false);
@@ -59,4 +63,18 @@ private:
 	 */
 	UPROPERTY(config)
 	int32 GraphicPresetValue = 0;
+	
+	/*
+	 *	Mouse Sensitivity
+	 */
+	inline static const FVector2D MouseSensitivityInputRange{ 0.f, 100.f };
+	inline static const FVector2D MouseSensitivityOutputRange{ 0.2f, 1.4f };
+	
+	// Scalar Modifier X Value, 0 ~ 100 => 0.2 ~ 1.4
+	UPROPERTY(config)
+	float XAxisMouseSensitivity = 50.f;
+
+	// Scalar Modifier Y Value, 0 ~ 100 => 0.2 ~ 1.4
+	UPROPERTY(config)
+	float YAxisMouseSensitivity = 50.f;
 };
