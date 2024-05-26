@@ -25,6 +25,12 @@ struct FOriginalGameUserSettings
 	
 	UPROPERTY()
 	float ScreenBrightnessValue;
+
+	UPROPERTY()
+	float XAxisMouseSensitivity;
+
+	UPROPERTY()
+	float YAxisMouseSensitivity;
 	
 	UPROPERTY()
 	bool bEnableVSync;
@@ -88,16 +94,31 @@ protected:
 	/*
 	 *	Slider
 	 */
+	float SliderMinValue = 0.f;
+	float SliderMaxValue = 100.f;
+	float SliderStepSize = 1.f;
+	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class USliderWithNumericInput> ScreenBrightnessSlider;
 
 	void OnScreenBrightnessSliderChanged(float InSliderValue);
 
-	float SliderMinValue = 0.f;
-	float SliderMaxValue = 100.f;
-	float SliderStepSize = 1.f;
-	
 	bool bChangedScreenBrightness = false;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<USliderWithNumericInput> XAxisMouseSensitivitySlider;
+
+	void OnXAxisMouseSensitivitySliderChanged(float InSliderValue);
+
+	bool bChangedXAxisMouseSensitivity = false;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<USliderWithNumericInput> YAxisMouseSensitivitySlider;
+
+	void OnYAxisMouseSensitivitySliderChanged(float InSliderValue);
+
+	bool bChangedYAxisMouseSensitivity = false;
+	
 
 	/*
 	 *	Selector

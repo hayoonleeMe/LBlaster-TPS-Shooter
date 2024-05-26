@@ -489,6 +489,36 @@ void ALBlasterCharacter::EnableServerSideRewind(bool bInEnabled) const
 	}
 }
 
+void ALBlasterCharacter::SetXAxisSensitivityFromUserSettings(float InXAxisSensitivity)
+{
+	if (LookAction)
+	{
+		for (UInputModifier* Modifer : LookAction->Modifiers)
+		{
+			if (UInputModifierScalar* ScalarModifier = Cast<UInputModifierScalar>(Modifer))
+			{
+				ScalarModifier->Scalar.X = InXAxisSensitivity;
+				return;
+			}
+		}
+	}
+}
+
+void ALBlasterCharacter::SetYAxisSensitivityFromUserSettings(float InYAxisSensitivity)
+{
+	if (LookAction)
+	{
+		for (UInputModifier* Modifer : LookAction->Modifiers)
+		{
+			if (UInputModifierScalar* ScalarModifier = Cast<UInputModifierScalar>(Modifer))
+			{
+				ScalarModifier->Scalar.Y = InYAxisSensitivity;
+				return;
+			}
+		}
+	}
+}
+
 void ALBlasterCharacter::UpdateHUDHealth() const
 {
 	if (HealthComponent)
@@ -522,7 +552,7 @@ void ALBlasterCharacter::Look(const FInputActionValue& ActionValue)
 {
 	const FVector2D LookAxisVector = ActionValue.Get<FVector2D>();
 	AddControllerYawInput(LookAxisVector.X);
-	AddControllerPitchInput(LookAxisVector.Y);
+	AddControllerPitchInput(LookAxisVector.Y * -1.f);
 }
 
 void ALBlasterCharacter::DoJump(const FInputActionValue& ActionValue)

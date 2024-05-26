@@ -4,9 +4,11 @@
 #include "GameUserSettings/LBGameUserSettings.h"
 
 #include "Camera/CameraComponent.h"
+#include "Character/LBlasterCharacter.h"
 #include "Engine/PostProcessVolume.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Player/LBlasterPlayerController.h"
 
 void ULBGameUserSettings::SetFPSIndicatorEnabled(bool bEnable)
 {
@@ -39,6 +41,21 @@ void ULBGameUserSettings::ApplyCustomSettings(bool bCheckForCommandLineOverrides
 			PostProcessSettings.bOverride_MotionBlurPerObjectSize = true;
 			PostProcessSettings.MotionBlurPerObjectSize = MotionBlurValue;  // 개체 크기에 따른 모션 블러의 변화량
 		}
+
+		/* Mouse Sensitivity */
+		if (WorldContextObject->GetWorld())
+		{
+			if (ALBlasterPlayerController* FirstPlayerController = Cast<ALBlasterPlayerController>(WorldContextObject->GetWorld()->GetFirstPlayerController()))
+			{
+				if (ALBlasterCharacter* LBCharacter = Cast<ALBlasterCharacter>(FirstPlayerController->GetCharacter()))
+				{
+					const float ClampedXAxisMouseSensitivity = FMath::GetMappedRangeValueClamped(MouseSensitivityInputRange, MouseSensitivityOutputRange, XAxisMouseSensitivity);
+					const float ClampedYAxisMouseSensitivity = FMath::GetMappedRangeValueClamped(MouseSensitivityInputRange, MouseSensitivityOutputRange, YAxisMouseSensitivity);
+					LBCharacter->SetXAxisSensitivityFromUserSettings(ClampedXAxisMouseSensitivity);
+					LBCharacter->SetYAxisSensitivityFromUserSettings(ClampedYAxisMouseSensitivity);
+				}
+			}
+		}
 	}
 }
 
@@ -54,6 +71,8 @@ void ULBGameUserSettings::SetGraphicOptionByAutoDetect(bool bFirstExecute)
 	{
 		SetScreenResolution(FIntPoint{ 1920, 1080 });
 		SetFullscreenMode(EWindowMode::WindowedFullscreen);
+		SetXAxisMouseSensitivity(50.f);
+		SetYAxisMouseSensitivity(50.f);
 		SetFrameRateLimit(120.f);
 		bFPSIndicatorEnabled = true;
 		ApplySettings(false);
