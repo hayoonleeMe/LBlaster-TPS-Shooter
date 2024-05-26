@@ -71,8 +71,10 @@ void ULBGameUserSettings::SetGraphicOptionByAutoDetect(bool bFirstExecute)
 	{
 		SetScreenResolution(FIntPoint{ 1920, 1080 });
 		SetFullscreenMode(EWindowMode::WindowedFullscreen);
+		SetScreenBrightnessValue(50.f);
 		SetXAxisMouseSensitivity(50.f);
 		SetYAxisMouseSensitivity(50.f);
+		SetMotionBlurValue(0.f);
 		SetFrameRateLimit(120.f);
 		bFPSIndicatorEnabled = true;
 		ApplySettings(false);
