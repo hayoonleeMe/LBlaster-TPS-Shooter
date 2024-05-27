@@ -12,8 +12,7 @@ UMultiplayerSessionsSubsystem::UMultiplayerSessionsSubsystem() :
 	OnCreateSessionCompleteDelegate(FOnCreateSessionCompleteDelegate::CreateUObject(this, &UMultiplayerSessionsSubsystem::OnCreateSessionComplete)),
 	OnFindSessionsCompleteDelegate(FOnFindSessionsCompleteDelegate::CreateUObject(this, &UMultiplayerSessionsSubsystem::OnFindSessionComplete)),
 	OnJoinSessionCompleteDelegate(FOnJoinSessionCompleteDelegate::CreateUObject(this, &UMultiplayerSessionsSubsystem::OnJoinSessionComplete)),
-	OnDestroySessionCompleteDelegate(FOnDestroySessionCompleteDelegate::CreateUObject(this, &UMultiplayerSessionsSubsystem::OnDestroySessionComplete)),
-	OnStartSessionCompleteDelegate(FOnStartSessionCompleteDelegate::CreateUObject(this, &UMultiplayerSessionsSubsystem::OnStartSessionComplete))
+	OnDestroySessionCompleteDelegate(FOnDestroySessionCompleteDelegate::CreateUObject(this, &UMultiplayerSessionsSubsystem::OnDestroySessionComplete))
 {
 }
 
@@ -211,10 +210,6 @@ void UMultiplayerSessionsSubsystem::OnDestroySessionComplete(FName SessionName, 
 	}
 }
 
-void UMultiplayerSessionsSubsystem::StartSession()
-{
-}
-
 FNamedOnlineSession* UMultiplayerSessionsSubsystem::GetNamedOnlineSession(FName SessionName)
 {
 	if (SessionInterface)
@@ -222,10 +217,6 @@ FNamedOnlineSession* UMultiplayerSessionsSubsystem::GetNamedOnlineSession(FName 
 		return SessionInterface->GetNamedSession(SessionName);
 	}
 	return nullptr;
-}
-
-void UMultiplayerSessionsSubsystem::OnStartSessionComplete(FName SessionName, bool bWasSuccessful)
-{
 }
 
 bool UMultiplayerSessionsSubsystem::IsValidSessionInterface()
