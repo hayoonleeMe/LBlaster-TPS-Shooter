@@ -64,17 +64,22 @@ void APickupSpawnPoint::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (PadParticle)
+	if (!RootComponent)
+	{
+		return;
+	}
+
+	if (PadParticle && PadParticleComponent)
     {
     	PadParticleComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(PadParticle, RootComponent, FName(), GetActorLocation(), GetActorRotation(), EAttachLocation::KeepWorldPosition, false);
 		PadParticleComponent->SetColorParameter(FName(TEXT("GunPad_Color")), PadColor);
     }
-	if (PadPickupParticle)
+	if (PadPickupParticle && PadPickupParticleComponent)
 	{
 		PadPickupParticleComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(PadPickupParticle, RootComponent, FName(), GetActorLocation(), GetActorRotation(), EAttachLocation::KeepWorldPosition, false);
 		PadPickupParticleComponent->SetColorParameter(FName(TEXT("GunPad_Color")), PadColor);
 	}
-	if (PadLoadingParticle)
+	if (PadLoadingParticle && PadLoadingParticleComponent)
 	{
 		PadLoadingParticleComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(PadLoadingParticle, RootComponent, FName(), GetActorLocation(), GetActorRotation(), EAttachLocation::KeepWorldPosition, false, false);
 		PadLoadingParticleComponent->SetColorParameter(FName(TEXT("GunPad_Color")), PadColor);
