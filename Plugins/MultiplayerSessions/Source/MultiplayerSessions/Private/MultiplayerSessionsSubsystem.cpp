@@ -219,6 +219,73 @@ FNamedOnlineSession* UMultiplayerSessionsSubsystem::GetNamedOnlineSession(FName 
 	return nullptr;
 }
 
+FString UMultiplayerSessionsSubsystem::GetSessionInfo()
+{
+	if (!SessionInterface)
+	{
+		return FString(TEXT("Invalid SessionInterface"));
+	}
+
+	if (FNamedOnlineSession* NamedSession = SessionInterface->GetNamedSession(NAME_GameSession))
+	{
+		FString Str;
+		Str += FString::Printf(TEXT("Valid NamedOnlineSession, [SessionName %s]  "), *NamedSession->SessionName.ToString());
+
+		Str += TEXT("[SessionId ");
+		if (NamedSession->SessionInfo->GetSessionId().IsValid())
+		{
+			Str += NamedSession->SessionInfo->GetSessionId().ToString();
+		}
+		else
+		{
+			Str += TEXT("Invalid");
+		}
+		Str += TEXT("]  ");
+
+		Str += TEXT("[OwningUserId ");
+		if (NamedSession->OwningUserId.IsValid())
+		{
+			Str += NamedSession->OwningUserId->ToString();
+		}
+		else
+		{
+			Str += TEXT("Invalid");
+		}
+		Str += TEXT("]  ");
+
+		Str += TEXT("[LocalOwnerId ");
+		if (NamedSession->LocalOwnerId.IsValid())
+		{
+			Str += NamedSession->LocalOwnerId->ToString();
+		}
+		else
+		{
+			Str += TEXT("Invalid");
+		}
+		Str += TEXT("]  ");
+		
+		Str += FString::Printf(TEXT("RegisteredPlayers : [RegisteredPlayers.Num() %d, "), NamedSession->RegisteredPlayers.Num());
+		for (int32 Index = 0; Index < NamedSession->RegisteredPlayers.Num(); ++Index)
+		{
+			Str += FString::Printf(TEXT("%d : "), Index);
+			FUniqueNetIdRef IdRef = NamedSession->RegisteredPlayers[Index];
+			
+			if (IdRef->IsValid())
+			{
+				Str += IdRef->ToString() + TEXT(", ");
+			}
+			else
+			{
+				Str += TEXT("Invalid");
+			}
+		}
+		Str += TEXT("]  ");
+
+		return Str;
+	}
+	return FString(TEXT("Invalid NamedOnlineSession"));
+}
+
 bool UMultiplayerSessionsSubsystem::IsValidSessionInterface()
 {
 	if (!SessionInterface)
