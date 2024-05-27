@@ -34,6 +34,8 @@ public:
 
 	FNamedOnlineSession* GetNamedOnlineSession(FName SessionName = NAME_GameSession);
 	
+	FString GetSessionInfo();
+
 	FLBOnCreateSessionCompleteDelegate LBOnCreateSessionCompleteDelegate;
 	FLBOnFindSessionsCompleteDelegate LBOnFindSessionsCompleteDelegate;
 	FLBOnJoinSessionCompleteDelegate LBOnJoinSessionCompleteDelegate;
