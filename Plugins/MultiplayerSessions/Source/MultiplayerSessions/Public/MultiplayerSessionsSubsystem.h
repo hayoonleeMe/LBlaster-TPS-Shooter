@@ -31,7 +31,6 @@ public:
 	void FindSessions(int32 InMaxSearchResults);
 	void JoinSession(const FOnlineSessionSearchResult& SessionResult);
 	void DestroySession();
-	void StartSession();
 
 	FNamedOnlineSession* GetNamedOnlineSession(FName SessionName = NAME_GameSession);
 	
@@ -49,7 +48,6 @@ protected:
 	void OnFindSessionComplete(bool bWasSuccessful);
 	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
 	void OnDestroySessionComplete(FName SessionName, bool bWasSuccessful);
-	void OnStartSessionComplete(FName SessionName, bool bWasSuccessful);
 
 private:
 	// Pointer to the online session interface
@@ -71,8 +69,6 @@ private:
 	FDelegateHandle OnJoinSessionCompleteDelegateHandle;
 	FOnDestroySessionCompleteDelegate OnDestroySessionCompleteDelegate;
 	FDelegateHandle OnDestroySessionCompleteDelegateHandle;
-	FOnStartSessionCompleteDelegate OnStartSessionCompleteDelegate;
-	FDelegateHandle OnStartSessionCompleteDelegateHandle;
 
 	UPROPERTY()
 	EMatchMode MatchModeType;
