@@ -39,20 +39,17 @@ void UCharacterOverlay::SetKillScoreAmount(int32 InKillScore)
 
 void UCharacterOverlay::SetDeathAmount(int32 InDeath)
 {
-	const FString DeathString = FString::Printf(TEXT("%d"), InDeath);
-	DeathAmount->SetText(FText::FromString(DeathString));
+	DeathAmount->SetText(FText::AsNumber(InDeath));
 }
 
 void UCharacterOverlay::SetAmmoAmount(int32 InAmmo)
 {
-	const FString AmmoString = FString::Printf(TEXT("%d"), InAmmo);
-	AmmoAmount->SetText(FText::FromString(AmmoString));
+	AmmoAmount->SetText(FText::AsNumber(InAmmo));
 }
 
 void UCharacterOverlay::SetCarriedAmmoAmount(int32 InCarriedAmmo)
 {
-	const FString CarriedAmmoString = FString::Printf(TEXT("%d"), InCarriedAmmo);
-	CarriedAmmoAmount->SetText(FText::FromString(CarriedAmmoString));
+	CarriedAmmoAmount->SetText(FText::AsNumber(InCarriedAmmo));
 }
 
 void UCharacterOverlay::SetWeaponTypeText(const FString& InWeaponTypeString)
@@ -93,8 +90,7 @@ void UCharacterOverlay::SetMatchCountdownText(float InCountdownTime)
 
 void UCharacterOverlay::SetGrenadeAmount(int32 InGrenadeAmount) const
 {
-	const FString GrenadeAmountString = FString::Printf(TEXT("%d"), InGrenadeAmount);
-	GrenadeAmount->SetText(FText::FromString(GrenadeAmountString));
+	GrenadeAmount->SetText(FText::AsNumber(InGrenadeAmount));
 }
 
 void UCharacterOverlay::HighPingWarning(float InDuration)
