@@ -19,6 +19,32 @@ enum class EWeaponType : uint8
 	EWT_MAX UMETA(DisplayName = "DefaultMax")
 };
 
+inline const TCHAR* LexToString(EWeaponType InType)
+{
+	switch (InType)
+	{
+	case EWeaponType::EWT_Unarmed:
+		return TEXT("EWT_Unarmed");
+	case EWeaponType::EWT_Rifle:
+		return TEXT("EWT_Rifle");
+	case EWeaponType::EWT_RocketLauncher:
+		return TEXT("EWT_RocketLauncher");
+	case EWeaponType::EWT_Pistol:
+		return TEXT("EWT_Pistol");
+	case EWeaponType::EWT_SMG:
+		return TEXT("EWT_SMG");
+	case EWeaponType::EWT_Shotgun:
+		return TEXT("EWT_Shotgun");
+	case EWeaponType::EWT_SniperRifle:
+		return TEXT("EWT_SniperRifle");
+	case EWeaponType::EWT_GrenadeLauncher:
+		return TEXT("EWT_GrenadeLauncher");
+	case EWeaponType::EWT_MAX:
+		return TEXT("EWT_MAX");
+	}
+	return TEXT("Unknown");
+}
+
 UENUM(BlueprintType)
 enum class EWeaponState : uint8
 {
@@ -27,3 +53,19 @@ enum class EWeaponState : uint8
 	EWS_Dropped UMETA(DisplayName = "Dropped"),
 	EWS_MAX UMETA(DisplayName = "DefaultMAX")
 };
+
+inline const TCHAR* LexToString(EWeaponState InType)
+{
+	switch (InType)
+	{
+	case EWeaponState::EWS_Initial:
+		return TEXT("EWS_Initial");
+	case EWeaponState::EWS_Equipped:
+		return TEXT("EWS_Equipped");
+	case EWeaponState::EWS_Dropped:
+		return TEXT("EWS_Dropped");
+	case EWeaponState::EWS_MAX:
+		return TEXT("EWS_MAX");
+	}
+	return TEXT("Unknown");
+}

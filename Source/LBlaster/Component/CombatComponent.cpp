@@ -937,6 +937,23 @@ void UCombatComponent::HideCrosshair()
 	}
 }
 
+FString UCombatComponent::GetCombatInfo()
+{
+	FString Str(TEXT("CombatInfo : "));
+	Str += FString::Printf(TEXT("[EquipSlotType %s] "), LexToString(EquipSlotType));
+	Str += FString::Printf(TEXT("[Valid EquippingWeapon %s] "), *LexToString(GetEquippingWeapon() != nullptr));
+	if (GetEquippingWeapon())
+	{
+		Str += FString::Printf(TEXT("[EquippingWeapon Has Ammo %s] "), *LexToString(!GetEquippingWeapon()->IsAmmoEmpty()));
+		Str += FString::Printf(TEXT("[EquippingWeapon WeaponState %s] "), LexToString(GetEquippingWeapon()->GetWeaponState()));
+	}
+	Str += FString::Printf(TEXT("[bCanFire %s] "), *LexToString(bCanFire));
+	Str += FString::Printf(TEXT("[bIsFiring %s] "), *LexToString(static_cast<bool>(bIsFiring)));
+	Str += FString::Printf(TEXT("[CombatState %s] "), LexToString(CombatState));
+
+	return Str;
+}
+
 UTexture2D* UCombatComponent::GetCenterCrosshair(EWeaponType InWeaponType) const
 {
 	if (InWeaponType == EWeaponType::EWT_Shotgun)

@@ -85,6 +85,9 @@ public:
 	FORCEINLINE class AWeapon* GetOverlappingWeapon() const { return OverlappingWeapon; }
 	AWeapon* GetEquippingWeapon() const;
 
+	UFUNCTION(BlueprintCallable)
+	FString GetCombatInfo();
+
 	/*
 	 *	Weapon
 	 */
