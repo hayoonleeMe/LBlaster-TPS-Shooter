@@ -16,11 +16,11 @@ namespace FMultiplayerMapPath
 	// 세션을 생성하고 ServerTravel로 이동할 로비 맵의 경로
 	inline static constexpr const TCHAR* LobbyPath{ TEXT("/Game/LBlaster/Maps/Lobby?listen") };
 
+	inline static constexpr const TCHAR* TitleMapPath{ TEXT("/Game/LBlaster/Maps/GameStartupMap") };
+
 	inline static constexpr const TCHAR* TeamDeathMatchMapPath{ TEXT("/Game/LBlaster/Maps/TeamDeathMatch?listen") };
 	
 	inline static constexpr const TCHAR* FreeForAllMapPath{ TEXT("/Game/LBlaster/Maps/FreeForAll?listen") };
-
-	inline static constexpr const TCHAR* TitleMapPath{ TEXT("/Game/LBlaster/Maps/GameStartupMap") };
 
 	/*
 	 *	Debug
