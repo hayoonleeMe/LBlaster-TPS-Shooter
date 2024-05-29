@@ -307,6 +307,15 @@ AWeapon* ALBlasterCharacter::GetEquippingWeapon() const
 	return nullptr;
 }
 
+FString ALBlasterCharacter::GetCombatInfo()
+{
+	if (CombatComponent)
+	{
+		return CombatComponent->GetCombatInfo();
+	}
+	return TEXT("Invalid CombatComponent");
+}
+
 void ALBlasterCharacter::SetOverlappingWeapon(AWeapon* InWeapon, bool bBegin)
 {
 	if (!CombatComponent || !IsLocallyControlled())

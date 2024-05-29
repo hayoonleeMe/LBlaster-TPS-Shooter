@@ -183,6 +183,8 @@ public:
 	void EquipFinished();
 	void HideCrosshair();
 
+	FString GetCombatInfo();
+
 protected:
 	virtual void BeginPlay() override;
 
