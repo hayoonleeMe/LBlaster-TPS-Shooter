@@ -945,7 +945,6 @@ FString UCombatComponent::GetCombatInfo()
 	if (GetEquippingWeapon())
 	{
 		Str += FString::Printf(TEXT("[EquippingWeapon Has Ammo %s] "), *LexToString(!GetEquippingWeapon()->IsAmmoEmpty()));
-		Str += FString::Printf(TEXT("[EquippingWeapon WeaponState %s] "), LexToString(GetEquippingWeapon()->GetWeaponState()));
 	}
 	Str += FString::Printf(TEXT("[bCanFire %s] "), *LexToString(bCanFire));
 	Str += FString::Printf(TEXT("[bIsFiring %s] "), *LexToString(static_cast<bool>(bIsFiring)));
