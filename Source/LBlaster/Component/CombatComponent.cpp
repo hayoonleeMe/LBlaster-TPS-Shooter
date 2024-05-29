@@ -341,18 +341,6 @@ void UCombatComponent::ReloadFinished()
 	{
 		Fire();
 	}
-	else if (bDelayedFire)
-	{
-		bDelayedFire = false;
-		if (GetEquippingWeapon()->GetWeaponType() == EWeaponType::EWT_Shotgun)
-		{
-			ServerShotgunFire(CachedHitTargets, bCachedEnabledSSR);
-		}
-		else
-		{
-			ServerFire(CachedHitTarget, bCachedEnabledSSR);
-		}
-	}
 }
 
 void UCombatComponent::UpdateAmmoValues()
