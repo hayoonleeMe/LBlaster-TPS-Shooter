@@ -577,7 +577,7 @@ void ALBlasterCharacter::DoJump(const FInputActionValue& ActionValue)
 	}
 }
 
-void ALBlasterCharacter::EquipWeapon(const FInputActionValue& ActionValue)
+void ALBlasterCharacter::EquipWeapon()
 {
 	if (!OverlappingWeapon)
 	{
@@ -590,7 +590,7 @@ void ALBlasterCharacter::EquipWeapon(const FInputActionValue& ActionValue)
 	}
 }
 
-void ALBlasterCharacter::DoCrouch(const FInputActionValue& ActionValue)
+void ALBlasterCharacter::DoCrouch()
 {
 	if (!bIsCrouched && GetCharacterMovement()->IsMovingOnGround())
 	{
@@ -619,7 +619,7 @@ void ALBlasterCharacter::DoFire(const FInputActionValue& ActionValue)
 	}
 }
 
-void ALBlasterCharacter::Reload(const FInputActionValue& ActionValue)
+void ALBlasterCharacter::Reload()
 {
 	if (CombatComponent)
 	{
@@ -627,7 +627,7 @@ void ALBlasterCharacter::Reload(const FInputActionValue& ActionValue)
 	}
 }
 
-void ALBlasterCharacter::TossGrenade(const FInputActionValue& ActionValue)
+void ALBlasterCharacter::TossGrenade()
 {
 	if (CombatComponent)
 	{
@@ -635,7 +635,7 @@ void ALBlasterCharacter::TossGrenade(const FInputActionValue& ActionValue)
 	}
 }
 
-void ALBlasterCharacter::ChooseFirstWeaponSlot(const FInputActionValue& ActionValue)
+void ALBlasterCharacter::ChooseFirstWeaponSlot()
 {
 	if (CombatComponent)
 	{
@@ -643,7 +643,7 @@ void ALBlasterCharacter::ChooseFirstWeaponSlot(const FInputActionValue& ActionVa
 	}
 }
 
-void ALBlasterCharacter::ChooseSecondWeaponSlot(const FInputActionValue& ActionValue)
+void ALBlasterCharacter::ChooseSecondWeaponSlot()
 {
 	if (CombatComponent)
 	{
@@ -651,7 +651,7 @@ void ALBlasterCharacter::ChooseSecondWeaponSlot(const FInputActionValue& ActionV
 	}
 }
 
-void ALBlasterCharacter::ChooseThirdWeaponSlot(const FInputActionValue& ActionValue)
+void ALBlasterCharacter::ChooseThirdWeaponSlot()
 {
 	if (CombatComponent)
 	{
