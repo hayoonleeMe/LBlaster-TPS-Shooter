@@ -308,11 +308,6 @@ private:
 	UFUNCTION(Server, Reliable)
 	void ServerFire(const FVector_NetQuantize& HitTarget, bool bEnabledSSR);
 
-	bool bDelayedFire = false;
-	FVector_NetQuantize CachedHitTarget;
-	TArray<FVector_NetQuantize> CachedHitTargets;
-	bool bCachedEnabledSSR;
-
 	UFUNCTION(Server, Reliable)
 	void ServerShotgunFire(const TArray<FVector_NetQuantize>& HitTargets, bool bEnabledSSR);
 
