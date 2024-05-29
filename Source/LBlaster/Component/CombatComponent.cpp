@@ -300,8 +300,10 @@ void UCombatComponent::Reload()
 		if (CarriedAmmoMap.Contains(GetEquippingWeapon()->GetWeaponType()) && CarriedAmmoMap[GetEquippingWeapon()->GetWeaponType()] > 0)
 		{
 			ChangeCombatState(ECombatState::ECS_Reloading);
-			HandleReload();	// Locally Controlled 캐릭터에서 바로 Reload Montage 재생
-			ServerReload();	
+			if (IsValidOwnerCharacter() && OwnerCharacter->GetLocalRole() == ROLE_AutonomousProxy)
+			{
+				ServerReload();
+			}
 		}
 	}
 }
@@ -309,12 +311,6 @@ void UCombatComponent::Reload()
 void UCombatComponent::ServerReload_Implementation()
 {
 	ChangeCombatState(ECombatState::ECS_Reloading);
-
-	// Locally Controlled 캐릭터의 Reload Montage 중복 재생 방지
-	if (IsValidOwnerCharacter() && !OwnerCharacter->IsLocallyControlled())
-	{
-		HandleReload();
-	}
 }
 
 void UCombatComponent::HandleReload()
@@ -476,7 +472,7 @@ void UCombatComponent::OnRep_ServerCombatStateChangedState()
 	if (UnacknowledgedCombatStateChanges.IsValidIndex(UnacknowledgedCombatStateChanges.Num() - 1))
 	{
 		FCombatStateChange CombatStateChange = UnacknowledgedCombatStateChanges[UnacknowledgedCombatStateChanges.Num() - 1];
-		ChangeCombatState(CombatStateChange.CombatStateToChange, CombatStateChange.bPlayEquipMontage, CombatStateChange.bShouldPlayUnarmedEquipMontage);
+		CombatState = CombatStateChange.CombatStateToChange;
 	}
 
 	if (IsValidOwnerCharacter() && OwnerCharacter->GetLocalRole() == ROLE_SimulatedProxy)
