@@ -157,15 +157,15 @@ protected:
 	void Move(const FInputActionValue& ActionValue);
 	void Look(const FInputActionValue& ActionValue);
 	void DoJump(const FInputActionValue& ActionValue);
-	void EquipWeapon(const FInputActionValue& ActionValue);
-	void DoCrouch(const FInputActionValue& ActionValue);
+	void EquipWeapon();
+	void DoCrouch();
 	void DoADS(const FInputActionValue& ActionValue);
 	void DoFire(const FInputActionValue& ActionValue);
-	void Reload(const FInputActionValue& ActionValue);
-	void TossGrenade(const FInputActionValue& ActionValue);
-	void ChooseFirstWeaponSlot(const FInputActionValue& ActionValue);
-	void ChooseSecondWeaponSlot(const FInputActionValue& ActionValue);
-	void ChooseThirdWeaponSlot(const FInputActionValue& ActionValue);
+	void Reload();
+	void TossGrenade();
+	void ChooseFirstWeaponSlot();
+	void ChooseSecondWeaponSlot();
+	void ChooseThirdWeaponSlot();
 
 	/*
 	 *	Damage
