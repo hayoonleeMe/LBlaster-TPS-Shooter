@@ -35,11 +35,6 @@ void AProjectileBullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 
 	if (ALBlasterCharacter* HitCharacter = Cast<ALBlasterCharacter>(OtherActor))
 	{
-		if (OwnerCharacter == HitCharacter)
-		{
-			return;
-		}
-
 		// 팀 데스매치에서 아군사격 방지 
 		if (ALBlasterPlayerState* VictimState = HitCharacter->GetPlayerState<ALBlasterPlayerState>())
 		{
