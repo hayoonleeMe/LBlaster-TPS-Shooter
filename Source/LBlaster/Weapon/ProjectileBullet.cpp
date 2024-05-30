@@ -39,6 +39,19 @@ void AProjectileBullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 		{
 			return;
 		}
+
+		// 팀 데스매치에서 아군사격 방지 
+		if (ALBlasterPlayerState* VictimState = HitCharacter->GetPlayerState<ALBlasterPlayerState>())
+		{
+			if (ALBlasterPlayerState* AttackerState = OwnerCharacter->GetPlayerState<ALBlasterPlayerState>())
+			{
+				if (VictimState->GetTeam() != ETeam::ET_MAX && VictimState->GetTeam() == AttackerState->GetTeam())
+				{
+					Destroy();
+					return;
+				}
+			}
+		}
 		
 		// Play HitReact Montage
 		HitCharacter->SetLastHitNormal(Hit.ImpactNormal);
