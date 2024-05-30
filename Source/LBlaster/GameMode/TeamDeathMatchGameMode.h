@@ -19,4 +19,14 @@ public:
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	virtual void Logout(AController* Exiting) override;
 	virtual void PlayerEliminated(ALBlasterCharacter* EliminatedCharacter, ALBlasterPlayerController* VictimController, ALBlasterPlayerController* AttackerController) override;
+	
+	UFUNCTION(BlueprintCallable)
+	AActor* FindPlayerStartTDM(AController* Player);
+
+private:
+	UPROPERTY(EditAnywhere, Category="LBlaster")
+	TSubclassOf<class ARedTeamPlayerStart> RedTeamPlayerStartClass;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster")
+	TSubclassOf<class ABlueTeamPlayerStart> BlueTeamPlayerStartClass;
 };
