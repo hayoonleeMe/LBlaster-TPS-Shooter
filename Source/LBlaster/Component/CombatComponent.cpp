@@ -1152,7 +1152,7 @@ void UCombatComponent::Fire()
 		StartFireTimer();
 
 		// 수직 반동
-		OwnerCharacter->AddControllerPitchInput(-1.f * GetEquippingWeapon()->GetVerticalRecoilValue());
+		OwnerCharacter->AddControllerPitchInput(GetEquippingWeapon()->GetVerticalRecoilValue());
 	}
 	else if (CanReloadOnFire())
 	{
