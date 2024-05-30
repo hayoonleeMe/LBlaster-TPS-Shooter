@@ -43,7 +43,7 @@ void ALobbyPlayerController::ClientSendAddPlayerListFFA_Implementation(const FSt
 {
 	if (ALobbyHUD* LobbyHUD = GetHUD<ALobbyHUD>())
 	{
-		LobbyHUD->AddNewPlayerForClient(ETeam::ET_NoTeam, InName);
+		LobbyHUD->AddNewPlayerForClient(ETeam::ET_MAX, InName);
 	}
 }
 
@@ -78,7 +78,7 @@ void ALobbyPlayerController::ClientSendRemovePlayerListFFA_Implementation(const 
 {
 	if (ALobbyHUD* LobbyHUD = GetHUD<ALobbyHUD>())
 	{
-		LobbyHUD->RemoveExitingPlayer(ETeam::ET_NoTeam, InName, false);
+		LobbyHUD->RemoveExitingPlayer(ETeam::ET_MAX, InName, false);
 	}
 }
 
