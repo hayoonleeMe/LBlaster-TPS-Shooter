@@ -45,12 +45,31 @@ void AProjectile::BeginPlay()
 		TracerComponent = UGameplayStatics::SpawnEmitterAttached(Tracer, CollisionBox, FName(), GetActorLocation(), GetActorRotation(), EAttachLocation::KeepWorldPosition);
 	}
 
-	CollisionBox->OnComponentHit.AddDynamic(this, &ThisClass::OnHit);
+	if (CollisionBox)
+	{
+		// 총알의 총과 소유 중인 캐릭터와의 충돌 방지
+		if (IsValidOwnerWeapon() && IsValidOwnerCharacter())
+		{
+			CollisionBox->IgnoreActorWhenMoving(OwnerWeapon, true);
+			CollisionBox->IgnoreActorWhenMoving(OwnerCharacter, true);	
+		}
+
+		CollisionBox->OnComponentHit.AddDynamic(this, &ThisClass::OnHit);
+	}
 }
 
 void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	Destroy();
+}
+
+bool AProjectile::IsValidOwnerCharacter()
+{
+	if (!OwnerCharacter && IsValidOwnerWeapon() && OwnerWeapon->GetOwner())
+	{
+		OwnerCharacter = Cast<ALBlasterCharacter>(OwnerWeapon->GetOwner());
+	}
+	return OwnerCharacter != nullptr;
 }
 
 bool AProjectile::IsValidOwnerWeapon()
