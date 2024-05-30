@@ -32,9 +32,14 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 		const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
 		const FVector TraceStart = SocketTransform.GetLocation();
 		const FVector TraceEnd = TraceStart + (HitTarget - TraceStart) * 1.25f;
-			
+		
+		// 총과 소유 중인 캐릭터와의 LineTrace 방지 
+		FCollisionQueryParams CollisionQueryParams;
+		const TArray<const AActor*> IgnoredActors = { this, OwnerCharacter }; 
+		CollisionQueryParams.AddIgnoredActors(IgnoredActors);
+		
 		FHitResult FireHit;
-		World->LineTraceSingleByChannel(FireHit, TraceStart, TraceEnd, ECC_Visibility);
+		World->LineTraceSingleByChannel(FireHit, TraceStart, TraceEnd, ECC_Visibility, CollisionQueryParams);
 		const FVector BeamEnd = FireHit.bBlockingHit ? FireHit.ImpactPoint : TraceEnd;
 
 		// Beam Effect
