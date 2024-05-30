@@ -139,7 +139,13 @@ void UPauseMenu::ReturnToMainMenuButtonClicked()
 
 void UPauseMenu::ResumeButtonClicked()
 {
-	MenuTearDown();
+	if (IsValidOwnerHUD())
+	{
+		if (ALBlasterHUD* HUD = Cast<ALBlasterHUD>(OwnerHUD))
+		{
+			HUD->ShowPauseMenu();
+		}
+	}
 }
 
 void UPauseMenu::SettingButtonClicked()
