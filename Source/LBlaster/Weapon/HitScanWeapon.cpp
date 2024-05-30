@@ -35,17 +35,36 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 			
 		FHitResult FireHit;
 		World->LineTraceSingleByChannel(FireHit, TraceStart, TraceEnd, ECC_Visibility);
-		FVector BeamEnd = TraceEnd;
+		const FVector BeamEnd = FireHit.bBlockingHit ? FireHit.ImpactPoint : TraceEnd;
+
+		// Beam Effect
+		if (BeamParticle)
+		{
+			if (UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(World, BeamParticle, SocketTransform))
+			{
+				Beam->SetVectorParameter(FName(TEXT("Target")), BeamEnd);
+			}
+		}
 
 		if (FireHit.bBlockingHit && FireHit.GetActor())
 		{
-			BeamEnd = FireHit.ImpactPoint;
-
 			// Impact Effect
 			SpawnImpactEffects(World, FireHit);
 
 			if (ALBlasterCharacter* HitCharacter = Cast<ALBlasterCharacter>(FireHit.GetActor()))
 			{
+				// 팀 데스매치에서 아군사격 방지
+				if (ALBlasterPlayerState* VictimState = HitCharacter->GetPlayerState<ALBlasterPlayerState>())
+				{
+					if (ALBlasterPlayerState* AttackerState = OwnerCharacter->GetPlayerState<ALBlasterPlayerState>())
+					{
+						if (VictimState->GetTeam() != ETeam::ET_MAX && VictimState->GetTeam() == AttackerState->GetTeam())
+						{
+							return;
+						}
+					}
+				}
+				
 				// Play HitReact Montage
 				HitCharacter->SetLastHitNormal(FireHit.ImpactNormal);
 				
@@ -72,15 +91,6 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 						ServerScoreRequest(HitCharacter, TraceStart, HitTarget, HitTime, this);	
 					}
 				}
-			}
-		}
-
-		// Beam Effect
-		if (BeamParticle)
-		{
-			if (UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(World, BeamParticle, SocketTransform))
-			{
-				Beam->SetVectorParameter(FName(TEXT("Target")), BeamEnd);
 			}
 		}
 	}
