@@ -9,6 +9,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Player/LBlasterPlayerController.h"
 #include "Player/LBlasterPlayerState.h"
+#include "PlayerStart/BlueTeamPlayerStart.h"
+#include "PlayerStart/RedTeamPlayerStart.h"
 
 ATeamDeathMatchGameMode::ATeamDeathMatchGameMode()
 {
@@ -129,4 +131,35 @@ void ATeamDeathMatchGameMode::PlayerEliminated(ALBlasterCharacter* EliminatedCha
 	}	
 
 	EliminatedCharacter->Elim(false);
+}
+
+AActor* ATeamDeathMatchGameMode::FindPlayerStartTDM(AController* Player)
+{
+	if (ALBlasterPlayerState* LBPlayerState = Player->GetPlayerState<ALBlasterPlayerState>())
+	{
+		const ETeam Team = LBPlayerState->GetTeam();
+		if (Team == ETeam::ET_RedTeam)
+		{
+			TArray<AActor*> RedTeamPlayerStarts;
+			UGameplayStatics::GetAllActorsOfClass(GetWorld(), ARedTeamPlayerStart::StaticClass(), RedTeamPlayerStarts);
+
+			const int32 RandIndex = FMath::RandRange(0, RedTeamPlayerStarts.Num() - 1);
+			if (RedTeamPlayerStarts.IsValidIndex(RandIndex))
+			{
+				return RedTeamPlayerStarts[RandIndex];
+			}
+		}
+		else if (Team == ETeam::ET_BlueTeam)
+		{
+			TArray<AActor*> BlueTeamPlayerStarts;
+			UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABlueTeamPlayerStart::StaticClass(), BlueTeamPlayerStarts);
+
+			const int32 RandIndex = FMath::RandRange(0, BlueTeamPlayerStarts.Num() - 1);
+			if (BlueTeamPlayerStarts.IsValidIndex(RandIndex))
+			{
+				return BlueTeamPlayerStarts[RandIndex];
+			}
+		}
+	}
+	return nullptr;
 }
