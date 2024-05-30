@@ -40,7 +40,6 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 				// not-replicated
 				AProjectile* Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, ProjectileTransform, this, InstigatorPawn);
 				Projectile->SetDamage(Damage, HeadshotMultiplier);
-				Projectile->SetOwnerCharacter(OwnerCharacter);
 				Projectile->FinishSpawning(ProjectileTransform);
 				Projectile->SetReplicatesPostInit(false);
 			}
@@ -49,7 +48,6 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 				// not-replicated
 				AProjectile* Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, ProjectileTransform, this, InstigatorPawn);
 				Projectile->SetDamage(Damage, HeadshotMultiplier);
-				Projectile->SetOwnerCharacter(OwnerCharacter);
 				Projectile->FinishSpawning(ProjectileTransform);
 			}
 		}

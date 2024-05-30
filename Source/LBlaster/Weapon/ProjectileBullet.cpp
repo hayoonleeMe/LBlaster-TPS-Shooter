@@ -28,7 +28,7 @@ AProjectileBullet::AProjectileBullet()
 
 void AProjectileBullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (!OwnerCharacter || !IsValidOwnerWeapon() || !OtherActor)
+	if (!IsValidOwnerCharacter() || !IsValidOwnerWeapon() || !OtherActor)
 	{
 		return;
 	}

@@ -53,6 +53,15 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimi
 	Destroy();
 }
 
+bool AProjectile::IsValidOwnerCharacter()
+{
+	if (!OwnerCharacter && IsValidOwnerWeapon() && OwnerWeapon->GetOwner())
+	{
+		OwnerCharacter = Cast<ALBlasterCharacter>(OwnerWeapon->GetOwner());
+	}
+	return OwnerCharacter != nullptr;
+}
+
 bool AProjectile::IsValidOwnerWeapon()
 {
 	if (!OwnerWeapon && GetOwner())

@@ -16,7 +16,6 @@ public:
 	virtual void Destroyed() override;
 
 	void SetDamage(float InDamage, float InHeadshotMultiplier);
-	FORCEINLINE void SetOwnerCharacter(class ALBlasterCharacter* InOwnerCharacter) { OwnerCharacter = InOwnerCharacter; }
 	
 	virtual float GetProjectileGravityScale() const;
 	FORCEINLINE float GetDamage() const { return Damage; }
@@ -33,6 +32,8 @@ protected:
 	 */
 	UPROPERTY()
 	TObjectPtr<class ALBlasterCharacter> OwnerCharacter;
+
+	bool IsValidOwnerCharacter();
 
 	UPROPERTY()
 	TObjectPtr<class AWeapon> OwnerWeapon;
