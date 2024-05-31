@@ -99,6 +99,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
 	TObjectPtr<UInputAction> ScoreboardAction;
+	
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
+	TObjectPtr<UInputAction> HelpInfoAction;
 
 	void ShowPauseMenu();
 	void FocusChat();
@@ -106,6 +109,7 @@ protected:
 	void ChangeChatMode();
 	void ReturnMenu();
 	void ShowScoreboard(const FInputActionValue& ActionValue);
+	void ShowHelpInfo(const FInputActionValue& ActionValue);
 
 protected:
 	virtual void BeginPlay() override;
