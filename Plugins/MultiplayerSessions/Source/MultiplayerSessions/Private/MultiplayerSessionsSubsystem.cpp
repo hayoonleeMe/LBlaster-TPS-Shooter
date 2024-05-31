@@ -238,7 +238,7 @@ FString UMultiplayerSessionsSubsystem::GetSessionInfo()
 		Str += FString::Printf(TEXT("Valid NamedOnlineSession, [SessionName %s]  "), *NamedSession->SessionName.ToString());
 
 		Str += TEXT("[SessionId ");
-		if (NamedSession->SessionInfo->GetSessionId().IsValid())
+		if (NamedSession->SessionInfo.IsValid() && NamedSession->SessionInfo->GetSessionId().IsValid())
 		{
 			Str += NamedSession->SessionInfo->GetSessionId().ToString();
 		}
