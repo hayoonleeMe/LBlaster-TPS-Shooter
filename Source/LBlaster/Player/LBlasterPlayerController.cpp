@@ -80,6 +80,12 @@ ALBlasterPlayerController::ALBlasterPlayerController()
 	{
 		ScoreboardAction = ScoreboardActionRef.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> HelpInfoActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_HelpInfo.IA_HelpInfo'"));
+	if (HelpInfoActionRef.Object)
+	{
+		HelpInfoAction = HelpInfoActionRef.Object;
+	}
 }
 
 void ALBlasterPlayerController::Tick(float DeltaSeconds)
@@ -101,6 +107,7 @@ void ALBlasterPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(ChatScrollAction, ETriggerEvent::Triggered, this, &ThisClass::ChatScroll);
 	EnhancedInputComponent->BindAction(ChangeChatModeAction, ETriggerEvent::Triggered, this, &ThisClass::ChangeChatMode);
 	EnhancedInputComponent->BindAction(ScoreboardAction, ETriggerEvent::Triggered, this, &ThisClass::ShowScoreboard);
+	EnhancedInputComponent->BindAction(HelpInfoAction, ETriggerEvent::Triggered, this, &ThisClass::ShowHelpInfo);
 
 	/* IMC_PauseMenuContext */
 	EnhancedInputComponent->BindAction(PauseMenuAction, ETriggerEvent::Triggered, this, &ThisClass::ShowPauseMenu);
@@ -640,6 +647,14 @@ void ALBlasterPlayerController::ShowScoreboard(const FInputActionValue& ActionVa
 	if (IsValidOwningHUD())
 	{
 		OwningHUD->SetScoreboardVisibility(ActionValue.Get<bool>());
+	}
+}
+
+void ALBlasterPlayerController::ShowHelpInfo(const FInputActionValue& ActionValue)
+{
+	if (IsValidOwningHUD())
+	{
+		OwningHUD->SetHelpInfoVisibility(ActionValue.Get<bool>());
 	}
 }
 
