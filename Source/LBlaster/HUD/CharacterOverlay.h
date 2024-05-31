@@ -24,7 +24,7 @@ public:
 	void SetAmmoAmount(int32 InAmmo);
 	void SetCarriedAmmoAmount(int32 InCarriedAmmo);
 	void SetWeaponTypeText(const FString& InWeaponTypeString);
-	void SetMatchCountdownText(float InCountdownTime);
+	void SetMatchCountdownText(float InCountdownTime, bool bPlayAnimation);
 	void SetGrenadeAmount(int32 InGrenadeAmount) const;
 	void HighPingWarning(float InDuration);
 	void SetWeaponSlotIcon(EEquipSlot InEquipSlot, EWeaponType InWeaponType);

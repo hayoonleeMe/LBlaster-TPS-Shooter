@@ -124,11 +124,11 @@ void ALBlasterHUD::SetHUDWeaponTypeText(const FString& InWeaponTypeString)
 	}
 }
 
-void ALBlasterHUD::SetHUDMatchCountdown(float InCountdownTime)
+void ALBlasterHUD::SetHUDMatchCountdown(float InCountdownTime, bool bPlayAnimation)
 {
 	if (CharacterOverlay)
 	{
-		CharacterOverlay->SetMatchCountdownText(InCountdownTime);
+		CharacterOverlay->SetMatchCountdownText(InCountdownTime, bPlayAnimation);
 	}
 }
 

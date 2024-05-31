@@ -163,11 +163,11 @@ void ALBlasterPlayerController::SetHUDTime()
 	}
 	
 	float TimeLeft = 0.f;
-	if (MatchState == MatchState::WaitingToStart)
+	if (MatchState == MatchState::InProgress)
 	{
 		TimeLeft = WarmupTime - GetServerTime() + LevelStartingTime;
 	}
-	else if (MatchState == MatchState::InProgress)
+	else if (MatchState == MatchState::AfterWarmup)
 	{
 		TimeLeft = WarmupTime + MatchTime - GetServerTime() + LevelStartingTime;	
 	}
@@ -183,13 +183,13 @@ void ALBlasterPlayerController::SetHUDTime()
 	
 	if (CountdownInt != SecondsLeft)
 	{
-		if (MatchState == MatchState::WaitingToStart)
+		if (MatchState == MatchState::InProgress)
 		{
-			SetHUDAnnouncementCountdown(TimeLeft);
+			SetHUDMatchCountdown(TimeLeft, false);
 		}
-		else if (MatchState == MatchState::InProgress)
+		else if (MatchState == MatchState::AfterWarmup)
 		{
-			SetHUDMatchCountdown(TimeLeft);
+			SetHUDMatchCountdown(TimeLeft, true);
 		}
 		else if (MatchState == MatchState::Cooldown)
 		{
@@ -300,11 +300,11 @@ void ALBlasterPlayerController::SetHUDWeaponTypeText(const FString& InWeaponType
 	}
 }
 
-void ALBlasterPlayerController::SetHUDMatchCountdown(float InCountdownTime)
+void ALBlasterPlayerController::SetHUDMatchCountdown(float InCountdownTime, bool bPlayAnimation )
 {
 	if (IsValidOwningHUD())
 	{
-		OwningHUD->SetHUDMatchCountdown(InCountdownTime);
+		OwningHUD->SetHUDMatchCountdown(InCountdownTime, bPlayAnimation);
 	}
 }
 
@@ -356,9 +356,9 @@ void ALBlasterPlayerController::ClientHideRespawnTimer_Implementation()
 void ALBlasterPlayerController::OnMatchStateSet(FName InState)
 {
 	MatchState = InState;
-	if (MatchState == MatchState::InProgress)
+	if (MatchState == MatchState::AfterWarmup)
 	{
-		HandleMatchHasStarted();
+		HandleAfterWarmup();
 	}
 	else if (MatchState == MatchState::Cooldown)
 	{
@@ -368,9 +368,9 @@ void ALBlasterPlayerController::OnMatchStateSet(FName InState)
 
 void ALBlasterPlayerController::OnRep_MatchState()
 {
-	if (MatchState == MatchState::InProgress)
+	if (MatchState == MatchState::AfterWarmup)
 	{
-		HandleMatchHasStarted();
+		HandleAfterWarmup();
 	}
 	else if (MatchState == MatchState::Cooldown)
 	{
@@ -458,6 +458,26 @@ void ALBlasterPlayerController::HandleMatchHasStarted()
 	{
 		OwningHUD->AddCharacterOverlay();
 		OwningHUD->HideAnnouncement();
+	}
+}
+
+void ALBlasterPlayerController::HandleAfterWarmup()
+{
+	if (IsValidOwningHUD())
+	{
+		OwningHUD->SetHelpInfoVisibility(false);
+	}
+
+	/* Input */
+	if (GEngine && GetWorld() && IsLocalController())
+	{
+		if (const ULocalPlayer* LocalPlayer = GEngine->GetFirstGamePlayer(GetWorld()))
+		{
+			if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
+			{
+				Subsystem->AddMappingContext(DefaultMappingContext, 0);
+			}	
+		}
 	}
 }
 
