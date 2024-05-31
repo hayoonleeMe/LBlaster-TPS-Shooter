@@ -253,9 +253,9 @@ void ALBlasterPlayerController::ClientJoinMidGame_Implementation(FName StateOfMa
 	MatchState = StateOfMatch;
 	OnMatchStateSet(MatchState);
 
-	if (IsValidOwningHUD() && MatchState == MatchState::WaitingToStart)
+	if (IsValidOwningHUD() && MatchState == MatchState::InProgress)
 	{
-		OwningHUD->AddAnnouncement();
+		OwningHUD->SetHelpInfoVisibility(true);
 	}	
 }
 
