@@ -135,29 +135,32 @@ void ATeamDeathMatchGameMode::PlayerEliminated(ALBlasterCharacter* EliminatedCha
 
 AActor* ATeamDeathMatchGameMode::FindPlayerStartTDM(AController* Player)
 {
-	if (ALBlasterPlayerState* LBPlayerState = Player->GetPlayerState<ALBlasterPlayerState>())
+	if (Player && GetWorld())
 	{
-		const ETeam Team = LBPlayerState->GetTeam();
-		if (Team == ETeam::ET_RedTeam)
+		if (ALBlasterPlayerState* LBPlayerState = Player->GetPlayerState<ALBlasterPlayerState>())
 		{
-			TArray<AActor*> RedTeamPlayerStarts;
-			UGameplayStatics::GetAllActorsOfClass(GetWorld(), ARedTeamPlayerStart::StaticClass(), RedTeamPlayerStarts);
-
-			const int32 RandIndex = FMath::RandRange(0, RedTeamPlayerStarts.Num() - 1);
-			if (RedTeamPlayerStarts.IsValidIndex(RandIndex))
+			const ETeam Team = LBPlayerState->GetTeam();
+			if (Team == ETeam::ET_RedTeam)
 			{
-				return RedTeamPlayerStarts[RandIndex];
+				TArray<AActor*> RedTeamPlayerStarts;
+				UGameplayStatics::GetAllActorsOfClass(GetWorld(), ARedTeamPlayerStart::StaticClass(), RedTeamPlayerStarts);
+
+				const int32 RandIndex = FMath::RandRange(0, RedTeamPlayerStarts.Num() - 1);
+				if (RedTeamPlayerStarts.IsValidIndex(RandIndex))
+				{
+					return RedTeamPlayerStarts[RandIndex];
+				}
 			}
-		}
-		else if (Team == ETeam::ET_BlueTeam)
-		{
-			TArray<AActor*> BlueTeamPlayerStarts;
-			UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABlueTeamPlayerStart::StaticClass(), BlueTeamPlayerStarts);
-
-			const int32 RandIndex = FMath::RandRange(0, BlueTeamPlayerStarts.Num() - 1);
-			if (BlueTeamPlayerStarts.IsValidIndex(RandIndex))
+			else if (Team == ETeam::ET_BlueTeam)
 			{
-				return BlueTeamPlayerStarts[RandIndex];
+				TArray<AActor*> BlueTeamPlayerStarts;
+				UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABlueTeamPlayerStart::StaticClass(), BlueTeamPlayerStarts);
+				
+				const int32 RandIndex = FMath::RandRange(0, BlueTeamPlayerStarts.Num() - 1);
+				if (BlueTeamPlayerStarts.IsValidIndex(RandIndex))
+				{
+					return BlueTeamPlayerStarts[RandIndex];
+				}
 			}
 		}
 	}

@@ -186,7 +186,13 @@ void UMultiplayerSessionsSubsystem::DestroySession()
 
 	OnDestroySessionCompleteDelegateHandle = SessionInterface->AddOnDestroySessionCompleteDelegate_Handle(OnDestroySessionCompleteDelegate);
 
-	if (!SessionInterface->DestroySession(NAME_GameSession))
+	// 제거할 세션이 없으면 true 반환하고 끝냄
+	if (!GetNamedOnlineSession())
+	{
+		SessionInterface->ClearOnDestroySessionCompleteDelegate_Handle(OnDestroySessionCompleteDelegateHandle);
+		LBOnDestroySessionCompleteDelegate.Broadcast(true);
+	}
+	else if (!SessionInterface->DestroySession(NAME_GameSession))
 	{
 		SessionInterface->ClearOnDestroySessionCompleteDelegate_Handle(OnDestroySessionCompleteDelegateHandle);
 		LBOnDestroySessionCompleteDelegate.Broadcast(false);
@@ -232,7 +238,7 @@ FString UMultiplayerSessionsSubsystem::GetSessionInfo()
 		Str += FString::Printf(TEXT("Valid NamedOnlineSession, [SessionName %s]  "), *NamedSession->SessionName.ToString());
 
 		Str += TEXT("[SessionId ");
-		if (NamedSession->SessionInfo->GetSessionId().IsValid())
+		if (NamedSession->SessionInfo.IsValid() && NamedSession->SessionInfo->GetSessionId().IsValid())
 		{
 			Str += NamedSession->SessionInfo->GetSessionId().ToString();
 		}
