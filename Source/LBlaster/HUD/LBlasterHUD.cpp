@@ -408,6 +408,19 @@ void ALBlasterHUD::UpdateHUDRespawnTimer()
 	}
 }
 
+void ALBlasterHUD::AddHelpInfo()
+{
+	if (!HelpInfo && HelpInfoClass && IsValidOwnerController())
+	{
+		HelpInfo = CreateWidget<UUserWidget>(OwnerController, HelpInfoClass);
+	}
+	if (HelpInfo)
+	{
+		HelpInfo->AddToViewport();
+		HelpInfo->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
 void ALBlasterHUD::SetScoreboardVisibility(bool bVisible)
 {
 	if (Scoreboard)
@@ -602,6 +615,14 @@ void ALBlasterHUD::ChangeChatMode() const
 	}
 }
 
+void ALBlasterHUD::SetHelpInfoVisibility(bool bVisible)
+{
+	if (HelpInfo)
+	{
+		HelpInfo->SetVisibility(bVisible ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+	}
+}
+
 void ALBlasterHUD::CreateSettingMenu()
 {
 	if (SettingMenuClass && !SettingMenu)
@@ -637,6 +658,7 @@ void ALBlasterHUD::PostInitializeComponents()
 	AddChatUI();
 	AddScoreboard();
 	AddMiniScoreboard();
+	AddHelpInfo();
 }
 
 bool ALBlasterHUD::IsValidOwnerController()
