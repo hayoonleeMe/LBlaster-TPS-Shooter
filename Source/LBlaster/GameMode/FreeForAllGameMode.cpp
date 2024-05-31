@@ -37,7 +37,7 @@ void AFreeForAllGameMode::PlayerEliminated(ALBlasterCharacter* EliminatedCharact
 	ALBlasterPlayerController* AttackerController)
 {
 	// 게임 중일 때만 Kill 가능
-	if (!IsMatchInProgress())
+	if (MatchState != MatchState::AfterWarmup)
 	{
 		return;
 	}

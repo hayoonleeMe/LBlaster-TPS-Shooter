@@ -8,6 +8,7 @@
 
 namespace MatchState
 {
+	const FName AfterWarmup = FName(TEXT("AfterWarmup"));
 	const FName Cooldown = FName(TEXT("Cooldown"));
 }
 

@@ -268,18 +268,6 @@ void ALBlasterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	/* Input */
-	if (GEngine && GetWorld() && IsLocallyControlled())
-	{
-		if (const ULocalPlayer* Player = GEngine->GetFirstGamePlayer(GetWorld()))
-		{
-			if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(Player))
-			{
-				Subsystem->AddMappingContext(DefaultMappingContext, 0);
-			}	
-		}
-	}
-
 	/* Overhead Widget */
 	UpdatePlayerNameToOverheadWidget();
 
