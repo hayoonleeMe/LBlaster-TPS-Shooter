@@ -495,6 +495,18 @@ void ALBlasterPlayerController::HandleCooldown()
 		OwningHUD->RemoveCharacterOverlay();
 		OwningHUD->AddResultMenu();
 	}
+
+	// Disable Input
+	if (GEngine && GetWorld() && IsLocalController())
+	{
+		if (const ULocalPlayer* LocalPlayer = GEngine->GetFirstGamePlayer(GetWorld()))
+		{
+			if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
+			{
+				Subsystem->ClearAllMappings();
+			}	
+		}
+	}
 }
 
 void ALBlasterPlayerController::EnablePauseMenuMappingContext() const
