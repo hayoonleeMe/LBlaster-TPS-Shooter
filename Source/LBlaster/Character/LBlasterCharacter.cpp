@@ -949,7 +949,7 @@ void ALBlasterCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
 		PlayerController->SetWeaponSlotIcon(EEquipSlot::EES_SecondSlot, EWeaponType::EWT_Unarmed);
 
 		// Start Respawn Timer
-		if (IsLocallyControlled())
+		if (IsLocallyControlled() && !bPlayerLeftGame)
 		{
 			PlayerController->StartRespawnTimer(ElimDelay, RespawnTimerUpdateFrequency);
 		}
