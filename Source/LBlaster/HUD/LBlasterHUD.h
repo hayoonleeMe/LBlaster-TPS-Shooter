@@ -57,14 +57,12 @@ public:
 	void SetHUDCarriedAmmo(int32 InCarriedAmmo);
 	void SetHUDWeaponTypeText(const FString& InWeaponTypeString);
 	void SetHUDMatchCountdown(float InCountdownTime, bool bPlayAnimation);
-	void SetHUDAnnouncementCountdown(float InCountdownTime);
 	void SetHUDGrenadeAmount(int32 InGrenadeAmount);
 	void AddCharacterOverlay();
 	void RemoveCharacterOverlay();
 	void AddAnnouncement();
 	void HideAnnouncement();
 	void AddElimAnnouncement(const FString& AttackerName, const FString& VictimName);
-	void SetCooldownAnnouncement();
 	void InitSniperScope(const TSubclassOf<UUserWidget>& InSniperScopeClass);
 	void ShowSniperScopeWidget(bool bShowScope);
 	void HighPingWarning(float InDuration) const;
@@ -103,6 +101,12 @@ public:
 	 */
 	void StartRespawnTimer(float InElimDelay, float InRespawnTimerUpdateFrequency);
 	void HideRespawnTimer() const;
+
+	/*
+	 *	Result Menu
+	 */
+	void AddResultMenu();
+	void SetHUDMatchCooldown(float InTime);
 
 protected:
 	virtual void PostInitializeComponents() override;
@@ -254,4 +258,13 @@ private:
 	TObjectPtr<UUserWidget> HelpInfo;
 
 	void AddHelpInfo();
+
+	/*
+	 *	Result Menu
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Result Menu")
+	TMap<EMatchMode, TSubclassOf<class UResultMenu>> ResultMenuClassByMatchModeMap; 
+
+	UPROPERTY()
+	TObjectPtr<UResultMenu> ResultMenu;
 };

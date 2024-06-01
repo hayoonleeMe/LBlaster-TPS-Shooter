@@ -4,12 +4,18 @@
 #include "ScoreboardTeamDeathMatch.h"
 
 #include "ScoreboardRow.h"
+#include "Components/Border.h"
 #include "Components/VerticalBox.h"
 #include "GameState/TeamDeathMatchGameState.h"
 #include "Player/LBlasterPlayerState.h"
 
 void UScoreboardTeamDeathMatch::UpdateBoard()
 {
+	if (bUsedForResultMenu)
+	{
+		return;
+	}
+	
 	if (GetWorld() && RedTeamBox && BlueTeamBox && IsValidOwnerPlayerState())
 	{
 		if (ATeamDeathMatchGameState* TDMGameState = GetWorld()->GetGameState<ATeamDeathMatchGameState>())
@@ -84,5 +90,17 @@ void UScoreboardTeamDeathMatch::UpdateBoard()
 				}
 			}
 		}
+	}
+}
+
+void UScoreboardTeamDeathMatch::SetScoreboardForResultMenu()
+{
+	Super::SetScoreboardForResultMenu();
+
+	if (Border)
+	{
+		FVector2D Translation = Border->GetRenderTransform().Translation;
+		Translation.Y += 20.f;
+		Border->SetRenderTranslation(Translation);
 	}
 }

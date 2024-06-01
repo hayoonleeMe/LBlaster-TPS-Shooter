@@ -9,6 +9,13 @@ void UScoreboard::UpdateBoard()
 {
 }
 
+void UScoreboard::SetScoreboardForResultMenu()
+{
+	UpdateBoard();
+	bUsedForResultMenu = true;
+	SetVisibility(ESlateVisibility::Visible);
+}
+
 bool UScoreboard::IsValidOwnerPlayerState()
 {
 	if (!OwnerPlayerState && IsValidOwnerController())
