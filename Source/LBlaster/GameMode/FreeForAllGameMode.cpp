@@ -17,6 +17,13 @@ AFreeForAllGameMode::AFreeForAllGameMode()
 	}
 }
 
+void AFreeForAllGameMode::PostLogin(APlayerController* NewPlayer)
+{
+	Super::PostLogin(NewPlayer);
+
+	RestartPlayerAtPlayerStart(NewPlayer, FindPlayerStart(NewPlayer));
+}
+
 void AFreeForAllGameMode::Logout(AController* Exiting)
 {
 	Super::Logout(Exiting);
