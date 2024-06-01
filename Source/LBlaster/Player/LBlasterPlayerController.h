@@ -34,9 +34,9 @@ public:
 	void SetHUDCarriedAmmo(int32 InCarriedAmmo);
 	void SetHUDWeaponTypeText(const FString& InWeaponTypeString = FString());
 	void SetHUDMatchCountdown(float InCountdownTime, bool bPlayAnimation);
+	void SetHUDMatchCooldown(float InTime);
 	void OnMatchStateSet(FName InState);
 	void UpdateHUDHealth();
-	void SetHUDAnnouncementCountdown(float InCountdownTime);
 	void UpdateHUDGrenadeAmount();
 	void UpdateHUDGrenadeAmount(int32 InGrenadeAmount);
 	void StartRespawnTimer(float InElimDelay, float InRespawnTimerUpdateFrequency);

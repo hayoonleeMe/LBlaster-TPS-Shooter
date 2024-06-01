@@ -57,7 +57,6 @@ public:
 	void SetHUDCarriedAmmo(int32 InCarriedAmmo);
 	void SetHUDWeaponTypeText(const FString& InWeaponTypeString);
 	void SetHUDMatchCountdown(float InCountdownTime, bool bPlayAnimation);
-	void SetHUDAnnouncementCountdown(float InCountdownTime);
 	void SetHUDGrenadeAmount(int32 InGrenadeAmount);
 	void AddCharacterOverlay();
 	void RemoveCharacterOverlay();
@@ -107,6 +106,7 @@ public:
 	 *	Result Menu
 	 */
 	void AddResultMenu();
+	void SetHUDMatchCooldown(float InTime);
 
 protected:
 	virtual void PostInitializeComponents() override;

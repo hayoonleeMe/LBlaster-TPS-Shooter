@@ -14,7 +14,13 @@ class LBLASTER_API UResultMenu : public ULBlasterUserWidget
 {
 	GENERATED_BODY()
 
+public:
+	void SetCooldownTimerText(float InTime);
+	
 protected:
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<class UTextBlock> ResultText;
+
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UTextBlock> TimerText;
 };
