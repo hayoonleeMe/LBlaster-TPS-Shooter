@@ -56,7 +56,7 @@ public:
 	void SetHUDAmmo(int32 InAmmo);
 	void SetHUDCarriedAmmo(int32 InCarriedAmmo);
 	void SetHUDWeaponTypeText(const FString& InWeaponTypeString);
-	void SetHUDMatchCountdown(float InCountdownTime);
+	void SetHUDMatchCountdown(float InCountdownTime, bool bPlayAnimation);
 	void SetHUDAnnouncementCountdown(float InCountdownTime);
 	void SetHUDGrenadeAmount(int32 InGrenadeAmount);
 	void AddCharacterOverlay();
@@ -74,6 +74,7 @@ public:
 	void SetWeaponSlotIcon(EEquipSlot InEquipSlot, EWeaponType InWeaponType) const;
 	void ChooseWeaponSlot(EEquipSlot InEquipSlot) const;
 	void ChangeChatMode() const;
+	void SetHelpInfoVisibility(bool bVisible);
 	
 	/*
 	 *	BaseHUD
@@ -242,4 +243,15 @@ private:
 	void UpdateHUDRespawnTimer();
 
 	float RespawnTimerUnitPercent = 0.f;
+
+	/*
+	 *	HelpInfo
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|HelpInfo")
+	TSubclassOf<UUserWidget> HelpInfoClass;
+
+	UPROPERTY()
+	TObjectPtr<UUserWidget> HelpInfo;
+
+	void AddHelpInfo();
 };

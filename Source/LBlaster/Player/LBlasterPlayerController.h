@@ -33,7 +33,7 @@ public:
 	void SetHUDAmmo(int32 InAmmo);
 	void SetHUDCarriedAmmo(int32 InCarriedAmmo);
 	void SetHUDWeaponTypeText(const FString& InWeaponTypeString = FString());
-	void SetHUDMatchCountdown(float InCountdownTime);
+	void SetHUDMatchCountdown(float InCountdownTime, bool bPlayAnimation);
 	void OnMatchStateSet(FName InState);
 	void UpdateHUDHealth();
 	void SetHUDAnnouncementCountdown(float InCountdownTime);
@@ -48,6 +48,7 @@ public:
 	FORCEINLINE float GetSingleTripTime() const { return SingleTripTime; }
 	
 	void HandleMatchHasStarted();
+	void HandleAfterWarmup();
 	void HandleCooldown();
 
 	void EnablePauseMenuMappingContext() const;
@@ -98,6 +99,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
 	TObjectPtr<UInputAction> ScoreboardAction;
+	
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
+	TObjectPtr<UInputAction> HelpInfoAction;
 
 	void ShowPauseMenu();
 	void FocusChat();
@@ -105,6 +109,7 @@ protected:
 	void ChangeChatMode();
 	void ReturnMenu();
 	void ShowScoreboard(const FInputActionValue& ActionValue);
+	void ShowHelpInfo(const FInputActionValue& ActionValue);
 
 protected:
 	virtual void BeginPlay() override;
