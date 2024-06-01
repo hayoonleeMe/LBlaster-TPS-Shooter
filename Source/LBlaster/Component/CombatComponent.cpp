@@ -1092,8 +1092,8 @@ void UCombatComponent::SetFiring(bool bInFiring)
 	if (OwnerCharacter->GetLocalRole() == ROLE_AutonomousProxy)
 	{
 		bDesiredIsFiring = bIsFiring;
+		ServerSetFiring(bInFiring);
 	}
-	ServerSetFiring(bInFiring);
 	
 	Fire();
 }
