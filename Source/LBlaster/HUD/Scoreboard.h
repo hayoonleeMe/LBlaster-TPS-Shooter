@@ -16,6 +16,7 @@ class LBLASTER_API UScoreboard : public ULBlasterUserWidget
 
 public:
 	virtual void UpdateBoard();
+	void SetScoreboardForResultMenu();
 
 protected:
 	/*
@@ -25,8 +26,13 @@ protected:
 	TObjectPtr<class ALBlasterPlayerState> OwnerPlayerState;
 
 	bool IsValidOwnerPlayerState();
+
+	bool bUsedForResultMenu = false;
 	
 private:
 	UPROPERTY(EditAnywhere, Category="LBlaster")
 	TSubclassOf<class UScoreboardRow> ScoreboardRowClass;
+
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<class UBorder> Border;
 };

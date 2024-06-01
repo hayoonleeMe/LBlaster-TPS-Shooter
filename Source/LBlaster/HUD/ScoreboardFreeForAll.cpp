@@ -11,6 +11,11 @@
 
 void UScoreboardFreeForAll::UpdateBoard()
 {
+	if (bUsedForResultMenu)
+	{
+		return;
+	}
+	
 	if (GetWorld() && LeftBox && RightBox && IsValidOwnerPlayerState())
 	{
 		if (AFreeForAllGameState* FFAGameState = GetWorld()->GetGameState<AFreeForAllGameState>())
