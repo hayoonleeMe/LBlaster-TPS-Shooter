@@ -133,14 +133,6 @@ void ALBlasterHUD::SetHUDMatchCountdown(float InCountdownTime, bool bPlayAnimati
 	}
 }
 
-void ALBlasterHUD::SetHUDAnnouncementCountdown(float InCountdownTime)
-{
-	if (Announcement)
-	{
-		Announcement->SetHUDAnnouncementCountdown(InCountdownTime);
-	}
-}
-
 void ALBlasterHUD::SetHUDGrenadeAmount(int32 InGrenadeAmount)
 {
 	if (CharacterOverlay)
@@ -515,6 +507,18 @@ void ALBlasterHUD::AddResultMenu()
 	if (Scoreboard)
 	{
 		Scoreboard->SetScoreboardForResultMenu();
+	}
+	if (MiniScoreboard)
+	{
+		MiniScoreboard->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
+void ALBlasterHUD::SetHUDMatchCooldown(float InTime)
+{
+	if (ResultMenu)
+	{
+		ResultMenu->SetCooldownTimerText(InTime);
 	}
 }
 

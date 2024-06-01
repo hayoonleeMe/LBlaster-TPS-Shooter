@@ -16,6 +16,7 @@ class LBLASTER_API UScoreboardTeamDeathMatch : public UScoreboard
 
 public:
 	virtual void UpdateBoard() override;
+	virtual void SetScoreboardForResultMenu() override;
 
 private:
 	UPROPERTY(meta=(BindWidget))

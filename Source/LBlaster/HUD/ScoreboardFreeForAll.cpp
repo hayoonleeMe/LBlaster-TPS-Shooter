@@ -4,6 +4,7 @@
 #include "ScoreboardFreeForAll.h"
 
 #include "ScoreboardRowWithRank.h"
+#include "Components/Border.h"
 #include "Components/VerticalBox.h"
 #include "GameFramework/PlayerState.h"
 #include "GameState/FreeForAllGameState.h"
@@ -58,5 +59,17 @@ void UScoreboardFreeForAll::UpdateBoard()
 				}
 			}
 		}
+	}
+}
+
+void UScoreboardFreeForAll::SetScoreboardForResultMenu()
+{
+	Super::SetScoreboardForResultMenu();
+
+	if (Border)
+	{
+		FVector2D Translation = Border->GetRenderTransform().Translation;
+		Translation.Y += 100.f;
+		Border->SetRenderTranslation(Translation);
 	}
 }
