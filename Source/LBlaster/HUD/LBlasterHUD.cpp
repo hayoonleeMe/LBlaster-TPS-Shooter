@@ -16,6 +16,7 @@
 #include "OnlineSessionSettings.h"
 #include "PauseMenu.h"
 #include "RespawnTimer.h"
+#include "ResultMenu.h"
 #include "Scoreboard.h"
 #include "SettingMenu.h"
 #include "SniperScope.h"
@@ -129,14 +130,6 @@ void ALBlasterHUD::SetHUDMatchCountdown(float InCountdownTime, bool bPlayAnimati
 	if (CharacterOverlay)
 	{
 		CharacterOverlay->SetMatchCountdownText(InCountdownTime, bPlayAnimation);
-	}
-}
-
-void ALBlasterHUD::SetHUDAnnouncementCountdown(float InCountdownTime)
-{
-	if (Announcement)
-	{
-		Announcement->SetHUDAnnouncementCountdown(InCountdownTime);
 	}
 }
 
@@ -500,12 +493,32 @@ void ALBlasterHUD::HideRespawnTimer() const
 	}
 }
 
-void ALBlasterHUD::SetCooldownAnnouncement()
+void ALBlasterHUD::AddResultMenu()
 {
-	if (Announcement)
+	if (IsValidOwnerController() && ResultMenuClassByMatchModeMap.Contains(GetMatchModeType()) && ResultMenuClassByMatchModeMap[GetMatchModeType()])
 	{
-		Announcement->SetVisibility(ESlateVisibility::Visible);
-		Announcement->SetCooldownAnnouncement();
+		ResultMenu = CreateWidget<UResultMenu>(OwnerController, ResultMenuClassByMatchModeMap[GetMatchModeType()]);
+		if (ResultMenu)
+		{
+			ResultMenu->MenuSetup();
+		}
+	}
+
+	if (Scoreboard)
+	{
+		Scoreboard->SetScoreboardForResultMenu();
+	}
+	if (MiniScoreboard)
+	{
+		MiniScoreboard->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
+void ALBlasterHUD::SetHUDMatchCooldown(float InTime)
+{
+	if (ResultMenu)
+	{
+		ResultMenu->SetCooldownTimerText(InTime);
 	}
 }
 

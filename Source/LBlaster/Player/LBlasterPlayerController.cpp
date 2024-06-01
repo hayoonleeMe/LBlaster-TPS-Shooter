@@ -200,7 +200,7 @@ void ALBlasterPlayerController::SetHUDTime()
 		}
 		else if (MatchState == MatchState::Cooldown)
 		{
-			SetHUDAnnouncementCountdown(TimeLeft);
+			SetHUDMatchCooldown(TimeLeft);
 		}
 	}
 	CountdownInt = SecondsLeft;
@@ -315,11 +315,11 @@ void ALBlasterPlayerController::SetHUDMatchCountdown(float InCountdownTime, bool
 	}
 }
 
-void ALBlasterPlayerController::SetHUDAnnouncementCountdown(float InCountdownTime)
+void ALBlasterPlayerController::SetHUDMatchCooldown(float InTime)
 {
 	if (IsValidOwningHUD())
 	{
-		OwningHUD->SetHUDAnnouncementCountdown(InCountdownTime);
+		OwningHUD->SetHUDMatchCooldown(InTime);
 	}
 }
 
@@ -493,7 +493,7 @@ void ALBlasterPlayerController::HandleCooldown()
 	if (IsValidOwningHUD())
 	{
 		OwningHUD->RemoveCharacterOverlay();
-		OwningHUD->SetCooldownAnnouncement();
+		OwningHUD->AddResultMenu();
 	}
 }
 

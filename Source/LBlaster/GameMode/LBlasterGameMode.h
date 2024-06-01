@@ -46,4 +46,16 @@ protected:
 
 private:
 	float CountdownTime = 0.f;
+
+	bool bAlreadyReturnToMainMenu = false;
+
+	/*
+	 *	Multiplayer Sessions
+	 */
+	UPROPERTY()
+	TObjectPtr<class UMultiplayerSessionsSubsystem> MultiplayerSessionsSubsystem;
+
+	void OnDestroySessionComplete(bool bWasSuccessful);
+	void DestroyAllClientSession() const;
+	void ReturnToMainMenuWithAllPlayers();
 };
