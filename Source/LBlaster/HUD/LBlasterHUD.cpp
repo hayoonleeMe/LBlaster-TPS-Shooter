@@ -16,6 +16,7 @@
 #include "OnlineSessionSettings.h"
 #include "PauseMenu.h"
 #include "RespawnTimer.h"
+#include "ResultMenu.h"
 #include "Scoreboard.h"
 #include "SettingMenu.h"
 #include "SniperScope.h"
@@ -500,12 +501,20 @@ void ALBlasterHUD::HideRespawnTimer() const
 	}
 }
 
-void ALBlasterHUD::SetCooldownAnnouncement()
+void ALBlasterHUD::AddResultMenu()
 {
-	if (Announcement)
+	if (IsValidOwnerController() && ResultMenuClassByMatchModeMap.Contains(GetMatchModeType()) && ResultMenuClassByMatchModeMap[GetMatchModeType()])
 	{
-		Announcement->SetVisibility(ESlateVisibility::Visible);
-		Announcement->SetCooldownAnnouncement();
+		ResultMenu = CreateWidget<UResultMenu>(OwnerController, ResultMenuClassByMatchModeMap[GetMatchModeType()]);
+		if (ResultMenu)
+		{
+			ResultMenu->MenuSetup();
+		}
+	}
+
+	if (Scoreboard)
+	{
+		Scoreboard->SetScoreboardForResultMenu();
 	}
 }
 

@@ -10,6 +10,11 @@
 
 void UScoreboardTeamDeathMatch::UpdateBoard()
 {
+	if (bUsedForResultMenu)
+	{
+		return;
+	}
+	
 	if (GetWorld() && RedTeamBox && BlueTeamBox && IsValidOwnerPlayerState())
 	{
 		if (ATeamDeathMatchGameState* TDMGameState = GetWorld()->GetGameState<ATeamDeathMatchGameState>())
