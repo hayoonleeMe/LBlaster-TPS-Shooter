@@ -80,6 +80,12 @@ ALBlasterPlayerController::ALBlasterPlayerController()
 	{
 		ScoreboardAction = ScoreboardActionRef.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> HelpInfoActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_HelpInfo.IA_HelpInfo'"));
+	if (HelpInfoActionRef.Object)
+	{
+		HelpInfoAction = HelpInfoActionRef.Object;
+	}
 }
 
 void ALBlasterPlayerController::Tick(float DeltaSeconds)
@@ -101,6 +107,7 @@ void ALBlasterPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(ChatScrollAction, ETriggerEvent::Triggered, this, &ThisClass::ChatScroll);
 	EnhancedInputComponent->BindAction(ChangeChatModeAction, ETriggerEvent::Triggered, this, &ThisClass::ChangeChatMode);
 	EnhancedInputComponent->BindAction(ScoreboardAction, ETriggerEvent::Triggered, this, &ThisClass::ShowScoreboard);
+	EnhancedInputComponent->BindAction(HelpInfoAction, ETriggerEvent::Triggered, this, &ThisClass::ShowHelpInfo);
 
 	/* IMC_PauseMenuContext */
 	EnhancedInputComponent->BindAction(PauseMenuAction, ETriggerEvent::Triggered, this, &ThisClass::ShowPauseMenu);
@@ -163,11 +170,11 @@ void ALBlasterPlayerController::SetHUDTime()
 	}
 	
 	float TimeLeft = 0.f;
-	if (MatchState == MatchState::WaitingToStart)
+	if (MatchState == MatchState::InProgress)
 	{
 		TimeLeft = WarmupTime - GetServerTime() + LevelStartingTime;
 	}
-	else if (MatchState == MatchState::InProgress)
+	else if (MatchState == MatchState::AfterWarmup)
 	{
 		TimeLeft = WarmupTime + MatchTime - GetServerTime() + LevelStartingTime;	
 	}
@@ -183,13 +190,13 @@ void ALBlasterPlayerController::SetHUDTime()
 	
 	if (CountdownInt != SecondsLeft)
 	{
-		if (MatchState == MatchState::WaitingToStart)
+		if (MatchState == MatchState::InProgress)
 		{
-			SetHUDAnnouncementCountdown(TimeLeft);
+			SetHUDMatchCountdown(TimeLeft, false);
 		}
-		else if (MatchState == MatchState::InProgress)
+		else if (MatchState == MatchState::AfterWarmup)
 		{
-			SetHUDMatchCountdown(TimeLeft);
+			SetHUDMatchCountdown(TimeLeft, true);
 		}
 		else if (MatchState == MatchState::Cooldown)
 		{
@@ -246,9 +253,9 @@ void ALBlasterPlayerController::ClientJoinMidGame_Implementation(FName StateOfMa
 	MatchState = StateOfMatch;
 	OnMatchStateSet(MatchState);
 
-	if (IsValidOwningHUD() && MatchState == MatchState::WaitingToStart)
+	if (IsValidOwningHUD() && MatchState == MatchState::InProgress)
 	{
-		OwningHUD->AddAnnouncement();
+		OwningHUD->SetHelpInfoVisibility(true);
 	}	
 }
 
@@ -300,11 +307,11 @@ void ALBlasterPlayerController::SetHUDWeaponTypeText(const FString& InWeaponType
 	}
 }
 
-void ALBlasterPlayerController::SetHUDMatchCountdown(float InCountdownTime)
+void ALBlasterPlayerController::SetHUDMatchCountdown(float InCountdownTime, bool bPlayAnimation )
 {
 	if (IsValidOwningHUD())
 	{
-		OwningHUD->SetHUDMatchCountdown(InCountdownTime);
+		OwningHUD->SetHUDMatchCountdown(InCountdownTime, bPlayAnimation);
 	}
 }
 
@@ -356,9 +363,9 @@ void ALBlasterPlayerController::ClientHideRespawnTimer_Implementation()
 void ALBlasterPlayerController::OnMatchStateSet(FName InState)
 {
 	MatchState = InState;
-	if (MatchState == MatchState::InProgress)
+	if (MatchState == MatchState::AfterWarmup)
 	{
-		HandleMatchHasStarted();
+		HandleAfterWarmup();
 	}
 	else if (MatchState == MatchState::Cooldown)
 	{
@@ -368,9 +375,9 @@ void ALBlasterPlayerController::OnMatchStateSet(FName InState)
 
 void ALBlasterPlayerController::OnRep_MatchState()
 {
-	if (MatchState == MatchState::InProgress)
+	if (MatchState == MatchState::AfterWarmup)
 	{
-		HandleMatchHasStarted();
+		HandleAfterWarmup();
 	}
 	else if (MatchState == MatchState::Cooldown)
 	{
@@ -458,6 +465,26 @@ void ALBlasterPlayerController::HandleMatchHasStarted()
 	{
 		OwningHUD->AddCharacterOverlay();
 		OwningHUD->HideAnnouncement();
+	}
+}
+
+void ALBlasterPlayerController::HandleAfterWarmup()
+{
+	if (IsValidOwningHUD())
+	{
+		OwningHUD->SetHelpInfoVisibility(false);
+	}
+
+	/* Input */
+	if (GEngine && GetWorld() && IsLocalController())
+	{
+		if (const ULocalPlayer* LocalPlayer = GEngine->GetFirstGamePlayer(GetWorld()))
+		{
+			if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
+			{
+				Subsystem->AddMappingContext(DefaultMappingContext, 0);
+			}	
+		}
 	}
 }
 
@@ -620,6 +647,14 @@ void ALBlasterPlayerController::ShowScoreboard(const FInputActionValue& ActionVa
 	if (IsValidOwningHUD())
 	{
 		OwningHUD->SetScoreboardVisibility(ActionValue.Get<bool>());
+	}
+}
+
+void ALBlasterPlayerController::ShowHelpInfo(const FInputActionValue& ActionValue)
+{
+	if (IsValidOwningHUD())
+	{
+		OwningHUD->SetHelpInfoVisibility(ActionValue.Get<bool>());
 	}
 }
 
