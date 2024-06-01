@@ -43,6 +43,7 @@ void ATeamDeathMatchGameMode::PostLogin(APlayerController* NewPlayer)
 			}
 		}
 	}
+	RestartPlayerAtPlayerStart(NewPlayer, FindPlayerStartTDM(NewPlayer));
 }
 
 void ATeamDeathMatchGameMode::Logout(AController* Exiting)
