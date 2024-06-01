@@ -493,7 +493,7 @@ void ALBlasterPlayerController::HandleCooldown()
 	if (IsValidOwningHUD())
 	{
 		OwningHUD->RemoveCharacterOverlay();
-		OwningHUD->SetCooldownAnnouncement();
+		OwningHUD->AddResultMenu();
 	}
 }
 
