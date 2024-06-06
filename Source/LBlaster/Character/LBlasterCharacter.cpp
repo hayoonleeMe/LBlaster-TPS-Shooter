@@ -274,7 +274,18 @@ void ALBlasterCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	/* Overhead Widget */
-	UpdatePlayerNameToOverheadWidget();
+	if (OverheadWidgetComponent)
+	{
+		// 다른 캐릭터의 이름만 표시
+		if (IsLocallyControlled())
+		{
+			OverheadWidgetComponent->DestroyComponent();
+		}
+		else
+		{
+			UpdatePlayerNameToOverheadWidget();
+		}
+	}
 
 	/* Damage */
 	if (HasAuthority())
