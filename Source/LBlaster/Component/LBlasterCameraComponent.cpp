@@ -108,7 +108,7 @@ FRotator ULBlasterCameraComponent::GetPivotRotation() const
 
 void ULBlasterCameraComponent::UpdateView(float DeltaTime, FCameraView& OutView)
 {
-	UpdateForTarget(DeltaTime);
+	UpdateForTarget();
 	UpdateCrouchOffset(DeltaTime);
 	
 	FVector PivotLocation = GetPivotLocation() + CurrentCrouchOffset;
@@ -156,8 +156,13 @@ void ULBlasterCameraComponent::UpdateBlending(float DeltaTime)
 	BlendWeight = FMath::InterpEaseOut(0.f, 1.f, BlendAlpha, Exponent);
 }
 
-void ULBlasterCameraComponent::UpdateForTarget(float DeltaTime)
+void ULBlasterCameraComponent::UpdateForTarget()
 {
+	if (!IsValidOwnerCharacter())
+	{
+		return;
+	}
+	
 	if (OwnerCharacter->bIsCrouched)
 	{
 		const float CrouchADSOffset = OwnerCharacter->IsAiming() ? -30.f : 0.f;
