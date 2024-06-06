@@ -209,6 +209,8 @@ private:
 	UPROPERTY(VisibleAnywhere, Category="LBlaster|Widget")
 	TObjectPtr<class UWidgetComponent> OverheadWidgetComponent;
 
+	void UpdateOverheadWidgetTransform();
+
 	/*
 	 *	Weapon
 	 */
