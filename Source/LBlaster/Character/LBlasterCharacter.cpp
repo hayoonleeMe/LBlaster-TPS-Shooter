@@ -175,8 +175,9 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 	OverheadWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidgetComponent"));
 	OverheadWidgetComponent->SetupAttachment(GetMesh());
 	OverheadWidgetComponent->SetRelativeLocation(FVector(0.f, 0.f, 190.f));
-	OverheadWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	OverheadWidgetComponent->SetWidgetSpace(EWidgetSpace::World);
 	OverheadWidgetComponent->SetDrawAtDesiredSize(true);
+	OverheadWidgetComponent->SetCastShadow(false);
 
 	static ConstructorHelpers::FClassFinder<UOverheadWidget> OverheadWidgetClassRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/LBlaster/UI/HUD/WBP_OverheadWidget.WBP_OverheadWidget_C'"));
 	if (OverheadWidgetClassRef.Class)
