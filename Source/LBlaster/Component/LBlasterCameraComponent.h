@@ -85,7 +85,7 @@ private:
 	 */
 	FCameraView View;
 	void UpdateView(float DeltaTime, FCameraView& OutView);
-	void UpdateForTarget(float DeltaTime);
+	void UpdateForTarget();
 	void UpdateCrouchOffset(float DeltaTime);
 	void BlendView(const FCameraView& InView);
 	void ApplyView();
