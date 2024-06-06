@@ -21,6 +21,8 @@
 #include "GameInstance/LBGameInstance.h"
 #include "GameMode/LBlasterGameMode.h"
 #include "HUD/OverheadWidget.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "Player/LBlasterPlayerController.h"
 #include "Player/LBlasterPlayerState.h"
@@ -175,8 +177,9 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 	OverheadWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidgetComponent"));
 	OverheadWidgetComponent->SetupAttachment(GetMesh());
 	OverheadWidgetComponent->SetRelativeLocation(FVector(0.f, 0.f, 190.f));
-	OverheadWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	OverheadWidgetComponent->SetWidgetSpace(EWidgetSpace::World);
 	OverheadWidgetComponent->SetDrawAtDesiredSize(true);
+	OverheadWidgetComponent->SetCastShadow(false);
 
 	static ConstructorHelpers::FClassFinder<UOverheadWidget> OverheadWidgetClassRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/LBlaster/UI/HUD/WBP_OverheadWidget.WBP_OverheadWidget_C'"));
 	if (OverheadWidgetClassRef.Class)
@@ -221,6 +224,8 @@ void ALBlasterCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	PollInit();
+
+	UpdateOverheadWidgetTransform();
 	
 	//HideMeshIfCameraClose();
 }
@@ -269,7 +274,18 @@ void ALBlasterCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	/* Overhead Widget */
-	UpdatePlayerNameToOverheadWidget();
+	if (OverheadWidgetComponent)
+	{
+		// 다른 캐릭터의 이름만 표시
+		if (IsLocallyControlled())
+		{
+			OverheadWidgetComponent->DestroyComponent();
+		}
+		else
+		{
+			UpdatePlayerNameToOverheadWidget();
+		}
+	}
 
 	/* Damage */
 	if (HasAuthority())
@@ -684,6 +700,21 @@ void ALBlasterCharacter::HideMeshIfCameraClose()
 		if (CombatComponent && CombatComponent->GetEquippingWeapon() && CombatComponent->GetEquippingWeapon()->GetWeaponMesh())
 		{
 			CombatComponent->GetEquippingWeapon()->GetWeaponMesh()->bOwnerNoSee = false;
+		}
+	}
+}
+
+void ALBlasterCharacter::UpdateOverheadWidgetTransform()
+{
+	if (OverheadWidgetComponent)
+	{
+		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+		if (PlayerController && PlayerController->PlayerCameraManager)
+		{
+			const FVector CameraLocation = PlayerController->PlayerCameraManager->GetCameraLocation();
+			const FVector WidgetLocation = OverheadWidgetComponent->GetComponentLocation();
+			const FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(WidgetLocation, CameraLocation);
+			OverheadWidgetComponent->SetWorldRotation(LookAtRotation);
 		}
 	}
 }
