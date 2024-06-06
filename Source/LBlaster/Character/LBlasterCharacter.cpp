@@ -207,7 +207,7 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 
 	/* Elim */
 	ElimDelay = 3.f;
-	RespawnTimerUpdateFrequency = 0.1f;
+	RespawnTimerUpdateFrequency = 0.05f;
 
 	/* Dissolve Effect */
 	DissolveTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(TEXT("Dissolve Timeline Component"));
