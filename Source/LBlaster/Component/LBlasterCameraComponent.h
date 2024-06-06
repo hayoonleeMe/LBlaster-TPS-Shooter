@@ -55,6 +55,33 @@ struct FCameraMode
 };
 
 /**
+ * Struct defining a feeler ray used for camera penetration avoidance.
+ */
+USTRUCT()
+struct FPenetrationAvoidanceFeeler
+{
+	GENERATED_BODY()
+
+	/** FRotator describing deviance from main ray */
+	UPROPERTY(EditAnywhere, Category=PenetrationAvoidanceFeeler)
+	FRotator AdjustmentRot;
+
+	/** extent to use for collision when tracing this feeler */
+	UPROPERTY(EditAnywhere, Category=PenetrationAvoidanceFeeler)
+	float Extent;
+
+	FPenetrationAvoidanceFeeler()
+		: AdjustmentRot(ForceInit), Extent(0)
+	{
+	}
+
+	FPenetrationAvoidanceFeeler(const FRotator& InAdjustmentRot, const float& InExtent)
+		: AdjustmentRot(InAdjustmentRot), Extent(InExtent)
+	{
+	}
+};
+
+/**
  * 
  */
 UCLASS()
@@ -121,4 +148,11 @@ private:
 
 	// Blend weight calculated using the blend alpha and function.
 	float BlendWeight = 1.f;
+
+	/*
+	 *	Prevent Penetration
+	 */
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Collision")
+	TArray<FPenetrationAvoidanceFeeler> PenetrationAvoidanceFeelers;
 };
