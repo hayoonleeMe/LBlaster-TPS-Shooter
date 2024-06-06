@@ -152,6 +152,11 @@ private:
 	/*
 	 *	Prevent Penetration
 	 */
+	void UpdatePreventPenetration(FCameraView& OutView);
+	void PreventCameraPenetration(const AActor* PPActor, const FVector& SafeLocation, FVector& CameraLocation);
+
+	UPROPERTY(EditAnywhere, Category = "Collision")
+	float CollisionPushOutDistance = 2.f;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Collision")
 	TArray<FPenetrationAvoidanceFeeler> PenetrationAvoidanceFeelers;
