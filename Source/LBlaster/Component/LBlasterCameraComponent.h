@@ -55,6 +55,33 @@ struct FCameraMode
 };
 
 /**
+ * Struct defining a feeler ray used for camera penetration avoidance.
+ */
+USTRUCT()
+struct FPenetrationAvoidanceFeeler
+{
+	GENERATED_BODY()
+
+	/** FRotator describing deviance from main ray */
+	UPROPERTY(EditAnywhere, Category=PenetrationAvoidanceFeeler)
+	FRotator AdjustmentRot;
+
+	/** extent to use for collision when tracing this feeler */
+	UPROPERTY(EditAnywhere, Category=PenetrationAvoidanceFeeler)
+	float Extent;
+
+	FPenetrationAvoidanceFeeler()
+		: AdjustmentRot(ForceInit), Extent(0)
+	{
+	}
+
+	FPenetrationAvoidanceFeeler(const FRotator& InAdjustmentRot, const float& InExtent)
+		: AdjustmentRot(InAdjustmentRot), Extent(InExtent)
+	{
+	}
+};
+
+/**
  * 
  */
 UCLASS()
@@ -85,7 +112,7 @@ private:
 	 */
 	FCameraView View;
 	void UpdateView(float DeltaTime, FCameraView& OutView);
-	void UpdateForTarget(float DeltaTime);
+	void UpdateForTarget();
 	void UpdateCrouchOffset(float DeltaTime);
 	void BlendView(const FCameraView& InView);
 	void ApplyView();
@@ -121,4 +148,16 @@ private:
 
 	// Blend weight calculated using the blend alpha and function.
 	float BlendWeight = 1.f;
+
+	/*
+	 *	Prevent Penetration
+	 */
+	void UpdatePreventPenetration(FCameraView& OutView);
+	void PreventCameraPenetration(const AActor* PPActor, const FVector& SafeLocation, FVector& CameraLocation);
+
+	UPROPERTY(EditAnywhere, Category = "Collision")
+	float CollisionPushOutDistance = 2.f;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Collision")
+	TArray<FPenetrationAvoidanceFeeler> PenetrationAvoidanceFeelers;
 };
