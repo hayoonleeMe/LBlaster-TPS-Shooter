@@ -21,6 +21,8 @@
 #include "GameInstance/LBGameInstance.h"
 #include "GameMode/LBlasterGameMode.h"
 #include "HUD/OverheadWidget.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "Player/LBlasterPlayerController.h"
 #include "Player/LBlasterPlayerState.h"
@@ -222,6 +224,8 @@ void ALBlasterCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	PollInit();
+
+	UpdateOverheadWidgetTransform();
 	
 	//HideMeshIfCameraClose();
 }
@@ -685,6 +689,21 @@ void ALBlasterCharacter::HideMeshIfCameraClose()
 		if (CombatComponent && CombatComponent->GetEquippingWeapon() && CombatComponent->GetEquippingWeapon()->GetWeaponMesh())
 		{
 			CombatComponent->GetEquippingWeapon()->GetWeaponMesh()->bOwnerNoSee = false;
+		}
+	}
+}
+
+void ALBlasterCharacter::UpdateOverheadWidgetTransform()
+{
+	if (OverheadWidgetComponent)
+	{
+		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+		if (PlayerController && PlayerController->PlayerCameraManager)
+		{
+			const FVector CameraLocation = PlayerController->PlayerCameraManager->GetCameraLocation();
+			const FVector WidgetLocation = OverheadWidgetComponent->GetComponentLocation();
+			const FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(WidgetLocation, CameraLocation);
+			OverheadWidgetComponent->SetWorldRotation(LookAtRotation);
 		}
 	}
 }
