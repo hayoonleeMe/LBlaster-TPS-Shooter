@@ -232,11 +232,6 @@ void AWeapon::CallServerScoreRequest(ALBlasterCharacter* HitCharacter, const FVe
 
 void AWeapon::Fire(const FVector& HitTarget)
 {
-	if (FireAnimation)
-	{
-		WeaponMesh->PlayAnimation(FireAnimation, false);
-	}
-
 	if (CasingClass)
 	{
 		if (const USkeletalMeshSocket* Socket = WeaponMesh->GetSocketByName(TEXT("AmmoEject")))
