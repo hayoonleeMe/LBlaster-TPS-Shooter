@@ -199,12 +199,6 @@ protected:
 	void ClearAcknowledgedWeaponStateChanges(const FWeaponStateChange& LastWeaponStateChange);
 
 	/*
-	 *	Animation
-	 */
-	UPROPERTY(EditAnywhere, Category="LBlaster|Animation")
-	TObjectPtr<UAnimationAsset> FireAnimation;
-
-	/*
 	 *	Casing
 	 */
 	UPROPERTY(EditAnywhere, Category="LBlaster|Casing")
