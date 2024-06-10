@@ -180,6 +180,7 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 	OverheadWidgetComponent->SetWidgetSpace(EWidgetSpace::World);
 	OverheadWidgetComponent->SetDrawAtDesiredSize(true);
 	OverheadWidgetComponent->SetCastShadow(false);
+	OverheadWidgetComponent->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 
 	static ConstructorHelpers::FClassFinder<UOverheadWidget> OverheadWidgetClassRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/LBlaster/UI/HUD/WBP_OverheadWidget.WBP_OverheadWidget_C'"));
 	if (OverheadWidgetClassRef.Class)
