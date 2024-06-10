@@ -91,8 +91,8 @@ public:
 	virtual void Fire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const FVector& HitTarget);
 	virtual void ShotgunFire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const TArray<FVector_NetQuantize>& HitTargets) {}
 	virtual bool DoesUseScatter() const { return bUseScatter; } 
-	FVector TraceEndWithScatter(const FVector& HitTarget) const;
-	virtual TArray<FVector_NetQuantize> ShotgunTraceEndWithScatter(const FVector& HitTarget) const { return TArray<FVector_NetQuantize>(); }
+	FVector TraceEndWithScatter(const FVector_NetQuantize& TraceStart, const FVector& HitTarget) const;
+	virtual TArray<FVector_NetQuantize> ShotgunTraceEndWithScatter(const FVector_NetQuantize& TraceStart, const FVector& HitTarget) const { return TArray<FVector_NetQuantize>(); }
 	bool GetMuzzleFlashLocation(FVector_NetQuantize& OutMuzzleFlashLocation, FRotator& OutMuzzleFlashRotation) const;
 
 	void Dropped();
