@@ -1127,25 +1127,33 @@ void UCombatComponent::Fire()
 	{
 		bCanFire = false;
 
+		// 로컬에서의 총구 Location, Rotation 캐싱
+		FVector_NetQuantize MuzzleFlashLocation;
+		FRotator MuzzleFlashRotation;
+		if (!GetEquippingWeapon()->GetMuzzleFlashLocation(MuzzleFlashLocation, MuzzleFlashRotation))
+		{
+			return;
+		}
+
 		if (GetEquippingWeapon()->GetWeaponType() == EWeaponType::EWT_Shotgun)
 		{
 			// Shotgun은 Scatter를 적용한 Pellet 개수만큼의 TraceHitTargets를 사용
-			const TArray<FVector_NetQuantize>& TraceHitTargets = GetEquippingWeapon()->ShotgunTraceEndWithScatter(TraceHitTarget);
+			const TArray<FVector_NetQuantize>& TraceHitTargets = GetEquippingWeapon()->ShotgunTraceEndWithScatter(MuzzleFlashLocation, TraceHitTarget);
 
-			ShotgunLocalFire(TraceHitTargets);
-			ServerShotgunFire(TraceHitTargets, OwnerCharacter->IsServerSideRewindEnabled());
+			ShotgunLocalFire(MuzzleFlashLocation, MuzzleFlashRotation, TraceHitTargets);
+			ServerShotgunFire(MuzzleFlashLocation, MuzzleFlashRotation, TraceHitTargets, OwnerCharacter->IsServerSideRewindEnabled());
 		}
 		else
 		{
 			// Scatter가 적용된 TraceHitTarget로 업데이트
 			if (GetEquippingWeapon()->DoesUseScatter())
 			{
-				TraceHitTarget = GetEquippingWeapon()->TraceEndWithScatter(TraceHitTarget);
+				TraceHitTarget = GetEquippingWeapon()->TraceEndWithScatter(MuzzleFlashLocation, TraceHitTarget);
 			}
 		
 			// Fire Montage등 cosmetic effect는 로컬에서 먼저 수행
-			LocalFire(TraceHitTarget);	
-			ServerFire(TraceHitTarget, OwnerCharacter->IsServerSideRewindEnabled());
+			LocalFire(MuzzleFlashLocation, MuzzleFlashRotation, TraceHitTarget);	
+			ServerFire(MuzzleFlashLocation, MuzzleFlashRotation, TraceHitTarget, OwnerCharacter->IsServerSideRewindEnabled());
 		}
 		
 		CrosshairShootingFactor = 0.75f;
@@ -1164,7 +1172,7 @@ void UCombatComponent::Fire()
 	}
 }
 
-void UCombatComponent::LocalFire(const FVector_NetQuantize& HitTarget)
+void UCombatComponent::LocalFire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const FVector_NetQuantize& HitTarget)
 {
 	if (IsValidOwnerCharacter() && GetEquippingWeapon())
 	{
@@ -1172,11 +1180,11 @@ void UCombatComponent::LocalFire(const FVector_NetQuantize& HitTarget)
 		{
 			OwnerCharacter->PlayFireMontage(MontageToPlay);
 		}
-		GetEquippingWeapon()->Fire(HitTarget);
+		GetEquippingWeapon()->Fire(TraceStart, TraceRotation, HitTarget);
 	}
 }
 
-void UCombatComponent::ShotgunLocalFire(const TArray<FVector_NetQuantize>& HitTargets)
+void UCombatComponent::ShotgunLocalFire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const TArray<FVector_NetQuantize>& HitTargets)
 {
 	if (IsValidOwnerCharacter() && GetEquippingWeapon())
 	{
@@ -1184,29 +1192,29 @@ void UCombatComponent::ShotgunLocalFire(const TArray<FVector_NetQuantize>& HitTa
 		{
 			OwnerCharacter->PlayFireMontage(MontageToPlay);
 		}
-		GetEquippingWeapon()->ShotgunFire(HitTargets);
+		GetEquippingWeapon()->ShotgunFire(TraceStart, TraceRotation, HitTargets);
 	}
 }
 
-void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& HitTarget, bool bEnabledSSR)
+void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const FVector_NetQuantize& HitTarget, bool bEnabledSSR)
 {
 	if (IsValidOwnerCharacter())
 	{
 		OwnerCharacter->EnableServerSideRewind(bEnabledSSR);
 	}
-	MulticastFire(HitTarget);	
+	MulticastFire(TraceStart, TraceRotation, HitTarget);	
 }
 
-void UCombatComponent::ServerShotgunFire_Implementation(const TArray<FVector_NetQuantize>& HitTargets, bool bEnabledSSR)
+void UCombatComponent::ServerShotgunFire_Implementation(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const TArray<FVector_NetQuantize>& HitTargets, bool bEnabledSSR)
 {
 	if (IsValidOwnerCharacter())
 	{
 		OwnerCharacter->EnableServerSideRewind(bEnabledSSR);
 	}
-	MulticastShotgunFire(HitTargets);
+	MulticastShotgunFire(TraceStart, TraceRotation, HitTargets);
 }
 
-void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& HitTarget)
+void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const FVector_NetQuantize& HitTarget)
 {
 	// Locally Controlled Character의 Local Fire 중복 호출 방지
 	if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled())
@@ -1214,10 +1222,10 @@ void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& H
 		return;
 	}
 
-	LocalFire(HitTarget);
+	LocalFire(TraceStart, TraceRotation, HitTarget);
 }
 
-void UCombatComponent::MulticastShotgunFire_Implementation(const TArray<FVector_NetQuantize>& HitTargets)
+void UCombatComponent::MulticastShotgunFire_Implementation(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const TArray<FVector_NetQuantize>& HitTargets)
 {
 	// Locally Controlled Character의 Local Fire 중복 호출 방지
 	if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled())
@@ -1225,7 +1233,7 @@ void UCombatComponent::MulticastShotgunFire_Implementation(const TArray<FVector_
 		return;
 	}
 
-	ShotgunLocalFire(HitTargets);
+	ShotgunLocalFire(TraceStart, TraceRotation, HitTargets);
 }
 
 FString UCombatComponent::GetWeaponTypeString (EWeaponType InWeaponType)

@@ -304,20 +304,20 @@ private:
 
 	bool CanFire();	
 	void Fire();
-	void LocalFire(const FVector_NetQuantize& HitTarget);
-	void ShotgunLocalFire(const TArray<FVector_NetQuantize>& HitTargets);	
+	void LocalFire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const FVector_NetQuantize& HitTarget);
+	void ShotgunLocalFire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const TArray<FVector_NetQuantize>& HitTargets);	
 	
 	UFUNCTION(Server, Reliable)
-	void ServerFire(const FVector_NetQuantize& HitTarget, bool bEnabledSSR);
+	void ServerFire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const FVector_NetQuantize& HitTarget, bool bEnabledSSR);
 
 	UFUNCTION(Server, Reliable)
-	void ServerShotgunFire(const TArray<FVector_NetQuantize>& HitTargets, bool bEnabledSSR);
+	void ServerShotgunFire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const TArray<FVector_NetQuantize>& HitTargets, bool bEnabledSSR);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastFire(const FVector_NetQuantize& HitTarget);
+	void MulticastFire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const FVector_NetQuantize& HitTarget);
 
 	UFUNCTION(NetMulticast, Reliable)
-    void MulticastShotgunFire(const TArray<FVector_NetQuantize>& HitTargets);
+    void MulticastShotgunFire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const TArray<FVector_NetQuantize>& HitTargets);
 
 	void TraceUnderCrosshair(FHitResult& TraceHitResult);
 

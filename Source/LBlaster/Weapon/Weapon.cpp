@@ -230,7 +230,19 @@ void AWeapon::CallServerScoreRequest(ALBlasterCharacter* HitCharacter, const FVe
 {
 }
 
-void AWeapon::Fire(const FVector& HitTarget)
+bool AWeapon::GetMuzzleFlashLocation(FVector_NetQuantize& OutMuzzleFlashLocation, FRotator& OutMuzzleFlashRotation) const
+{
+	if (const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(TEXT("MuzzleFlash")))
+	{
+		const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
+		OutMuzzleFlashLocation = SocketTransform.GetLocation();
+		OutMuzzleFlashRotation = SocketTransform.GetRotation().Rotator();
+		return true;
+	}
+	return false;
+}
+
+void AWeapon::Fire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const FVector& HitTarget)
 {
 	if (CasingClass)
 	{
@@ -248,22 +260,15 @@ void AWeapon::Fire(const FVector& HitTarget)
 	SpendRound();
 }
 
-FVector AWeapon::TraceEndWithScatter(const FVector& HitTarget) const
+FVector AWeapon::TraceEndWithScatter(const FVector_NetQuantize& TraceStart, const FVector& HitTarget) const
 {
-	if (const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(FName(TEXT("MuzzleFlash"))))
-	{
-		const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
-		const FVector TraceStart = SocketTransform.GetLocation();
+	const FVector ToTargetNormalized = (HitTarget - TraceStart).GetSafeNormal();
+	const FVector SphereCenter = TraceStart + ToTargetNormalized * DistanceToSphere;
+	const FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, GetSphereRadius());
+	const FVector EndLoc = SphereCenter + RandVec;
+	const FVector ToEndLoc = EndLoc - TraceStart;
 
-		const FVector ToTargetNormalized = (HitTarget - TraceStart).GetSafeNormal();
-		const FVector SphereCenter = TraceStart + ToTargetNormalized * DistanceToSphere;
-		const FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, GetSphereRadius());
-		const FVector EndLoc = SphereCenter + RandVec;
-		const FVector ToEndLoc = EndLoc - TraceStart;
-
-		return TraceStart + ToEndLoc / ToEndLoc.Size() * TRACE_LENGTH;
-	}
-	return FVector::ZeroVector;
+	return TraceStart + ToEndLoc / ToEndLoc.Size() * TRACE_LENGTH;
 }
 
 void AWeapon::Dropped()

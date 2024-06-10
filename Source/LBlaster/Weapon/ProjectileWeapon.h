@@ -16,7 +16,7 @@ class LBLASTER_API AProjectileWeapon : public AWeapon
 
 public:
 	AProjectileWeapon();
-	virtual void Fire(const FVector& HitTarget) override;
+	virtual void Fire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const FVector& HitTarget) override;
 
 	virtual void CallServerScoreRequest(ALBlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize100& InitialVelocity, float HitTime, float InDamage, float InHeadshotMultiplier, float InProjectileGravityScale) override;
 	
