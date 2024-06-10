@@ -30,154 +30,148 @@ AShotgun::AShotgun()
 	SpreadRadius = 60.f;
 }
 
-void AShotgun::ShotgunFire(const TArray<FVector_NetQuantize>& HitTargets)
+void AShotgun::ShotgunFire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const TArray<FVector_NetQuantize>& HitTargets)
 {
 	if (!IsValidOwnerCharacter())
 	{
 		return;
 	}
 	
-	AWeapon::Fire(HitTargets[0]);
+	AWeapon::Fire(TraceStart, TraceRotation, HitTargets[0]);
 	
-	if (UWorld* World = GetWorld(); const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(FName(TEXT("MuzzleFlash"))))
+	TMap<ALBlasterCharacter*, FHitInfo> HitMap;
+	TMap<ALBlasterCharacter*, FHitInfo> HeadshotHitMap;
+	for (const FVector& HitTarget : HitTargets)
 	{
-		const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
-		const FVector TraceStart = SocketTransform.GetLocation();
+		const FVector TraceEnd = TraceStart + (HitTarget - TraceStart) * 1.25f;
+		
+		FHitResult FireHit;
+		GetWorld()->LineTraceSingleByChannel(FireHit, TraceStart, TraceEnd, ECC_Visibility);
+		FVector BeamEnd = TraceEnd;
 
-		TMap<ALBlasterCharacter*, FHitInfo> HitMap;
-		TMap<ALBlasterCharacter*, FHitInfo> HeadshotHitMap;
-		for (const FVector& HitTarget : HitTargets)
+		if (FireHit.bBlockingHit && FireHit.GetActor())
 		{
-			const FVector TraceEnd = TraceStart + (HitTarget - TraceStart) * 1.25f;
-			
-			FHitResult FireHit;
-			World->LineTraceSingleByChannel(FireHit, TraceStart, TraceEnd, ECC_Visibility);
-			FVector BeamEnd = TraceEnd;
-
-			if (FireHit.bBlockingHit && FireHit.GetActor())
-			{
-				BeamEnd = FireHit.ImpactPoint;
-						
-				// Caching Hit Info
-				if (ALBlasterCharacter* HitCharacter = Cast<ALBlasterCharacter>(FireHit.GetActor()))
-				{
-					const float HitDistanceMeter = (FireHit.ImpactPoint - TraceStart).Length() / 100.f;
+			BeamEnd = FireHit.ImpactPoint;
 					
-					// Headshot
-					if (FireHit.BoneName.ToString() == FString(TEXT("head")))
+			// Caching Hit Info
+			if (ALBlasterCharacter* HitCharacter = Cast<ALBlasterCharacter>(FireHit.GetActor()))
+			{
+				const float HitDistanceMeter = (FireHit.ImpactPoint - TraceStart).Length() / 100.f;
+				
+				// Headshot
+				if (FireHit.BoneName.ToString() == FString(TEXT("head")))
+				{
+					if (HeadshotHitMap.Contains(HitCharacter))
 					{
-						if (HeadshotHitMap.Contains(HitCharacter))
-						{
-							++HeadshotHitMap[HitCharacter].HitCount;
-						}
-						else
-						{
-							HeadshotHitMap.Emplace(HitCharacter, { 1, FireHit, HitDistanceMeter });
-						}	
+						++HeadshotHitMap[HitCharacter].HitCount;
 					}
 					else
 					{
-						if (HitMap.Contains(HitCharacter))
-						{
-							++HitMap[HitCharacter].HitCount;
-						}
-						else
-						{
-							HitMap.Emplace(HitCharacter, { 1, FireHit, HitDistanceMeter });
-						}	
-					}
-				}
-			}
-
-			// Beam Effect
-			if (BeamParticle)
-			{
-				if (UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(World, BeamParticle, SocketTransform))
-				{
-					Beam->SetVectorParameter(FName(TEXT("Target")), BeamEnd);
-				}
-			}
-		}
-
-		// Apply Damage	
-		if (HasAuthority() && (OwnerCharacter->IsLocallyControlled() || !OwnerCharacter->IsServerSideRewindEnabled()))
-		{
-			// Headshot
-			for (const TTuple<ALBlasterCharacter*, FHitInfo>& HitPair : HeadshotHitMap)
-			{
-				if (ALBlasterCharacter* HitCharacter = HitPair.Key)
-				{
-					const FHitInfo& HitInfo = HitPair.Value;
-					
-					// 샷건의 유효 사거리를 넘으면 데미지는 0이므로 No Hit
-					const float DamageToCause = Damage * GetDamageFallOffMultiplier(HitInfo.HitDistanceMeter);
-					if (DamageToCause == 0.f)
-					{
-						continue;
-					}
-
-					// Impact Effect
-					SpawnImpactEffects(World, HitInfo.FireHit);
-					
-					// Play HitReact Montage
-					HitCharacter->SetLastHitNormal(HitInfo.FireHit.ImpactNormal);
-					
-					// Apply Damage
-					if (AController* InstigatorController = OwnerCharacter->GetController())
-					{
-						UGameplayStatics::ApplyDamage(HitCharacter, DamageToCause * HeadshotMultiplier * HitInfo.HitCount, InstigatorController, this, UDamageType::StaticClass());
-					}
-				}
-			}
-			
-			for (const TTuple<ALBlasterCharacter*, FHitInfo>& HitPair : HitMap)
-			{
-				if (ALBlasterCharacter* HitCharacter = HitPair.Key)
-				{
-					const FHitInfo& HitInfo = HitPair.Value; 
-
-					// 샷건의 유효 사거리를 넘으면 데미지는 0이므로 No Hit
-					const float DamageToCause = Damage * GetDamageFallOffMultiplier(HitInfo.HitDistanceMeter);
-					if (DamageToCause == 0.f)
-					{
-						continue;
-					}
-
-					// Impact Effect
-					SpawnImpactEffects(World, HitInfo.FireHit);
-					
-					// Play HitReact Montage
-					HitCharacter->SetLastHitNormal(HitInfo.FireHit.ImpactNormal);
-					
-					// Apply Damage
-					if (AController* InstigatorController = OwnerCharacter->GetController())
-					{
-						UGameplayStatics::ApplyDamage(HitCharacter, DamageToCause * HitInfo.HitCount, InstigatorController, this, UDamageType::StaticClass());
+						HeadshotHitMap.Emplace(HitCharacter, { 1, FireHit, HitDistanceMeter });
 					}	
 				}
-			}	
-		}
-		else if (!HasAuthority() && OwnerCharacter->IsLocallyControlled() && OwnerCharacter->IsServerSideRewindEnabled())
-		{
-			TArray<ALBlasterCharacter*> HitCharacters;
-			for (const TTuple<ALBlasterCharacter*, FHitInfo>& HitPair : HitMap)
-			{
-				if (ALBlasterCharacter* HitCharacter = HitPair.Key)
+				else
 				{
-					HitCharacters.Emplace(HitCharacter);
-					
-					// Play HitReact Montage
-					const FHitInfo& HitInfo = HitPair.Value;
-					HitCharacter->SetLastHitNormal(HitInfo.FireHit.ImpactNormal);
+					if (HitMap.Contains(HitCharacter))
+					{
+						++HitMap[HitCharacter].HitCount;
+					}
+					else
+					{
+						HitMap.Emplace(HitCharacter, { 1, FireHit, HitDistanceMeter });
+					}	
 				}
 			}
+		}
 
-			// Apply Damage With Server-Side Rewind
-			if (IsValidOwnerController())
+		// Beam Effect
+		if (BeamParticle)
+		{
+			if (UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BeamParticle, TraceStart, TraceRotation))
 			{
-				const float HitTime = OwnerController->GetServerTime() - OwnerController->GetSingleTripTime();
-				ShotgunServerScoreRequest(HitCharacters, TraceStart, HitTargets, HitTime, this);	
+				Beam->SetVectorParameter(FName(TEXT("Target")), BeamEnd);
 			}
+		}
+	}
+
+	// Apply Damage	
+	if (HasAuthority() && (OwnerCharacter->IsLocallyControlled() || !OwnerCharacter->IsServerSideRewindEnabled()))
+	{
+		// Headshot
+		for (const TTuple<ALBlasterCharacter*, FHitInfo>& HitPair : HeadshotHitMap)
+		{
+			if (ALBlasterCharacter* HitCharacter = HitPair.Key)
+			{
+				const FHitInfo& HitInfo = HitPair.Value;
+				
+				// 샷건의 유효 사거리를 넘으면 데미지는 0이므로 No Hit
+				const float DamageToCause = Damage * GetDamageFallOffMultiplier(HitInfo.HitDistanceMeter);
+				if (DamageToCause == 0.f)
+				{
+					continue;
+				}
+
+				// Impact Effect
+				SpawnImpactEffects(GetWorld(), HitInfo.FireHit);
+
+				// Play HitReact Montage
+				HitCharacter->SetLastHitNormal(HitInfo.FireHit.ImpactNormal);
+				
+				// Apply Damage
+				if (AController* InstigatorController = OwnerCharacter->GetController())
+				{
+					UGameplayStatics::ApplyDamage(HitCharacter, DamageToCause * HeadshotMultiplier * HitInfo.HitCount, InstigatorController, this, UDamageType::StaticClass());
+				}
+			}
+		}
+		
+		for (const TTuple<ALBlasterCharacter*, FHitInfo>& HitPair : HitMap)
+		{
+			if (ALBlasterCharacter* HitCharacter = HitPair.Key)
+			{
+				const FHitInfo& HitInfo = HitPair.Value; 
+
+				// 샷건의 유효 사거리를 넘으면 데미지는 0이므로 No Hit
+				const float DamageToCause = Damage * GetDamageFallOffMultiplier(HitInfo.HitDistanceMeter);
+				if (DamageToCause == 0.f)
+				{
+					continue;
+				}
+
+				// Impact Effect
+				SpawnImpactEffects(GetWorld(), HitInfo.FireHit);
+
+				// Play HitReact Montage
+				HitCharacter->SetLastHitNormal(HitInfo.FireHit.ImpactNormal);
+				
+				// Apply Damage
+				if (AController* InstigatorController = OwnerCharacter->GetController())
+				{
+					UGameplayStatics::ApplyDamage(HitCharacter, DamageToCause * HitInfo.HitCount, InstigatorController, this, UDamageType::StaticClass());
+				}	
+			}
+		}	
+	}
+	else if (!HasAuthority() && OwnerCharacter->IsLocallyControlled() && OwnerCharacter->IsServerSideRewindEnabled())
+	{
+		TArray<ALBlasterCharacter*> HitCharacters;
+		for (const TTuple<ALBlasterCharacter*, FHitInfo>& HitPair : HitMap)
+		{
+			if (ALBlasterCharacter* HitCharacter = HitPair.Key)
+			{
+				HitCharacters.Emplace(HitCharacter);
+
+				// Play HitReact Montage
+				const FHitInfo& HitInfo = HitPair.Value;
+				HitCharacter->SetLastHitNormal(HitInfo.FireHit.ImpactNormal);
+			}
+		}
+
+		// Apply Damage With Server-Side Rewind
+		if (IsValidOwnerController())
+		{
+			const float HitTime = OwnerController->GetServerTime() - OwnerController->GetSingleTripTime();
+			ShotgunServerScoreRequest(HitCharacters, TraceStart, HitTargets, HitTime, this);	
 		}
 	}
 }

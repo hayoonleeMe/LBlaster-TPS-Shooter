@@ -230,7 +230,19 @@ void AWeapon::CallServerScoreRequest(ALBlasterCharacter* HitCharacter, const FVe
 {
 }
 
-void AWeapon::Fire(const FVector& HitTarget)
+bool AWeapon::GetMuzzleFlashLocation(FVector_NetQuantize& OutMuzzleFlashLocation, FRotator& OutMuzzleFlashRotation) const
+{
+	if (const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(TEXT("MuzzleFlash")))
+	{
+		const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
+		OutMuzzleFlashLocation = SocketTransform.GetLocation();
+		OutMuzzleFlashRotation = SocketTransform.GetRotation().Rotator();
+		return true;
+	}
+	return false;
+}
+
+void AWeapon::Fire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const FVector& HitTarget)
 {
 	if (CasingClass)
 	{

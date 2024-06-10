@@ -16,7 +16,7 @@ class LBLASTER_API AHitScanWeapon : public AWeapon
 
 public:
 	AHitScanWeapon();
-	virtual void Fire(const FVector& HitTarget) override;
+	virtual void Fire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const FVector& HitTarget) override;
 	virtual bool DoesUseScatter() const override { return bUseScatter; }
 	
 protected:
