@@ -176,28 +176,21 @@ void AShotgun::ShotgunFire(const FVector_NetQuantize& TraceStart, const FRotator
 	}
 }
 
-TArray<FVector_NetQuantize> AShotgun::ShotgunTraceEndWithScatter(const FVector& HitTarget) const
+TArray<FVector_NetQuantize> AShotgun::ShotgunTraceEndWithScatter(const FVector_NetQuantize& TraceStart, const FVector& HitTarget) const
 {
-	if (const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(FName(TEXT("MuzzleFlash"))))
-	{
-		const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
-		const FVector TraceStart = SocketTransform.GetLocation();
-
-		TArray<FVector_NetQuantize> TraceHitTargets;
-		const FVector ToTargetNormalized = (HitTarget - TraceStart).GetSafeNormal();
-		const FVector SphereCenter = TraceStart + ToTargetNormalized * DistanceToSphere;
+	TArray<FVector_NetQuantize> TraceHitTargets;
+	const FVector ToTargetNormalized = (HitTarget - TraceStart).GetSafeNormal();
+	const FVector SphereCenter = TraceStart + ToTargetNormalized * DistanceToSphere;
 		
-		for (uint32 Index = 0; Index < NumberOfPellets; ++Index)
-		{
-			const FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, SpreadRadius);
-			const FVector EndLoc = SphereCenter + RandVec;
-			const FVector ToEndLoc = EndLoc - TraceStart;
-			const FVector RandHitTarget = TraceStart + ToEndLoc / ToEndLoc.Size() * TRACE_LENGTH;  
-			TraceHitTargets.Emplace(RandHitTarget);
-		}
-		return TraceHitTargets;
+	for (uint32 Index = 0; Index < NumberOfPellets; ++Index)
+	{
+		const FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, SpreadRadius);
+		const FVector EndLoc = SphereCenter + RandVec;
+		const FVector ToEndLoc = EndLoc - TraceStart;
+		const FVector RandHitTarget = TraceStart + ToEndLoc / ToEndLoc.Size() * TRACE_LENGTH;  
+		TraceHitTargets.Emplace(RandHitTarget);
 	}
-	return TArray<FVector_NetQuantize>();
+	return TraceHitTargets;
 }
 
 void AShotgun::ShotgunServerScoreRequest_Implementation(const TArray<ALBlasterCharacter*>& HitCharacters, const FVector_NetQuantize& TraceStart,

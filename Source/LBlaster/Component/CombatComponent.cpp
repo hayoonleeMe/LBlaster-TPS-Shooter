@@ -1138,7 +1138,7 @@ void UCombatComponent::Fire()
 		if (GetEquippingWeapon()->GetWeaponType() == EWeaponType::EWT_Shotgun)
 		{
 			// Shotgun은 Scatter를 적용한 Pellet 개수만큼의 TraceHitTargets를 사용
-			const TArray<FVector_NetQuantize>& TraceHitTargets = GetEquippingWeapon()->ShotgunTraceEndWithScatter(TraceHitTarget);
+			const TArray<FVector_NetQuantize>& TraceHitTargets = GetEquippingWeapon()->ShotgunTraceEndWithScatter(MuzzleFlashLocation, TraceHitTarget);
 
 			ShotgunLocalFire(MuzzleFlashLocation, MuzzleFlashRotation, TraceHitTargets);
 			ServerShotgunFire(MuzzleFlashLocation, MuzzleFlashRotation, TraceHitTargets, OwnerCharacter->IsServerSideRewindEnabled());
@@ -1148,7 +1148,7 @@ void UCombatComponent::Fire()
 			// Scatter가 적용된 TraceHitTarget로 업데이트
 			if (GetEquippingWeapon()->DoesUseScatter())
 			{
-				TraceHitTarget = GetEquippingWeapon()->TraceEndWithScatter(TraceHitTarget);
+				TraceHitTarget = GetEquippingWeapon()->TraceEndWithScatter(MuzzleFlashLocation, TraceHitTarget);
 			}
 		
 			// Fire Montage등 cosmetic effect는 로컬에서 먼저 수행
