@@ -23,8 +23,8 @@ class LBLASTER_API AShotgun : public AHitScanWeapon
 
 public:
 	AShotgun();
-	virtual void ShotgunFire(const TArray<FVector_NetQuantize>& HitTargets) override;
-	virtual TArray<FVector_NetQuantize> ShotgunTraceEndWithScatter(const FVector& HitTarget) const override;
+	virtual void ShotgunFire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const TArray<FVector_NetQuantize>& HitTargets) override;
+	virtual TArray<FVector_NetQuantize> ShotgunTraceEndWithScatter(const FVector_NetQuantize& TraceStart, const FVector& HitTarget) const override;
 	
 private:
 	/*
