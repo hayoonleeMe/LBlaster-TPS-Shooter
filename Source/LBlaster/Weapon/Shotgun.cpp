@@ -56,6 +56,9 @@ void AShotgun::ShotgunFire(const FVector_NetQuantize& TraceStart, const FRotator
 			// Caching Hit Info
 			if (ALBlasterCharacter* HitCharacter = Cast<ALBlasterCharacter>(FireHit.GetActor()))
 			{
+				// Play Hit React Montage
+				HitCharacter->SetLastHitNormal(FireHit.ImpactNormal);
+				
 				const float HitDistanceMeter = (FireHit.ImpactPoint - TraceStart).Length() / 100.f;
 				
 				// Headshot
@@ -114,9 +117,6 @@ void AShotgun::ShotgunFire(const FVector_NetQuantize& TraceStart, const FRotator
 				// Impact Effect
 				SpawnImpactEffects(GetWorld(), HitInfo.FireHit);
 
-				// Play HitReact Montage
-				HitCharacter->SetLastHitNormal(HitInfo.FireHit.ImpactNormal);
-				
 				// Apply Damage
 				if (AController* InstigatorController = OwnerCharacter->GetController())
 				{
@@ -141,9 +141,6 @@ void AShotgun::ShotgunFire(const FVector_NetQuantize& TraceStart, const FRotator
 				// Impact Effect
 				SpawnImpactEffects(GetWorld(), HitInfo.FireHit);
 
-				// Play HitReact Montage
-				HitCharacter->SetLastHitNormal(HitInfo.FireHit.ImpactNormal);
-				
 				// Apply Damage
 				if (AController* InstigatorController = OwnerCharacter->GetController())
 				{
@@ -160,10 +157,6 @@ void AShotgun::ShotgunFire(const FVector_NetQuantize& TraceStart, const FRotator
 			if (ALBlasterCharacter* HitCharacter = HitPair.Key)
 			{
 				HitCharacters.Emplace(HitCharacter);
-
-				// Play HitReact Montage
-				const FHitInfo& HitInfo = HitPair.Value;
-				HitCharacter->SetLastHitNormal(HitInfo.FireHit.ImpactNormal);
 			}
 		}
 
