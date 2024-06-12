@@ -17,7 +17,7 @@
 
 AWeapon::AWeapon()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 	SetReplicatingMovement(true);
 
@@ -148,6 +148,13 @@ void AWeapon::AddAmmo(int32 InAmmoToAdd)
 	{
 		ServerSendAmmoChange(AmmoChange);
 	}
+}
+
+void AWeapon::OnWeaponEquipped(bool bInSelected)
+{
+	Super::OnWeaponEquipped(bInSelected);
+	
+	bSelected = bInSelected;
 }
 
 void AWeapon::SetWeaponVisibility(bool bInVisible)
