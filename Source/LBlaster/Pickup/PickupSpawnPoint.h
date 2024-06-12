@@ -27,7 +27,7 @@ protected:
 	UPROPERTY()
 	TObjectPtr<APickup> SpawnedPickup;
 
-	void SpawnPickup();
+	virtual void SpawnPickup();
 
 	UFUNCTION()
 	void StartSpawnPickupTimer(AActor* DestroyedActor);
@@ -35,7 +35,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category="LBlaster|Spawn Pickup")
 	float SpawnCooldownTime;
 
-private:
 	FTimerHandle SpawnPickupTimer;
 
 	/*
