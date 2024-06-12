@@ -69,20 +69,29 @@ void APickupSpawnPoint::BeginPlay()
 		return;
 	}
 
-	if (PadParticle && PadParticleComponent)
+	if (PadParticle)
     {
     	PadParticleComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(PadParticle, RootComponent, FName(), GetActorLocation(), GetActorRotation(), EAttachLocation::KeepWorldPosition, false);
-		PadParticleComponent->SetColorParameter(FName(TEXT("GunPad_Color")), PadColor);
+		if (PadParticleComponent)
+		{
+			PadParticleComponent->SetColorParameter(FName(TEXT("GunPad_Color")), PadColor);
+		}
     }
-	if (PadPickupParticle && PadPickupParticleComponent)
+	if (PadPickupParticle)
 	{
 		PadPickupParticleComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(PadPickupParticle, RootComponent, FName(), GetActorLocation(), GetActorRotation(), EAttachLocation::KeepWorldPosition, false);
-		PadPickupParticleComponent->SetColorParameter(FName(TEXT("GunPad_Color")), PadColor);
+		if (PadPickupParticleComponent)
+		{
+			PadPickupParticleComponent->SetColorParameter(FName(TEXT("GunPad_Color")), PadColor);
+		}
 	}
-	if (PadLoadingParticle && PadLoadingParticleComponent)
+	if (PadLoadingParticle)
 	{
 		PadLoadingParticleComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(PadLoadingParticle, RootComponent, FName(), GetActorLocation(), GetActorRotation(), EAttachLocation::KeepWorldPosition, false, false);
-		PadLoadingParticleComponent->SetColorParameter(FName(TEXT("GunPad_Color")), PadColor);
+		if (PadLoadingParticleComponent)
+		{
+			PadLoadingParticleComponent->SetColorParameter(FName(TEXT("GunPad_Color")), PadColor);
+		}
 	}
 	
 	// 서버에서만 생성
@@ -132,6 +141,3 @@ void APickupSpawnPoint::MulticastDeactivatePadLoadingParticle_Implementation()
 		PadLoadingParticleComponent->Deactivate();
 	}
 }
-
-
-
