@@ -90,8 +90,6 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 
 	DOREPLIFETIME(AWeapon, ServerAmmoState);
 	DOREPLIFETIME(AWeapon, ServerWeaponStateChangedState);
-	DISABLE_REPLICATED_PRIVATE_PROPERTY(AWeapon, bHidden);
-	DISABLE_REPLICATED_PROPERTY(AWeapon, Owner);
 }
 
 void AWeapon::SetOwner(AActor* NewOwner)
