@@ -9,6 +9,9 @@
 
 AAmmoPickup::AAmmoPickup()
 {
+	// 모든 Actor 클래스에 상속되는 기본 USceneComponent
+	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	
 	/* Mesh & Overlap Sphere */
 	OverlapSphere = CreateDefaultSubobject<USphereComponent>(TEXT("OverlapSphere"));
 	OverlapSphere->SetupAttachment(RootComponent);

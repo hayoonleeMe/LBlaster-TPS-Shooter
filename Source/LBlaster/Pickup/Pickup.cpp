@@ -12,7 +12,4 @@ APickup::APickup()
 
 	/* Auto Turn */
 	BaseTurnRate = 45.f;
-
-	// 모든 Actor 클래스에 상속되는 기본 USceneComponent
-	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 }
