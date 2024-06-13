@@ -45,7 +45,7 @@ public:
      *	LBlasterAnimInstance
      */
     bool IsAiming() const;
-    bool IsFiring() const;
+	bool CanAnimateFiring() const;
 	bool IsReloading() const;
 	bool IsEquippingWeapon() const;
 	void ReloadFinished() const;

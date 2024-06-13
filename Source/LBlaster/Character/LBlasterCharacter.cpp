@@ -819,9 +819,9 @@ bool ALBlasterCharacter::IsAiming() const
 	return CombatComponent && CombatComponent->IsAiming();
 }
 
-bool ALBlasterCharacter::IsFiring() const
+bool ALBlasterCharacter::CanAnimateFiring() const
 {
-	return CombatComponent && CombatComponent->IsFiring();
+	return CombatComponent && CombatComponent->CanAnimateFiring();
 }
 
 bool ALBlasterCharacter::IsReloading() const
