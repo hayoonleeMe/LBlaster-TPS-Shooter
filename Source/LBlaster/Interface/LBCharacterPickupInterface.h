@@ -24,4 +24,6 @@ class LBLASTER_API ILBCharacterPickupInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual void PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount) = 0;
+	
+	virtual void FindNearestOverlappingWeapon() = 0; 
 };
