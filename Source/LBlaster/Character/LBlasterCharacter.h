@@ -40,6 +40,7 @@ public:
 	 *	ILBCharacterPickupInterface
 	 */
 	virtual void PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount) override;
+	virtual void FindNearestOverlappingWeapon() override;
 
 	/*
      *	LBlasterAnimInstance

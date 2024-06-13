@@ -6,6 +6,27 @@
 #include "LBlaster.h"
 #include "Pickup.h"
 #include "WeaponPickup.h"
+#include "Interface/LBCharacterPickupInterface.h"
+#include "GameFramework/Character.h"
+
+void AWeaponSpawnPoint::OnRep_SpawnedPickup()
+{
+	ForceFindNearestOverlappingWeapon();
+}
+
+void AWeaponSpawnPoint::ForceFindNearestOverlappingWeapon() const
+{
+	if (SpawnedPickup && GetWorld())
+	{
+		if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+		{
+			if (ILBCharacterPickupInterface* Interface = Cast<ILBCharacterPickupInterface>(PlayerController->GetCharacter()))
+			{
+				Interface->FindNearestOverlappingWeapon();
+			}
+		}
+	}
+}
 
 void AWeaponSpawnPoint::SpawnPickup()
 {
@@ -23,6 +44,7 @@ void AWeaponSpawnPoint::SpawnPickup()
 		SpawnedPickup->FinishSpawning(GetActorTransform());
 
 		MulticastDeactivatePadLoadingParticle();
+		ForceFindNearestOverlappingWeapon();
 	}
 }
 
