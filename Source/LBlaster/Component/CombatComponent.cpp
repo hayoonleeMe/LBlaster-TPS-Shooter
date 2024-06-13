@@ -258,6 +258,15 @@ UAnimMontage* UCombatComponent::SelectReloadMontage()
 	return ReloadMontages[GetEquippingWeapon()->GetWeaponType()];
 }
 
+void UCombatComponent::ElimWeapon()
+{
+	if (AWeapon* WeaponInSlot = EquipSlots[static_cast<uint8>(EquipSlotType)])
+	{
+		WeaponInSlot->Destroy();
+		EquipSlots[static_cast<uint8>(EquipSlotType)] = nullptr;
+	}
+}
+
 UAnimMontage* UCombatComponent::GetEquipMontage(EWeaponType InWeaponType)
 {
 	if (EquipMontages.Contains(InWeaponType))
@@ -267,22 +276,8 @@ UAnimMontage* UCombatComponent::GetEquipMontage(EWeaponType InWeaponType)
 	return nullptr;
 }
 
-void UCombatComponent::DropWeapon()
+void UCombatComponent::ElimAllWeapon()
 {
-	if (GetEquippingWeapon())
-	{
-		GetEquippingWeapon()->Dropped();
-		EquipSlots[static_cast<uint8>(EquipSlotType)] = nullptr;
-	}
-}
-
-void UCombatComponent::ElimWeapon()
-{
-	// Default Weapon을 제외한 착용 중인 무기는 Drop, 나머지는 Destroy
-	if (EquipSlotType != EEquipSlot::EES_ThirdSlot)
-	{
-		DropWeapon();
-	}
 	for (int8 Index = 0; Index < EquipSlots.Num() - 1; ++Index)
 	{
 		if (AWeapon* WeaponInSlot = EquipSlots[Index])
@@ -1434,8 +1429,8 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 	// Equip Overlapping Weapon
 	if (InEquipMode == EEquipMode::EEM_OverlappingWeapon)
 	{
-		// 바꾼 슬롯에 Overlapping Weapon을 착용하기 위해 기존 무기를 떨어트림
-		DropWeapon();
+		// 기존에 착용 중인 무기는 제거
+		ElimWeapon();
 	}
 	// Choose Weapon Slot
 	else if (InEquipMode == EEquipMode::EEM_ChooseWeaponSlot)
@@ -1452,7 +1447,6 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 	if (GetEquippingWeapon())
 	{
 		GetEquippingWeapon()->SetOwner(OwnerCharacter);
-		GetEquippingWeapon()->ChangeWeaponState(EWeaponState::EWS_Equipped);
 		
 		AttachWeapon();
 		OwnerCharacter->SetWeaponAnimLayers(GetEquippingWeapon()->GetWeaponType(), GetEquippingWeapon()->GetWeaponAnimLayer());

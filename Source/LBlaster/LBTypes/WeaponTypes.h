@@ -44,28 +44,3 @@ inline const TCHAR* LexToString(EWeaponType InType)
 	}
 	return TEXT("Unknown");
 }
-
-UENUM(BlueprintType)
-enum class EWeaponState : uint8
-{
-	EWS_Initial UMETA(DisplayName = "Initial State"),
-	EWS_Equipped UMETA(DisplayName = "Equipped"),
-	EWS_Dropped UMETA(DisplayName = "Dropped"),
-	EWS_MAX UMETA(DisplayName = "DefaultMAX")
-};
-
-inline const TCHAR* LexToString(EWeaponState InType)
-{
-	switch (InType)
-	{
-	case EWeaponState::EWS_Initial:
-		return TEXT("EWS_Initial");
-	case EWeaponState::EWS_Equipped:
-		return TEXT("EWS_Equipped");
-	case EWeaponState::EWS_Dropped:
-		return TEXT("EWS_Dropped");
-	case EWeaponState::EWS_MAX:
-		return TEXT("EWS_MAX");
-	}
-	return TEXT("Unknown");
-}
