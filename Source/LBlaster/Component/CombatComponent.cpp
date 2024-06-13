@@ -1112,9 +1112,25 @@ void UCombatComponent::ServerSetFiring_Implementation(bool bInFiring)
 
 void UCombatComponent::OnRep_IsFiring()
 {
-	if (IsValidOwnerCharacter() && OwnerCharacter->GetLocalRole() == ROLE_AutonomousProxy)
+	if (IsValidOwnerCharacter())
 	{
-		bIsFiring = bDesiredIsFiring;
+		// Client Side Prediction for bIsFiring
+		if (OwnerCharacter->GetLocalRole() == ROLE_AutonomousProxy)
+		{
+			bIsFiring = bDesiredIsFiring;
+		}
+		// for Simulated Proxy Character Firing Animation
+		else if (OwnerCharacter->GetLocalRole() == ROLE_SimulatedProxy)
+		{
+			if (bIsFiring)
+			{
+				bCanAnimateFiring = true;
+			}
+			else
+			{
+				bCanAnimateFiring = false;
+			}	
+		}
 	}
 }
 
