@@ -6,7 +6,7 @@
 #include "Pickup.h"
 #include "WeaponPickup.generated.h"
 
-DECLARE_DELEGATE(FOnWeaponPickupEquipped);
+DECLARE_DELEGATE_OneParam(FOnWeaponPickupEquipped, AActor* /* WeaponPickup */);
 
 UCLASS()
 class LBLASTER_API AWeaponPickup : public APickup
@@ -16,6 +16,7 @@ class LBLASTER_API AWeaponPickup : public APickup
 public:
 	AWeaponPickup();
 	virtual void Tick(float DeltaTime) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	FORCEINLINE void SetShouldRotate(bool bInShouldRotate) { bShouldRotate = bInShouldRotate; }
 	FORCEINLINE FVector GetSpawnPosOffset() const { return SpawnPosOffset; }
@@ -27,10 +28,13 @@ protected:
 	virtual void OnWeaponEquipped(bool bInSelected);
 
 private:
-	bool bShouldRotate = false;
+	UPROPERTY(Replicated)
+	uint8 bShouldRotate : 1;
 
+	UPROPERTY(Replicated)
+	FVector_NetQuantize ParentLocation;
+	
 	UPROPERTY(EditAnywhere, Category="LBlaster|Pickup")
 	FVector SpawnPosOffset = FVector::ZeroVector;
 
-	FVector ParentLocation;
 };

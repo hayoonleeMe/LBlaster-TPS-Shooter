@@ -4,6 +4,7 @@
 #include "WeaponPickup.h"
 
 #include "LBlaster.h"
+#include "Net/UnrealNetwork.h"
 
 AWeaponPickup::AWeaponPickup()
 {
@@ -13,7 +14,8 @@ AWeaponPickup::AWeaponPickup()
 void AWeaponPickup::OnWeaponEquipped(bool bInSelected)
 {
 	bShouldRotate = false;
-	OnWeaponPickupEquipped.ExecuteIfBound();
+	OnWeaponPickupEquipped.ExecuteIfBound(this);
+	OnWeaponPickupEquipped.Unbind();
 }
 
 void AWeaponPickup::Tick(float DeltaTime)
@@ -29,4 +31,12 @@ void AWeaponPickup::Tick(float DeltaTime)
 		const FRotator NewRotation = GetActorRotation() + Rotation;
 		SetActorLocationAndRotation(NewLocation, NewRotation);
 	}
+}
+
+void AWeaponPickup::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AWeaponPickup, bShouldRotate);
+	DOREPLIFETIME(AWeaponPickup, ParentLocation);
 }
