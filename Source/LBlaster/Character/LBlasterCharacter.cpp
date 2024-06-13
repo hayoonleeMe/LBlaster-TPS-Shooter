@@ -872,6 +872,14 @@ void ALBlasterCharacter::PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount
 	}
 }
 
+void ALBlasterCharacter::FindNearestOverlappingWeapon()
+{
+	if (CombatComponent)
+	{
+		CombatComponent->FindNearestOverlappingWeapon();
+	}
+}
+
 void ALBlasterCharacter::PlayDeathMontage(const FVector& HitNormal)
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
