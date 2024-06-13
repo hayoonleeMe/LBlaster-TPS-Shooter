@@ -28,9 +28,6 @@ void AWeaponSpawnPoint::SpawnPickup()
 
 void AWeaponSpawnPoint::StartSpawnWeaponPickupTimer(AActor* WeaponPickup)
 {
-	// 무기가 Drop될 때 위치 동기화를 위해
-	WeaponPickup->SetReplicatingMovement(true);
-	
 	MulticastActivatePadLoadingParticle();
 	GetWorld()->GetTimerManager().SetTimer(SpawnPickupTimer, this, &ThisClass::SpawnPickup, SpawnCooldownTime);
 }
