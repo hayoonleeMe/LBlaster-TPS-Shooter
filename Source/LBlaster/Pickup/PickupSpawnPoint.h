@@ -14,6 +14,7 @@ class LBLASTER_API APickupSpawnPoint : public AActor
 public:	
 	APickupSpawnPoint();
 	virtual void Tick(float DeltaSeconds) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -24,8 +25,11 @@ protected:
 	UPROPERTY(EditAnywhere, Category="LBlaster|Spawn Pickup")
 	TArray<TSubclassOf<class APickup>> PickupClasses;
 
-	UPROPERTY()
+	UPROPERTY(ReplicatedUsing=OnRep_SpawnedPickup)
 	TObjectPtr<APickup> SpawnedPickup;
+
+	UFUNCTION()
+	virtual void OnRep_SpawnedPickup();
 
 	virtual void SpawnPickup();
 

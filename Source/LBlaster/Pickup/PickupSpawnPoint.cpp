@@ -6,6 +6,7 @@
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Pickup.h"
+#include "Net/UnrealNetwork.h"
 
 APickupSpawnPoint::APickupSpawnPoint()
 {
@@ -60,6 +61,13 @@ void APickupSpawnPoint::Tick(float DeltaSeconds)
 	}
 }
 
+void APickupSpawnPoint::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(APickupSpawnPoint, SpawnedPickup);
+}
+
 void APickupSpawnPoint::BeginPlay()
 {
 	Super::BeginPlay();
@@ -99,6 +107,10 @@ void APickupSpawnPoint::BeginPlay()
 	{
 		SpawnPickup();
 	}
+}
+
+void APickupSpawnPoint::OnRep_SpawnedPickup()
+{
 }
 
 void APickupSpawnPoint::SpawnPickup()
