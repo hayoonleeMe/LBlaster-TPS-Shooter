@@ -70,7 +70,6 @@ public:
 	virtual TArray<FVector_NetQuantize> ShotgunTraceEndWithScatter(const FVector_NetQuantize& TraceStart, const FVector& HitTarget) const { return TArray<FVector_NetQuantize>(); }
 	bool GetMuzzleFlashLocation(FVector_NetQuantize& OutMuzzleFlashLocation, FRotator& OutMuzzleFlashRotation) const;
 
-	void Dropped();
 	void Holstered();
 	void EnableCustomDepth(bool bEnable) const;
 	float GetDamageFallOffMultiplier(float InDistance) const;

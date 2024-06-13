@@ -276,16 +276,6 @@ FVector AWeapon::TraceEndWithScatter(const FVector_NetQuantize& TraceStart, cons
 	return TraceStart + ToEndLoc / ToEndLoc.Size() * TRACE_LENGTH;
 }
 
-void AWeapon::Dropped()
-{
-	ChangeWeaponState(EWeaponState::EWS_Dropped);
-	bSelected = false;
-
-	const FDetachmentTransformRules DetachRule(EDetachmentRule::KeepWorld, true);
-	WeaponMesh->DetachFromComponent(DetachRule);
-	SetOwner(nullptr);
-}
-
 void AWeapon::Holstered()
 {
 	SetWeaponVisibility(false);
