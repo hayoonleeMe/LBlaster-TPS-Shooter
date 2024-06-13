@@ -1452,7 +1452,6 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 	if (GetEquippingWeapon())
 	{
 		GetEquippingWeapon()->SetOwner(OwnerCharacter);
-		GetEquippingWeapon()->ChangeWeaponState(EWeaponState::EWS_Equipped);
 		
 		AttachWeapon();
 		OwnerCharacter->SetWeaponAnimLayers(GetEquippingWeapon()->GetWeaponType(), GetEquippingWeapon()->GetWeaponAnimLayer());
