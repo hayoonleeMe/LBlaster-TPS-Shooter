@@ -17,9 +17,8 @@
 
 AWeapon::AWeapon()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
-	SetReplicatingMovement(true);
 
 	/* Mesh */
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
@@ -111,12 +110,6 @@ void AWeapon::ShowPickupWidget(bool bInShow) const
 	if (PickupWidgetComponent && PickupWidgetComponent->IsVisible() != bInShow)
 	{
 		PickupWidgetComponent->SetVisibility(bInShow);
-		if (bInShow)
-		{
-			// 항상 Weapon 위에 표시되도록 위치 보정
-			const FVector RelativeLocation = GetActorRotation().UnrotateVector(LocOffset);
-			PickupWidgetComponent->SetRelativeLocation(RelativeLocation);	
-		}
 	}
 }
 
@@ -146,6 +139,13 @@ void AWeapon::AddAmmo(int32 InAmmoToAdd)
 	{
 		ServerSendAmmoChange(AmmoChange);
 	}
+}
+
+void AWeapon::OnWeaponEquipped(bool bInSelected)
+{
+	Super::OnWeaponEquipped(bInSelected);
+	
+	bSelected = bInSelected;
 }
 
 void AWeapon::SetWeaponVisibility(bool bInVisible)

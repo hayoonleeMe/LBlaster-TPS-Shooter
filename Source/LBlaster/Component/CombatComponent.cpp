@@ -1448,7 +1448,7 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 		OwnerCharacter->SetWeaponAnimLayers(GetEquippingWeapon()->GetWeaponType(), GetEquippingWeapon()->GetWeaponAnimLayer());
 		ChangeCombatState(ECombatState::ECS_Equipping, bPlayEquipMontage, false, bCanSendCombatStateRPC);
 
-		GetEquippingWeapon()->SetSelected(true); 
+		GetEquippingWeapon()->OnWeaponEquipped(true); 
 		GetEquippingWeapon()->SetHUDAmmo();
 		
 		if (CarriedAmmoMap.Contains(GetEquippingWeapon()->GetWeaponType()))

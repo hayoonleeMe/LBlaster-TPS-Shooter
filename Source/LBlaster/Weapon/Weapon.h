@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
 #include "LBTypes/WeaponTypes.h"
+#include "Pickup/WeaponPickup.h"
 #include "Weapon.generated.h"
 
 USTRUCT()
@@ -56,7 +56,7 @@ struct FWeaponStateChangedState
 };
 
 UCLASS()
-class LBLASTER_API AWeapon : public AActor
+class LBLASTER_API AWeapon : public AWeaponPickup
 {
 	GENERATED_BODY()
 	
@@ -69,7 +69,7 @@ public:
 	void ChangeWeaponState(EWeaponState InWeaponStateToChange);
 	void SetHUDAmmo();
 	void AddAmmo(int32 InAmmoToAdd);
-	FORCEINLINE void SetSelected(bool bInSelected) { bSelected = bInSelected; }
+	virtual void OnWeaponEquipped(bool bInSelected) override;
 	void SetWeaponVisibility(bool bInVisible);
 
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
