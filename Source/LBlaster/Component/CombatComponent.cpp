@@ -1094,8 +1094,15 @@ void UCombatComponent::SetFiring(bool bInFiring)
 		bDesiredIsFiring = bIsFiring;
 		ServerSetFiring(bInFiring);
 	}
-	
-	Fire();
+
+	if (bIsFiring)
+	{
+		Fire();
+	}
+	else
+	{
+		bCanAnimateFiring = false;
+	}
 }
 
 void UCombatComponent::ServerSetFiring_Implementation(bool bInFiring)
@@ -1161,6 +1168,9 @@ void UCombatComponent::Fire()
 
 		// 수직 반동
 		OwnerCharacter->AddControllerPitchInput(GetEquippingWeapon()->GetVerticalRecoilValue());
+
+		/* Anim Instance */
+		bCanAnimateFiring = true;
 	}
 	else if (CanReloadOnFire())
 	{

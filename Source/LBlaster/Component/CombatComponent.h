@@ -150,7 +150,7 @@ public:
 	
 	FORCEINLINE bool IsAiming() const { return bIsAiming; }
 	FORCEINLINE void TriggerAimingKey(bool bPressed) { bAimingKeyPressed = bPressed; }
-	FORCEINLINE bool IsFiring() const { return bIsFiring; }
+	FORCEINLINE bool CanAnimateFiring() const { return bCanAnimateFiring; }
 	FORCEINLINE bool IsReloading() const { return CombatState == ECombatState::ECS_Reloading; }
 	FORCEINLINE class AWeapon* GetEquippingWeapon() { return GetEquippingWeapon(EquipSlotType); }
 	AWeapon* GetEquippingWeapon(EEquipSlot InEquipSlotType);
@@ -331,6 +331,8 @@ private:
 	void DryFire();
 
 	bool CanReloadOnFire();
+
+	bool bCanAnimateFiring = false;
 
 	/*
 	 *	Crosshair
