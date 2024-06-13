@@ -297,7 +297,7 @@ private:
 	void OnRep_IsFiring();
 
 	UFUNCTION(Server, Reliable)
-	void ServerSetFiring(bool bInFiring);
+	void ServerSetFiring(bool bInFiring, bool bInCanAnimateFiring);
 
 	// Locally Controlled 캐릭터에서 실제로 조준하는지
 	bool bDesiredIsFiring = false;

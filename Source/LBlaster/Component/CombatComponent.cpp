@@ -1084,32 +1084,59 @@ void UCombatComponent::SetFiring(bool bInFiring)
 	}
 
 	bIsFiring = bInFiring;
-	if (OwnerCharacter->GetLocalRole() == ROLE_AutonomousProxy)
-	{
-		bDesiredIsFiring = bIsFiring;
-		ServerSetFiring(bInFiring);
-	}
-
 	if (bIsFiring)
 	{
+		// 무기 장착, 재장전 중에 발사 키를 입력 중이면 총을 돌리지 않고 바로 조준하고 발사하도록
+		if (CombatState == ECombatState::ECS_Equipping || CombatState == ECombatState::ECS_Reloading)
+		{
+			bCanAnimateFiring = true;
+		}
 		Fire();
 	}
 	else
 	{
 		bCanAnimateFiring = false;
 	}
+
+	// Client Side Prediction for bIsFiring
+	if (OwnerCharacter->GetLocalRole() == ROLE_AutonomousProxy)
+	{
+		bDesiredIsFiring = bIsFiring;
+		ServerSetFiring(bIsFiring, bCanAnimateFiring);
+	}
 }
 
-void UCombatComponent::ServerSetFiring_Implementation(bool bInFiring)
+void UCombatComponent::ServerSetFiring_Implementation(bool bInFiring, bool bInCanAnimateFiring)
 {
 	bIsFiring = bInFiring;
+	bCanAnimateFiring = bInCanAnimateFiring;
 }
 
 void UCombatComponent::OnRep_IsFiring()
 {
-	if (IsValidOwnerCharacter() && OwnerCharacter->GetLocalRole() == ROLE_AutonomousProxy)
+	if (IsValidOwnerCharacter())
 	{
-		bIsFiring = bDesiredIsFiring;
+		// Client Side Prediction for bIsFiring
+		if (OwnerCharacter->GetLocalRole() == ROLE_AutonomousProxy)
+		{
+			bIsFiring = bDesiredIsFiring;
+		}
+		// for Simulated Proxy Character Firing Animation
+		else if (OwnerCharacter->GetLocalRole() == ROLE_SimulatedProxy)
+		{
+			if (bIsFiring)
+			{
+				// 무기 장착, 재장전 중에 발사 키를 입력 중이면 총을 돌리지 않고 바로 조준하고 발사하도록
+				if (CombatState == ECombatState::ECS_Equipping || CombatState == ECombatState::ECS_Reloading)
+				{
+					bCanAnimateFiring = true;
+				}
+			}
+			else
+			{
+				bCanAnimateFiring = false;
+			}	
+		}
 	}
 }
 
@@ -1163,9 +1190,6 @@ void UCombatComponent::Fire()
 
 		// 수직 반동
 		OwnerCharacter->AddControllerPitchInput(GetEquippingWeapon()->GetVerticalRecoilValue());
-
-		/* Anim Instance */
-		bCanAnimateFiring = true;
 	}
 	else if (CanReloadOnFire())
 	{
@@ -1186,6 +1210,9 @@ void UCombatComponent::LocalFire(const FVector_NetQuantize& TraceStart, const FR
 			OwnerCharacter->PlayFireMontage(MontageToPlay);
 		}
 		GetEquippingWeapon()->Fire(TraceStart, TraceRotation, HitTarget);
+
+		// 총을 실제로 발사하면 Firing Animation 재생하도록
+		bCanAnimateFiring = true;
 	}
 }
 
@@ -1423,6 +1450,10 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 
 		// Equip이 끝나고 다시 Overlap 이벤트가 발생한 Drop된 Weapon이 있는지 체크
 		FindNearestOverlappingWeapon();
+
+		// Unarmed State로 변경하면 Firing Animation 정지
+		bCanAnimateFiring = false;
+		
 		return;
 	}
 
