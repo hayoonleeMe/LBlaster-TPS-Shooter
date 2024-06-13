@@ -1089,12 +1089,6 @@ void UCombatComponent::SetFiring(bool bInFiring)
 	}
 
 	bIsFiring = bInFiring;
-	if (OwnerCharacter->GetLocalRole() == ROLE_AutonomousProxy)
-	{
-		bDesiredIsFiring = bIsFiring;
-		ServerSetFiring(bInFiring);
-	}
-
 	if (bIsFiring)
 	{
 		Fire();
@@ -1103,11 +1097,19 @@ void UCombatComponent::SetFiring(bool bInFiring)
 	{
 		bCanAnimateFiring = false;
 	}
+
+	// Client Side Prediction for bIsFiring
+	if (OwnerCharacter->GetLocalRole() == ROLE_AutonomousProxy)
+	{
+		bDesiredIsFiring = bIsFiring;
+		ServerSetFiring(bIsFiring, bCanAnimateFiring);
+	}
 }
 
-void UCombatComponent::ServerSetFiring_Implementation(bool bInFiring)
+void UCombatComponent::ServerSetFiring_Implementation(bool bInFiring, bool bInCanAnimateFiring)
 {
 	bIsFiring = bInFiring;
+	bCanAnimateFiring = bInCanAnimateFiring;
 }
 
 void UCombatComponent::OnRep_IsFiring()
