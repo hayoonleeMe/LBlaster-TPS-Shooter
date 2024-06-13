@@ -169,8 +169,8 @@ public:
 	UAnimMontage* SelectHitReactMontage(const FVector& HitNormal);
 	UAnimMontage* SelectDeathMontage(const FVector& HitNormal);
 	UAnimMontage* SelectReloadMontage();
-	void DropWeapon();
 	void ElimWeapon();
+	void ElimAllWeapon();
 	void Reload();
 	void ReloadFinished();
 	void ShowSniperScopeWidget(bool bShowScope);
