@@ -1168,9 +1168,6 @@ void UCombatComponent::Fire()
 
 		// 수직 반동
 		OwnerCharacter->AddControllerPitchInput(GetEquippingWeapon()->GetVerticalRecoilValue());
-
-		/* Anim Instance */
-		bCanAnimateFiring = true;
 	}
 	else if (CanReloadOnFire())
 	{
@@ -1191,6 +1188,9 @@ void UCombatComponent::LocalFire(const FVector_NetQuantize& TraceStart, const FR
 			OwnerCharacter->PlayFireMontage(MontageToPlay);
 		}
 		GetEquippingWeapon()->Fire(TraceStart, TraceRotation, HitTarget);
+
+		// 총을 실제로 발사하면 Firing Animation 재생하도록
+		bCanAnimateFiring = true;
 	}
 }
 
