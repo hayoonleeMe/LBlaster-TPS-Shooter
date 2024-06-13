@@ -1455,6 +1455,10 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 
 		// Equip이 끝나고 다시 Overlap 이벤트가 발생한 Drop된 Weapon이 있는지 체크
 		FindNearestOverlappingWeapon();
+
+		// Unarmed State로 변경하면 Firing Animation 정지
+		bCanAnimateFiring = false;
+		
 		return;
 	}
 
