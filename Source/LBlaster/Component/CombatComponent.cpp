@@ -1091,6 +1091,11 @@ void UCombatComponent::SetFiring(bool bInFiring)
 	bIsFiring = bInFiring;
 	if (bIsFiring)
 	{
+		// 무기 장착, 재장전 중에 발사 키를 입력 중이면 총을 돌리지 않고 바로 조준하고 발사하도록
+		if (CombatState == ECombatState::ECS_Equipping || CombatState == ECombatState::ECS_Reloading)
+		{
+			bCanAnimateFiring = true;
+		}
 		Fire();
 	}
 	else
@@ -1126,7 +1131,11 @@ void UCombatComponent::OnRep_IsFiring()
 		{
 			if (bIsFiring)
 			{
-				bCanAnimateFiring = true;
+				// 무기 장착, 재장전 중에 발사 키를 입력 중이면 총을 돌리지 않고 바로 조준하고 발사하도록
+				if (CombatState == ECombatState::ECS_Equipping || CombatState == ECombatState::ECS_Reloading)
+				{
+					bCanAnimateFiring = true;
+				}
 			}
 			else
 			{
