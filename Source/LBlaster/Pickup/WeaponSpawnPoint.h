@@ -19,5 +19,5 @@ class LBLASTER_API AWeaponSpawnPoint : public APickupSpawnPoint
 	 */
 	virtual void SpawnPickup() override;
 
-	void StartSpawnWeaponPickupTimer();
+	void StartSpawnWeaponPickupTimer(AActor* WeaponPickup);
 };
