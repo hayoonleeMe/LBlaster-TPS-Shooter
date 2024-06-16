@@ -1225,6 +1225,9 @@ void UCombatComponent::ShotgunLocalFire(const FVector_NetQuantize& TraceStart, c
 			OwnerCharacter->PlayFireMontage(MontageToPlay);
 		}
 		GetEquippingWeapon()->ShotgunFire(TraceStart, TraceRotation, HitTargets);
+		
+		// 총을 실제로 발사하면 Firing Animation 재생하도록
+		bCanAnimateFiring = true;
 	}
 }
 
