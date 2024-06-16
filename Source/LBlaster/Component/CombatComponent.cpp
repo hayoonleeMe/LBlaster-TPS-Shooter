@@ -684,6 +684,10 @@ void UCombatComponent::FireTimerFinished()
 	{
 		Fire();
 	}
+	else if (GetEquippingWeapon() && GetEquippingWeapon()->IsAmmoEmpty() && CarriedAmmoMap.Contains(GetEquippingWeapon()->GetWeaponType()) && CarriedAmmoMap[GetEquippingWeapon()->GetWeaponType()] > 0 && CombatState == ECombatState::ECS_Unoccupied)
+	{
+		Reload();	
+	}
 }
 
 void UCombatComponent::AddCarriedAmmo(EWeaponType InWeaponTypeToAdd, int32 InCarriedAmmoToAdd)
