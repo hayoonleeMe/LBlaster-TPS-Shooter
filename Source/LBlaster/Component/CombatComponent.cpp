@@ -1082,7 +1082,7 @@ void UCombatComponent::LaunchGrenade()
 
 void UCombatComponent::SetFiring(bool bInFiring)
 {
-	if (!IsValidOwnerCharacter() && !GetEquippingWeapon())
+	if (!IsValidOwnerCharacter() || !GetEquippingWeapon())
 	{
 		return;
 	}
