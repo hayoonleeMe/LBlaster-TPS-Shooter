@@ -8,6 +8,9 @@ Platforms/
 # include specific content folder - !Content/{~}/
 !/Content/LBlaster/
 
+# exclude Maps folder
+/Content/LBlaster/Maps/
+
 # Visual Studio 2015 user specific files
 .vs/
 
