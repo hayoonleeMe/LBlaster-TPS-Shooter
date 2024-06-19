@@ -21,6 +21,8 @@
 #include "GameInstance/LBGameInstance.h"
 #include "GameMode/LBlasterGameMode.h"
 #include "HUD/OverheadWidget.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "Player/LBlasterPlayerController.h"
 #include "Player/LBlasterPlayerState.h"
@@ -175,8 +177,10 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 	OverheadWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidgetComponent"));
 	OverheadWidgetComponent->SetupAttachment(GetMesh());
 	OverheadWidgetComponent->SetRelativeLocation(FVector(0.f, 0.f, 190.f));
-	OverheadWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	OverheadWidgetComponent->SetWidgetSpace(EWidgetSpace::World);
 	OverheadWidgetComponent->SetDrawAtDesiredSize(true);
+	OverheadWidgetComponent->SetCastShadow(false);
+	OverheadWidgetComponent->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 
 	static ConstructorHelpers::FClassFinder<UOverheadWidget> OverheadWidgetClassRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/LBlaster/UI/HUD/WBP_OverheadWidget.WBP_OverheadWidget_C'"));
 	if (OverheadWidgetClassRef.Class)
@@ -204,7 +208,7 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 
 	/* Elim */
 	ElimDelay = 3.f;
-	RespawnTimerUpdateFrequency = 0.1f;
+	RespawnTimerUpdateFrequency = 0.05f;
 
 	/* Dissolve Effect */
 	DissolveTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(TEXT("Dissolve Timeline Component"));
@@ -221,6 +225,8 @@ void ALBlasterCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	PollInit();
+
+	UpdateOverheadWidgetTransform();
 	
 	//HideMeshIfCameraClose();
 }
@@ -248,6 +254,7 @@ void ALBlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	DOREPLIFETIME(ALBlasterCharacter, bInvincible);
 }
 
 void ALBlasterCharacter::PostInitializeComponents()
@@ -268,20 +275,19 @@ void ALBlasterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	/* Input */
-	if (GEngine && GetWorld() && IsLocallyControlled())
+	/* Overhead Widget */
+	if (OverheadWidgetComponent)
 	{
-		if (const ULocalPlayer* Player = GEngine->GetFirstGamePlayer(GetWorld()))
+		// 다른 캐릭터의 이름만 표시
+		if (IsLocallyControlled())
 		{
-			if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(Player))
-			{
-				Subsystem->AddMappingContext(DefaultMappingContext, 0);
-			}	
+			OverheadWidgetComponent->DestroyComponent();
+		}
+		else
+		{
+			UpdatePlayerNameToOverheadWidget();
 		}
 	}
-
-	/* Overhead Widget */
-	UpdatePlayerNameToOverheadWidget();
 
 	/* Damage */
 	if (HasAuthority())
@@ -296,6 +302,24 @@ void ALBlasterCharacter::OnRep_PlayerState()
 
 	// 클라이언트 캐릭터의 PlayerName 표시
 	UpdatePlayerNameToOverheadWidget();
+}
+
+void ALBlasterCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	/* Invincibility */
+	if (ALBlasterPlayerController* PlayerController = GetController<ALBlasterPlayerController>())
+	{
+		if (PlayerController->bCanSetInvincibilityInBeginPlay && HasAuthority())
+		{
+			PlayerController->StartInvincibilityTimer();
+		}
+		if (!PlayerController->bCanSetInvincibilityInBeginPlay)
+		{
+			PlayerController->bCanSetInvincibilityInBeginPlay = true;
+		}
+	}
 }
 
 AWeapon* ALBlasterCharacter::GetEquippingWeapon() const
@@ -700,6 +724,21 @@ void ALBlasterCharacter::HideMeshIfCameraClose()
 	}
 }
 
+void ALBlasterCharacter::UpdateOverheadWidgetTransform()
+{
+	if (OverheadWidgetComponent)
+	{
+		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+		if (PlayerController && PlayerController->PlayerCameraManager)
+		{
+			const FVector CameraLocation = PlayerController->PlayerCameraManager->GetCameraLocation();
+			const FVector WidgetLocation = OverheadWidgetComponent->GetComponentLocation();
+			const FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(WidgetLocation, CameraLocation);
+			OverheadWidgetComponent->SetWorldRotation(LookAtRotation);
+		}
+	}
+}
+
 void ALBlasterCharacter::UpdatePlayerNameToOverheadWidget()
 {
 	if (UOverheadWidget* OverheadWidget = Cast<UOverheadWidget>(OverheadWidgetComponent->GetUserWidgetObject()))
@@ -752,6 +791,12 @@ void ALBlasterCharacter::PlayHitReactMontage(const FVector& HitNormal) const
 void ALBlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController,
                                        AActor* DamageCauser)
 {
+	// 스폰 무적
+	if (bInvincible)
+	{
+		return;
+	}
+	
 	// 팀 데스매치에서 아군사격 방지 (폭발 데미지)
 	if (ALBlasterPlayerState* VictimState = GetPlayerState<ALBlasterPlayerState>())
 	{
@@ -799,9 +844,9 @@ bool ALBlasterCharacter::IsAiming() const
 	return CombatComponent && CombatComponent->IsAiming();
 }
 
-bool ALBlasterCharacter::IsFiring() const
+bool ALBlasterCharacter::CanAnimateFiring() const
 {
-	return CombatComponent && CombatComponent->IsFiring();
+	return CombatComponent && CombatComponent->CanAnimateFiring();
 }
 
 bool ALBlasterCharacter::IsReloading() const
@@ -840,8 +885,11 @@ void ALBlasterCharacter::LaunchGrenade() const
 
 void ALBlasterCharacter::SetLastHitNormal(const FVector& InHitNormal)
 {
-	LastHitNormal = InHitNormal;
-	PlayHitReactMontage(LastHitNormal);
+	if (!bInvincible)
+	{
+		LastHitNormal = InHitNormal;
+		PlayHitReactMontage(LastHitNormal);	
+	}
 }
 
 void ALBlasterCharacter::PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount)
@@ -849,6 +897,14 @@ void ALBlasterCharacter::PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount
 	if (CombatComponent)
 	{
 		CombatComponent->PickupAmmo(InWeaponType, InAmmoAmount);
+	}
+}
+
+void ALBlasterCharacter::FindNearestOverlappingWeapon()
+{
+	if (CombatComponent)
+	{
+		CombatComponent->FindNearestOverlappingWeapon();
 	}
 }
 
@@ -937,7 +993,7 @@ void ALBlasterCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
 			CombatComponent->SetAiming(false);
 		}
 		// 소지 중인 무기 모두 해제
-		CombatComponent->ElimWeapon();
+		CombatComponent->ElimAllWeapon();
 
 		if (IsLocallyControlled())
 		{
@@ -961,7 +1017,7 @@ void ALBlasterCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
 		PlayerController->SetWeaponSlotIcon(EEquipSlot::EES_SecondSlot, EWeaponType::EWT_Unarmed);
 
 		// Start Respawn Timer
-		if (IsLocallyControlled())
+		if (IsLocallyControlled() && !bPlayerLeftGame)
 		{
 			PlayerController->StartRespawnTimer(ElimDelay, RespawnTimerUpdateFrequency);
 		}

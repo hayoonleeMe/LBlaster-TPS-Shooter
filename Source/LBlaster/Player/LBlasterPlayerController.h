@@ -33,10 +33,10 @@ public:
 	void SetHUDAmmo(int32 InAmmo);
 	void SetHUDCarriedAmmo(int32 InCarriedAmmo);
 	void SetHUDWeaponTypeText(const FString& InWeaponTypeString = FString());
-	void SetHUDMatchCountdown(float InCountdownTime);
+	void SetHUDMatchCountdown(float InCountdownTime, bool bPlayAnimation);
+	void SetHUDMatchCooldown(float InTime);
 	void OnMatchStateSet(FName InState);
 	void UpdateHUDHealth();
-	void SetHUDAnnouncementCountdown(float InCountdownTime);
 	void UpdateHUDGrenadeAmount();
 	void UpdateHUDGrenadeAmount(int32 InGrenadeAmount);
 	void StartRespawnTimer(float InElimDelay, float InRespawnTimerUpdateFrequency);
@@ -48,6 +48,7 @@ public:
 	FORCEINLINE float GetSingleTripTime() const { return SingleTripTime; }
 	
 	void HandleMatchHasStarted();
+	void HandleAfterWarmup();
 	void HandleCooldown();
 
 	void EnablePauseMenuMappingContext() const;
@@ -65,6 +66,12 @@ public:
 	 */
 	UFUNCTION(Server, Reliable)
 	void ServerLeaveGame();
+
+	/*
+	 *	Invincibility
+	 */
+	bool bCanSetInvincibilityInBeginPlay = false;
+	void StartInvincibilityTimer();
 
 protected:
 	/*
@@ -98,6 +105,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
 	TObjectPtr<UInputAction> ScoreboardAction;
+	
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
+	TObjectPtr<UInputAction> HelpInfoAction;
 
 	void ShowPauseMenu();
 	void FocusChat();
@@ -105,6 +115,7 @@ protected:
 	void ChangeChatMode();
 	void ReturnMenu();
 	void ShowScoreboard(const FInputActionValue& ActionValue);
+	void ShowHelpInfo(const FInputActionValue& ActionValue);
 
 protected:
 	virtual void BeginPlay() override;
@@ -194,4 +205,9 @@ private:
 	 */
 	UFUNCTION(Client, Reliable)
 	void ClientElimAnnouncement(APlayerState* AttackerState, APlayerState* VictimState);
+
+	/*
+	 *	Invincibility
+	 */
+	FTimerHandle InvincibilityTimer;
 };

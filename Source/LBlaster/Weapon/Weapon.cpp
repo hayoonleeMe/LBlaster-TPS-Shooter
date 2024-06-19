@@ -17,9 +17,8 @@
 
 AWeapon::AWeapon()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
-	SetReplicatingMovement(true);
 
 	/* Mesh */
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
@@ -29,6 +28,7 @@ AWeapon::AWeapon()
 	WeaponMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	WeaponMesh->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
 	WeaponMesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+	WeaponMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	WeaponMesh->SetCollisionResponseToChannel(ECC_SkeletalMesh, ECR_Ignore);
 	WeaponMesh->SetCollisionResponseToChannel(ECC_FootPlacement, ECR_Ignore);
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -88,9 +88,6 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AWeapon, ServerAmmoState);
-	DOREPLIFETIME(AWeapon, ServerWeaponStateChangedState);
-	DISABLE_REPLICATED_PRIVATE_PROPERTY(AWeapon, bHidden);
-	DISABLE_REPLICATED_PROPERTY(AWeapon, Owner);
 }
 
 void AWeapon::SetOwner(AActor* NewOwner)
@@ -112,12 +109,6 @@ void AWeapon::ShowPickupWidget(bool bInShow) const
 	if (PickupWidgetComponent && PickupWidgetComponent->IsVisible() != bInShow)
 	{
 		PickupWidgetComponent->SetVisibility(bInShow);
-		if (bInShow)
-		{
-			// 항상 Weapon 위에 표시되도록 위치 보정
-			const FVector RelativeLocation = GetActorRotation().UnrotateVector(LocOffset);
-			PickupWidgetComponent->SetRelativeLocation(RelativeLocation);	
-		}
 	}
 }
 
@@ -147,6 +138,21 @@ void AWeapon::AddAmmo(int32 InAmmoToAdd)
 	{
 		ServerSendAmmoChange(AmmoChange);
 	}
+}
+
+void AWeapon::OnWeaponEquipped(bool bInSelected)
+{
+	Super::OnWeaponEquipped(bInSelected);
+	
+	bSelected = bInSelected;
+
+	// 무기가 장착된 상태라면 Pickup Widget을 숨기고 Pickup Overlap 발생 중지
+	ShowPickupWidget(false);
+	AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	WeaponMesh->SetSimulatePhysics(false);
+	WeaponMesh->SetEnableGravity(false);
+	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	EnableCustomDepth(false);
 }
 
 void AWeapon::SetWeaponVisibility(bool bInVisible)
@@ -229,13 +235,20 @@ void AWeapon::CallServerScoreRequest(ALBlasterCharacter* HitCharacter, const FVe
 {
 }
 
-void AWeapon::Fire(const FVector& HitTarget)
+bool AWeapon::GetMuzzleFlashLocation(FVector_NetQuantize& OutMuzzleFlashLocation, FRotator& OutMuzzleFlashRotation) const
 {
-	if (FireAnimation)
+	if (const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(TEXT("MuzzleFlash")))
 	{
-		WeaponMesh->PlayAnimation(FireAnimation, false);
+		const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
+		OutMuzzleFlashLocation = SocketTransform.GetLocation();
+		OutMuzzleFlashRotation = SocketTransform.GetRotation().Rotator();
+		return true;
 	}
+	return false;
+}
 
+void AWeapon::Fire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const FVector& HitTarget)
+{
 	if (CasingClass)
 	{
 		if (const USkeletalMeshSocket* Socket = WeaponMesh->GetSocketByName(TEXT("AmmoEject")))
@@ -252,32 +265,15 @@ void AWeapon::Fire(const FVector& HitTarget)
 	SpendRound();
 }
 
-FVector AWeapon::TraceEndWithScatter(const FVector& HitTarget) const
+FVector AWeapon::TraceEndWithScatter(const FVector_NetQuantize& TraceStart, const FVector& HitTarget) const
 {
-	if (const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(FName(TEXT("MuzzleFlash"))))
-	{
-		const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
-		const FVector TraceStart = SocketTransform.GetLocation();
+	const FVector ToTargetNormalized = (HitTarget - TraceStart).GetSafeNormal();
+	const FVector SphereCenter = TraceStart + ToTargetNormalized * DistanceToSphere;
+	const FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, GetSphereRadius());
+	const FVector EndLoc = SphereCenter + RandVec;
+	const FVector ToEndLoc = EndLoc - TraceStart;
 
-		const FVector ToTargetNormalized = (HitTarget - TraceStart).GetSafeNormal();
-		const FVector SphereCenter = TraceStart + ToTargetNormalized * DistanceToSphere;
-		const FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, GetSphereRadius());
-		const FVector EndLoc = SphereCenter + RandVec;
-		const FVector ToEndLoc = EndLoc - TraceStart;
-
-		return TraceStart + ToEndLoc / ToEndLoc.Size() * TRACE_LENGTH;
-	}
-	return FVector::ZeroVector;
-}
-
-void AWeapon::Dropped()
-{
-	ChangeWeaponState(EWeaponState::EWS_Dropped);
-	bSelected = false;
-
-	const FDetachmentTransformRules DetachRule(EDetachmentRule::KeepWorld, true);
-	WeaponMesh->DetachFromComponent(DetachRule);
-	SetOwner(nullptr);
+	return TraceStart + ToEndLoc / ToEndLoc.Size() * TRACE_LENGTH;
 }
 
 void AWeapon::Holstered()
@@ -350,115 +346,4 @@ bool AWeapon::IsValidOwnerController()
 		OwnerController = Cast<ALBlasterPlayerController>(OwnerCharacter->GetController());
 	}
 	return OwnerController != nullptr;
-}
-
-void AWeapon::OnRep_WeaponState()
-{
-	OnChangedWeaponState();
-}
-
-void AWeapon::OnChangedWeaponState()
-{
-	switch (WeaponState)
-	{
-	case EWeaponState::EWS_Equipped:
-		// 무기가 장착된 상태라면 Pickup Widget을 숨기고 Pickup Overlap 발생 중지
-		ShowPickupWidget(false);
-		AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		WeaponMesh->SetSimulatePhysics(false);
-		WeaponMesh->SetEnableGravity(false);
-		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		EnableCustomDepth(false);
-		break;
-		
-	case EWeaponState::EWS_Dropped:
-		AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-		WeaponMesh->SetSimulatePhysics(true);
-		WeaponMesh->SetEnableGravity(true);
-		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		EnableCustomDepth(true);
-		break;
-	}
-}
-
-void AWeapon::ChangeWeaponState(EWeaponState InWeaponStateToChange)
-{
-	if (!IsValidOwnerCharacter())
-	{
-		return;
-	}
-
-	FWeaponStateChange WeaponStateChange = CreateWeaponStateChange(InWeaponStateToChange);
-	if (!OwnerCharacter->HasAuthority())
-	{
-		// 게임 초기에 Default Weapon을 생성하고 착용할 때 Simulated Proxy에서도 ProcessEquipWeapon()을 통해 이 함수를 호출하므로 작업을 수행할 수 있게 한다.
-		ProcessChangeWeaponState(InWeaponStateToChange);
-		if (OwnerCharacter->GetLocalRole() == ROLE_AutonomousProxy)
-		{
-			UnacknowledgedWeaponStateChanges.Add(WeaponStateChange);
-			// ChangeWeaponState는 클라에서의 EquipWeapon에 의해 서버로 전달된 RPC에서 수행되므로 Autonomous Proxy에서는 Server RPC를 전송하지 않도록 한다.
-		}	
-	}
-	
-	// Autonomous Proxy에 의해 전송된 Equip Server RPC에 의해 이 함수가 호출됐을 때도 수행해줘야 한다.
-	if (OwnerCharacter->HasAuthority() && (OwnerCharacter->IsLocallyControlled() || OwnerCharacter->GetRemoteRole() == ROLE_AutonomousProxy))
-	{
-		ServerSendWeaponStateChange(WeaponStateChange);
-	}
-}
-
-void AWeapon::ProcessChangeWeaponState(EWeaponState InWeaponStateToChange)
-{
-	WeaponState = InWeaponStateToChange;
-	OnChangedWeaponState();
-}
-
-void AWeapon::OnRep_ServerWeaponStateChangedState()
-{
-	ClearAcknowledgedWeaponStateChanges(ServerWeaponStateChangedState.LastWeaponStateChange);
-
-	// Unacknowledged Combat State Change 다시 적용
-	if (UnacknowledgedWeaponStateChanges.IsValidIndex(UnacknowledgedWeaponStateChanges.Num() - 1))
-	{
-		ProcessChangeWeaponState(UnacknowledgedWeaponStateChanges[UnacknowledgedWeaponStateChanges.Num() - 1].WeaponStateToChange);
-	}
-
-	if (IsValidOwnerCharacter() && OwnerCharacter->GetLocalRole() == ROLE_SimulatedProxy)
-	{
-		ProcessChangeWeaponState(ServerWeaponStateChangedState.LastWeaponStateChange.WeaponStateToChange);
-	}
-}
-
-FWeaponStateChange AWeapon::CreateWeaponStateChange(EWeaponState InWeaponStateToChange)
-{
-	if (AGameStateBase* GameStateBase = GetWorld()->GetGameState())
-	{
-		FWeaponStateChange WeaponStateChange;
-		WeaponStateChange.WeaponStateToChange = InWeaponStateToChange;
-		WeaponStateChange.Time = GameStateBase->GetServerWorldTimeSeconds();
-		return WeaponStateChange;
-	}
-	return FWeaponStateChange();
-}
-
-void AWeapon::ServerSendWeaponStateChange_Implementation(const FWeaponStateChange& InWeaponStateChange)
-{
-	ProcessChangeWeaponState(InWeaponStateChange.WeaponStateToChange);
-
-	ServerWeaponStateChangedState.WeaponState = WeaponState;
-	ServerWeaponStateChangedState.LastWeaponStateChange = InWeaponStateChange;
-}
-
-void AWeapon::ClearAcknowledgedWeaponStateChanges(const FWeaponStateChange& LastWeaponStateChange)
-{
-	TArray<FWeaponStateChange> NewArray;
-
-	for (const FWeaponStateChange& WeaponStateChange : UnacknowledgedWeaponStateChanges)
-	{
-		if (WeaponStateChange.Time > LastWeaponStateChange.Time)
-		{
-			NewArray.Add(WeaponStateChange);
-		}
-	}
-	UnacknowledgedWeaponStateChanges = NewArray;
 }

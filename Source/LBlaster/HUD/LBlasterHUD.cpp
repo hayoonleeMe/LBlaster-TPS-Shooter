@@ -16,6 +16,7 @@
 #include "OnlineSessionSettings.h"
 #include "PauseMenu.h"
 #include "RespawnTimer.h"
+#include "ResultMenu.h"
 #include "Scoreboard.h"
 #include "SettingMenu.h"
 #include "SniperScope.h"
@@ -124,19 +125,11 @@ void ALBlasterHUD::SetHUDWeaponTypeText(const FString& InWeaponTypeString)
 	}
 }
 
-void ALBlasterHUD::SetHUDMatchCountdown(float InCountdownTime)
+void ALBlasterHUD::SetHUDMatchCountdown(float InCountdownTime, bool bPlayAnimation)
 {
 	if (CharacterOverlay)
 	{
-		CharacterOverlay->SetMatchCountdownText(InCountdownTime);
-	}
-}
-
-void ALBlasterHUD::SetHUDAnnouncementCountdown(float InCountdownTime)
-{
-	if (Announcement)
-	{
-		Announcement->SetHUDAnnouncementCountdown(InCountdownTime);
+		CharacterOverlay->SetMatchCountdownText(InCountdownTime, bPlayAnimation);
 	}
 }
 
@@ -408,6 +401,19 @@ void ALBlasterHUD::UpdateHUDRespawnTimer()
 	}
 }
 
+void ALBlasterHUD::AddHelpInfo()
+{
+	if (!HelpInfo && HelpInfoClass && IsValidOwnerController())
+	{
+		HelpInfo = CreateWidget<UUserWidget>(OwnerController, HelpInfoClass);
+	}
+	if (HelpInfo)
+	{
+		HelpInfo->AddToViewport();
+		HelpInfo->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
 void ALBlasterHUD::SetScoreboardVisibility(bool bVisible)
 {
 	if (Scoreboard)
@@ -487,12 +493,32 @@ void ALBlasterHUD::HideRespawnTimer() const
 	}
 }
 
-void ALBlasterHUD::SetCooldownAnnouncement()
+void ALBlasterHUD::AddResultMenu()
 {
-	if (Announcement)
+	if (IsValidOwnerController() && ResultMenuClassByMatchModeMap.Contains(GetMatchModeType()) && ResultMenuClassByMatchModeMap[GetMatchModeType()])
 	{
-		Announcement->SetVisibility(ESlateVisibility::Visible);
-		Announcement->SetCooldownAnnouncement();
+		ResultMenu = CreateWidget<UResultMenu>(OwnerController, ResultMenuClassByMatchModeMap[GetMatchModeType()]);
+		if (ResultMenu)
+		{
+			ResultMenu->MenuSetup();
+		}
+	}
+
+	if (Scoreboard)
+	{
+		Scoreboard->SetScoreboardForResultMenu();
+	}
+	if (MiniScoreboard)
+	{
+		MiniScoreboard->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
+void ALBlasterHUD::SetHUDMatchCooldown(float InTime)
+{
+	if (ResultMenu)
+	{
+		ResultMenu->SetCooldownTimerText(InTime);
 	}
 }
 
@@ -602,6 +628,14 @@ void ALBlasterHUD::ChangeChatMode() const
 	}
 }
 
+void ALBlasterHUD::SetHelpInfoVisibility(bool bVisible)
+{
+	if (HelpInfo)
+	{
+		HelpInfo->SetVisibility(bVisible ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+	}
+}
+
 void ALBlasterHUD::CreateSettingMenu()
 {
 	if (SettingMenuClass && !SettingMenu)
@@ -637,6 +671,7 @@ void ALBlasterHUD::PostInitializeComponents()
 	AddChatUI();
 	AddScoreboard();
 	AddMiniScoreboard();
+	AddHelpInfo();
 }
 
 bool ALBlasterHUD::IsValidOwnerController()

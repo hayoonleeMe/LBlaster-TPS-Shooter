@@ -21,12 +21,18 @@ AProjectileRocket::AProjectileRocket()
 	RocketMovementComponent->ProjectileGravityScale = 0.f;
 
 	/* Destroy */
-	DestroyTime = 3.f;
+	DestroyTime = 15.f;
 }
 
 void AProjectileRocket::Destroyed()
 {
-	// Super::Destroyed() 호출 방지
+	/* Explosive Damage */
+	ExplodeDamage();
+
+	// Impact Effect를 표시하기 위해 Projectile 액터를 제거하는 AProjectile::OnHit을 호출하는 대신 직접 수행
+	SpawnImpactEffects();
+	
+	DeactivateTrailSystem();
 }
 
 void AProjectileRocket::SetReplicatesPostInit(bool bInReplicates)
@@ -44,26 +50,10 @@ void AProjectileRocket::BeginPlay()
 	Super::BeginPlay();
 
 	SpawnTrailSystem();
+	StartDestroyTimer();
 }
 
 void AProjectileRocket::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	/* Explosive Damage */
-	ExplodeDamage();
-
-	/* Destroy */
-	StartDestroyTimer();
-
-	// Impact Effect를 표시하기 위해 Projectile 액터를 제거하는 AProjectile::OnHit을 호출하는 대신 직접 수행
-	SpawnImpactEffects();
-	
-	if (ProjectileMesh)
-	{
-		ProjectileMesh->SetVisibility(false);
-	}
-	if (CollisionBox)
-	{
-		CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	}
-	DeactivateTrailSystem();
+	Destroy();
 }

@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
 #include "LBTypes/WeaponTypes.h"
+#include "Pickup/WeaponPickup.h"
 #include "Weapon.generated.h"
 
 USTRUCT()
@@ -31,32 +31,8 @@ struct FAmmoState
 	FAmmoChange LastAmmoChange;
 };
 
-USTRUCT()
-struct FWeaponStateChange
-{
-	GENERATED_BODY()
-
-	UPROPERTY()
-	EWeaponState WeaponStateToChange;
-
-	UPROPERTY()
-	float Time;
-};
-
-USTRUCT()
-struct FWeaponStateChangedState
-{
-	GENERATED_BODY()
-
-	UPROPERTY()
-	EWeaponState WeaponState;
-	
-	UPROPERTY()
-	FWeaponStateChange LastWeaponStateChange;
-};
-
 UCLASS()
-class LBLASTER_API AWeapon : public AActor
+class LBLASTER_API AWeapon : public AWeaponPickup
 {
 	GENERATED_BODY()
 	
@@ -66,10 +42,9 @@ public:
 	virtual void SetOwner(AActor* NewOwner) override;
 	
 	void ShowPickupWidget(bool bInShow) const;
-	void ChangeWeaponState(EWeaponState InWeaponStateToChange);
 	void SetHUDAmmo();
 	void AddAmmo(int32 InAmmoToAdd);
-	FORCEINLINE void SetSelected(bool bInSelected) { bSelected = bInSelected; }
+	virtual void OnWeaponEquipped(bool bInSelected) override;
 	void SetWeaponVisibility(bool bInVisible);
 
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
@@ -88,13 +63,13 @@ public:
 	FORCEINLINE float GetHeadshotMultiplier() const { return HeadshotMultiplier; }
 	FORCEINLINE float GetVerticalRecoilValue() const { return VerticalRecoilValue; }
 
-	virtual void Fire(const FVector& HitTarget);
-	virtual void ShotgunFire(const TArray<FVector_NetQuantize>& HitTargets) {}
+	virtual void Fire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const FVector& HitTarget);
+	virtual void ShotgunFire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const TArray<FVector_NetQuantize>& HitTargets) {}
 	virtual bool DoesUseScatter() const { return bUseScatter; } 
-	FVector TraceEndWithScatter(const FVector& HitTarget) const;
-	virtual TArray<FVector_NetQuantize> ShotgunTraceEndWithScatter(const FVector& HitTarget) const { return TArray<FVector_NetQuantize>(); }
+	FVector TraceEndWithScatter(const FVector_NetQuantize& TraceStart, const FVector& HitTarget) const;
+	virtual TArray<FVector_NetQuantize> ShotgunTraceEndWithScatter(const FVector_NetQuantize& TraceStart, const FVector& HitTarget) const { return TArray<FVector_NetQuantize>(); }
+	bool GetMuzzleFlashLocation(FVector_NetQuantize& OutMuzzleFlashLocation, FRotator& OutMuzzleFlashRotation) const;
 
-	void Dropped();
 	void Holstered();
 	void EnableCustomDepth(bool bEnable) const;
 	float GetDamageFallOffMultiplier(float InDistance) const;
@@ -167,43 +142,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category="LBlaster|Pickup Widget")
 	FVector LocOffset;
 	
-	/*
-	 *	Weapon State
-	 */
-	UPROPERTY(VisibleAnywhere, Category="LBlaster|Weapon State")
-	EWeaponState WeaponState;
-
-    UFUNCTION()
-    void OnRep_WeaponState();
-    void OnChangedWeaponState();
-
-	void ProcessChangeWeaponState(EWeaponState InWeaponStateToChange);
-	
-	/*
-	 *	Client-Side Prediction for Weapon State
-	 */
-	UPROPERTY(ReplicatedUsing=OnRep_ServerWeaponStateChangedState)
-	FWeaponStateChangedState ServerWeaponStateChangedState;
-
-	UFUNCTION()
-	void OnRep_ServerWeaponStateChangedState();
-
-	FWeaponStateChange CreateWeaponStateChange(EWeaponState InWeaponStateToChange);
-
-	UFUNCTION(Server, Reliable)
-	void ServerSendWeaponStateChange(const FWeaponStateChange& InWeaponStateChange);
-
-	UPROPERTY()
-	TArray<FWeaponStateChange> UnacknowledgedWeaponStateChanges;
-
-	void ClearAcknowledgedWeaponStateChanges(const FWeaponStateChange& LastWeaponStateChange);
-
-	/*
-	 *	Animation
-	 */
-	UPROPERTY(EditAnywhere, Category="LBlaster|Animation")
-	TObjectPtr<UAnimationAsset> FireAnimation;
-
 	/*
 	 *	Casing
 	 */

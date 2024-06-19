@@ -16,40 +16,35 @@ AProjectileWeapon::AProjectileWeapon()
 	MOA = 2.f;
 }
 
-void AProjectileWeapon::Fire(const FVector& HitTarget)
+void AProjectileWeapon::Fire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const FVector& HitTarget)
 {
-	Super::Fire(HitTarget);
-
+	Super::Fire(TraceStart, TraceRotation, HitTarget);
+	
 	if (!IsValidOwnerCharacter() || !ProjectileClass)
 	{
 		return;
 	}
 
-	if (const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(TEXT("MuzzleFlash")))
-	{
-		const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
-		const FVector TraceStart = SocketTransform.GetLocation();
-		const FVector ToTarget = HitTarget - TraceStart;
-		const FRotator TargetRotation = ToTarget.Rotation();
+	const FVector ToTarget = HitTarget - TraceStart;
+	const FRotator TargetRotation = ToTarget.Rotation();
 
-		if (UWorld* World = GetWorld(); APawn* InstigatorPawn = Cast<APawn>(GetOwner()))
+	if (UWorld* World = GetWorld(); APawn* InstigatorPawn = Cast<APawn>(GetOwner()))
+	{
+		const FTransform ProjectileTransform(TargetRotation, TraceStart);
+		if (OwnerCharacter->HasAuthority())
 		{
-			const FTransform ProjectileTransform(TargetRotation, TraceStart);
-			if (OwnerCharacter->HasAuthority())
-			{
-				// not-replicated
-				AProjectile* Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, ProjectileTransform, this, InstigatorPawn);
-				Projectile->SetDamage(Damage, HeadshotMultiplier);
-				Projectile->FinishSpawning(ProjectileTransform);
-				Projectile->SetReplicatesPostInit(false);
-			}
-			else
-			{
-				// not-replicated
-				AProjectile* Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, ProjectileTransform, this, InstigatorPawn);
-				Projectile->SetDamage(Damage, HeadshotMultiplier);
-				Projectile->FinishSpawning(ProjectileTransform);
-			}
+			// not-replicated
+			AProjectile* Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, ProjectileTransform, this, InstigatorPawn);
+			Projectile->SetDamage(Damage, HeadshotMultiplier);
+			Projectile->FinishSpawning(ProjectileTransform);
+			Projectile->SetReplicatesPostInit(false);
+		}
+		else
+		{
+			// not-replicated
+			AProjectile* Projectile = World->SpawnActorDeferred<AProjectile>(ProjectileClass, ProjectileTransform, this, InstigatorPawn);
+			Projectile->SetDamage(Damage, HeadshotMultiplier);
+			Projectile->FinishSpawning(ProjectileTransform);
 		}
 	}
 }

@@ -68,7 +68,7 @@ void UCharacterOverlay::SetWeaponTypeText(const FString& InWeaponTypeString)
 	}
 }
 
-void UCharacterOverlay::SetMatchCountdownText(float InCountdownTime)
+void UCharacterOverlay::SetMatchCountdownText(float InCountdownTime, bool bPlayAnimation)
 {
 	if (InCountdownTime < 0.f)
 	{
@@ -82,7 +82,7 @@ void UCharacterOverlay::SetMatchCountdownText(float InCountdownTime)
 	MatchCountdownText->SetText(FText::FromString(CountdownString));
 
 	// 해당 함수는 1초마다 호출되고, 애니메이션의 길이도 1초이므로 매초 호출됨
-	if (InCountdownTime <= ThresholdToPlayMatchCountdownBlinkAnim)
+	if (bPlayAnimation && InCountdownTime <= ThresholdToPlayMatchCountdownBlinkAnim)
 	{
 		PlayAnimation(MatchCountdownBlink);
 	}

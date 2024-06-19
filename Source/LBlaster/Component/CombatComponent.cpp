@@ -258,6 +258,15 @@ UAnimMontage* UCombatComponent::SelectReloadMontage()
 	return ReloadMontages[GetEquippingWeapon()->GetWeaponType()];
 }
 
+void UCombatComponent::ElimWeapon()
+{
+	if (AWeapon* WeaponInSlot = EquipSlots[static_cast<uint8>(EquipSlotType)])
+	{
+		WeaponInSlot->Destroy();
+		EquipSlots[static_cast<uint8>(EquipSlotType)] = nullptr;
+	}
+}
+
 UAnimMontage* UCombatComponent::GetEquipMontage(EWeaponType InWeaponType)
 {
 	if (EquipMontages.Contains(InWeaponType))
@@ -267,22 +276,8 @@ UAnimMontage* UCombatComponent::GetEquipMontage(EWeaponType InWeaponType)
 	return nullptr;
 }
 
-void UCombatComponent::DropWeapon()
+void UCombatComponent::ElimAllWeapon()
 {
-	if (GetEquippingWeapon())
-	{
-		GetEquippingWeapon()->Dropped();
-		EquipSlots[static_cast<uint8>(EquipSlotType)] = nullptr;
-	}
-}
-
-void UCombatComponent::ElimWeapon()
-{
-	// Default Weapon을 제외한 착용 중인 무기는 Drop, 나머지는 Destroy
-	if (EquipSlotType != EEquipSlot::EES_ThirdSlot)
-	{
-		DropWeapon();
-	}
 	for (int8 Index = 0; Index < EquipSlots.Num() - 1; ++Index)
 	{
 		if (AWeapon* WeaponInSlot = EquipSlots[Index])
@@ -689,6 +684,10 @@ void UCombatComponent::FireTimerFinished()
 	{
 		Fire();
 	}
+	else if (GetEquippingWeapon() && GetEquippingWeapon()->IsAmmoEmpty() && CarriedAmmoMap.Contains(GetEquippingWeapon()->GetWeaponType()) && CarriedAmmoMap[GetEquippingWeapon()->GetWeaponType()] > 0 && CombatState == ECombatState::ECS_Unoccupied)
+	{
+		Reload();	
+	}
 }
 
 void UCombatComponent::AddCarriedAmmo(EWeaponType InWeaponTypeToAdd, int32 InCarriedAmmoToAdd)
@@ -1083,31 +1082,65 @@ void UCombatComponent::LaunchGrenade()
 
 void UCombatComponent::SetFiring(bool bInFiring)
 {
-	if (!IsValidOwnerCharacter() && !GetEquippingWeapon())
+	if (!IsValidOwnerCharacter() || !GetEquippingWeapon())
 	{
 		return;
 	}
 
 	bIsFiring = bInFiring;
+	if (bIsFiring)
+	{
+		// 무기 장착, 재장전 중에 발사 키를 입력 중이면 총을 돌리지 않고 바로 조준하고 발사하도록
+		if (GetEquippingWeapon()->IsAutomatic() && (CombatState == ECombatState::ECS_Equipping || CombatState == ECombatState::ECS_Reloading))
+		{
+			bCanAnimateFiring = true;
+		}
+		Fire();
+	}
+	else
+	{
+		bCanAnimateFiring = false;
+	}
+
+	// Client Side Prediction for bIsFiring
 	if (OwnerCharacter->GetLocalRole() == ROLE_AutonomousProxy)
 	{
 		bDesiredIsFiring = bIsFiring;
+		ServerSetFiring(bIsFiring, bCanAnimateFiring);
 	}
-	ServerSetFiring(bInFiring);
-	
-	Fire();
 }
 
-void UCombatComponent::ServerSetFiring_Implementation(bool bInFiring)
+void UCombatComponent::ServerSetFiring_Implementation(bool bInFiring, bool bInCanAnimateFiring)
 {
 	bIsFiring = bInFiring;
+	bCanAnimateFiring = bInCanAnimateFiring;
 }
 
 void UCombatComponent::OnRep_IsFiring()
 {
-	if (IsValidOwnerCharacter() && OwnerCharacter->GetLocalRole() == ROLE_AutonomousProxy)
+	if (IsValidOwnerCharacter())
 	{
-		bIsFiring = bDesiredIsFiring;
+		// Client Side Prediction for bIsFiring
+		if (OwnerCharacter->GetLocalRole() == ROLE_AutonomousProxy)
+		{
+			bIsFiring = bDesiredIsFiring;
+		}
+		// for Simulated Proxy Character Firing Animation
+		else if (OwnerCharacter->GetLocalRole() == ROLE_SimulatedProxy)
+		{
+			if (bIsFiring)
+			{
+				// 무기 장착, 재장전 중에 발사 키를 입력 중이면 총을 돌리지 않고 바로 조준하고 발사하도록
+				if (GetEquippingWeapon()->IsAutomatic() && (CombatState == ECombatState::ECS_Equipping || CombatState == ECombatState::ECS_Reloading))
+				{
+					bCanAnimateFiring = true;
+				}
+			}
+			else
+			{
+				bCanAnimateFiring = false;
+			}	
+		}
 	}
 }
 
@@ -1127,25 +1160,33 @@ void UCombatComponent::Fire()
 	{
 		bCanFire = false;
 
+		// 로컬에서의 총구 Location, Rotation 캐싱
+		FVector_NetQuantize MuzzleFlashLocation;
+		FRotator MuzzleFlashRotation;
+		if (!GetEquippingWeapon()->GetMuzzleFlashLocation(MuzzleFlashLocation, MuzzleFlashRotation))
+		{
+			return;
+		}
+
 		if (GetEquippingWeapon()->GetWeaponType() == EWeaponType::EWT_Shotgun)
 		{
 			// Shotgun은 Scatter를 적용한 Pellet 개수만큼의 TraceHitTargets를 사용
-			const TArray<FVector_NetQuantize>& TraceHitTargets = GetEquippingWeapon()->ShotgunTraceEndWithScatter(TraceHitTarget);
+			const TArray<FVector_NetQuantize>& TraceHitTargets = GetEquippingWeapon()->ShotgunTraceEndWithScatter(MuzzleFlashLocation, TraceHitTarget);
 
-			ShotgunLocalFire(TraceHitTargets);
-			ServerShotgunFire(TraceHitTargets, OwnerCharacter->IsServerSideRewindEnabled());
+			ShotgunLocalFire(MuzzleFlashLocation, MuzzleFlashRotation, TraceHitTargets);
+			ServerShotgunFire(MuzzleFlashLocation, MuzzleFlashRotation, TraceHitTargets, OwnerCharacter->IsServerSideRewindEnabled());
 		}
 		else
 		{
 			// Scatter가 적용된 TraceHitTarget로 업데이트
 			if (GetEquippingWeapon()->DoesUseScatter())
 			{
-				TraceHitTarget = GetEquippingWeapon()->TraceEndWithScatter(TraceHitTarget);
+				TraceHitTarget = GetEquippingWeapon()->TraceEndWithScatter(MuzzleFlashLocation, TraceHitTarget);
 			}
 		
 			// Fire Montage등 cosmetic effect는 로컬에서 먼저 수행
-			LocalFire(TraceHitTarget);	
-			ServerFire(TraceHitTarget, OwnerCharacter->IsServerSideRewindEnabled());
+			LocalFire(MuzzleFlashLocation, MuzzleFlashRotation, TraceHitTarget);	
+			ServerFire(MuzzleFlashLocation, MuzzleFlashRotation, TraceHitTarget, OwnerCharacter->IsServerSideRewindEnabled());
 		}
 		
 		CrosshairShootingFactor = 0.75f;
@@ -1164,7 +1205,7 @@ void UCombatComponent::Fire()
 	}
 }
 
-void UCombatComponent::LocalFire(const FVector_NetQuantize& HitTarget)
+void UCombatComponent::LocalFire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const FVector_NetQuantize& HitTarget)
 {
 	if (IsValidOwnerCharacter() && GetEquippingWeapon())
 	{
@@ -1172,11 +1213,14 @@ void UCombatComponent::LocalFire(const FVector_NetQuantize& HitTarget)
 		{
 			OwnerCharacter->PlayFireMontage(MontageToPlay);
 		}
-		GetEquippingWeapon()->Fire(HitTarget);
+		GetEquippingWeapon()->Fire(TraceStart, TraceRotation, HitTarget);
+
+		// 총을 실제로 발사하면 Firing Animation 재생하도록
+		bCanAnimateFiring = true;
 	}
 }
 
-void UCombatComponent::ShotgunLocalFire(const TArray<FVector_NetQuantize>& HitTargets)
+void UCombatComponent::ShotgunLocalFire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const TArray<FVector_NetQuantize>& HitTargets)
 {
 	if (IsValidOwnerCharacter() && GetEquippingWeapon())
 	{
@@ -1184,29 +1228,32 @@ void UCombatComponent::ShotgunLocalFire(const TArray<FVector_NetQuantize>& HitTa
 		{
 			OwnerCharacter->PlayFireMontage(MontageToPlay);
 		}
-		GetEquippingWeapon()->ShotgunFire(HitTargets);
+		GetEquippingWeapon()->ShotgunFire(TraceStart, TraceRotation, HitTargets);
+		
+		// 총을 실제로 발사하면 Firing Animation 재생하도록
+		bCanAnimateFiring = true;
 	}
 }
 
-void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& HitTarget, bool bEnabledSSR)
+void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const FVector_NetQuantize& HitTarget, bool bEnabledSSR)
 {
 	if (IsValidOwnerCharacter())
 	{
 		OwnerCharacter->EnableServerSideRewind(bEnabledSSR);
 	}
-	MulticastFire(HitTarget);	
+	MulticastFire(TraceStart, TraceRotation, HitTarget);	
 }
 
-void UCombatComponent::ServerShotgunFire_Implementation(const TArray<FVector_NetQuantize>& HitTargets, bool bEnabledSSR)
+void UCombatComponent::ServerShotgunFire_Implementation(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const TArray<FVector_NetQuantize>& HitTargets, bool bEnabledSSR)
 {
 	if (IsValidOwnerCharacter())
 	{
 		OwnerCharacter->EnableServerSideRewind(bEnabledSSR);
 	}
-	MulticastShotgunFire(HitTargets);
+	MulticastShotgunFire(TraceStart, TraceRotation, HitTargets);
 }
 
-void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& HitTarget)
+void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const FVector_NetQuantize& HitTarget)
 {
 	// Locally Controlled Character의 Local Fire 중복 호출 방지
 	if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled())
@@ -1214,10 +1261,10 @@ void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& H
 		return;
 	}
 
-	LocalFire(HitTarget);
+	LocalFire(TraceStart, TraceRotation, HitTarget);
 }
 
-void UCombatComponent::MulticastShotgunFire_Implementation(const TArray<FVector_NetQuantize>& HitTargets)
+void UCombatComponent::MulticastShotgunFire_Implementation(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const TArray<FVector_NetQuantize>& HitTargets)
 {
 	// Locally Controlled Character의 Local Fire 중복 호출 방지
 	if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled())
@@ -1225,7 +1272,7 @@ void UCombatComponent::MulticastShotgunFire_Implementation(const TArray<FVector_
 		return;
 	}
 
-	ShotgunLocalFire(HitTargets);
+	ShotgunLocalFire(TraceStart, TraceRotation, HitTargets);
 }
 
 FString UCombatComponent::GetWeaponTypeString (EWeaponType InWeaponType)
@@ -1410,14 +1457,18 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 
 		// Equip이 끝나고 다시 Overlap 이벤트가 발생한 Drop된 Weapon이 있는지 체크
 		FindNearestOverlappingWeapon();
+
+		// Unarmed State로 변경하면 Firing Animation 정지
+		bCanAnimateFiring = false;
+		
 		return;
 	}
 
 	// Equip Overlapping Weapon
 	if (InEquipMode == EEquipMode::EEM_OverlappingWeapon)
 	{
-		// 바꾼 슬롯에 Overlapping Weapon을 착용하기 위해 기존 무기를 떨어트림
-		DropWeapon();
+		// 기존에 착용 중인 무기는 제거
+		ElimWeapon();
 	}
 	// Choose Weapon Slot
 	else if (InEquipMode == EEquipMode::EEM_ChooseWeaponSlot)
@@ -1434,13 +1485,12 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 	if (GetEquippingWeapon())
 	{
 		GetEquippingWeapon()->SetOwner(OwnerCharacter);
-		GetEquippingWeapon()->ChangeWeaponState(EWeaponState::EWS_Equipped);
 		
 		AttachWeapon();
 		OwnerCharacter->SetWeaponAnimLayers(GetEquippingWeapon()->GetWeaponType(), GetEquippingWeapon()->GetWeaponAnimLayer());
 		ChangeCombatState(ECombatState::ECS_Equipping, bPlayEquipMontage, false, bCanSendCombatStateRPC);
 
-		GetEquippingWeapon()->SetSelected(true); 
+		GetEquippingWeapon()->OnWeaponEquipped(true); 
 		GetEquippingWeapon()->SetHUDAmmo();
 		
 		if (CarriedAmmoMap.Contains(GetEquippingWeapon()->GetWeaponType()))

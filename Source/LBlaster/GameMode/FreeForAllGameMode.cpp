@@ -17,6 +17,13 @@ AFreeForAllGameMode::AFreeForAllGameMode()
 	}
 }
 
+void AFreeForAllGameMode::PostLogin(APlayerController* NewPlayer)
+{
+	Super::PostLogin(NewPlayer);
+
+	RestartPlayerAtPlayerStart(NewPlayer, FindPlayerStart(NewPlayer));
+}
+
 void AFreeForAllGameMode::Logout(AController* Exiting)
 {
 	Super::Logout(Exiting);
@@ -37,7 +44,7 @@ void AFreeForAllGameMode::PlayerEliminated(ALBlasterCharacter* EliminatedCharact
 	ALBlasterPlayerController* AttackerController)
 {
 	// 게임 중일 때만 Kill 가능
-	if (!IsMatchInProgress())
+	if (MatchState != MatchState::AfterWarmup)
 	{
 		return;
 	}

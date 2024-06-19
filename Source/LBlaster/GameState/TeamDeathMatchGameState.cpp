@@ -3,6 +3,7 @@
 
 #include "TeamDeathMatchGameState.h"
 
+#include "Algo/StableSort.h"
 #include "HUD/LBlasterHUD.h"
 #include "Net/UnrealNetwork.h"
 #include "Player/LBlasterPlayerState.h"
@@ -39,7 +40,7 @@ void ATeamDeathMatchGameState::RemoveBlueTeamPlayer(ALBlasterPlayerState* InPlay
 
 void ATeamDeathMatchGameState::SortRedTeamByKda()
 {
-	Algo::Sort(RedTeam, [](const ALBlasterPlayerState* A, const ALBlasterPlayerState* B)
+	Algo::StableSort(RedTeam, [](const ALBlasterPlayerState* A, const ALBlasterPlayerState* B)
 	{
 		const float A_Kda = A->GetDeath() != 0 ? A->GetKillScore() / A->GetDeath() : A->GetKillScore();
 		const float B_Kda = B->GetDeath() != 0 ? B->GetKillScore() / B->GetDeath() : B->GetKillScore();
@@ -49,7 +50,7 @@ void ATeamDeathMatchGameState::SortRedTeamByKda()
 
 void ATeamDeathMatchGameState::SortBlueTeamByKda()
 {
-	Algo::Sort(BlueTeam, [](const ALBlasterPlayerState* A, const ALBlasterPlayerState* B)
+	Algo::StableSort(BlueTeam, [](const ALBlasterPlayerState* A, const ALBlasterPlayerState* B)
 	{
 		const float A_Kda = A->GetDeath() != 0 ? A->GetKillScore() / A->GetDeath() : A->GetKillScore();
 		const float B_Kda = B->GetDeath() != 0 ? B->GetKillScore() / B->GetDeath() : B->GetKillScore();

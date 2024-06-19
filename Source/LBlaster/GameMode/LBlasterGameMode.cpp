@@ -3,6 +3,7 @@
 
 #include "LBlasterGameMode.h"
 
+#include "MultiplayerSessionsSubsystem.h"
 #include "Character/LBlasterCharacter.h"
 #include "GameFramework/PlayerStart.h"
 #include "HUD/LBlasterHUD.h"
@@ -37,7 +38,6 @@ ALBlasterGameMode::ALBlasterGameMode()
 		PlayerStateClass = PlayerStateClassRef.Class;
 	}
 
-	bDelayedStart = true;
 	WarmupTime = 10.f;
 	MatchTime = 120.f;
 	CooldownTime = 10.f;
@@ -47,15 +47,15 @@ void ALBlasterGameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if (MatchState == MatchState::WaitingToStart)
+	if (MatchState == MatchState::InProgress)
 	{
 		CountdownTime = WarmupTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
 		if (CountdownTime <= 0.f)
 		{
-			StartMatch();
+			SetMatchState(MatchState::AfterWarmup);
 		}
 	}
-	else if (MatchState == MatchState::InProgress)
+	else if (MatchState == MatchState::AfterWarmup)
 	{
 		CountdownTime = WarmupTime + MatchTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
 		if (CountdownTime <= 0.f)
@@ -66,9 +66,10 @@ void ALBlasterGameMode::Tick(float DeltaSeconds)
 	else if (MatchState == MatchState::Cooldown)
 	{
 		CountdownTime = WarmupTime + MatchTime + CooldownTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
-		if (CountdownTime <= 0.f)
+		if (CountdownTime <= 0.f && !bAlreadyReturnToMainMenu)
 		{
-			RestartGame();
+			bAlreadyReturnToMainMenu = true;
+			ReturnToMainMenuWithAllPlayers();
 		}
 	}
 }
@@ -102,11 +103,70 @@ void ALBlasterGameMode::PlayerLeftGame(ALBlasterCharacter* LeftCharacter)
 	}
 }
 
+void ALBlasterGameMode::PostLogin(APlayerController* NewPlayer)
+{
+	Super::PostLogin(NewPlayer);
+
+	if (ALBlasterPlayerController* PlayerController = Cast<ALBlasterPlayerController>(NewPlayer))
+	{
+		PlayerController->bCanSetInvincibilityInBeginPlay = true;
+	}
+}
+
+void ALBlasterGameMode::OnDestroySessionComplete(bool bWasSuccessful)
+{
+	// 실패하면 다시 수행.
+	if (!bWasSuccessful)
+	{
+		ReturnToMainMenuWithAllPlayers();
+		return;
+	}
+	
+	ReturnToMainMenuHost();
+}
+
+void ALBlasterGameMode::DestroyAllClientSession() const
+{
+	// 호스트를 제외한 모든 클라이언트의 플레이어 컨트롤러에서 Client RPC를 호출해 DestroySession을 호출하게 한다.
+	if (GetWorld() && GetWorld()->GetFirstPlayerController())
+	{
+		for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+		{
+			if (APlayerController* PlayerController = It->Get(); PlayerController != GetWorld()->GetFirstPlayerController())
+			{
+				if (ABasePlayerController* SHController = Cast<ABasePlayerController>(PlayerController))
+				{
+					SHController->ClientDestroySession();
+				}
+			}
+		}	
+	}
+}
+
+void ALBlasterGameMode::ReturnToMainMenuWithAllPlayers()
+{
+	if (MultiplayerSessionsSubsystem)
+	{
+		DestroyAllClientSession();
+		MultiplayerSessionsSubsystem->DestroySession();
+	}
+}
+
 void ALBlasterGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
 	LevelStartingTime = GetWorld()->GetTimeSeconds();
+
+	/* MultiplayerSessions */
+	if (UGameInstance* GameInstance = GetGameInstance())
+    {
+		MultiplayerSessionsSubsystem = GameInstance->GetSubsystem<UMultiplayerSessionsSubsystem>();
+    }
+	if (MultiplayerSessionsSubsystem)
+	{
+		MultiplayerSessionsSubsystem->LBOnDestroySessionCompleteDelegate.AddUObject(this, &ThisClass::OnDestroySessionComplete);
+	}
 }
 
 void ALBlasterGameMode::OnMatchStateSet()

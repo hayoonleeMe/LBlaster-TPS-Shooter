@@ -4,6 +4,7 @@
 #include "ScoreboardFreeForAll.h"
 
 #include "ScoreboardRowWithRank.h"
+#include "Components/Border.h"
 #include "Components/VerticalBox.h"
 #include "GameFramework/PlayerState.h"
 #include "GameState/FreeForAllGameState.h"
@@ -11,33 +12,21 @@
 
 void UScoreboardFreeForAll::UpdateBoard()
 {
-	TArray<ALBlasterPlayerState*> LBlasterPlayerStates;
-
+	if (bUsedForResultMenu)
+	{
+		return;
+	}
+	
 	if (GetWorld() && LeftBox && RightBox && IsValidOwnerPlayerState())
 	{
 		if (AFreeForAllGameState* FFAGameState = GetWorld()->GetGameState<AFreeForAllGameState>())
 		{
-			// ALBlasterPlayerState로 캐스팅해 복사
-			for (APlayerState* PlayerState : FFAGameState->PlayerArray)
-			{
-				if (ALBlasterPlayerState* LBPlayerState = Cast<ALBlasterPlayerState>(PlayerState))
-				{
-					LBlasterPlayerStates.Add(LBPlayerState);
-				}
-			}
-
-			// KDA를 기준으로 내림차순 정렬
-			Algo::Sort(LBlasterPlayerStates, [](const ALBlasterPlayerState* A, const ALBlasterPlayerState* B)
-			{
-				const float A_Kda = A->GetDeath() != 0 ? A->GetKillScore() / A->GetDeath() : A->GetKillScore();
-				const float B_Kda = B->GetDeath() != 0 ? B->GetKillScore() / B->GetDeath() : B->GetKillScore();
-				return A_Kda > B_Kda;
-			});
+			FFAGameState->SortPlayersByKda();
 
 			int32 Index = 0;
-			for (; Index < LBlasterPlayerStates.Num(); ++Index)
+			for (; Index < FFAGameState->LBPlayerArray.Num(); ++Index)
 			{
-				if (ALBlasterPlayerState* LBPlayerState = LBlasterPlayerStates[Index])
+				if (ALBlasterPlayerState* LBPlayerState = FFAGameState->LBPlayerArray[Index])
 				{
 					const UVerticalBox* BoxToUse = Index < LeftBox->GetSlots().Num() ? LeftBox : RightBox;
 					if (UScoreboardRowWithRank* Row = Cast<UScoreboardRowWithRank>(BoxToUse->GetSlots()[Index]->Content))
@@ -70,5 +59,17 @@ void UScoreboardFreeForAll::UpdateBoard()
 				}
 			}
 		}
+	}
+}
+
+void UScoreboardFreeForAll::SetScoreboardForResultMenu()
+{
+	Super::SetScoreboardForResultMenu();
+
+	if (Border)
+	{
+		FVector2D Translation = Border->GetRenderTransform().Translation;
+		Translation.Y += 100.f;
+		Border->SetRenderTranslation(Translation);
 	}
 }

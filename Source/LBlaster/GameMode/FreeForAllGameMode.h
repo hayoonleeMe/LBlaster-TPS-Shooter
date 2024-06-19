@@ -16,6 +16,7 @@ class LBLASTER_API AFreeForAllGameMode : public ALBlasterGameMode
 
 public:
 	AFreeForAllGameMode();
+	virtual void PostLogin(APlayerController* NewPlayer) override;
 	virtual void Logout(AController* Exiting) override;
 	virtual void PlayerEliminated(ALBlasterCharacter* EliminatedCharacter, ALBlasterPlayerController* VictimController, ALBlasterPlayerController* AttackerController) override;
 };

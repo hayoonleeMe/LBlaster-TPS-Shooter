@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BaseGameState.h"
+#include "LBTypes/Team.h"
 #include "TeamDeathMatchGameState.generated.h"
 
 /**
@@ -33,6 +34,9 @@ public:
 	FORCEINLINE int32 GetBlueTeamNum() const { return BlueTeam.Num(); }
 	const TArray<TObjectPtr<ALBlasterPlayerState>>& GetRedTeam() const { return RedTeam; }
 	const TArray<TObjectPtr<ALBlasterPlayerState>>& GetBlueTeam() const { return BlueTeam; }
+
+	FORCEINLINE int32 GetRedTeamScore() const { return RedTeamScore; }
+	FORCEINLINE int32 GetBlueTeamScore() const { return BlueTeamScore; }
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastInitTeamScore();

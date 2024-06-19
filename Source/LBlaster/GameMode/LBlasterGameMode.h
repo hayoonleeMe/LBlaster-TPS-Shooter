@@ -8,6 +8,7 @@
 
 namespace MatchState
 {
+	const FName AfterWarmup = FName(TEXT("AfterWarmup"));
 	const FName Cooldown = FName(TEXT("Cooldown"));
 }
 
@@ -25,6 +26,7 @@ public:
 	virtual void PlayerEliminated(class ALBlasterCharacter* EliminatedCharacter, class ALBlasterPlayerController* VictimController, ALBlasterPlayerController* AttackerController);
 	virtual void RequestRespawn(ACharacter* EliminatedCharacter, AController* EliminatedController);
 	void PlayerLeftGame(class ALBlasterCharacter* LeftCharacter);
+	virtual void PostLogin(APlayerController* NewPlayer) override;
 
 	FORCEINLINE float GetCountdownTime() const { return CountdownTime; }
 
@@ -45,4 +47,16 @@ protected:
 
 private:
 	float CountdownTime = 0.f;
+
+	bool bAlreadyReturnToMainMenu = false;
+
+	/*
+	 *	Multiplayer Sessions
+	 */
+	UPROPERTY()
+	TObjectPtr<class UMultiplayerSessionsSubsystem> MultiplayerSessionsSubsystem;
+
+	void OnDestroySessionComplete(bool bWasSuccessful);
+	void DestroyAllClientSession() const;
+	void ReturnToMainMenuWithAllPlayers();
 };

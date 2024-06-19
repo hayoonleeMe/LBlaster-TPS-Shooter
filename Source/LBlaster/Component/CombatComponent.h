@@ -150,7 +150,7 @@ public:
 	
 	FORCEINLINE bool IsAiming() const { return bIsAiming; }
 	FORCEINLINE void TriggerAimingKey(bool bPressed) { bAimingKeyPressed = bPressed; }
-	FORCEINLINE bool IsFiring() const { return bIsFiring; }
+	FORCEINLINE bool CanAnimateFiring() const { return bCanAnimateFiring; }
 	FORCEINLINE bool IsReloading() const { return CombatState == ECombatState::ECS_Reloading; }
 	FORCEINLINE class AWeapon* GetEquippingWeapon() { return GetEquippingWeapon(EquipSlotType); }
 	AWeapon* GetEquippingWeapon(EEquipSlot InEquipSlotType);
@@ -163,14 +163,15 @@ public:
 
 	void ChooseWeaponSlot(EEquipSlot InEquipSlotType);
 	void EquipOverlappingWeapon();
+	void FindNearestOverlappingWeapon();
 	
 	void SetAiming(bool bInAiming);
 	void SetFiring(bool bInFiring);
 	UAnimMontage* SelectHitReactMontage(const FVector& HitNormal);
 	UAnimMontage* SelectDeathMontage(const FVector& HitNormal);
 	UAnimMontage* SelectReloadMontage();
-	void DropWeapon();
 	void ElimWeapon();
+	void ElimAllWeapon();
 	void Reload();
 	void ReloadFinished();
 	void ShowSniperScopeWidget(bool bShowScope);
@@ -213,7 +214,6 @@ private:
 	void EquipWeapon(EEquipSlot InEquipSlotType, EEquipMode InEquipMode, AWeapon* InWeaponToEquip = nullptr);
 	void ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode InEquipMode, AWeapon* InWeaponToEquip, bool bPlayEquipMontage, bool bCanSendCombatStateRPC = true);
 	void HolsterWeapon(EEquipSlot InEquipSlotType);
-	void FindNearestOverlappingWeapon();
 
 	static FString GetWeaponTypeString(EWeaponType InWeaponType = EWeaponType::EWT_Unarmed);
 	void AttachWeapon();
@@ -297,27 +297,27 @@ private:
 	void OnRep_IsFiring();
 
 	UFUNCTION(Server, Reliable)
-	void ServerSetFiring(bool bInFiring);
+	void ServerSetFiring(bool bInFiring, bool bInCanAnimateFiring);
 
 	// Locally Controlled 캐릭터에서 실제로 조준하는지
 	bool bDesiredIsFiring = false;
 
 	bool CanFire();	
 	void Fire();
-	void LocalFire(const FVector_NetQuantize& HitTarget);
-	void ShotgunLocalFire(const TArray<FVector_NetQuantize>& HitTargets);	
+	void LocalFire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const FVector_NetQuantize& HitTarget);
+	void ShotgunLocalFire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const TArray<FVector_NetQuantize>& HitTargets);	
 	
 	UFUNCTION(Server, Reliable)
-	void ServerFire(const FVector_NetQuantize& HitTarget, bool bEnabledSSR);
+	void ServerFire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const FVector_NetQuantize& HitTarget, bool bEnabledSSR);
 
 	UFUNCTION(Server, Reliable)
-	void ServerShotgunFire(const TArray<FVector_NetQuantize>& HitTargets, bool bEnabledSSR);
+	void ServerShotgunFire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const TArray<FVector_NetQuantize>& HitTargets, bool bEnabledSSR);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastFire(const FVector_NetQuantize& HitTarget);
+	void MulticastFire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const FVector_NetQuantize& HitTarget);
 
 	UFUNCTION(NetMulticast, Reliable)
-    void MulticastShotgunFire(const TArray<FVector_NetQuantize>& HitTargets);
+    void MulticastShotgunFire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const TArray<FVector_NetQuantize>& HitTargets);
 
 	void TraceUnderCrosshair(FHitResult& TraceHitResult);
 
@@ -331,6 +331,8 @@ private:
 	void DryFire();
 
 	bool CanReloadOnFire();
+
+	bool bCanAnimateFiring = false;
 
 	/*
 	 *	Crosshair

@@ -43,6 +43,7 @@ void ATeamDeathMatchGameMode::PostLogin(APlayerController* NewPlayer)
 			}
 		}
 	}
+	RestartPlayerAtPlayerStart(NewPlayer, FindPlayerStartTDM(NewPlayer));
 }
 
 void ATeamDeathMatchGameMode::Logout(AController* Exiting)
@@ -74,7 +75,7 @@ void ATeamDeathMatchGameMode::PlayerEliminated(ALBlasterCharacter* EliminatedCha
 	ALBlasterPlayerController* AttackerController)
 {
 	// 게임 중일 때만 Kill 가능
-	if (!IsMatchInProgress())
+	if (MatchState != MatchState::AfterWarmup)
 	{
 		return;
 	}

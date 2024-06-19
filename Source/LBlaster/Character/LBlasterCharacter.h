@@ -26,6 +26,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
 	virtual void OnRep_PlayerState() override;
+	virtual void PossessedBy(AController* NewController) override;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -40,12 +41,13 @@ public:
 	 *	ILBCharacterPickupInterface
 	 */
 	virtual void PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount) override;
+	virtual void FindNearestOverlappingWeapon() override;
 
 	/*
      *	LBlasterAnimInstance
      */
     bool IsAiming() const;
-    bool IsFiring() const;
+	bool CanAnimateFiring() const;
 	bool IsReloading() const;
 	bool IsEquippingWeapon() const;
 	void ReloadFinished() const;
@@ -64,6 +66,8 @@ public:
 	void UpdatePlayerNameToOverheadWidget();
 	void EquipDefaultWeapon() const;
 	void ReleaseCombatState() const;
+	FORCEINLINE void SetInvincible(bool bInInvincible) { bInvincible = bInInvincible; }
+	FORCEINLINE float GetInvincibilityTime() const { return InvincibilityTime; }
 
 	/*
 	 *	LBlasterPlayerState
@@ -209,6 +213,8 @@ private:
 	UPROPERTY(VisibleAnywhere, Category="LBlaster|Widget")
 	TObjectPtr<class UWidgetComponent> OverheadWidgetComponent;
 
+	void UpdateOverheadWidgetTransform();
+
 	/*
 	 *	Weapon
 	 */
@@ -247,6 +253,15 @@ private:
 	UPROPERTY(VisibleAnywhere, Category="LBlaster|Health")
 	TObjectPtr<class UHealthComponent> HealthComponent;
 
+	/*
+	 *	Invincibility
+	 */
+	UPROPERTY(Replicated)
+	uint8 bInvincible : 1;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Invincibility")
+	float InvincibilityTime;
+	
 	/*
 	 *	Elimination
 	 */

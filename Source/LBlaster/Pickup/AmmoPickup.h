@@ -15,10 +15,37 @@ class LBLASTER_API AAmmoPickup : public APickup
 {
 	GENERATED_BODY()
 
+public:
+	AAmmoPickup();
+	virtual void Tick(float DeltaTime) override;
+	virtual void Destroyed() override;
+
 protected:
-	virtual void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
+	virtual void BeginPlay() override;
+
+	UFUNCTION()
+	virtual void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 private:
+	/*
+	 *	Mesh & Overlap Sphere
+	 */
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class USphereComponent> OverlapSphere;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UStaticMeshComponent> PickupMesh;
+
+	/*
+	 *	Sound
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Sound")
+	TObjectPtr<USoundBase> PickupSound;
+
+	/*
+	 *	Ammo
+	 */
+	
 	UPROPERTY(EditAnywhere, Category="LBlaster|Ammo")
 	int32 AmmoAmount;
 

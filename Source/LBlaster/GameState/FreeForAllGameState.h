@@ -25,6 +25,11 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastInitTotalScore();
 
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<class ALBlasterPlayerState>> LBPlayerArray;
+	
+	void SortPlayersByKda();
+
 protected:
 	virtual void BeginPlay() override;
 
