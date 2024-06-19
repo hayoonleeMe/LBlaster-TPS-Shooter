@@ -254,6 +254,7 @@ void ALBlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	DOREPLIFETIME(ALBlasterCharacter, bInvincible);
 }
 
 void ALBlasterCharacter::PostInitializeComponents()
@@ -301,6 +302,24 @@ void ALBlasterCharacter::OnRep_PlayerState()
 
 	// 클라이언트 캐릭터의 PlayerName 표시
 	UpdatePlayerNameToOverheadWidget();
+}
+
+void ALBlasterCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	/* Invincibility */
+	if (ALBlasterPlayerController* PlayerController = GetController<ALBlasterPlayerController>())
+	{
+		if (PlayerController->bCanSetInvincibilityInBeginPlay && HasAuthority())
+		{
+			PlayerController->StartInvincibilityTimer();
+		}
+		if (!PlayerController->bCanSetInvincibilityInBeginPlay)
+		{
+			PlayerController->bCanSetInvincibilityInBeginPlay = true;
+		}
+	}
 }
 
 AWeapon* ALBlasterCharacter::GetEquippingWeapon() const
@@ -772,6 +791,12 @@ void ALBlasterCharacter::PlayHitReactMontage(const FVector& HitNormal) const
 void ALBlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController,
                                        AActor* DamageCauser)
 {
+	// 스폰 무적
+	if (bInvincible)
+	{
+		return;
+	}
+	
 	// 팀 데스매치에서 아군사격 방지 (폭발 데미지)
 	if (ALBlasterPlayerState* VictimState = GetPlayerState<ALBlasterPlayerState>())
 	{
@@ -860,8 +885,11 @@ void ALBlasterCharacter::LaunchGrenade() const
 
 void ALBlasterCharacter::SetLastHitNormal(const FVector& InHitNormal)
 {
-	LastHitNormal = InHitNormal;
-	PlayHitReactMontage(LastHitNormal);
+	if (!bInvincible)
+	{
+		LastHitNormal = InHitNormal;
+		PlayHitReactMontage(LastHitNormal);	
+	}
 }
 
 void ALBlasterCharacter::PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount)

@@ -67,6 +67,12 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerLeaveGame();
 
+	/*
+	 *	Invincibility
+	 */
+	bool bCanSetInvincibilityInBeginPlay = false;
+	void StartInvincibilityTimer();
+
 protected:
 	/*
 	 *	Input
@@ -199,4 +205,9 @@ private:
 	 */
 	UFUNCTION(Client, Reliable)
 	void ClientElimAnnouncement(APlayerState* AttackerState, APlayerState* VictimState);
+
+	/*
+	 *	Invincibility
+	 */
+	FTimerHandle InvincibilityTimer;
 };

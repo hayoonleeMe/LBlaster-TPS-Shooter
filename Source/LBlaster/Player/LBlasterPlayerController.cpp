@@ -486,6 +486,12 @@ void ALBlasterPlayerController::HandleAfterWarmup()
 			}	
 		}
 	}
+
+	/* Invincibility on game start */
+	if (HasAuthority())
+	{
+		StartInvincibilityTimer();
+	}
 }
 
 void ALBlasterPlayerController::HandleCooldown()
@@ -587,6 +593,24 @@ void ALBlasterPlayerController::ChooseWeaponSlot(EEquipSlot InEquipSlot)
 	if (IsValidOwningHUD())
 	{
 		OwningHUD->ChooseWeaponSlot(InEquipSlot);
+	}
+}
+
+void ALBlasterPlayerController::StartInvincibilityTimer()
+{
+	if (ALBlasterCharacter* LBCharacter = Cast<ALBlasterCharacter>(GetCharacter()))
+	{
+		if (LBCharacter->GetInvincibilityTime() > 0.f)
+		{
+			LBCharacter->SetInvincible(true);
+			GetWorldTimerManager().SetTimer(InvincibilityTimer, FTimerDelegate::CreateLambda([=]()
+			{
+				if (LBCharacter)
+				{
+					LBCharacter->SetInvincible(false);
+				}
+			}), LBCharacter->GetInvincibilityTime(), false);	
+		}
 	}
 }
 

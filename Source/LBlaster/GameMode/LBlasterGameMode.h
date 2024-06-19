@@ -26,6 +26,7 @@ public:
 	virtual void PlayerEliminated(class ALBlasterCharacter* EliminatedCharacter, class ALBlasterPlayerController* VictimController, ALBlasterPlayerController* AttackerController);
 	virtual void RequestRespawn(ACharacter* EliminatedCharacter, AController* EliminatedController);
 	void PlayerLeftGame(class ALBlasterCharacter* LeftCharacter);
+	virtual void PostLogin(APlayerController* NewPlayer) override;
 
 	FORCEINLINE float GetCountdownTime() const { return CountdownTime; }
 

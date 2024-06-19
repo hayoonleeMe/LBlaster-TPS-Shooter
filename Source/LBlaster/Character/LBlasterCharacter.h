@@ -26,6 +26,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
 	virtual void OnRep_PlayerState() override;
+	virtual void PossessedBy(AController* NewController) override;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -65,6 +66,8 @@ public:
 	void UpdatePlayerNameToOverheadWidget();
 	void EquipDefaultWeapon() const;
 	void ReleaseCombatState() const;
+	FORCEINLINE void SetInvincible(bool bInInvincible) { bInvincible = bInInvincible; }
+	FORCEINLINE float GetInvincibilityTime() const { return InvincibilityTime; }
 
 	/*
 	 *	LBlasterPlayerState
@@ -250,6 +253,15 @@ private:
 	UPROPERTY(VisibleAnywhere, Category="LBlaster|Health")
 	TObjectPtr<class UHealthComponent> HealthComponent;
 
+	/*
+	 *	Invincibility
+	 */
+	UPROPERTY(Replicated)
+	uint8 bInvincible : 1;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Invincibility")
+	float InvincibilityTime;
+	
 	/*
 	 *	Elimination
 	 */

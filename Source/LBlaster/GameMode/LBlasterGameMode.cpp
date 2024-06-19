@@ -103,6 +103,16 @@ void ALBlasterGameMode::PlayerLeftGame(ALBlasterCharacter* LeftCharacter)
 	}
 }
 
+void ALBlasterGameMode::PostLogin(APlayerController* NewPlayer)
+{
+	Super::PostLogin(NewPlayer);
+
+	if (ALBlasterPlayerController* PlayerController = Cast<ALBlasterPlayerController>(NewPlayer))
+	{
+		PlayerController->bCanSetInvincibilityInBeginPlay = true;
+	}
+}
+
 void ALBlasterGameMode::OnDestroySessionComplete(bool bWasSuccessful)
 {
 	// 실패하면 다시 수행.
