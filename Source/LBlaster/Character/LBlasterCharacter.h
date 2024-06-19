@@ -256,7 +256,8 @@ private:
 	/*
 	 *	Invincibility
 	 */
-	bool bInvincible = false;
+	UPROPERTY(Replicated)
+	uint8 bInvincible : 1;
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Invincibility")
 	float InvincibilityTime;

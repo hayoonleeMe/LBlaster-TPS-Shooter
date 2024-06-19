@@ -254,6 +254,7 @@ void ALBlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	DOREPLIFETIME(ALBlasterCharacter, bInvincible);
 }
 
 void ALBlasterCharacter::PostInitializeComponents()
@@ -884,8 +885,11 @@ void ALBlasterCharacter::LaunchGrenade() const
 
 void ALBlasterCharacter::SetLastHitNormal(const FVector& InHitNormal)
 {
-	LastHitNormal = InHitNormal;
-	PlayHitReactMontage(LastHitNormal);
+	if (!bInvincible)
+	{
+		LastHitNormal = InHitNormal;
+		PlayHitReactMontage(LastHitNormal);	
+	}
 }
 
 void ALBlasterCharacter::PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount)
