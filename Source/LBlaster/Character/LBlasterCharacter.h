@@ -26,6 +26,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
 	virtual void OnRep_PlayerState() override;
+	virtual void PossessedBy(AController* NewController) override;
 	
 protected:
 	virtual void BeginPlay() override;

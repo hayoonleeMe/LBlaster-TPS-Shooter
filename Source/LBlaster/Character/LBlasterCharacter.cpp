@@ -303,6 +303,24 @@ void ALBlasterCharacter::OnRep_PlayerState()
 	UpdatePlayerNameToOverheadWidget();
 }
 
+void ALBlasterCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	/* Invincibility */
+	if (ALBlasterPlayerController* PlayerController = GetController<ALBlasterPlayerController>())
+	{
+		if (PlayerController->bCanSetInvincibilityInBeginPlay && HasAuthority())
+		{
+			PlayerController->StartInvincibilityTimer();
+		}
+		if (!PlayerController->bCanSetInvincibilityInBeginPlay)
+		{
+			PlayerController->bCanSetInvincibilityInBeginPlay = true;
+		}
+	}
+}
+
 AWeapon* ALBlasterCharacter::GetEquippingWeapon() const
 {
 	if (CombatComponent)
