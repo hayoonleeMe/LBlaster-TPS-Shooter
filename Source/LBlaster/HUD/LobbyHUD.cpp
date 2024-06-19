@@ -349,12 +349,12 @@ void ALobbyHUD::OnDestroySessionComplete(bool bWasSuccessful)
 				// 해당 세션에 연결된 모든 클라이언트가 세션에서 빠져나가고 호스트만 남으면 메인메뉴로 이동
 				if (GetWorld()->GetNumPlayerControllers() == 1)
 				{
-					GetWorld()->ServerTravel(FString(TEXT("/Game/LBlaster/Maps/GameStartupMap")));	// TODO : 경로 캐싱
+					GetWorld()->ServerTravel(FMultiplayerMapPath::TitleMapPath);
 				}
 			}
 			else
 			{
-				OwnerController->ClientTravel(FString(TEXT("/Game/LBlaster/Maps/GameStartupMap")), TRAVEL_Absolute);	// TODO : 경로 캐싱
+				OwnerController->ClientTravel(FMultiplayerMapPath::TitleMapPath, TRAVEL_Absolute);
 			}
 		}	
 	}
