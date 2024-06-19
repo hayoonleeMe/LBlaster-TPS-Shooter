@@ -772,6 +772,12 @@ void ALBlasterCharacter::PlayHitReactMontage(const FVector& HitNormal) const
 void ALBlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController,
                                        AActor* DamageCauser)
 {
+	// 스폰 무적
+	if (bInvincible)
+	{
+		return;
+	}
+	
 	// 팀 데스매치에서 아군사격 방지 (폭발 데미지)
 	if (ALBlasterPlayerState* VictimState = GetPlayerState<ALBlasterPlayerState>())
 	{

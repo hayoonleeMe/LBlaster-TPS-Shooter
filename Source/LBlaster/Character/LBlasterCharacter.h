@@ -65,6 +65,8 @@ public:
 	void UpdatePlayerNameToOverheadWidget();
 	void EquipDefaultWeapon() const;
 	void ReleaseCombatState() const;
+	FORCEINLINE void SetInvincible(bool bInInvincible) { bInvincible = bInInvincible; }
+	FORCEINLINE float GetInvincibilityTime() const { return InvincibilityTime; }
 
 	/*
 	 *	LBlasterPlayerState
@@ -250,6 +252,14 @@ private:
 	UPROPERTY(VisibleAnywhere, Category="LBlaster|Health")
 	TObjectPtr<class UHealthComponent> HealthComponent;
 
+	/*
+	 *	Invincibility
+	 */
+	bool bInvincible = false;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Invincibility")
+	float InvincibilityTime;
+	
 	/*
 	 *	Elimination
 	 */
