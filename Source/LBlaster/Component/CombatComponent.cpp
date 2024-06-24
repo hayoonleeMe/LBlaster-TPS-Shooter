@@ -564,21 +564,7 @@ void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 		TraceHitTarget = TraceHitResult.ImpactPoint;
 
 		// 캐릭터 조준 시 크로스 헤어 색상 변경
-		if (ALBlasterCharacter* TracedCharacter = Cast<ALBlasterCharacter>(TraceHitResult.GetActor()))
-		{
-			CrosshairColor = FLinearColor::Red;
-			
-			// 크로스헤어 하단의 이름을 표시하는 UI 업데이트
-			if (APlayerState* TracedPlayerState = TracedCharacter->GetPlayerState())
-			{
-				SetHUDPlayerNameTextUnderCrosshair(TracedPlayerState->GetPlayerName());
-			}
-		}
-		else
-		{
-			CrosshairColor = FLinearColor::White;
-			SetHUDPlayerNameTextUnderCrosshair();
-		}
+		SetHUDCrosshairColor(TraceHitResult.GetActor());
 	}
 }
 
@@ -661,6 +647,41 @@ void UCombatComponent::UpdateHUDCrosshair(float DeltaTime)
 		CrosshairSpread = 0.5f + CrosshairSpreadVelocityFactor + CrosshairInAirFactor - CrosshairAimFactor + CrosshairShootingFactor;
 	}
 	HUD->UpdateCrosshair(CrosshairSpread, CrosshairColor);
+}
+
+void UCombatComponent::SetHUDCrosshairColor(AActor* TracedActor)
+{
+	if (!IsValidOwnerCharacter())
+	{
+		return;
+	}
+	
+	if (ALBlasterCharacter* TracedCharacter = Cast<ALBlasterCharacter>(TracedActor))
+	{
+		// 크로스헤어 하단의 이름을 표시하는 UI 업데이트
+		if (ALBlasterPlayerState* TracedPlayerState = TracedCharacter->GetPlayerState<ALBlasterPlayerState>())
+		{
+			// 플레이어 이름 위젯 설정
+            SetHUDPlayerNameTextUnderCrosshair(TracedPlayerState->GetPlayerName());
+
+			// 크로스헤어, 플레이어 이름 위젯 색상 설정
+			CrosshairColor = FLinearColor::Red;
+
+			// 만약 같은 팀원이라면 하얀색으로 표시
+			if (ALBlasterPlayerState* PlayerState = OwnerCharacter->GetPlayerState<ALBlasterPlayerState>())
+			{
+				if (TracedPlayerState->GetTeam() != ETeam::ET_MAX && PlayerState->GetTeam() == TracedPlayerState->GetTeam())
+				{
+					CrosshairColor = FLinearColor::White;
+				}	
+			}
+		}
+	}
+	else
+	{
+		CrosshairColor = FLinearColor::White;
+		SetHUDPlayerNameTextUnderCrosshair();
+	}
 }
 
 void UCombatComponent::SetHUDPlayerNameTextUnderCrosshair(const FString& InPlayerName)
