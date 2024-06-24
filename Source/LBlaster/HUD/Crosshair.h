@@ -19,9 +19,12 @@ class LBLASTER_API UCrosshair : public ULBlasterUserWidget
 public:
 	void DrawCrosshair(const FCrosshairTexture& CrosshairTexture);
 	void UpdateCrosshair(float InSpreadScaled, const FLinearColor& InCrosshairColor);
+	void SetPlayerNameText(const FString& InPlayerName) const;
 
 private:
-
+	/*
+	 *	Crosshair
+	 */
 	UPROPERTY(EditAnywhere, meta=(BindWidget))
 	TObjectPtr<class UImage> TopCrosshair;
 
@@ -38,5 +41,13 @@ private:
 	TObjectPtr<UImage> CenterCrosshair;
 
 	void DrawCrosshair(UImage* ImageToDraw, UTexture2D* InTexture);
-	void UpdateCrosshair(UImage* ImageToDraw, const FVector2D& InSpread, const FLinearColor& InCrosshairColor);
+	void UpdateCrosshair(UImage* ImageToDraw, const FVector2D& InSpread, const FLinearColor& InCrosshairColor) const;
+
+	/*
+	 *	Player Name
+	 */
+	UPROPERTY(EditAnywhere, meta=(BindWidget))
+	TObjectPtr<class UTextBlock> PlayerNameText;
+
+	void UpdatePlayerNameText(const FLinearColor& InCrosshairColor) const;
 };

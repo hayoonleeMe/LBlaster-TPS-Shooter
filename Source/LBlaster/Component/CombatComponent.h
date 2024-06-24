@@ -321,6 +321,7 @@ private:
 
 	void SetHUDCrosshair(EWeaponType InWeaponType);
 	void UpdateHUDCrosshair(float DeltaTime);
+	void SetHUDPlayerNameTextUnderCrosshair(const FString& InPlayerName = FString());
 
 	float CrosshairSpread;
 	FLinearColor CrosshairColor;

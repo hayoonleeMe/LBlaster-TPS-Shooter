@@ -564,13 +564,20 @@ void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 		TraceHitTarget = TraceHitResult.ImpactPoint;
 
 		// 캐릭터 조준 시 크로스 헤어 색상 변경
-		if (TraceHitResult.GetActor() && TraceHitResult.GetActor()->IsA(ALBlasterCharacter::StaticClass()))
+		if (ALBlasterCharacter* TracedCharacter = Cast<ALBlasterCharacter>(TraceHitResult.GetActor()))
 		{
 			CrosshairColor = FLinearColor::Red;
+			
+			// 크로스헤어 하단의 이름을 표시하는 UI 업데이트
+			if (APlayerState* TracedPlayerState = TracedCharacter->GetPlayerState())
+			{
+				SetHUDPlayerNameTextUnderCrosshair(TracedPlayerState->GetPlayerName());
+			}
 		}
 		else
 		{
 			CrosshairColor = FLinearColor::White;
+			SetHUDPlayerNameTextUnderCrosshair();
 		}
 	}
 }
@@ -654,6 +661,14 @@ void UCombatComponent::UpdateHUDCrosshair(float DeltaTime)
 		CrosshairSpread = 0.5f + CrosshairSpreadVelocityFactor + CrosshairInAirFactor - CrosshairAimFactor + CrosshairShootingFactor;
 	}
 	HUD->UpdateCrosshair(CrosshairSpread, CrosshairColor);
+}
+
+void UCombatComponent::SetHUDPlayerNameTextUnderCrosshair(const FString& InPlayerName)
+{
+	if (IsValidHUD())
+	{
+		HUD->SetPlayerNameText(InPlayerName);
+	}
 }
 
 void UCombatComponent::StartFireTimer()

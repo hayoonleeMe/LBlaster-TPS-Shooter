@@ -62,6 +62,14 @@ void ALBlasterHUD::DrawCrosshair(const FCrosshairTexture& CrosshairTexture) cons
 	}
 }
 
+void ALBlasterHUD::SetPlayerNameText(const FString& InPlayerName) const
+{
+	if (Crosshair)
+	{
+		Crosshair->SetPlayerNameText(InPlayerName);
+	}
+}
+
 void ALBlasterHUD::SetHUDHealth(float InHealth, float InMaxHealth)
 {
 	if (CharacterOverlay)
