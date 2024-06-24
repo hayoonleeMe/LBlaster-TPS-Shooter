@@ -140,7 +140,7 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 		TraceUnderCrosshair(HitResult);
 	
 		// 크로스헤어 Draw
-		SetHUDCrosshair(DeltaTime);
+		UpdateHUDCrosshair(DeltaTime);
 	}
 }
 
@@ -564,14 +564,7 @@ void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 		TraceHitTarget = TraceHitResult.ImpactPoint;
 
 		// 캐릭터 조준 시 크로스 헤어 색상 변경
-		if (TraceHitResult.GetActor() && TraceHitResult.GetActor()->IsA(ALBlasterCharacter::StaticClass()))
-		{
-			HUDPackage.CrosshairColor = FLinearColor::Red;
-		}
-		else
-		{
-			HUDPackage.CrosshairColor = FLinearColor::White;
-		}
+		SetHUDCrosshairColor(TraceHitResult.GetActor());
 	}
 }
 
@@ -608,30 +601,19 @@ bool UCombatComponent::CanReloadOnFire()
 	return GetEquippingWeapon() != nullptr && bCanFire && bIsFiring && CombatState == ECombatState::ECS_Unoccupied && GetEquippingWeapon()->IsAmmoEmpty() && CarriedAmmoMap.Contains(GetEquippingWeapon()->GetWeaponType()) && CarriedAmmoMap[GetEquippingWeapon()->GetWeaponType()] > 0;
 }
 
-void UCombatComponent::SetHUDCrosshair(float DeltaTime)
+void UCombatComponent::SetHUDCrosshair(EWeaponType InWeaponType)
+{
+	if (IsValidHUD())
+	{
+		HUD->DrawCrosshair(GetCrosshairTexture(InWeaponType));
+	}
+}
+
+void UCombatComponent::UpdateHUDCrosshair(float DeltaTime)
 {
 	if (!IsValidOwnerCharacter() || !IsValidOwnerController() || !IsValidHUD())
 	{
 		return;
-	}
-
-	if (GetEquippingWeapon())
-	{
-		const EWeaponType WeaponType = GetEquippingWeapon()->GetWeaponType();
-		HUDPackage.TopCrosshair = GetTopCrosshair(WeaponType);
-		HUDPackage.BottomCrosshair = GetBottomCrosshair(WeaponType);
-		HUDPackage.LeftCrosshair = GetLeftCrosshair(WeaponType);
-		HUDPackage.RightCrosshair = GetRightCrosshair(WeaponType);
-		HUDPackage.CenterCrosshair = GetCenterCrosshair(WeaponType);
-	}
-	else
-	{
-		// unarmed state
-		HUDPackage.TopCrosshair = GetTopCrosshair();
-		HUDPackage.BottomCrosshair = GetBottomCrosshair();
-		HUDPackage.LeftCrosshair = GetLeftCrosshair();
-		HUDPackage.RightCrosshair = GetRightCrosshair();
-		HUDPackage.CenterCrosshair = GetCenterCrosshair();
 	}
 
 	// 이동 속도에 따른 Crosshair Spread
@@ -662,9 +644,52 @@ void UCombatComponent::SetHUDCrosshair(float DeltaTime)
 
 		CrosshairShootingFactor = FMath::FInterpTo(CrosshairShootingFactor, 0.f, DeltaTime, 30.f);
 
-		HUDPackage.CrosshairSpread = 0.5f + CrosshairSpreadVelocityFactor + CrosshairInAirFactor - CrosshairAimFactor + CrosshairShootingFactor;
+		CrosshairSpread = 0.5f + CrosshairSpreadVelocityFactor + CrosshairInAirFactor - CrosshairAimFactor + CrosshairShootingFactor;
 	}
-	HUD->SetHUDPackage(HUDPackage);
+	HUD->UpdateCrosshair(CrosshairSpread, CrosshairColor);
+}
+
+void UCombatComponent::SetHUDCrosshairColor(AActor* TracedActor)
+{
+	if (!IsValidOwnerCharacter())
+	{
+		return;
+	}
+	
+	if (ALBlasterCharacter* TracedCharacter = Cast<ALBlasterCharacter>(TracedActor))
+	{
+		// 크로스헤어 하단의 이름을 표시하는 UI 업데이트
+		if (ALBlasterPlayerState* TracedPlayerState = TracedCharacter->GetPlayerState<ALBlasterPlayerState>())
+		{
+			// 플레이어 이름 위젯 설정
+            SetHUDPlayerNameTextUnderCrosshair(TracedPlayerState->GetPlayerName());
+
+			// 크로스헤어, 플레이어 이름 위젯 색상 설정
+			CrosshairColor = FLinearColor::Red;
+
+			// 만약 같은 팀원이라면 하얀색으로 표시
+			if (ALBlasterPlayerState* PlayerState = OwnerCharacter->GetPlayerState<ALBlasterPlayerState>())
+			{
+				if (TracedPlayerState->GetTeam() != ETeam::ET_MAX && PlayerState->GetTeam() == TracedPlayerState->GetTeam())
+				{
+					CrosshairColor = FLinearColor::White;
+				}	
+			}
+		}
+	}
+	else
+	{
+		CrosshairColor = FLinearColor::White;
+		SetHUDPlayerNameTextUnderCrosshair();
+	}
+}
+
+void UCombatComponent::SetHUDPlayerNameTextUnderCrosshair(const FString& InPlayerName)
+{
+	if (IsValidHUD())
+	{
+		HUD->SetPlayerNameText(InPlayerName);
+	}
 }
 
 void UCombatComponent::StartFireTimer()
@@ -925,15 +950,11 @@ void UCombatComponent::EquipFinished()
 
 void UCombatComponent::HideCrosshair()
 {
-	// 이 이후로 크로스헤어를 Tick에서 그리지 않음.
+	// Tick에서의 추가 연산 방지
 	bShowCrosshair = false;
-	
-	if (IsValidHUD())
-	{
-		// 크로스헤어를 투명으로 그려 화면에서 보이지 않게 설정.
-		HUDPackage.CrosshairColor = FLinearColor(1.f, 1.f, 1.f, 0.f);
-		HUD->SetHUDPackage(HUDPackage);
-	}
+
+	// Unarmed State에서는 크로스헤어를 그리지 않음.
+	SetHUDCrosshair(EWeaponType::EWT_Unarmed);
 }
 
 FString UCombatComponent::GetCombatInfo()
@@ -952,49 +973,17 @@ FString UCombatComponent::GetCombatInfo()
 	return Str;
 }
 
-UTexture2D* UCombatComponent::GetCenterCrosshair(EWeaponType InWeaponType) const
+FCrosshairTexture UCombatComponent::GetCrosshairTexture(EWeaponType InWeaponType) const
 {
+	if (InWeaponType == EWeaponType::EWT_Unarmed)
+	{
+		return FCrosshairTexture();
+	}
 	if (InWeaponType == EWeaponType::EWT_Shotgun)
 	{
-		return ShotgunCrosshair.CenterCrosshair;
+		return ShotgunCrosshair;
 	}
-	return DefaultCrosshair.CenterCrosshair;
-}
-
-UTexture2D* UCombatComponent::GetTopCrosshair(EWeaponType InWeaponType) const
-{
-	if (InWeaponType == EWeaponType::EWT_Shotgun)
-	{
-		return ShotgunCrosshair.TopCrosshair;
-	}
-	return DefaultCrosshair.TopCrosshair;
-}
-
-UTexture2D* UCombatComponent::GetBottomCrosshair(EWeaponType InWeaponType) const
-{
-	if (InWeaponType == EWeaponType::EWT_Shotgun)
-	{
-		return ShotgunCrosshair.BottomCrosshair;
-	}
-	return DefaultCrosshair.BottomCrosshair;
-}
-
-UTexture2D* UCombatComponent::GetLeftCrosshair(EWeaponType InWeaponType) const
-{
-	if (InWeaponType == EWeaponType::EWT_Shotgun)
-	{
-		return ShotgunCrosshair.LeftCrosshair;
-	}
-	return DefaultCrosshair.LeftCrosshair;
-}
-
-UTexture2D* UCombatComponent::GetRightCrosshair(EWeaponType InWeaponType) const
-{
-	if (InWeaponType == EWeaponType::EWT_Shotgun)
-	{
-		return ShotgunCrosshair.RightCrosshair;
-	}
-	return DefaultCrosshair.RightCrosshair;
+	return DefaultCrosshair;
 }
 
 void UCombatComponent::InitSniperScope()
@@ -1453,6 +1442,7 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 			OwnerController->SetHUDWeaponTypeText(GetWeaponTypeString());
 			OwnerController->SetWeaponSlotIcon(EquipSlotType, EWeaponType::EWT_Unarmed);
 			OwnerController->ChooseWeaponSlot(EquipSlotType);
+			SetHUDCrosshair(EWeaponType::EWT_Unarmed);
 		}
 
 		// Equip이 끝나고 다시 Overlap 이벤트가 발생한 Drop된 Weapon이 있는지 체크
@@ -1493,15 +1483,16 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 		GetEquippingWeapon()->OnWeaponEquipped(true); 
 		GetEquippingWeapon()->SetHUDAmmo();
 		
-		if (CarriedAmmoMap.Contains(GetEquippingWeapon()->GetWeaponType()))
+		if (IsValidOwnerController() && OwnerCharacter->IsLocallyControlled())
 		{
-			if (IsValidOwnerController() && OwnerCharacter->IsLocallyControlled())
+			if (CarriedAmmoMap.Contains(GetEquippingWeapon()->GetWeaponType()))
 			{
 				OwnerController->SetHUDCarriedAmmo(CarriedAmmoMap[GetEquippingWeapon()->GetWeaponType()]);
 				OwnerController->SetHUDWeaponTypeText(GetWeaponTypeString(GetEquippingWeapon()->GetWeaponType()));
 				OwnerController->SetWeaponSlotIcon(EquipSlotType, GetEquippingWeapon()->GetWeaponType());
 				OwnerController->ChooseWeaponSlot(EquipSlotType);
 			}
+			SetHUDCrosshair(GetEquippingWeapon()->GetWeaponType());
 		}
 
 		/* ADS FOV */

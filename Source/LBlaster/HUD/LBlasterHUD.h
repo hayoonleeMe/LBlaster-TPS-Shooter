@@ -5,37 +5,11 @@
 #include "CoreMinimal.h"
 #include "BaseHUD.h"
 #include "LBTypes/ChatMode.h"
+#include "LBTypes/CrosshairTexture.h"
 #include "LBTypes/EquipSlot.h"
 #include "LBTypes/Team.h"
 #include "LBTypes/WeaponTypes.h"
 #include "LBlasterHUD.generated.h"
-
-USTRUCT(BlueprintType)
-struct FHUDPackage
-{
-	GENERATED_BODY()
-
-	UPROPERTY()	
-	TObjectPtr<UTexture2D> TopCrosshair;
-
-	UPROPERTY()
-	TObjectPtr<UTexture2D> BottomCrosshair;
-
-	UPROPERTY()
-	TObjectPtr<UTexture2D> LeftCrosshair;
-
-	UPROPERTY()
-	TObjectPtr<UTexture2D> RightCrosshair;
-
-	UPROPERTY()
-	TObjectPtr<UTexture2D> CenterCrosshair;
-
-	UPROPERTY()
-	float CrosshairSpread = 0.f;
-
-	UPROPERTY()
-	FLinearColor CrosshairColor = FLinearColor::White;
-};
 
 /**
  * 
@@ -49,7 +23,6 @@ public:
 	ALBlasterHUD();
 	virtual void DrawHUD() override;
 	
-	FORCEINLINE void SetHUDPackage(const FHUDPackage& InPackage) { HUDPackage = InPackage; }
 	void SetHUDHealth(float InHealth, float InMaxHealth);
 	void SetHUDKillScore(int32 InKillScore);
 	void SetHUDDeath(int32 InDeath);
@@ -108,6 +81,13 @@ public:
 	void AddResultMenu();
 	void SetHUDMatchCooldown(float InTime);
 
+	/*
+	 *	Crosshair
+	 */
+	void UpdateCrosshair(float InCrosshairSpread, const FLinearColor& InCrosshairColor);
+	void DrawCrosshair(const FCrosshairTexture& CrosshairTexture) const;
+	void SetPlayerNameText(const FString& InPlayerName) const;
+
 protected:
 	virtual void PostInitializeComponents() override;
 	
@@ -123,14 +103,19 @@ private:
 	/*
 	 *	Crosshair
 	 */
-	FHUDPackage HUDPackage;
+	UPROPERTY(EditAnywhere, Category="LBlaster|Crosshair")
+	TSubclassOf<class UCrosshair> CrosshairClass;
 
-	void DrawCrosshair(UTexture2D* InTexture, const FVector2D& InViewportCenter, const FVector2D& InSpread, const FLinearColor& InLinearColor);
+	UPROPERTY()
+	TObjectPtr<UCrosshair> Crosshair;
 
+	void AddCrosshair();
+	
 	UPROPERTY(EditAnywhere, Category="LBlaster|Crosshair")
 	float CrosshairSpreadMax;
 
-	bool bEnableCrosshair;
+	float CrosshairSpread;
+	FLinearColor CrosshairColor;
 	
 	/*
 	 *	Sniper Scope
