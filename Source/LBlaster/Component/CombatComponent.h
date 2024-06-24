@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "HUD/LBlasterHUD.h"
 #include "LBTypes/CombatState.h"
+#include "LBTypes/CrosshairTexture.h"
 #include "LBTypes/WeaponTypes.h"
 #include "LBTypes/EquipSlot.h"
 #include "CombatComponent.generated.h"
@@ -115,27 +116,6 @@ struct FWeaponEquipState
 
 	UPROPERTY()
 	FWeaponEquip LastWeaponEquip;
-};
-
-USTRUCT(BlueprintType)
-struct FCrosshairTexture
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<UTexture2D> CenterCrosshair;
-
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<UTexture2D> TopCrosshair;
-
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<UTexture2D> BottomCrosshair;
-	
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<UTexture2D> LeftCrosshair;
-
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<UTexture2D> RightCrosshair;
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -338,10 +318,13 @@ private:
 	 *	Crosshair
 	 */
 	bool bShowCrosshair = true;
-	
-	void SetHUDCrosshair(float DeltaTime);
 
-	FHUDPackage HUDPackage;
+	void SetHUDCrosshair(EWeaponType InWeaponType);
+	void UpdateHUDCrosshair(float DeltaTime);
+
+	float CrosshairSpread;
+	FLinearColor CrosshairColor;
+	
 	float CrosshairInAirFactor;
 	float CrosshairAimFactor;
 	float CrosshairShootingFactor;
@@ -352,11 +335,7 @@ private:
 	UPROPERTY(EditAnywhere, Category="LBlaster|Crosshair")
 	FCrosshairTexture ShotgunCrosshair;
 
-	UTexture2D* GetCenterCrosshair(EWeaponType InWeaponType = EWeaponType::EWT_Unarmed) const;
-	UTexture2D* GetTopCrosshair(EWeaponType InWeaponType = EWeaponType::EWT_Unarmed) const;
-	UTexture2D* GetBottomCrosshair(EWeaponType InWeaponType = EWeaponType::EWT_Unarmed) const;
-	UTexture2D* GetLeftCrosshair(EWeaponType InWeaponType = EWeaponType::EWT_Unarmed) const;
-	UTexture2D* GetRightCrosshair(EWeaponType InWeaponType = EWeaponType::EWT_Unarmed) const;
+	FCrosshairTexture GetCrosshairTexture(EWeaponType InWeaponType) const;
 
 	/*
 	 *	Sniper Scope
