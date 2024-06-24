@@ -711,6 +711,7 @@ void ALBlasterPlayerController::BeginPlay()
 	SetShowMouseCursor(false);
 
 	// Apply Game User Setting on Init
+#if !WITH_EDITOR
 	if (IsLocalController() && GEngine && GetWorld())
 	{
 		if (ULBGameUserSettings* LBGameUserSettings = Cast<ULBGameUserSettings>(GEngine->GetGameUserSettings()))
@@ -718,6 +719,7 @@ void ALBlasterPlayerController::BeginPlay()
 			LBGameUserSettings->ApplyCustomSettings(false, GetWorld());
 		}
 	}
+#endif
 }
 
 void ALBlasterPlayerController::OnPossess(APawn* InPawn)
