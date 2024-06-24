@@ -20,7 +20,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameInstance/LBGameInstance.h"
 #include "GameMode/LBlasterGameMode.h"
-#include "HUD/OverheadWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
@@ -173,21 +172,6 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 		ThirdWeaponSlotAction = ThirdWeaponSlotActionRef.Object;
 	}
 	
-	/* Overhead Widget */
-	OverheadWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidgetComponent"));
-	OverheadWidgetComponent->SetupAttachment(GetMesh());
-	OverheadWidgetComponent->SetRelativeLocation(FVector(0.f, 0.f, 190.f));
-	OverheadWidgetComponent->SetWidgetSpace(EWidgetSpace::World);
-	OverheadWidgetComponent->SetDrawAtDesiredSize(true);
-	OverheadWidgetComponent->SetCastShadow(false);
-	OverheadWidgetComponent->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
-
-	static ConstructorHelpers::FClassFinder<UOverheadWidget> OverheadWidgetClassRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/LBlaster/UI/HUD/WBP_OverheadWidget.WBP_OverheadWidget_C'"));
-	if (OverheadWidgetClassRef.Class)
-	{
-		OverheadWidgetComponent->SetWidgetClass(OverheadWidgetClassRef.Class);
-	}
-
 	/* Grenade */
 	AttachedGrenade = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Attached Grenade"));
 	AttachedGrenade->SetupAttachment(GetMesh(), FName(TEXT("GrenadeSocket")));
@@ -226,8 +210,6 @@ void ALBlasterCharacter::Tick(float DeltaTime)
 
 	PollInit();
 
-	UpdateOverheadWidgetTransform();
-	
 	//HideMeshIfCameraClose();
 }
 
@@ -275,33 +257,11 @@ void ALBlasterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	/* Overhead Widget */
-	if (OverheadWidgetComponent)
-	{
-		// 다른 캐릭터의 이름만 표시
-		if (IsLocallyControlled())
-		{
-			OverheadWidgetComponent->DestroyComponent();
-		}
-		else
-		{
-			UpdatePlayerNameToOverheadWidget();
-		}
-	}
-
 	/* Damage */
 	if (HasAuthority())
 	{
 		OnTakeAnyDamage.AddDynamic(this, &ThisClass::ReceiveDamage);
 	}
-}
-
-void ALBlasterCharacter::OnRep_PlayerState()
-{
-	Super::OnRep_PlayerState();
-
-	// 클라이언트 캐릭터의 PlayerName 표시
-	UpdatePlayerNameToOverheadWidget();
 }
 
 void ALBlasterCharacter::PossessedBy(AController* NewController)
@@ -721,29 +681,6 @@ void ALBlasterCharacter::HideMeshIfCameraClose()
 		{
 			CombatComponent->GetEquippingWeapon()->GetWeaponMesh()->bOwnerNoSee = false;
 		}
-	}
-}
-
-void ALBlasterCharacter::UpdateOverheadWidgetTransform()
-{
-	if (OverheadWidgetComponent)
-	{
-		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
-		if (PlayerController && PlayerController->PlayerCameraManager)
-		{
-			const FVector CameraLocation = PlayerController->PlayerCameraManager->GetCameraLocation();
-			const FVector WidgetLocation = OverheadWidgetComponent->GetComponentLocation();
-			const FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(WidgetLocation, CameraLocation);
-			OverheadWidgetComponent->SetWorldRotation(LookAtRotation);
-		}
-	}
-}
-
-void ALBlasterCharacter::UpdatePlayerNameToOverheadWidget()
-{
-	if (UOverheadWidget* OverheadWidget = Cast<UOverheadWidget>(OverheadWidgetComponent->GetUserWidgetObject()))
-	{
-		OverheadWidget->ShowPlayerName(this);
 	}
 }
 

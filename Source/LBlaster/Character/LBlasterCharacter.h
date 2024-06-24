@@ -25,7 +25,6 @@ public:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
-	virtual void OnRep_PlayerState() override;
 	virtual void PossessedBy(AController* NewController) override;
 	
 protected:
@@ -63,7 +62,6 @@ public:
 	 */
 	void UpdateHUDHealth() const;
 	int32 GetGrenadeAmount() const;
-	void UpdatePlayerNameToOverheadWidget();
 	void EquipDefaultWeapon() const;
 	void ReleaseCombatState() const;
 	FORCEINLINE void SetInvincible(bool bInInvincible) { bInvincible = bInInvincible; }
@@ -206,15 +204,7 @@ private:
 	float MeshHideThreshold;
 
 	void HideMeshIfCameraClose();
-
-	/*
-	 *	Overhead Widget
-	 */
-	UPROPERTY(VisibleAnywhere, Category="LBlaster|Widget")
-	TObjectPtr<class UWidgetComponent> OverheadWidgetComponent;
-
-	void UpdateOverheadWidgetTransform();
-
+	
 	/*
 	 *	Weapon
 	 */
