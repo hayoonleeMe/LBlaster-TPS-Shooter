@@ -32,7 +32,6 @@ ALBlasterHUD::ALBlasterHUD()
 {
 	/* Crosshair */
 	CrosshairSpreadMax = 16.f;
-	bEnableCrosshair = true;
 
 	/* Elim Announcement */
 	ElimAnnouncementTime = 3.5f;
@@ -42,7 +41,7 @@ void ALBlasterHUD::DrawHUD()
 {
 	Super::DrawHUD();
 
-	if (Crosshair && bEnableCrosshair)
+	if (Crosshair)
 	{
 		const float SpreadScaled = CrosshairSpreadMax * CrosshairSpread;
 		Crosshair->UpdateCrosshair(SpreadScaled, CrosshairColor);
@@ -534,14 +533,20 @@ void ALBlasterHUD::ShowSniperScopeWidget(bool bShowScope)
 	{
 		if (bShowScope)
 		{
-			bEnableCrosshair = false;
 			SniperScope->SetVisibility(ESlateVisibility::Visible);
 			SniperScope->ShowSniperScopeWidget();
+			if (Crosshair)
+			{
+				Crosshair->SetVisibility(ESlateVisibility::Collapsed);
+			}
 		}
 		else
 		{
-			bEnableCrosshair = true;
 			SniperScope->SetVisibility(ESlateVisibility::Hidden);
+			if (Crosshair)
+			{
+				Crosshair->SetVisibility(ESlateVisibility::Visible);
+			}
 		}
 	}
 }

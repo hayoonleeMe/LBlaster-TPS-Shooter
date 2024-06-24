@@ -115,7 +115,6 @@ private:
 
 	float CrosshairSpread;
 	FLinearColor CrosshairColor;
-	bool bEnableCrosshair;
 	
 	/*
 	 *	Sniper Scope
