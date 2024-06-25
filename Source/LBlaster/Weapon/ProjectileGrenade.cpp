@@ -20,9 +20,9 @@ AProjectileGrenade::AProjectileGrenade()
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 	ProjectileMovementComponent->SetIsReplicated(true);
 	ProjectileMovementComponent->bShouldBounce = true;
+	ProjectileMovementComponent->BounceVelocityStopSimulatingThreshold = 50.f;
 	InitialSpeed = 2000.f;
 	ProjectileMovementComponent->InitialSpeed = ProjectileMovementComponent->MaxSpeed = InitialSpeed;
-	
 }
 
 void AProjectileGrenade::Destroyed()
