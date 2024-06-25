@@ -46,7 +46,7 @@ APickupSpawnPoint::APickupSpawnPoint()
 		PadLoadingParticle = PadLoadingParticleRef.Object;
 	}
 
-	PadColor = FLinearColor(1.f, 0.8f, 0.3f, 0.1f);
+	PadColor = FLinearColor(1.f, 0.9f, 0.6f, 0.07f);
 }
 
 void APickupSpawnPoint::Tick(float DeltaSeconds)
