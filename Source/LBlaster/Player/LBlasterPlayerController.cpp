@@ -401,11 +401,6 @@ void ALBlasterPlayerController::CheckPing()
 {
 	if (IsValidOwningCharacter() && GetPlayerState<APlayerState>())
 	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(0, 10.f, FColor::Orange, FString::Printf(TEXT("Ping : %d"), GetPlayerState<APlayerState>()->GetCompressedPing() * 4));
-		}
-		
 		// SSR 제한
 		if (GetPlayerState<APlayerState>()->GetCompressedPing() * 4 > HighPingThreshold)
 		{
