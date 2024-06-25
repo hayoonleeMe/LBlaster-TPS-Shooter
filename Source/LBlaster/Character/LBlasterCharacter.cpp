@@ -209,8 +209,6 @@ void ALBlasterCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	PollInit();
-
-	//HideMeshIfCameraClose();
 }
 
 void ALBlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -649,38 +647,6 @@ void ALBlasterCharacter::ChooseThirdWeaponSlot()
 	if (CombatComponent)
 	{
 		CombatComponent->ChooseWeaponSlot(EEquipSlot::EES_ThirdSlot);
-	}
-}
-
-void ALBlasterCharacter::HideMeshIfCameraClose()
-{
-	if (!IsLocallyControlled())
-	{
-		return;
-	}
-
-	// 캐릭터와 카메라가 임계값보다 가까워지면 캐릭터의 메시를 숨긴다.
-	if ((GetActorLocation() - CameraComponent->GetComponentLocation()).Size() < MeshHideThreshold)
-	{
-		GetMesh()->SetVisibility(false);
-		if (CombatComponent && CombatComponent->GetEquippingWeapon() && CombatComponent->GetEquippingWeapon()->GetWeaponMesh())
-		{
-			CombatComponent->GetEquippingWeapon()->GetWeaponMesh()->bOwnerNoSee = true;
-		}
-	}
-	else
-	{
-		// 평소 상황이므로 early return
-		if (GetMesh()->IsVisible())
-		{
-			return;
-		}
-		
-		GetMesh()->SetVisibility(true);
-		if (CombatComponent && CombatComponent->GetEquippingWeapon() && CombatComponent->GetEquippingWeapon()->GetWeaponMesh())
-		{
-			CombatComponent->GetEquippingWeapon()->GetWeaponMesh()->bOwnerNoSee = false;
-		}
 	}
 }
 

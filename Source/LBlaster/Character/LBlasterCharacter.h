@@ -200,11 +200,6 @@ private:
 	UPROPERTY(VisibleAnywhere, Category="LBlaster|Camera")
 	TObjectPtr<class ULBlasterCameraComponent> CameraComponent;
 	
-	UPROPERTY(EditAnywhere, Category="LBlaster|Camera")
-	float MeshHideThreshold;
-
-	void HideMeshIfCameraClose();
-	
 	/*
 	 *	Weapon
 	 */
