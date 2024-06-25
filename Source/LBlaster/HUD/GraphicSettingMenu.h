@@ -18,7 +18,7 @@ struct FOriginalGameUserSettings
 	FIntPoint ScreenResolution;
 
 	UPROPERTY()
-	bool bEnableFPSIndicator;
+	bool bEnablePerformanceIndicator;
 	
 	UPROPERTY()
 	float FrameRateLimitValue;
@@ -138,11 +138,11 @@ protected:
 	void OnScreenResolutionChanged(int32 InActiveIndex);
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UOptionSelector> FPSIndicatorSelector;
+	TObjectPtr<UOptionSelector> PerformanceIndicatorSelector;
 
-	bool bChangedEnableFPSIndicator = false;
+	bool bChangedEnablePerformanceIndicator = false;
 	
-	void OnFPSIndicatorChanged(int32 InActiveIndex);
+	void OnPerformanceIndicatorChanged(int32 InActiveIndex);
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UOptionSelector> FPSLimitSelector;

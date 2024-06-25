@@ -10,12 +10,12 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Player/LBlasterPlayerController.h"
 
-void ULBGameUserSettings::SetFPSIndicatorEnabled(bool bEnable)
+void ULBGameUserSettings::SetPerformanceIndicatorEnabled(bool bEnable)
 {
-	if (bFPSIndicatorEnabled != bEnable)
+	if (bPerformanceIndicatorEnabled != bEnable)
 	{
-		bFPSIndicatorEnabled = bEnable;
-		OnFPSIndicatorEnabledChanged.Broadcast(bFPSIndicatorEnabled);
+		bPerformanceIndicatorEnabled = bEnable;
+		OnPerformanceIndicatorEnabledChanged.Broadcast(bPerformanceIndicatorEnabled);
 	}
 }
 
@@ -76,7 +76,7 @@ void ULBGameUserSettings::SetGraphicOptionByAutoDetect(bool bFirstExecute)
 		SetYAxisMouseSensitivity(50.f);
 		SetMotionBlurValue(0.f);
 		SetFrameRateLimit(120.f);
-		bFPSIndicatorEnabled = true;
+		bPerformanceIndicatorEnabled = true;
 		ApplySettings(false);
 	}
 	
