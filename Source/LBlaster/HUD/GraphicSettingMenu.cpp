@@ -96,15 +96,15 @@ void UGraphicSettingMenu::MenuSetup()
 		}
 	}
 	
-	if (FPSIndicatorSelector)
+	if (PerformanceIndicatorSelector)
 	{
-		if (!FPSIndicatorSelector->OnSwitcherActiveIndexChanged.IsBound())
+		if (!PerformanceIndicatorSelector->OnSwitcherActiveIndexChanged.IsBound())
 		{
-			FPSIndicatorSelector->OnSwitcherActiveIndexChanged.BindUObject(this, &ThisClass::OnFPSIndicatorChanged);
+			PerformanceIndicatorSelector->OnSwitcherActiveIndexChanged.BindUObject(this, &ThisClass::OnPerformanceIndicatorChanged);
 		}
 
-		OriginalSettings.bEnableFPSIndicator = GameUserSettings->IsEnabledFPSIndicator();
-		FPSIndicatorSelector->SetActiveIndex(GameUserSettings->IsEnabledFPSIndicator());
+		OriginalSettings.bEnablePerformanceIndicator = GameUserSettings->IsEnabledPerformanceIndicator();
+		PerformanceIndicatorSelector->SetActiveIndex(GameUserSettings->IsEnabledPerformanceIndicator());
 	}
 	
 	if (FPSLimitSelector)
@@ -401,14 +401,14 @@ void UGraphicSettingMenu::OnScreenResolutionChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::OnFPSIndicatorChanged(int32 InActiveIndex)
+void UGraphicSettingMenu::OnPerformanceIndicatorChanged(int32 InActiveIndex)
 {
 	// TODO : CharacterOverlay에 별도의 UI 추가 및 연계
 	if (GameUserSettings)
 	{
-		GameUserSettings->SetFPSIndicatorEnabled(static_cast<bool>(InActiveIndex));
+		GameUserSettings->SetPerformanceIndicatorEnabled(static_cast<bool>(InActiveIndex));
 
-		bChangedEnableFPSIndicator = GameUserSettings->IsEnabledFPSIndicator() != OriginalSettings.bEnableFPSIndicator;
+		bChangedEnablePerformanceIndicator = GameUserSettings->IsEnabledPerformanceIndicator() != OriginalSettings.bEnablePerformanceIndicator;
         EnableApplyButton();
 	}
 }
@@ -734,7 +734,7 @@ void UGraphicSettingMenu::EnableApplyButton()
 
 bool UGraphicSettingMenu::ShouldApplyChange() const
 {
-	const bool bShouldApplyChange = bChangedFullScreenMode || bChangedScreenResolution || bChangedEnableFPSIndicator || bChangedFrameLimitValue || bChangedScreenBrightness || bChangedXAxisMouseSensitivity || bChangedYAxisMouseSensitivity || bChangedEnableVSync || bChangedMotionBlur || bChangedGraphicPresetValue || bChangedAntiAliasing || bChangedViewDistance || bChangedShadowQuality || bChangedGlobalIlluminationQuality || bChangedReflectionQuality || bChangedPostProcessing || bChangedTextureQuality || bChangedEffectQuality || bChangedBackgroundQuality || bChangedShadingQuality;
+	const bool bShouldApplyChange = bChangedFullScreenMode || bChangedScreenResolution || bChangedEnablePerformanceIndicator || bChangedFrameLimitValue || bChangedScreenBrightness || bChangedXAxisMouseSensitivity || bChangedYAxisMouseSensitivity || bChangedEnableVSync || bChangedMotionBlur || bChangedGraphicPresetValue || bChangedAntiAliasing || bChangedViewDistance || bChangedShadowQuality || bChangedGlobalIlluminationQuality || bChangedReflectionQuality || bChangedPostProcessing || bChangedTextureQuality || bChangedEffectQuality || bChangedBackgroundQuality || bChangedShadingQuality;
 	return bShouldApplyChange;
 }
 
@@ -772,9 +772,9 @@ void UGraphicSettingMenu::OnNoApplyAlertAcceptButtonClicked()
 			GameUserSettings->SetScreenResolution(OriginalSettings.ScreenResolution);
 		}
 
-		if (bChangedEnableFPSIndicator)
+		if (bChangedEnablePerformanceIndicator)
 		{
-			GameUserSettings->SetFPSIndicatorEnabled(OriginalSettings.bEnableFPSIndicator);
+			GameUserSettings->SetPerformanceIndicatorEnabled(OriginalSettings.bEnablePerformanceIndicator);
 		}
 
 		if (bChangedFrameLimitValue)
@@ -863,7 +863,7 @@ void UGraphicSettingMenu::OnNoApplyAlertAcceptButtonClicked()
 		}	
 	}
 
-	bChangedFullScreenMode = bChangedScreenResolution = bChangedEnableFPSIndicator = bChangedFrameLimitValue = bChangedScreenBrightness = bChangedXAxisMouseSensitivity = bChangedYAxisMouseSensitivity = bChangedEnableVSync = bChangedMotionBlur = bChangedGraphicPresetValue = bChangedAntiAliasing = bChangedViewDistance = bChangedShadowQuality = bChangedGlobalIlluminationQuality = bChangedReflectionQuality = bChangedPostProcessing = bChangedTextureQuality = bChangedEffectQuality = bChangedBackgroundQuality = bChangedShadingQuality = false;
+	bChangedFullScreenMode = bChangedScreenResolution = bChangedEnablePerformanceIndicator = bChangedFrameLimitValue = bChangedScreenBrightness = bChangedXAxisMouseSensitivity = bChangedYAxisMouseSensitivity = bChangedEnableVSync = bChangedMotionBlur = bChangedGraphicPresetValue = bChangedAntiAliasing = bChangedViewDistance = bChangedShadowQuality = bChangedGlobalIlluminationQuality = bChangedReflectionQuality = bChangedPostProcessing = bChangedTextureQuality = bChangedEffectQuality = bChangedBackgroundQuality = bChangedShadingQuality = false;
 	
 	if (IsValidOwnerHUD())
 	{
@@ -887,7 +887,7 @@ void UGraphicSettingMenu::OnApplyButtonClicked()
 
 		OriginalSettings.FullScreenMode = GameUserSettings->GetFullscreenMode();
 		OriginalSettings.ScreenResolution = GameUserSettings->GetScreenResolution();
-		OriginalSettings.bEnableFPSIndicator = GameUserSettings->IsEnabledFPSIndicator();
+		OriginalSettings.bEnablePerformanceIndicator = GameUserSettings->IsEnabledPerformanceIndicator();
 		OriginalSettings.FrameRateLimitValue = GameUserSettings->GetFrameRateLimit();
 		OriginalSettings.ScreenBrightnessValue = GameUserSettings->GetScreenBrightnessValue();
 		OriginalSettings.bEnableVSync = GameUserSettings->IsVSyncEnabled();
@@ -904,7 +904,7 @@ void UGraphicSettingMenu::OnApplyButtonClicked()
 		OriginalSettings.BackgroundQualityValue = GameUserSettings->GetFoliageQuality();
 		OriginalSettings.ShadingQualityValue = GameUserSettings->GetShadingQuality();
 		
-		bChangedFullScreenMode = bChangedScreenResolution = bChangedEnableFPSIndicator = bChangedFrameLimitValue = bChangedScreenBrightness = bChangedXAxisMouseSensitivity = bChangedYAxisMouseSensitivity = bChangedEnableVSync = bChangedMotionBlur = bChangedGraphicPresetValue = bChangedAntiAliasing = bChangedViewDistance = bChangedShadowQuality = bChangedGlobalIlluminationQuality = bChangedReflectionQuality = bChangedPostProcessing = bChangedTextureQuality = bChangedEffectQuality = bChangedBackgroundQuality = bChangedShadingQuality = false;
+		bChangedFullScreenMode = bChangedScreenResolution = bChangedEnablePerformanceIndicator = bChangedFrameLimitValue = bChangedScreenBrightness = bChangedXAxisMouseSensitivity = bChangedYAxisMouseSensitivity = bChangedEnableVSync = bChangedMotionBlur = bChangedGraphicPresetValue = bChangedAntiAliasing = bChangedViewDistance = bChangedShadowQuality = bChangedGlobalIlluminationQuality = bChangedReflectionQuality = bChangedPostProcessing = bChangedTextureQuality = bChangedEffectQuality = bChangedBackgroundQuality = bChangedShadingQuality = false;
 		
 		if (ApplyButton)
 		{

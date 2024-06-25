@@ -6,7 +6,7 @@
 #include "GameFramework/GameUserSettings.h"
 #include "LBGameUserSettings.generated.h"
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnFPSIndicatorEnabledChangedDelegate, bool /* bFPSIndicatorEnabled */);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnPerformanceIndicatorEnabledChangedDelegate, bool /* bPerformanceIndicatorEnabled */);
 
 /**
  * 
@@ -17,14 +17,14 @@ class LBLASTER_API ULBGameUserSettings : public UGameUserSettings
 	GENERATED_BODY()
 
 public:
-	FORCEINLINE bool IsEnabledFPSIndicator() const { return bFPSIndicatorEnabled; }
+	FORCEINLINE bool IsEnabledPerformanceIndicator() const { return bPerformanceIndicatorEnabled; }
 	FORCEINLINE float GetScreenBrightnessValue() const { return ScreenBrightnessValue; }
 	FORCEINLINE float GetMotionBlurValue() const { return MotionBlurValue; }
 	FORCEINLINE int32 GetGraphicPresetValue() const { return GraphicPresetValue; }
 	FORCEINLINE float GetXAxisMouseSensitivity() const { return XAxisMouseSensitivity; }
 	FORCEINLINE float GetYAxisMouseSensitivity() const { return YAxisMouseSensitivity; }
 
-	void SetFPSIndicatorEnabled(bool bEnable);
+	void SetPerformanceIndicatorEnabled(bool bEnable);
 	FORCEINLINE void SetScreenBrightnessValue(float InValue) { ScreenBrightnessValue = InValue; }
 	FORCEINLINE void SetMotionBlurValue(float InValue) { MotionBlurValue = InValue; }
 	FORCEINLINE void SetGraphicPresetValue(int32 InValue) { GraphicPresetValue = InValue; }
@@ -37,14 +37,14 @@ public:
 	// 화면 해상도 프리셋
 	inline const static TArray<FIntPoint> ScreenResolutionArray{{ { 1280, 720 }, { 1280, 800 }, { 1366, 768 }, { 1600, 900 }, { 1920, 1080 } }};
 
-	FOnFPSIndicatorEnabledChangedDelegate OnFPSIndicatorEnabledChanged;
+	FOnPerformanceIndicatorEnabledChangedDelegate OnPerformanceIndicatorEnabledChanged;
 	
 private:
 	/*
-	 *	FPS Indicator
+	 *	Performance Indicator
 	 */
 	UPROPERTY(config)
-	bool bFPSIndicatorEnabled = false;
+	bool bPerformanceIndicatorEnabled = false;
 
 	/*
 	 *	Screen Brightness
