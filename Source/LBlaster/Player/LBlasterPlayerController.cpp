@@ -402,7 +402,7 @@ void ALBlasterPlayerController::CheckPing()
 	if (IsValidOwningCharacter() && GetPlayerState<APlayerState>())
 	{
 		// SSR 제한
-		if (GetPlayerState<APlayerState>()->GetCompressedPing() * 4 > HighPingThreshold)
+		if (GetPlayerState<APlayerState>()->GetPingInMilliseconds() > HighPingThreshold)
 		{
 			if (IsValidOwningHUD())
 			{
