@@ -34,7 +34,7 @@ AWeapon::AWeapon()
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	/* Custom Depth */
-	WeaponMesh->SetCustomDepthStencilValue(CUSTOM_DEPTH_BLUE);
+	WeaponMesh->SetCustomDepthStencilValue(CUSTOM_DEPTH_PURPLE);
     WeaponMesh->MarkRenderStateDirty();	// 변경 사항을 Refresh
 	EnableCustomDepth(true);
 
