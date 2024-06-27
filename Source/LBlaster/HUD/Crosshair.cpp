@@ -29,10 +29,7 @@ void UCrosshair::DrawCrosshair(UImage* ImageToDraw, UTexture2D* InTexture)
 	}
 	
 	ImageToDraw->SetVisibility(ESlateVisibility::Visible);
-	
-	FSlateBrush SlateBrush;
-	SlateBrush.SetResourceObject(InTexture);
-	ImageToDraw->SetBrush(SlateBrush);
+	ImageToDraw->SetBrushFromTexture(InTexture, true);
 }
 
 void UCrosshair::UpdateCrosshair(float InSpreadScaled, const FLinearColor& InCrosshairColor)
