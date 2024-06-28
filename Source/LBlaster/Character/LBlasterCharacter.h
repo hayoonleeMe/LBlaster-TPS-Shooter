@@ -84,8 +84,7 @@ public:
 	void SetBlendWeight(float InWeight) const;
 	void SetAdsFov(float InAdsFov) const;
 	FORCEINLINE UStaticMeshComponent* GetAttachedGrenade() const { return AttachedGrenade; }
-	FORCEINLINE class AWeapon* GetOverlappingWeapon() const { return OverlappingWeapon; }
-	AWeapon* GetEquippingWeapon() const;
+	class AWeapon* GetEquippingWeapon() const;
 
 	UFUNCTION(BlueprintCallable)
 	FString GetCombatInfo();
@@ -93,8 +92,8 @@ public:
 	/*
 	 *	Weapon
 	 */
-	void SetOverlappingWeapon(AWeapon* InWeapon, bool bBegin);
 	void SetHUDAmmo(int32 InAmmo);
+	void EquipOverlappingWeapon(AWeapon* InWeapon);
 
 	/*
 	 *	Elimination
@@ -200,12 +199,6 @@ private:
 	UPROPERTY(VisibleAnywhere, Category="LBlaster|Camera")
 	TObjectPtr<class ULBlasterCameraComponent> CameraComponent;
 	
-	/*
-	 *	Weapon
-	 */
-	UPROPERTY()
-	TObjectPtr<AWeapon> OverlappingWeapon;
-
 	/*
 	 *	Grenade
 	 */

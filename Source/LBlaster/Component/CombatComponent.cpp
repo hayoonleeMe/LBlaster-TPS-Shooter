@@ -1365,17 +1365,18 @@ FTransform UCombatComponent::GetWeaponLeftHandTransform()
 	return FTransform::Identity;
 }
 
-void UCombatComponent::EquipOverlappingWeapon()
+void UCombatComponent::EquipOverlappingWeapon(AWeapon* InWeapon)
 {
 	if (!bCanEquipWeapon)
 	{
 		return;
 	}
 
-	// 1 or 2번 슬롯일 때 비었으면 바로 착용, 안 비었으면 무기 변경
-	if (IsValidOwnerCharacter() && OwnerCharacter->GetOverlappingWeapon())
+	if (IsValidOwnerCharacter() && InWeapon)
 	{
-		EquipWeapon(EquipSlotType, EEquipMode::EEM_OverlappingWeapon, OwnerCharacter->GetOverlappingWeapon());
+		EquipWeapon(EquipSlotType, EEquipMode::EEM_OverlappingWeapon, InWeapon);
+	}
+}
 	}
 }
 

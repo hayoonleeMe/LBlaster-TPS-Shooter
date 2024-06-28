@@ -298,53 +298,27 @@ FString ALBlasterCharacter::GetCombatInfo()
 	return TEXT("Invalid CombatComponent");
 }
 
-void ALBlasterCharacter::SetOverlappingWeapon(AWeapon* InWeapon, bool bBegin)
-{
-	if (!CombatComponent || !IsLocallyControlled())
-	{
-		return;
-	}
-	// 3번 슬롯인 상태에서 Weapon Overlap 방지; End Overlap은 가능
-	if (bBegin && CombatComponent->GetEquipSlotType() == EEquipSlot::EES_ThirdSlot)
-	{
-		return;
-	}
-
-	// Begin Overlap
-	if (bBegin)
-	{
-		AWeapon* LastOverlappingWeapon = OverlappingWeapon;
-		OverlappingWeapon = InWeapon;
-
-		if (LastOverlappingWeapon)
-		{
-			LastOverlappingWeapon->ShowPickupWidget(false);
-		}
-		if (OverlappingWeapon)
-		{
-			OverlappingWeapon->ShowPickupWidget(true);
-		}
-	}
-	// End Overlap
-	else
-	{
-		if (InWeapon)
-		{
-			if (OverlappingWeapon == InWeapon)
-			{
-				OverlappingWeapon = nullptr;
-			}
-			InWeapon->ShowPickupWidget(false);	
-		}
-	}
-}
-
 void ALBlasterCharacter::SetHUDAmmo(int32 InAmmo)
 {
 	if (ALBlasterPlayerController* PlayerController = Cast<ALBlasterPlayerController>(Controller))
 	{
 		PlayerController->SetHUDAmmo(InAmmo);
 	}
+}
+
+void ALBlasterCharacter::EquipOverlappingWeapon(AWeapon* InWeapon)
+{
+	if (!CombatComponent)
+	{
+		return;
+	}
+	
+	// 3번 슬롯인 상태에서 Weapon Overlap 방지; End Overlap은 가능
+	if (CombatComponent->GetEquipSlotType() == EEquipSlot::EES_ThirdSlot)
+	{
+		return;
+	}
+	CombatComponent->EquipOverlappingWeapon(InWeapon);
 }
 
 FTransform ALBlasterCharacter::GetWeaponLeftHandTransform() const
