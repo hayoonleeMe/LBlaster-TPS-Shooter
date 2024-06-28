@@ -40,7 +40,7 @@ public:
 	 *	ILBCharacterPickupInterface
 	 */
 	virtual void PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount) override;
-	virtual void FindNearestOverlappingWeapon() override;
+	virtual void EquipNewOverlappingWeapon() override;
 
 	/*
      *	LBlasterAnimInstance
@@ -84,8 +84,7 @@ public:
 	void SetBlendWeight(float InWeight) const;
 	void SetAdsFov(float InAdsFov) const;
 	FORCEINLINE UStaticMeshComponent* GetAttachedGrenade() const { return AttachedGrenade; }
-	FORCEINLINE class AWeapon* GetOverlappingWeapon() const { return OverlappingWeapon; }
-	AWeapon* GetEquippingWeapon() const;
+	class AWeapon* GetEquippingWeapon() const;
 
 	UFUNCTION(BlueprintCallable)
 	FString GetCombatInfo();
@@ -93,8 +92,8 @@ public:
 	/*
 	 *	Weapon
 	 */
-	void SetOverlappingWeapon(AWeapon* InWeapon, bool bBegin);
 	void SetHUDAmmo(int32 InAmmo);
+	void EquipOverlappingWeapon(AWeapon* InWeapon);
 
 	/*
 	 *	Elimination
@@ -133,9 +132,6 @@ protected:
 	TObjectPtr<UInputAction> LookAction;
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
-	TObjectPtr<UInputAction> EquipAction;
-
-	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
 	TObjectPtr<UInputAction> CrouchAction;
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
@@ -162,7 +158,6 @@ protected:
 	void Move(const FInputActionValue& ActionValue);
 	void Look(const FInputActionValue& ActionValue);
 	void DoJump(const FInputActionValue& ActionValue);
-	void EquipWeapon();
 	void DoCrouch();
 	void DoADS(const FInputActionValue& ActionValue);
 	void DoFire(const FInputActionValue& ActionValue);
@@ -200,12 +195,6 @@ private:
 	UPROPERTY(VisibleAnywhere, Category="LBlaster|Camera")
 	TObjectPtr<class ULBlasterCameraComponent> CameraComponent;
 	
-	/*
-	 *	Weapon
-	 */
-	UPROPERTY()
-	TObjectPtr<AWeapon> OverlappingWeapon;
-
 	/*
 	 *	Grenade
 	 */

@@ -118,12 +118,6 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 		LookAction = LookActionRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UInputAction> EquipActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_Equip.IA_Equip'"));
-	if (EquipActionRef.Object)
-	{
-		EquipAction = EquipActionRef.Object;
-	}
-
 	static ConstructorHelpers::FObjectFinder<UInputAction> CrouchActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_Crouch.IA_Crouch'"));
 	if (CrouchActionRef.Object)
 	{
@@ -219,7 +213,6 @@ void ALBlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ThisClass::Move);
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ThisClass::Look);
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ThisClass::DoJump);
-	EnhancedInputComponent->BindAction(EquipAction, ETriggerEvent::Triggered, this, &ThisClass::EquipWeapon);
 	EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &ThisClass::DoCrouch);
 	EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Triggered, this, &ThisClass::DoADS);
 	EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &ThisClass::DoFire);
@@ -298,53 +291,27 @@ FString ALBlasterCharacter::GetCombatInfo()
 	return TEXT("Invalid CombatComponent");
 }
 
-void ALBlasterCharacter::SetOverlappingWeapon(AWeapon* InWeapon, bool bBegin)
-{
-	if (!CombatComponent || !IsLocallyControlled())
-	{
-		return;
-	}
-	// 3번 슬롯인 상태에서 Weapon Overlap 방지; End Overlap은 가능
-	if (bBegin && CombatComponent->GetEquipSlotType() == EEquipSlot::EES_ThirdSlot)
-	{
-		return;
-	}
-
-	// Begin Overlap
-	if (bBegin)
-	{
-		AWeapon* LastOverlappingWeapon = OverlappingWeapon;
-		OverlappingWeapon = InWeapon;
-
-		if (LastOverlappingWeapon)
-		{
-			LastOverlappingWeapon->ShowPickupWidget(false);
-		}
-		if (OverlappingWeapon)
-		{
-			OverlappingWeapon->ShowPickupWidget(true);
-		}
-	}
-	// End Overlap
-	else
-	{
-		if (InWeapon)
-		{
-			if (OverlappingWeapon == InWeapon)
-			{
-				OverlappingWeapon = nullptr;
-			}
-			InWeapon->ShowPickupWidget(false);	
-		}
-	}
-}
-
 void ALBlasterCharacter::SetHUDAmmo(int32 InAmmo)
 {
 	if (ALBlasterPlayerController* PlayerController = Cast<ALBlasterPlayerController>(Controller))
 	{
 		PlayerController->SetHUDAmmo(InAmmo);
 	}
+}
+
+void ALBlasterCharacter::EquipOverlappingWeapon(AWeapon* InWeapon)
+{
+	if (!CombatComponent)
+	{
+		return;
+	}
+	
+	// 3번 슬롯인 상태에서 Weapon Overlap 방지; End Overlap은 가능
+	if (CombatComponent->GetEquipSlotType() == EEquipSlot::EES_ThirdSlot)
+	{
+		return;
+	}
+	CombatComponent->EquipOverlappingWeapon(InWeapon);
 }
 
 FTransform ALBlasterCharacter::GetWeaponLeftHandTransform() const
@@ -565,19 +532,6 @@ void ALBlasterCharacter::DoJump(const FInputActionValue& ActionValue)
 	else
 	{
 		StopJumping();
-	}
-}
-
-void ALBlasterCharacter::EquipWeapon()
-{
-	if (!OverlappingWeapon)
-	{
-		return;
-	}
-
-	if (CombatComponent)
-	{
-		CombatComponent->EquipOverlappingWeapon();
 	}
 }
 
@@ -803,11 +757,11 @@ void ALBlasterCharacter::PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount
 	}
 }
 
-void ALBlasterCharacter::FindNearestOverlappingWeapon()
+void ALBlasterCharacter::EquipNewOverlappingWeapon()
 {
 	if (CombatComponent)
 	{
-		CombatComponent->FindNearestOverlappingWeapon();
+		CombatComponent->EquipNewOverlappingWeapon();
 	}
 }
 

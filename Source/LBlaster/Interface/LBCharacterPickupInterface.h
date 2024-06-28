@@ -25,5 +25,5 @@ class LBLASTER_API ILBCharacterPickupInterface
 public:
 	virtual void PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount) = 0;
 	
-	virtual void FindNearestOverlappingWeapon() = 0; 
+	virtual void EquipNewOverlappingWeapon() = 0; 
 };

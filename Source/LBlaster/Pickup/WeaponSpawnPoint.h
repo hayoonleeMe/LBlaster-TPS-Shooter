@@ -16,7 +16,7 @@ class LBLASTER_API AWeaponSpawnPoint : public APickupSpawnPoint
 
 protected:
 	virtual void OnRep_SpawnedPickup() override;
-	void ForceFindNearestOverlappingWeapon() const;
+	void ForceEquipNewOverlappingWeapon() const;
 
 private:
 	/*

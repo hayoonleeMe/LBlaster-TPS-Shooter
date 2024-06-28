@@ -1365,17 +1365,49 @@ FTransform UCombatComponent::GetWeaponLeftHandTransform()
 	return FTransform::Identity;
 }
 
-void UCombatComponent::EquipOverlappingWeapon()
+void UCombatComponent::EquipOverlappingWeapon(AWeapon* InWeapon)
 {
 	if (!bCanEquipWeapon)
 	{
 		return;
 	}
 
-	// 1 or 2번 슬롯일 때 비었으면 바로 착용, 안 비었으면 무기 변경
-	if (IsValidOwnerCharacter() && OwnerCharacter->GetOverlappingWeapon())
+	if (IsValidOwnerCharacter() && InWeapon)
 	{
-		EquipWeapon(EquipSlotType, EEquipMode::EEM_OverlappingWeapon, OwnerCharacter->GetOverlappingWeapon());
+		EquipWeapon(EquipSlotType, EEquipMode::EEM_OverlappingWeapon, InWeapon);
+	}
+}
+
+void UCombatComponent::EquipNewOverlappingWeapon()
+{
+	if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled())
+	{
+		TArray<AActor*> OverlappingActors;
+		OwnerCharacter->GetCapsuleComponent()->GetOverlappingActors(OverlappingActors, AWeapon::StaticClass());
+		if (OverlappingActors.Num() == 0)
+		{
+			return;
+		}
+
+		// 캐릭터와 가장 가까운 Overlapping Weapon을 장착
+		const FVector Location = OwnerCharacter->GetActorLocation();
+		float MinDistance = MAX_flt;
+		AActor* NearestActor = nullptr;
+		for (AActor* Actor : OverlappingActors)
+		{
+			if (const float Distance = (Location - Actor->GetActorLocation()).Length(); Distance < MinDistance)
+			{
+				NearestActor = Actor;
+				MinDistance = Distance;
+			}
+		}
+		if (NearestActor)
+		{
+			if (AWeapon* NearestWeapon = Cast<AWeapon>(NearestActor))
+			{
+				EquipOverlappingWeapon(NearestWeapon);
+			}    
+		}
 	}
 }
 
@@ -1411,7 +1443,11 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 		// Set Equip Delay Timer
 		bCanEquipWeapon = false;
 		GetWorld()->GetTimerManager().SetTimer(EquipDelayTimer, FTimerDelegate::CreateLambda(
-			[this]() { bCanEquipWeapon = true; }
+			[this]()
+			{
+				bCanEquipWeapon = true;
+				EquipNewOverlappingWeapon();
+			}
 		), EquipDelay, false);
 
 		// Interrupt Aiming for UnarmedState
@@ -1444,9 +1480,6 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 			OwnerController->ChooseWeaponSlot(EquipSlotType);
 			SetHUDCrosshair(EWeaponType::EWT_Unarmed);
 		}
-
-		// Equip이 끝나고 다시 Overlap 이벤트가 발생한 Drop된 Weapon이 있는지 체크
-		FindNearestOverlappingWeapon();
 
 		// Unarmed State로 변경하면 Firing Animation 정지
 		bCanAnimateFiring = false;
@@ -1501,9 +1534,6 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 		/* Sniper Scope */
 		InitSniperScope();
 	}
-
-	// Equip이 끝나고 다시 Overlap 이벤트가 발생한 Drop된 Weapon이 있는지 체크
-	FindNearestOverlappingWeapon();
 }
 
 void UCombatComponent::OnRep_ServerWeaponEquipState()
@@ -1572,42 +1602,5 @@ void UCombatComponent::HolsterWeapon(EEquipSlot InEquipSlotType)
 	if (GetEquippingWeapon(InEquipSlotType))
 	{
 		GetEquippingWeapon(InEquipSlotType)->Holstered();
-	}
-}
-
-void UCombatComponent::FindNearestOverlappingWeapon()
-{
-	if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled())
-	{
-		// Overlapping Weapon 초기화
-		OwnerCharacter->SetOverlappingWeapon(OwnerCharacter->GetOverlappingWeapon(), false);
-		
-		TArray<AActor*> OverlappingActors;
-		OwnerCharacter->GetCapsuleComponent()->GetOverlappingActors(OverlappingActors, AWeapon::StaticClass());
-		if (OverlappingActors.Num() == 0)
-		{
-			return;
-		}
-
-		// 캐릭터와 가장 가까운 Weapon을 Overlapping하도록 설정
-		const FVector Location = OwnerCharacter->GetActorLocation();
-		float MinDistance = MAX_flt;
-		AActor* NearestActor = nullptr;
-		for (AActor* Actor : OverlappingActors)
-		{
-			if (const float Distance = (Location - Actor->GetActorLocation()).Length(); Distance < MinDistance)
-			{
-				NearestActor = Actor;
-				MinDistance = Distance;
-			}
-		}
-		// 찾으면 SetOverlappingWeapon
-		if (NearestActor)
-		{
-			if (AWeapon* NearestWeapon = Cast<AWeapon>(NearestActor))
-			{
-				OwnerCharacter->SetOverlappingWeapon(NearestWeapon, true);
-			}	
-		}
 	}
 }
