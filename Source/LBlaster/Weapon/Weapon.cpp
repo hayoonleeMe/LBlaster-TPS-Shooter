@@ -45,22 +45,6 @@ AWeapon::AWeapon()
 	AreaSphere->SetCollisionResponseToAllChannels(ECR_Ignore);
 	AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	/* Pickup Widget Component */
-	PickupWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Pickup Widget Component"));
-	PickupWidgetComponent->SetupAttachment(RootComponent);
-	PickupWidgetComponent->SetIsReplicated(false);
-	PickupWidgetComponent->SetRelativeLocation(FVector(0.f, 20.f, 50.f));
-	PickupWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
-	PickupWidgetComponent->SetDrawAtDesiredSize(true);
-	PickupWidgetComponent->SetVisibility(false);
-	LocOffset = FVector(0.f, 20.f, 50.f);
-
-	static ConstructorHelpers::FClassFinder<UUserWidget> PickupWidgetClassRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/LBlaster/UI/HUD/WBP_PickupWidget.WBP_PickupWidget_C'"));
-	if (PickupWidgetClassRef.Class)
-	{
-		PickupWidgetComponent->SetWidgetClass(PickupWidgetClassRef.Class);
-	}
-
 	/* Auto Fire */
 	bAutomatic = true;
 	FireDelay = 0.15f;
@@ -104,14 +88,6 @@ void AWeapon::SetOwner(AActor* NewOwner)
 	}
 }
 
-void AWeapon::ShowPickupWidget(bool bInShow) const
-{
-	if (PickupWidgetComponent && PickupWidgetComponent->IsVisible() != bInShow)
-	{
-		PickupWidgetComponent->SetVisibility(bInShow);
-	}
-}
-
 void AWeapon::SetHUDAmmo()
 {
 	if (IsValidOwnerCharacter() && bSelected)
@@ -146,8 +122,7 @@ void AWeapon::OnWeaponEquipped(bool bInSelected)
 	
 	bSelected = bInSelected;
 
-	// 무기가 장착된 상태라면 Pickup Widget을 숨기고 Pickup Overlap 발생 중지
-	ShowPickupWidget(false);
+	// 무기가 장착된 상태라면 Overlapping Event 발생 중지
 	AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	WeaponMesh->SetSimulatePhysics(false);
 	WeaponMesh->SetEnableGravity(false);
@@ -306,7 +281,7 @@ void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Overlap Event 판정, 실제 무기 착용은 서버에서만 이루어지게 하고, Pickup Widget은 로컬에서 표시해 높은 핑에서도 바로 볼 수 있게 함.
+	// Overlap Event
 	AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	AreaSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnSphereBeginOverlap);

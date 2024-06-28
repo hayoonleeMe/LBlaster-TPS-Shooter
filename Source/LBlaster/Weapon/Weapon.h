@@ -41,7 +41,6 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void SetOwner(AActor* NewOwner) override;
 	
-	void ShowPickupWidget(bool bInShow) const;
 	void SetHUDAmmo();
 	void AddAmmo(int32 InAmmoToAdd);
 	virtual void OnWeaponEquipped(bool bInSelected) override;
@@ -125,15 +124,6 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class USphereComponent> AreaSphere;
 
-	/*
-	 *	Pickup Widget
-	 */
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<class UWidgetComponent> PickupWidgetComponent;
-
-	UPROPERTY(EditAnywhere, Category="LBlaster|Pickup Widget")
-	FVector LocOffset;
-	
 	/*
 	 *	Casing
 	 */
