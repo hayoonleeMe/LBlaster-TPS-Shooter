@@ -118,12 +118,6 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 		LookAction = LookActionRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UInputAction> EquipActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_Equip.IA_Equip'"));
-	if (EquipActionRef.Object)
-	{
-		EquipAction = EquipActionRef.Object;
-	}
-
 	static ConstructorHelpers::FObjectFinder<UInputAction> CrouchActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_Crouch.IA_Crouch'"));
 	if (CrouchActionRef.Object)
 	{
@@ -219,7 +213,6 @@ void ALBlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ThisClass::Move);
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ThisClass::Look);
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ThisClass::DoJump);
-	EnhancedInputComponent->BindAction(EquipAction, ETriggerEvent::Triggered, this, &ThisClass::EquipWeapon);
 	EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &ThisClass::DoCrouch);
 	EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Triggered, this, &ThisClass::DoADS);
 	EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &ThisClass::DoFire);
@@ -539,19 +532,6 @@ void ALBlasterCharacter::DoJump(const FInputActionValue& ActionValue)
 	else
 	{
 		StopJumping();
-	}
-}
-
-void ALBlasterCharacter::EquipWeapon()
-{
-	if (!OverlappingWeapon)
-	{
-		return;
-	}
-
-	if (CombatComponent)
-	{
-		CombatComponent->EquipOverlappingWeapon();
 	}
 }
 

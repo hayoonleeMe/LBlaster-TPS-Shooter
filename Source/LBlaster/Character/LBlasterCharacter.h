@@ -132,9 +132,6 @@ protected:
 	TObjectPtr<UInputAction> LookAction;
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
-	TObjectPtr<UInputAction> EquipAction;
-
-	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
 	TObjectPtr<UInputAction> CrouchAction;
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
@@ -161,7 +158,6 @@ protected:
 	void Move(const FInputActionValue& ActionValue);
 	void Look(const FInputActionValue& ActionValue);
 	void DoJump(const FInputActionValue& ActionValue);
-	void EquipWeapon();
 	void DoCrouch();
 	void DoADS(const FInputActionValue& ActionValue);
 	void DoFire(const FInputActionValue& ActionValue);
