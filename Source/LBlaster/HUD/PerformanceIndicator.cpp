@@ -27,14 +27,12 @@ void UPerformanceIndicator::OnPerformanceIndicatorEnabledChanged(bool bPerforman
 	{
 		if (bPerformanceIndicatorEnabled)
 		{
-			FPSIndicatorText->SetVisibility(ESlateVisibility::Visible);
-			PingIndicatorText->SetVisibility(ESlateVisibility::Visible);
+			SetVisibility(ESlateVisibility::Visible);
 			GetWorld()->GetTimerManager().SetTimer(PerformanceIndicatorTimer, this, &ThisClass::UpdatePerformanceIndicator, PerformanceIndicatorTimerRate, true);			
 		}
 		else
 		{
-			FPSIndicatorText->SetVisibility(ESlateVisibility::Collapsed);
-			PingIndicatorText->SetVisibility(ESlateVisibility::Collapsed);
+			SetVisibility(ESlateVisibility::Collapsed);
 			GetWorld()->GetTimerManager().ClearTimer(PerformanceIndicatorTimer);
 		}
 	}
