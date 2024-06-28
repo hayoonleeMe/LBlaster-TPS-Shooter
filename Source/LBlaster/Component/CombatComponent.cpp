@@ -1351,6 +1351,12 @@ void UCombatComponent::OnRep_DefaultWeapon()
 	}
 }
 
+void UCombatComponent::OnEquipDelayTimerFinished()
+{
+	bCanEquipWeapon = true;
+	EquipNewOverlappingWeapon();
+}
+
 AWeapon* UCombatComponent::GetEquippingWeapon(EEquipSlot InEquipSlotType)
 {
 	return EquipSlots[static_cast<uint8>(InEquipSlotType)];
@@ -1380,6 +1386,12 @@ void UCombatComponent::EquipOverlappingWeapon(AWeapon* InWeapon)
 
 void UCombatComponent::EquipNewOverlappingWeapon()
 {
+	// DefaultWeapon 장착 주에는 새로 장착 X
+	if (EquipSlotType == EEquipSlot::EES_ThirdSlot)
+	{
+		return;
+	}
+	
 	if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled())
 	{
 		TArray<AActor*> OverlappingActors;
@@ -1442,13 +1454,7 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 	{
 		// Set Equip Delay Timer
 		bCanEquipWeapon = false;
-		GetWorld()->GetTimerManager().SetTimer(EquipDelayTimer, FTimerDelegate::CreateLambda(
-			[this]()
-			{
-				bCanEquipWeapon = true;
-				EquipNewOverlappingWeapon();
-			}
-		), EquipDelay, false);
+		GetWorld()->GetTimerManager().SetTimer(EquipDelayTimer, this, &ThisClass::OnEquipDelayTimerFinished, EquipDelay, false);
 
 		// Interrupt Aiming for UnarmedState
 		SetAiming(false);

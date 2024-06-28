@@ -224,6 +224,8 @@ private:
 
 	FTimerHandle EquipDelayTimer;
 
+	void OnEquipDelayTimerFinished();
+
 	UPROPERTY(EditAnywhere, Category="LBlaster|Weapon")
 	float EquipDelay = 0.4f;
 
