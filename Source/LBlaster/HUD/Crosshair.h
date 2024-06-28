@@ -21,6 +21,9 @@ public:
 	void UpdateCrosshair(float InSpreadScaled, const FLinearColor& InCrosshairColor);
 	void SetPlayerNameText(const FString& InPlayerName) const;
 
+	UFUNCTION()
+	void OnHelpInfoVisibilityChanged(bool bHelpInfoVisible);
+
 private:
 	/*
 	 *	Crosshair

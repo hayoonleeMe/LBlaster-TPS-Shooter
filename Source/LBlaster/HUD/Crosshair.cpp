@@ -50,6 +50,11 @@ void UCrosshair::SetPlayerNameText(const FString& InPlayerName) const
 	}
 }
 
+void UCrosshair::OnHelpInfoVisibilityChanged(bool bHelpInfoVisible)
+{
+	SetVisibility(bHelpInfoVisible ? ESlateVisibility::Collapsed : ESlateVisibility::Visible);
+}
+
 void UCrosshair::UpdateCrosshair(UImage* ImageToDraw, const FVector2D& InSpread, const FLinearColor& InCrosshairColor) const
 {
 	if (!ImageToDraw || ImageToDraw->GetVisibility() != ESlateVisibility::Visible)

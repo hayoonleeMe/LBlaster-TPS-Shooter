@@ -11,6 +11,8 @@
 #include "LBTypes/WeaponTypes.h"
 #include "LBlasterHUD.generated.h"
 
+DECLARE_DELEGATE_OneParam(FOnHelpInfoVisibilityChanged, bool /* bHelpInfoVisible */);
+
 /**
  * 
  */
@@ -243,6 +245,8 @@ private:
 	TObjectPtr<UUserWidget> HelpInfo;
 
 	void AddHelpInfo();
+
+	FOnHelpInfoVisibilityChanged OnHelpInfoVisibilityChanged;
 
 	/*
 	 *	Result Menu
