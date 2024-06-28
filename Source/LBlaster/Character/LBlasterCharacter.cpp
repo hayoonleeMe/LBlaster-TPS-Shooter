@@ -777,11 +777,11 @@ void ALBlasterCharacter::PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount
 	}
 }
 
-void ALBlasterCharacter::FindNearestOverlappingWeapon()
+void ALBlasterCharacter::EquipNewOverlappingWeapon()
 {
 	if (CombatComponent)
 	{
-		CombatComponent->FindNearestOverlappingWeapon();
+		CombatComponent->EquipNewOverlappingWeapon();
 	}
 }
 

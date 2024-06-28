@@ -11,10 +11,10 @@
 
 void AWeaponSpawnPoint::OnRep_SpawnedPickup()
 {
-	ForceFindNearestOverlappingWeapon();
+	ForceEquipNewOverlappingWeapon();
 }
 
-void AWeaponSpawnPoint::ForceFindNearestOverlappingWeapon() const
+void AWeaponSpawnPoint::ForceEquipNewOverlappingWeapon() const
 {
 	if (SpawnedPickup && GetWorld())
 	{
@@ -22,7 +22,7 @@ void AWeaponSpawnPoint::ForceFindNearestOverlappingWeapon() const
 		{
 			if (ILBCharacterPickupInterface* Interface = Cast<ILBCharacterPickupInterface>(PlayerController->GetCharacter()))
 			{
-				Interface->FindNearestOverlappingWeapon();
+				Interface->EquipNewOverlappingWeapon();
 			}
 		}
 	}
@@ -44,7 +44,7 @@ void AWeaponSpawnPoint::SpawnPickup()
 		SpawnedPickup->FinishSpawning(GetActorTransform());
 
 		MulticastDeactivatePadLoadingParticle();
-		ForceFindNearestOverlappingWeapon();
+		ForceEquipNewOverlappingWeapon();
 	}
 }
 

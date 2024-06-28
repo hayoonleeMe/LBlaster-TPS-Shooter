@@ -142,8 +142,9 @@ public:
 	void ServerEquipDefaultWeapon();
 
 	void ChooseWeaponSlot(EEquipSlot InEquipSlotType);
-	void FindNearestOverlappingWeapon();
 	void EquipOverlappingWeapon(class AWeapon* InWeapon);
+	// 현재 캐릭터와 Overlapping 중인 Weapon을 장착
+	void EquipNewOverlappingWeapon();
 	
 	void SetAiming(bool bInAiming);
 	void SetFiring(bool bInFiring);
