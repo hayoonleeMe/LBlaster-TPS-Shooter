@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "HUD/GraphicSettingMenu.h"
+#include "HUD/VideoSettingMenu.h"
 
 #include "LBlasterHUD.h"
 #include "OptionSelector.h"
@@ -12,7 +12,7 @@
 #include "GameUserSettings/LBGameUserSettings.h"
 #include "Kismet/GameplayStatics.h"
 
-void UGraphicSettingMenu::MenuSetup()
+void UVideoSettingMenu::MenuSetup()
 {
 	Super::MenuSetup();
 
@@ -310,7 +310,7 @@ void UGraphicSettingMenu::MenuSetup()
 	}
 }
 
-bool UGraphicSettingMenu::IsOverlayOpened()
+bool UVideoSettingMenu::IsOverlayOpened()
 {
 	if (NoApplyAlertOverlay && NoApplyAlertOverlay->IsVisible())
 	{
@@ -323,7 +323,7 @@ bool UGraphicSettingMenu::IsOverlayOpened()
 	return false;
 }
 
-void UGraphicSettingMenu::CloseOverlay()
+void UVideoSettingMenu::CloseOverlay()
 {
 	if (NoApplyAlertOverlay && NoApplyAlertOverlay->IsVisible())
 	{
@@ -335,7 +335,7 @@ void UGraphicSettingMenu::CloseOverlay()
 	}
 }
 
-void UGraphicSettingMenu::OnScreenBrightnessSliderChanged(float InSliderValue)
+void UVideoSettingMenu::OnScreenBrightnessSliderChanged(float InSliderValue)
 {
 	if (GameUserSettings)
 	{
@@ -346,7 +346,7 @@ void UGraphicSettingMenu::OnScreenBrightnessSliderChanged(float InSliderValue)
 	}
 }
 
-void UGraphicSettingMenu::OnXAxisMouseSensitivitySliderChanged(float InSliderValue)
+void UVideoSettingMenu::OnXAxisMouseSensitivitySliderChanged(float InSliderValue)
 {
 	if (GameUserSettings)
 	{
@@ -357,7 +357,7 @@ void UGraphicSettingMenu::OnXAxisMouseSensitivitySliderChanged(float InSliderVal
 	}
 }
 
-void UGraphicSettingMenu::OnYAxisMouseSensitivitySliderChanged(float InSliderValue)
+void UVideoSettingMenu::OnYAxisMouseSensitivitySliderChanged(float InSliderValue)
 {
 	if (GameUserSettings)
 	{
@@ -368,7 +368,7 @@ void UGraphicSettingMenu::OnYAxisMouseSensitivitySliderChanged(float InSliderVal
 	}
 }
 
-void UGraphicSettingMenu::OnDisplayModeChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnDisplayModeChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
@@ -390,7 +390,7 @@ void UGraphicSettingMenu::OnDisplayModeChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::OnScreenResolutionChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnScreenResolutionChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
@@ -401,7 +401,7 @@ void UGraphicSettingMenu::OnScreenResolutionChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::OnPerformanceIndicatorChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnPerformanceIndicatorChanged(int32 InActiveIndex)
 {
 	// TODO : CharacterOverlay에 별도의 UI 추가 및 연계
 	if (GameUserSettings)
@@ -413,7 +413,7 @@ void UGraphicSettingMenu::OnPerformanceIndicatorChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::OnFPSLimitChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnFPSLimitChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
@@ -435,7 +435,7 @@ void UGraphicSettingMenu::OnFPSLimitChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::OnVSyncChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnVSyncChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
@@ -447,7 +447,7 @@ void UGraphicSettingMenu::OnVSyncChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::OnMotionBlurChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnMotionBlurChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
@@ -459,7 +459,7 @@ void UGraphicSettingMenu::OnMotionBlurChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::OnGraphicPresetChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnGraphicPresetChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
@@ -567,7 +567,7 @@ void UGraphicSettingMenu::OnGraphicPresetChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::UpdateGraphicPresetSelector()
+void UVideoSettingMenu::UpdateGraphicPresetSelector()
 {
 	if (GameUserSettings && GraphicPresetSelector)
 	{
@@ -594,7 +594,7 @@ void UGraphicSettingMenu::UpdateGraphicPresetSelector()
 	}
 }
 
-void UGraphicSettingMenu::OnAntiAliasingChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnAntiAliasingChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
@@ -607,7 +607,7 @@ void UGraphicSettingMenu::OnAntiAliasingChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::OnViewDistanceChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnViewDistanceChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
@@ -620,7 +620,7 @@ void UGraphicSettingMenu::OnViewDistanceChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::OnShadowQualityChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnShadowQualityChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
@@ -633,7 +633,7 @@ void UGraphicSettingMenu::OnShadowQualityChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::OnGlobalIlluminationQualityChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnGlobalIlluminationQualityChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
@@ -646,7 +646,7 @@ void UGraphicSettingMenu::OnGlobalIlluminationQualityChanged(int32 InActiveIndex
 	}
 }
 
-void UGraphicSettingMenu::OnReflectionQualityChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnReflectionQualityChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
@@ -659,7 +659,7 @@ void UGraphicSettingMenu::OnReflectionQualityChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::OnPostProcessingChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnPostProcessingChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
@@ -672,7 +672,7 @@ void UGraphicSettingMenu::OnPostProcessingChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::OnTextureQualityChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnTextureQualityChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
@@ -685,7 +685,7 @@ void UGraphicSettingMenu::OnTextureQualityChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::OnEffectQualityChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnEffectQualityChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
@@ -698,7 +698,7 @@ void UGraphicSettingMenu::OnEffectQualityChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::OnBackgroundQualityChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnBackgroundQualityChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
@@ -711,7 +711,7 @@ void UGraphicSettingMenu::OnBackgroundQualityChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::OnShadingQualityChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnShadingQualityChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
@@ -724,7 +724,7 @@ void UGraphicSettingMenu::OnShadingQualityChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::EnableApplyButton()
+void UVideoSettingMenu::EnableApplyButton()
 {
 	if (GameUserSettings && ApplyButton)
 	{
@@ -732,13 +732,13 @@ void UGraphicSettingMenu::EnableApplyButton()
 	}
 }
 
-bool UGraphicSettingMenu::ShouldApplyChange() const
+bool UVideoSettingMenu::ShouldApplyChange() const
 {
 	const bool bShouldApplyChange = bChangedFullScreenMode || bChangedScreenResolution || bChangedEnablePerformanceIndicator || bChangedFrameLimitValue || bChangedScreenBrightness || bChangedXAxisMouseSensitivity || bChangedYAxisMouseSensitivity || bChangedEnableVSync || bChangedMotionBlur || bChangedGraphicPresetValue || bChangedAntiAliasing || bChangedViewDistance || bChangedShadowQuality || bChangedGlobalIlluminationQuality || bChangedReflectionQuality || bChangedPostProcessing || bChangedTextureQuality || bChangedEffectQuality || bChangedBackgroundQuality || bChangedShadingQuality;
 	return bShouldApplyChange;
 }
 
-void UGraphicSettingMenu::OnReturnButtonClicked()
+void UVideoSettingMenu::OnReturnButtonClicked()
 {
 	if (ShouldApplyChange())
 	{
@@ -757,7 +757,7 @@ void UGraphicSettingMenu::OnReturnButtonClicked()
 	}
 }
 
-void UGraphicSettingMenu::OnNoApplyAlertAcceptButtonClicked()
+void UVideoSettingMenu::OnNoApplyAlertAcceptButtonClicked()
 {
 	// 변경사항 되돌리기
 	if (GameUserSettings)
@@ -871,7 +871,7 @@ void UGraphicSettingMenu::OnNoApplyAlertAcceptButtonClicked()
 	}	
 }
 
-void UGraphicSettingMenu::OnNoApplyAlertCancelButtonClicked()
+void UVideoSettingMenu::OnNoApplyAlertCancelButtonClicked()
 {
 	if (NoApplyAlertOverlay)
 	{
@@ -879,7 +879,7 @@ void UGraphicSettingMenu::OnNoApplyAlertCancelButtonClicked()
 	}
 }
 
-void UGraphicSettingMenu::OnApplyButtonClicked()
+void UVideoSettingMenu::OnApplyButtonClicked()
 {
 	if (GameUserSettings)
 	{

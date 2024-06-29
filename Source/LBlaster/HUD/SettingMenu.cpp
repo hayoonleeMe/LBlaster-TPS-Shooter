@@ -10,10 +10,10 @@ void USettingMenu::MenuSetup()
 {
 	Super::MenuSetup();
 	
-	/* Graphic Setting */
-	if (GraphicSettingButton && !GraphicSettingButton->OnClicked.IsBound())
+	/* Video Setting */
+	if (VideoSettingButton && !VideoSettingButton->OnClicked.IsBound())
 	{
-		GraphicSettingButton->OnClicked.AddDynamic(this, &ThisClass::GraphicSettingButtonClicked);
+		VideoSettingButton->OnClicked.AddDynamic(this, &ThisClass::VideoSettingButtonClicked);
 	}
 
 	/* Return Button */
@@ -23,11 +23,11 @@ void USettingMenu::MenuSetup()
 	}
 }
 
-void USettingMenu::GraphicSettingButtonClicked()
+void USettingMenu::VideoSettingButtonClicked()
 {
 	if (IsValidOwnerHUD())
 	{
-		OwnerHUD->CreateGraphicSettingMenu();
+		OwnerHUD->CreateVideoSettingMenu();
 	}
 }
 

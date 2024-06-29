@@ -8,7 +8,7 @@
 #include "ChatBox.h"
 #include "Crosshair.h"
 #include "ElimAnnouncement.h"
-#include "GraphicSettingMenu.h"
+#include "VideoSettingMenu.h"
 #include "LBlaster.h"
 #include "MiniScoreboard.h"
 #include "MiniScoreboardFreeForAll.h"
@@ -655,17 +655,17 @@ void ALBlasterHUD::CreateSettingMenu()
 	AddNewMenuToStack(SettingMenu);
 }
 
-void ALBlasterHUD::CreateGraphicSettingMenu()
+void ALBlasterHUD::CreateVideoSettingMenu()
 {
-	if (GraphicSettingMenuClass && !GraphicSettingMenu)
+	if (VideoSettingMenuClass && !VideoSettingMenu)
 	{
 		if (IsValidOwnerController())
 		{
-			GraphicSettingMenu = CreateWidget<UGraphicSettingMenu>(OwnerController, GraphicSettingMenuClass);
+			VideoSettingMenu = CreateWidget<UVideoSettingMenu>(OwnerController, VideoSettingMenuClass);
 		}
 	}
 
-	AddNewMenuToStack(GraphicSettingMenu);
+	AddNewMenuToStack(VideoSettingMenu);
 }
 
 void ALBlasterHUD::PostInitializeComponents()

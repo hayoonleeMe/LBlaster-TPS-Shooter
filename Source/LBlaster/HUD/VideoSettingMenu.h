@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "LBlasterUserWidget.h"
-#include "GraphicSettingMenu.generated.h"
+#include "VideoSettingMenu.generated.h"
 
 USTRUCT()
 struct FOriginalGameUserSettings
@@ -76,7 +76,7 @@ struct FOriginalGameUserSettings
  * 
  */
 UCLASS()
-class LBLASTER_API UGraphicSettingMenu : public ULBlasterUserWidget
+class LBLASTER_API UVideoSettingMenu : public ULBlasterUserWidget
 {
 	GENERATED_BODY()
 

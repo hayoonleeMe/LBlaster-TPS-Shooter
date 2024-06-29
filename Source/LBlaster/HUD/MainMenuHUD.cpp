@@ -3,7 +3,7 @@
 
 #include "HUD/MainMenuHUD.h"
 
-#include "GraphicSettingMenu.h"
+#include "VideoSettingMenu.h"
 #include "MultiplayerSessionsSubsystem.h"
 #include "MainMenu.h"
 #include "SessionListMenu.h"
@@ -37,17 +37,17 @@ void AMainMenuHUD::CreateSettingMenu()
 	AddNewMenuToStack(SettingMenu);
 }
 
-void AMainMenuHUD::CreateGraphicSettingMenu()
+void AMainMenuHUD::CreateVideoSettingMenu()
 {
-	if (GraphicSettingMenuClass && !GraphicSettingMenu)
+	if (VideoSettingMenuClass && !VideoSettingMenu)
 	{
 		if (IsValidOwnerController())
 		{
-			GraphicSettingMenu = CreateWidget<UGraphicSettingMenu>(OwnerController, GraphicSettingMenuClass);
+			VideoSettingMenu = CreateWidget<UVideoSettingMenu>(OwnerController, VideoSettingMenuClass);
 		}
 	}
 
-	AddNewMenuToStack(GraphicSettingMenu);
+	AddNewMenuToStack(VideoSettingMenu);
 }
 
 void AMainMenuHUD::CreateSessionListMenu()
