@@ -242,7 +242,7 @@ void UVideoSettingMenu::InitializeMenuOptions(bool bFirstCall)
 		{
 			bChangedGraphicPresetValue = GameUserSettings->GetGraphicPresetValue() != OriginalSettings.GraphicPresetValue;
 		}
-		GraphicPresetSelector->SetActiveIndex(GameUserSettings->GetGraphicPresetValue() - 1);
+		GraphicPresetSelector->SetActiveIndex(GameUserSettings->GetGraphicPresetValue());
 	}
 
 	if (AntiAliasingSelector)
@@ -260,7 +260,7 @@ void UVideoSettingMenu::InitializeMenuOptions(bool bFirstCall)
 		{
 			bChangedAntiAliasing = GameUserSettings->GetAntiAliasingQuality() != OriginalSettings.AntiAliasingValue;
 		}
-		AntiAliasingSelector->SetActiveIndex(GameUserSettings->GetAntiAliasingQuality() - 1);
+		AntiAliasingSelector->SetActiveIndex(GameUserSettings->GetAntiAliasingQuality());
 	}
 	
 	if (ViewDistanceSelector)
@@ -278,7 +278,7 @@ void UVideoSettingMenu::InitializeMenuOptions(bool bFirstCall)
 		{
 			bChangedViewDistance = GameUserSettings->GetViewDistanceQuality() != OriginalSettings.ViewDistanceValue; 
 		}
-		ViewDistanceSelector->SetActiveIndex(GameUserSettings->GetViewDistanceQuality() - 1);
+		ViewDistanceSelector->SetActiveIndex(GameUserSettings->GetViewDistanceQuality());
 	}
 	
 	if (ShadowQualitySelector)
@@ -296,7 +296,7 @@ void UVideoSettingMenu::InitializeMenuOptions(bool bFirstCall)
 		{
 			bChangedShadowQuality = GameUserSettings->GetShadowQuality() != OriginalSettings.ShadowQualityValue;
 		}
-		ShadowQualitySelector->SetActiveIndex(GameUserSettings->GetShadowQuality() - 1);
+		ShadowQualitySelector->SetActiveIndex(GameUserSettings->GetShadowQuality());
 	}
 
 	if (GlobalIlluminationQualitySelector)
@@ -314,7 +314,7 @@ void UVideoSettingMenu::InitializeMenuOptions(bool bFirstCall)
 		{
 			bChangedGlobalIlluminationQuality = GameUserSettings->GetGlobalIlluminationQuality() != OriginalSettings.GlobalIlluminationQualityValue;
 		}
-		GlobalIlluminationQualitySelector->SetActiveIndex(GameUserSettings->GetGlobalIlluminationQuality() - 1);
+		GlobalIlluminationQualitySelector->SetActiveIndex(GameUserSettings->GetGlobalIlluminationQuality());
 	}
 
 	if (ReflectionQualitySelector)
@@ -332,7 +332,7 @@ void UVideoSettingMenu::InitializeMenuOptions(bool bFirstCall)
 		{
 			bChangedReflectionQuality = GameUserSettings->GetReflectionQuality() != OriginalSettings.ReflectionQualityValue;
 		}
-		ReflectionQualitySelector->SetActiveIndex(GameUserSettings->GetReflectionQuality() - 1);
+		ReflectionQualitySelector->SetActiveIndex(GameUserSettings->GetReflectionQuality());
 	}
 	
 	if (PostProcessingSelector)
@@ -350,7 +350,7 @@ void UVideoSettingMenu::InitializeMenuOptions(bool bFirstCall)
 		{
 			bChangedPostProcessing = GameUserSettings->GetPostProcessingQuality() != OriginalSettings.PostProcessingValue;
 		}
-		PostProcessingSelector->SetActiveIndex(GameUserSettings->GetPostProcessingQuality() - 1);
+		PostProcessingSelector->SetActiveIndex(GameUserSettings->GetPostProcessingQuality());
 	}
 	
 	if (TextureQualitySelector)
@@ -368,7 +368,7 @@ void UVideoSettingMenu::InitializeMenuOptions(bool bFirstCall)
 		{
 			bChangedTextureQuality = GameUserSettings->GetTextureQuality() != OriginalSettings.TextureQualityValue;
 		}
-		TextureQualitySelector->SetActiveIndex(GameUserSettings->GetTextureQuality() - 1);
+		TextureQualitySelector->SetActiveIndex(GameUserSettings->GetTextureQuality());
 	}
 	
 	if (EffectQualitySelector)
@@ -386,7 +386,7 @@ void UVideoSettingMenu::InitializeMenuOptions(bool bFirstCall)
 		{
 			bChangedEffectQuality = GameUserSettings->GetVisualEffectQuality() != OriginalSettings.EffectQualityValue;
 		}
-		EffectQualitySelector->SetActiveIndex(GameUserSettings->GetVisualEffectQuality() - 1);
+		EffectQualitySelector->SetActiveIndex(GameUserSettings->GetVisualEffectQuality());
 	}
 	
 	if (BackgroundQualitySelector)
@@ -404,7 +404,7 @@ void UVideoSettingMenu::InitializeMenuOptions(bool bFirstCall)
 		{
 			bChangedBackgroundQuality = GameUserSettings->GetFoliageQuality() != OriginalSettings.BackgroundQualityValue;
 		}
-		BackgroundQualitySelector->SetActiveIndex(GameUserSettings->GetFoliageQuality() - 1);
+		BackgroundQualitySelector->SetActiveIndex(GameUserSettings->GetFoliageQuality());
 	}
 	
 	if (ShadingQualitySelector)
@@ -422,7 +422,7 @@ void UVideoSettingMenu::InitializeMenuOptions(bool bFirstCall)
 		{
 			bChangedShadingQuality = GameUserSettings->GetShadingQuality() != OriginalSettings.ShadingQualityValue;
 		}
-		ShadingQualitySelector->SetActiveIndex(GameUserSettings->GetShadingQuality() - 1);
+		ShadingQualitySelector->SetActiveIndex(GameUserSettings->GetShadingQuality());
 	}
 
 	/* Graphic Quality Auto Set Button */
@@ -576,7 +576,7 @@ void UVideoSettingMenu::OnGraphicPresetChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
-		GameUserSettings->SetGraphicPresetValue(InActiveIndex + 1);
+		GameUserSettings->SetGraphicPresetValue(InActiveIndex);
 
 		bChangedGraphicPresetValue = GameUserSettings->GetGraphicPresetValue() != OriginalSettings.GraphicPresetValue;
 		EnableApplyButton();
@@ -588,7 +588,6 @@ void UVideoSettingMenu::OnGraphicPresetChanged(int32 InActiveIndex)
 		return;
 	}
 	
-	// InActiveIndex : 0, 1, 2, 3 => 1, 2, 3, 4
 	if (GameUserSettings->GetGraphicPresetValue() != GameUserSettings->GetAntiAliasingQuality())
 	{
 		if (AntiAliasingSelector)
@@ -695,8 +694,8 @@ void UVideoSettingMenu::UpdateGraphicPresetSelector()
 			GameUserSettings->GetAntiAliasingQuality() == GameUserSettings->GetFoliageQuality() &&
 			GameUserSettings->GetAntiAliasingQuality() == GameUserSettings->GetShadingQuality())
 		{
-			GraphicPresetSelector->SetActiveIndex(GameUserSettings->GetAntiAliasingQuality() - 1);
-			OnGraphicPresetChanged(GameUserSettings->GetAntiAliasingQuality() - 1);
+			GraphicPresetSelector->SetActiveIndex(GameUserSettings->GetAntiAliasingQuality());
+			OnGraphicPresetChanged(GameUserSettings->GetAntiAliasingQuality());
 		}
 		// 커스텀
 		else
@@ -711,8 +710,7 @@ void UVideoSettingMenu::OnAntiAliasingChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
-		// InActiveIndex : 0, 1, 2, 3 => 1, 2, 3, 4
-		GameUserSettings->SetAntiAliasingQuality(InActiveIndex + 1);
+		GameUserSettings->SetAntiAliasingQuality(InActiveIndex);
 		UpdateGraphicPresetSelector();
 
 		bChangedAntiAliasing = GameUserSettings->GetAntiAliasingQuality() != OriginalSettings.AntiAliasingValue;
@@ -724,8 +722,7 @@ void UVideoSettingMenu::OnViewDistanceChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
-		// InActiveIndex : 0, 1, 2, 3 => 1, 2, 3, 4
-		GameUserSettings->SetViewDistanceQuality(InActiveIndex + 1);
+		GameUserSettings->SetViewDistanceQuality(InActiveIndex);
 		UpdateGraphicPresetSelector();
 
 		bChangedViewDistance = GameUserSettings->GetViewDistanceQuality() != OriginalSettings.ViewDistanceValue; 
@@ -737,8 +734,7 @@ void UVideoSettingMenu::OnShadowQualityChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
-		// InActiveIndex : 0, 1, 2, 3 => 1, 2, 3, 4
-		GameUserSettings->SetShadowQuality(InActiveIndex + 1);
+		GameUserSettings->SetShadowQuality(InActiveIndex);
 		UpdateGraphicPresetSelector();
 
 		bChangedShadowQuality = GameUserSettings->GetShadowQuality() != OriginalSettings.ShadowQualityValue;
@@ -750,8 +746,7 @@ void UVideoSettingMenu::OnGlobalIlluminationQualityChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
-		// InActiveIndex : 0, 1, 2, 3 => 1, 2, 3, 4
-		GameUserSettings->SetGlobalIlluminationQuality(InActiveIndex + 1);
+		GameUserSettings->SetGlobalIlluminationQuality(InActiveIndex);
 		UpdateGraphicPresetSelector();
 
 		bChangedGlobalIlluminationQuality = GameUserSettings->GetGlobalIlluminationQuality() != OriginalSettings.GlobalIlluminationQualityValue;
@@ -763,8 +758,7 @@ void UVideoSettingMenu::OnReflectionQualityChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
-		// InActiveIndex : 0, 1, 2, 3 => 1, 2, 3, 4
-		GameUserSettings->SetReflectionQuality(InActiveIndex + 1);
+		GameUserSettings->SetReflectionQuality(InActiveIndex);
 		UpdateGraphicPresetSelector();
 
 		bChangedReflectionQuality = GameUserSettings->GetReflectionQuality() != OriginalSettings.ReflectionQualityValue;
@@ -776,8 +770,7 @@ void UVideoSettingMenu::OnPostProcessingChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
-		// InActiveIndex : 0, 1, 2, 3 => 1, 2, 3, 4
-		GameUserSettings->SetPostProcessingQuality(InActiveIndex + 1);
+		GameUserSettings->SetPostProcessingQuality(InActiveIndex);
 		UpdateGraphicPresetSelector();
 
 		bChangedPostProcessing = GameUserSettings->GetPostProcessingQuality() != OriginalSettings.PostProcessingValue;
@@ -789,8 +782,7 @@ void UVideoSettingMenu::OnTextureQualityChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
-		// InActiveIndex : 0, 1, 2, 3 => 1, 2, 3, 4
-		GameUserSettings->SetTextureQuality(InActiveIndex + 1);
+		GameUserSettings->SetTextureQuality(InActiveIndex);
 		UpdateGraphicPresetSelector();
 
 		bChangedTextureQuality = GameUserSettings->GetTextureQuality() != OriginalSettings.TextureQualityValue;
@@ -802,8 +794,7 @@ void UVideoSettingMenu::OnEffectQualityChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
-		// InActiveIndex : 0, 1, 2, 3 => 1, 2, 3, 4
-		GameUserSettings->SetVisualEffectQuality(InActiveIndex + 1);
+		GameUserSettings->SetVisualEffectQuality(InActiveIndex);
 		UpdateGraphicPresetSelector();
 
 		bChangedEffectQuality = GameUserSettings->GetVisualEffectQuality() != OriginalSettings.EffectQualityValue;
@@ -815,8 +806,7 @@ void UVideoSettingMenu::OnBackgroundQualityChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
-		// InActiveIndex : 0, 1, 2, 3 => 1, 2, 3, 4
-		GameUserSettings->SetFoliageQuality(InActiveIndex + 1);
+		GameUserSettings->SetFoliageQuality(InActiveIndex);
 		UpdateGraphicPresetSelector();
 
 		bChangedBackgroundQuality = GameUserSettings->GetFoliageQuality() != OriginalSettings.BackgroundQualityValue;
@@ -828,8 +818,7 @@ void UVideoSettingMenu::OnShadingQualityChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
-		// InActiveIndex : 0, 1, 2, 3 => 1, 2, 3, 4
-		GameUserSettings->SetShadingQuality(InActiveIndex + 1);
+		GameUserSettings->SetShadingQuality(InActiveIndex);
 		UpdateGraphicPresetSelector();
 
 		bChangedShadingQuality = GameUserSettings->GetShadingQuality() != OriginalSettings.ShadingQualityValue;
