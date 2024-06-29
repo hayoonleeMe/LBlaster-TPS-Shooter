@@ -19,14 +19,12 @@ class LBLASTER_API ULBGameUserSettings : public UGameUserSettings
 public:
 	FORCEINLINE bool IsEnabledPerformanceIndicator() const { return bPerformanceIndicatorEnabled; }
 	FORCEINLINE float GetScreenBrightnessValue() const { return ScreenBrightnessValue; }
-	FORCEINLINE float GetMotionBlurValue() const { return MotionBlurValue; }
 	FORCEINLINE int32 GetGraphicPresetValue() const { return GraphicPresetValue; }
 	FORCEINLINE float GetXAxisMouseSensitivity() const { return XAxisMouseSensitivity; }
 	FORCEINLINE float GetYAxisMouseSensitivity() const { return YAxisMouseSensitivity; }
 
 	void SetPerformanceIndicatorEnabled(bool bEnable);
 	FORCEINLINE void SetScreenBrightnessValue(float InValue) { ScreenBrightnessValue = InValue; }
-	FORCEINLINE void SetMotionBlurValue(float InValue) { MotionBlurValue = InValue; }
 	FORCEINLINE void SetGraphicPresetValue(int32 InValue) { GraphicPresetValue = InValue; }
 	FORCEINLINE void SetXAxisMouseSensitivity(float InValue) { XAxisMouseSensitivity = InValue; }
 	FORCEINLINE void SetYAxisMouseSensitivity(float InValue) { YAxisMouseSensitivity = InValue; }
@@ -51,12 +49,6 @@ private:
 	 */
 	UPROPERTY(config)
 	float ScreenBrightnessValue = 50.f;
-
-	/*
-	 *	Motion Blur
-	 */
-	UPROPERTY(config)
-	float MotionBlurValue = 0.f;
 
 	/*
 	 *	Graphic Preset

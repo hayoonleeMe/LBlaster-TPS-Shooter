@@ -19,7 +19,7 @@ class LBLASTER_API ABaseHUD : public AHUD
 
 public:
 	virtual void CreateSettingMenu();
-	virtual void CreateGraphicSettingMenu();
+	virtual void CreateVideoSettingMenu();
 	virtual void ReturnMenu(bool bForceReturn = false);
 	virtual void AddNewMenuToStack(class ULBlasterUserWidget* InNewMenu);
 	virtual void AddChatMessage(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam);

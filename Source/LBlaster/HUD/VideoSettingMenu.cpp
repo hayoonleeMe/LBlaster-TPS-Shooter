@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "HUD/GraphicSettingMenu.h"
+#include "HUD/VideoSettingMenu.h"
 
 #include "LBlasterHUD.h"
 #include "OptionSelector.h"
@@ -12,7 +12,7 @@
 #include "GameUserSettings/LBGameUserSettings.h"
 #include "Kismet/GameplayStatics.h"
 
-void UGraphicSettingMenu::MenuSetup()
+void UVideoSettingMenu::MenuSetup()
 {
 	Super::MenuSetup();
 
@@ -21,6 +21,36 @@ void UGraphicSettingMenu::MenuSetup()
 		GameUserSettings = Cast<ULBGameUserSettings>(GEngine->GetGameUserSettings());
 	}
 
+	InitializeMenuOptions(true);
+}
+
+bool UVideoSettingMenu::IsOverlayOpened()
+{
+	if (NoApplyAlertOverlay && NoApplyAlertOverlay->IsVisible())
+	{
+		return true;
+	}
+	if (ShouldApplyChange())
+	{
+		return true;
+	}
+	return false;
+}
+
+void UVideoSettingMenu::CloseOverlay()
+{
+	if (NoApplyAlertOverlay && NoApplyAlertOverlay->IsVisible())
+	{
+		OnNoApplyAlertCancelButtonClicked();
+	}
+	else
+	{
+		OnReturnButtonClicked();
+	}
+}
+
+void UVideoSettingMenu::InitializeMenuOptions(bool bFirstCall)
+{
 	/* Slider */
 	if (ScreenBrightnessSlider)
 	{
@@ -28,8 +58,15 @@ void UGraphicSettingMenu::MenuSetup()
 		{
 			ScreenBrightnessSlider->OnSliderValueChanged.BindUObject(this, &ThisClass::OnScreenBrightnessSliderChanged);
 		}
-		
-		OriginalSettings.ScreenBrightnessValue = GameUserSettings->GetScreenBrightnessValue();
+
+		if (bFirstCall)
+		{
+			OriginalSettings.ScreenBrightnessValue = GameUserSettings->GetScreenBrightnessValue();
+		}
+		else
+		{
+			bChangedScreenBrightness = GameUserSettings->GetScreenBrightnessValue() != OriginalSettings.ScreenBrightnessValue;
+		}
 		ScreenBrightnessSlider->InitializeValues(GameUserSettings->GetScreenBrightnessValue(), SliderMinValue, SliderMaxValue, SliderStepSize);
 	}
 
@@ -39,8 +76,15 @@ void UGraphicSettingMenu::MenuSetup()
 		{
 			XAxisMouseSensitivitySlider->OnSliderValueChanged.BindUObject(this, &ThisClass::OnXAxisMouseSensitivitySliderChanged);
 		}
-		
-		OriginalSettings.XAxisMouseSensitivity = GameUserSettings->GetXAxisMouseSensitivity();
+
+		if (bFirstCall)
+		{
+			OriginalSettings.XAxisMouseSensitivity = GameUserSettings->GetXAxisMouseSensitivity();
+		}
+		else
+		{
+			bChangedXAxisMouseSensitivity = GameUserSettings->GetXAxisMouseSensitivity() != OriginalSettings.XAxisMouseSensitivity;
+		}
 		XAxisMouseSensitivitySlider->InitializeValues(GameUserSettings->GetXAxisMouseSensitivity(), SliderMinValue, SliderMaxValue, SliderStepSize);
 	}
 
@@ -50,8 +94,15 @@ void UGraphicSettingMenu::MenuSetup()
 		{
 			YAxisMouseSensitivitySlider->OnSliderValueChanged.BindUObject(this, &ThisClass::OnYAxisMouseSensitivitySliderChanged);
 		}
-		
-		OriginalSettings.YAxisMouseSensitivity = GameUserSettings->GetYAxisMouseSensitivity();
+
+		if (bFirstCall)
+		{
+			OriginalSettings.YAxisMouseSensitivity = GameUserSettings->GetYAxisMouseSensitivity();
+		}
+		else
+		{
+			bChangedYAxisMouseSensitivity = GameUserSettings->GetYAxisMouseSensitivity() != OriginalSettings.YAxisMouseSensitivity;
+		}
 		YAxisMouseSensitivitySlider->InitializeValues(GameUserSettings->GetYAxisMouseSensitivity(), SliderMinValue, SliderMaxValue, SliderStepSize);
 	}
 	
@@ -63,7 +114,14 @@ void UGraphicSettingMenu::MenuSetup()
 			DisplayModeSelector->OnSwitcherActiveIndexChanged.BindUObject(this, &ThisClass::OnDisplayModeChanged);
 		}
 
-		OriginalSettings.FullScreenMode = GameUserSettings->GetFullscreenMode();
+		if (bFirstCall)
+		{
+			OriginalSettings.FullScreenMode = GameUserSettings->GetFullscreenMode();
+		}
+		else
+		{
+			bChangedFullScreenMode = GameUserSettings->GetFullscreenMode() != OriginalSettings.FullScreenMode;
+		}
 		switch (GameUserSettings->GetFullscreenMode())
 		{
 		case EWindowMode::Windowed:
@@ -84,8 +142,15 @@ void UGraphicSettingMenu::MenuSetup()
 		{
 			ResolutionSelector->OnSwitcherActiveIndexChanged.BindUObject(this, &ThisClass::OnScreenResolutionChanged);
 		}
-		
-		OriginalSettings.ScreenResolution = GameUserSettings->GetScreenResolution();
+
+		if (bFirstCall)
+		{
+			OriginalSettings.ScreenResolution = GameUserSettings->GetScreenResolution();
+		}
+		else
+		{
+			bChangedScreenResolution = GameUserSettings->GetScreenResolution() != OriginalSettings.ScreenResolution;
+		}
 		for (int32 Index = 0; Index < ULBGameUserSettings::ScreenResolutionArray.Num(); ++Index)
 		{
 			if (ULBGameUserSettings::ScreenResolutionArray[Index] == GameUserSettings->GetScreenResolution())
@@ -103,7 +168,14 @@ void UGraphicSettingMenu::MenuSetup()
 			PerformanceIndicatorSelector->OnSwitcherActiveIndexChanged.BindUObject(this, &ThisClass::OnPerformanceIndicatorChanged);
 		}
 
-		OriginalSettings.bEnablePerformanceIndicator = GameUserSettings->IsEnabledPerformanceIndicator();
+		if (bFirstCall)
+		{
+			OriginalSettings.bEnablePerformanceIndicator = GameUserSettings->IsEnabledPerformanceIndicator();
+		}
+		else
+		{
+			bChangedEnablePerformanceIndicator = GameUserSettings->IsEnabledPerformanceIndicator() != OriginalSettings.bEnablePerformanceIndicator;
+		}
 		PerformanceIndicatorSelector->SetActiveIndex(GameUserSettings->IsEnabledPerformanceIndicator());
 	}
 	
@@ -115,7 +187,14 @@ void UGraphicSettingMenu::MenuSetup()
 		}
 
 		const float FPSLimit = GameUserSettings->GetFrameRateLimit();
-		OriginalSettings.FrameRateLimitValue = FPSLimit;
+		if (bFirstCall)
+		{
+			OriginalSettings.FrameRateLimitValue = FPSLimit;
+		}
+		else
+		{
+			bChangedFrameLimitValue = GameUserSettings->GetFrameRateLimit() != OriginalSettings.FrameRateLimitValue;
+		}
 		if (FPSLimit == 60.f)
 		{
 			FPSLimitSelector->SetActiveIndex(0);
@@ -137,28 +216,17 @@ void UGraphicSettingMenu::MenuSetup()
 			VSyncSelector->OnSwitcherActiveIndexChanged.BindUObject(this, &ThisClass::OnVSyncChanged);
 		}
 
-		OriginalSettings.bEnableVSync = GameUserSettings->IsVSyncEnabled();
+		if (bFirstCall)
+		{
+			OriginalSettings.bEnableVSync = GameUserSettings->IsVSyncEnabled();
+		}
+		else
+		{
+			bChangedEnableVSync = GameUserSettings->IsVSyncEnabled() != OriginalSettings.bEnableVSync;
+		}
 		VSyncSelector->SetActiveIndex(GameUserSettings->IsVSyncEnabled());
 	}
 	
-	if (MotionBlurSelector)
-	{
-		if (!MotionBlurSelector->OnSwitcherActiveIndexChanged.IsBound())
-		{
-			MotionBlurSelector->OnSwitcherActiveIndexChanged.BindUObject(this, &ThisClass::OnMotionBlurChanged);
-		}
-
-		OriginalSettings.MotionBlurValue = GameUserSettings->GetMotionBlurValue();
-		if (GameUserSettings->GetMotionBlurValue() == 0.5f)
-		{
-			MotionBlurSelector->SetActiveIndex(1);
-		}
-		else if (GameUserSettings->GetMotionBlurValue() == 0.f)
-		{
-			MotionBlurSelector->SetActiveIndex(0);
-		}
-	}
-
 	if (GraphicPresetSelector)
 	{
 		if (!GraphicPresetSelector->OnSwitcherActiveIndexChanged.IsBound())
@@ -166,8 +234,15 @@ void UGraphicSettingMenu::MenuSetup()
 			GraphicPresetSelector->OnSwitcherActiveIndexChanged.BindUObject(this, &ThisClass::OnGraphicPresetChanged);
 		}
 
-		OriginalSettings.GraphicPresetValue = GameUserSettings->GetGraphicPresetValue();
-		GraphicPresetSelector->SetActiveIndex(GameUserSettings->GetGraphicPresetValue() - 1);
+		if (bFirstCall)
+		{
+			OriginalSettings.GraphicPresetValue = GameUserSettings->GetGraphicPresetValue();
+		}
+		else
+		{
+			bChangedGraphicPresetValue = GameUserSettings->GetGraphicPresetValue() != OriginalSettings.GraphicPresetValue;
+		}
+		GraphicPresetSelector->SetActiveIndex(GameUserSettings->GetGraphicPresetValue());
 	}
 
 	if (AntiAliasingSelector)
@@ -177,8 +252,15 @@ void UGraphicSettingMenu::MenuSetup()
 			AntiAliasingSelector->OnSwitcherActiveIndexChanged.BindUObject(this, &ThisClass::OnAntiAliasingChanged);
 		}
 
-		OriginalSettings.AntiAliasingValue = GameUserSettings->GetAntiAliasingQuality();
-		AntiAliasingSelector->SetActiveIndex(GameUserSettings->GetAntiAliasingQuality() - 1);
+		if (bFirstCall)
+		{
+			OriginalSettings.AntiAliasingValue = GameUserSettings->GetAntiAliasingQuality();
+		}
+		else
+		{
+			bChangedAntiAliasing = GameUserSettings->GetAntiAliasingQuality() != OriginalSettings.AntiAliasingValue;
+		}
+		AntiAliasingSelector->SetActiveIndex(GameUserSettings->GetAntiAliasingQuality());
 	}
 	
 	if (ViewDistanceSelector)
@@ -188,8 +270,15 @@ void UGraphicSettingMenu::MenuSetup()
 			ViewDistanceSelector->OnSwitcherActiveIndexChanged.BindUObject(this, &ThisClass::OnViewDistanceChanged);
 		}
 
-		OriginalSettings.ViewDistanceValue = GameUserSettings->GetViewDistanceQuality();
-		ViewDistanceSelector->SetActiveIndex(GameUserSettings->GetViewDistanceQuality() - 1);
+		if (bFirstCall)
+		{
+			OriginalSettings.ViewDistanceValue = GameUserSettings->GetViewDistanceQuality();
+		}
+		else
+		{
+			bChangedViewDistance = GameUserSettings->GetViewDistanceQuality() != OriginalSettings.ViewDistanceValue; 
+		}
+		ViewDistanceSelector->SetActiveIndex(GameUserSettings->GetViewDistanceQuality());
 	}
 	
 	if (ShadowQualitySelector)
@@ -199,8 +288,15 @@ void UGraphicSettingMenu::MenuSetup()
 			ShadowQualitySelector->OnSwitcherActiveIndexChanged.BindUObject(this, &ThisClass::OnShadowQualityChanged);
 		}
 
-		OriginalSettings.ShadowQualityValue = GameUserSettings->GetShadowQuality();
-		ShadowQualitySelector->SetActiveIndex(GameUserSettings->GetShadowQuality() - 1);
+		if (bFirstCall)
+		{
+			OriginalSettings.ShadowQualityValue = GameUserSettings->GetShadowQuality();
+		}
+		else
+		{
+			bChangedShadowQuality = GameUserSettings->GetShadowQuality() != OriginalSettings.ShadowQualityValue;
+		}
+		ShadowQualitySelector->SetActiveIndex(GameUserSettings->GetShadowQuality());
 	}
 
 	if (GlobalIlluminationQualitySelector)
@@ -210,8 +306,15 @@ void UGraphicSettingMenu::MenuSetup()
 			GlobalIlluminationQualitySelector->OnSwitcherActiveIndexChanged.BindUObject(this, &ThisClass::OnGlobalIlluminationQualityChanged);
 		}
 
-		OriginalSettings.GlobalIlluminationQualityValue = GameUserSettings->GetGlobalIlluminationQuality();
-		GlobalIlluminationQualitySelector->SetActiveIndex(GameUserSettings->GetGlobalIlluminationQuality() - 1);
+		if (bFirstCall)
+		{
+			OriginalSettings.GlobalIlluminationQualityValue = GameUserSettings->GetGlobalIlluminationQuality();
+		}
+		else
+		{
+			bChangedGlobalIlluminationQuality = GameUserSettings->GetGlobalIlluminationQuality() != OriginalSettings.GlobalIlluminationQualityValue;
+		}
+		GlobalIlluminationQualitySelector->SetActiveIndex(GameUserSettings->GetGlobalIlluminationQuality());
 	}
 
 	if (ReflectionQualitySelector)
@@ -221,8 +324,15 @@ void UGraphicSettingMenu::MenuSetup()
 			ReflectionQualitySelector->OnSwitcherActiveIndexChanged.BindUObject(this, &ThisClass::OnReflectionQualityChanged);
 		}
 
-		OriginalSettings.ReflectionQualityValue = GameUserSettings->GetReflectionQuality();
-		ReflectionQualitySelector->SetActiveIndex(GameUserSettings->GetReflectionQuality() - 1);
+		if (bFirstCall)
+		{
+			OriginalSettings.ReflectionQualityValue = GameUserSettings->GetReflectionQuality();
+		}
+		else
+		{
+			bChangedReflectionQuality = GameUserSettings->GetReflectionQuality() != OriginalSettings.ReflectionQualityValue;
+		}
+		ReflectionQualitySelector->SetActiveIndex(GameUserSettings->GetReflectionQuality());
 	}
 	
 	if (PostProcessingSelector)
@@ -232,8 +342,15 @@ void UGraphicSettingMenu::MenuSetup()
 			PostProcessingSelector->OnSwitcherActiveIndexChanged.BindUObject(this, &ThisClass::OnPostProcessingChanged);
 		}
 
-		OriginalSettings.PostProcessingValue = GameUserSettings->GetPostProcessingQuality();
-		PostProcessingSelector->SetActiveIndex(GameUserSettings->GetPostProcessingQuality() - 1);
+		if (bFirstCall)
+		{
+			OriginalSettings.PostProcessingValue = GameUserSettings->GetPostProcessingQuality();
+		}
+		else
+		{
+			bChangedPostProcessing = GameUserSettings->GetPostProcessingQuality() != OriginalSettings.PostProcessingValue;
+		}
+		PostProcessingSelector->SetActiveIndex(GameUserSettings->GetPostProcessingQuality());
 	}
 	
 	if (TextureQualitySelector)
@@ -243,8 +360,15 @@ void UGraphicSettingMenu::MenuSetup()
 			TextureQualitySelector->OnSwitcherActiveIndexChanged.BindUObject(this, &ThisClass::OnTextureQualityChanged);
 		}
 
-		OriginalSettings.TextureQualityValue = GameUserSettings->GetTextureQuality();
-		TextureQualitySelector->SetActiveIndex(GameUserSettings->GetTextureQuality() - 1);
+		if (bFirstCall)
+		{
+			OriginalSettings.TextureQualityValue = GameUserSettings->GetTextureQuality();
+		}
+		else
+		{
+			bChangedTextureQuality = GameUserSettings->GetTextureQuality() != OriginalSettings.TextureQualityValue;
+		}
+		TextureQualitySelector->SetActiveIndex(GameUserSettings->GetTextureQuality());
 	}
 	
 	if (EffectQualitySelector)
@@ -254,8 +378,15 @@ void UGraphicSettingMenu::MenuSetup()
 			EffectQualitySelector->OnSwitcherActiveIndexChanged.BindUObject(this, &ThisClass::OnEffectQualityChanged);
 		}
 
-		OriginalSettings.EffectQualityValue = GameUserSettings->GetVisualEffectQuality();
-		EffectQualitySelector->SetActiveIndex(GameUserSettings->GetVisualEffectQuality() - 1);
+		if (bFirstCall)
+		{
+			OriginalSettings.EffectQualityValue = GameUserSettings->GetVisualEffectQuality();
+		}
+		else
+		{
+			bChangedEffectQuality = GameUserSettings->GetVisualEffectQuality() != OriginalSettings.EffectQualityValue;
+		}
+		EffectQualitySelector->SetActiveIndex(GameUserSettings->GetVisualEffectQuality());
 	}
 	
 	if (BackgroundQualitySelector)
@@ -265,8 +396,15 @@ void UGraphicSettingMenu::MenuSetup()
 			BackgroundQualitySelector->OnSwitcherActiveIndexChanged.BindUObject(this, &ThisClass::OnBackgroundQualityChanged);
 		}
 
-		OriginalSettings.BackgroundQualityValue = GameUserSettings->GetFoliageQuality();
-		BackgroundQualitySelector->SetActiveIndex(GameUserSettings->GetFoliageQuality() - 1);
+		if (bFirstCall)
+		{
+			OriginalSettings.BackgroundQualityValue = GameUserSettings->GetFoliageQuality();
+		}
+		else
+		{
+			bChangedBackgroundQuality = GameUserSettings->GetFoliageQuality() != OriginalSettings.BackgroundQualityValue;
+		}
+		BackgroundQualitySelector->SetActiveIndex(GameUserSettings->GetFoliageQuality());
 	}
 	
 	if (ShadingQualitySelector)
@@ -276,8 +414,21 @@ void UGraphicSettingMenu::MenuSetup()
 			ShadingQualitySelector->OnSwitcherActiveIndexChanged.BindUObject(this, &ThisClass::OnShadingQualityChanged);
 		}
 
-		OriginalSettings.ShadingQualityValue = GameUserSettings->GetShadingQuality();
-		ShadingQualitySelector->SetActiveIndex(GameUserSettings->GetShadingQuality() - 1);
+		if (bFirstCall)
+		{
+			OriginalSettings.ShadingQualityValue = GameUserSettings->GetShadingQuality();
+		}
+		else
+		{
+			bChangedShadingQuality = GameUserSettings->GetShadingQuality() != OriginalSettings.ShadingQualityValue;
+		}
+		ShadingQualitySelector->SetActiveIndex(GameUserSettings->GetShadingQuality());
+	}
+
+	/* Graphic Quality Auto Set Button */
+	if (GraphicQualityAutoSetButton && !GraphicQualityAutoSetButton->OnClicked.IsBound())
+	{
+		GraphicQualityAutoSetButton->OnClicked.AddDynamic(this, &ThisClass::OnGraphicQualityAutoSetButtonClicked);
 	}
 
 	/* Apply Button */
@@ -310,32 +461,7 @@ void UGraphicSettingMenu::MenuSetup()
 	}
 }
 
-bool UGraphicSettingMenu::IsOverlayOpened()
-{
-	if (NoApplyAlertOverlay && NoApplyAlertOverlay->IsVisible())
-	{
-		return true;
-	}
-	if (ShouldApplyChange())
-	{
-		return true;
-	}
-	return false;
-}
-
-void UGraphicSettingMenu::CloseOverlay()
-{
-	if (NoApplyAlertOverlay && NoApplyAlertOverlay->IsVisible())
-	{
-		OnNoApplyAlertCancelButtonClicked();
-	}
-	else
-	{
-		OnReturnButtonClicked();
-	}
-}
-
-void UGraphicSettingMenu::OnScreenBrightnessSliderChanged(float InSliderValue)
+void UVideoSettingMenu::OnScreenBrightnessSliderChanged(float InSliderValue)
 {
 	if (GameUserSettings)
 	{
@@ -346,7 +472,7 @@ void UGraphicSettingMenu::OnScreenBrightnessSliderChanged(float InSliderValue)
 	}
 }
 
-void UGraphicSettingMenu::OnXAxisMouseSensitivitySliderChanged(float InSliderValue)
+void UVideoSettingMenu::OnXAxisMouseSensitivitySliderChanged(float InSliderValue)
 {
 	if (GameUserSettings)
 	{
@@ -357,7 +483,7 @@ void UGraphicSettingMenu::OnXAxisMouseSensitivitySliderChanged(float InSliderVal
 	}
 }
 
-void UGraphicSettingMenu::OnYAxisMouseSensitivitySliderChanged(float InSliderValue)
+void UVideoSettingMenu::OnYAxisMouseSensitivitySliderChanged(float InSliderValue)
 {
 	if (GameUserSettings)
 	{
@@ -368,7 +494,7 @@ void UGraphicSettingMenu::OnYAxisMouseSensitivitySliderChanged(float InSliderVal
 	}
 }
 
-void UGraphicSettingMenu::OnDisplayModeChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnDisplayModeChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
@@ -390,7 +516,7 @@ void UGraphicSettingMenu::OnDisplayModeChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::OnScreenResolutionChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnScreenResolutionChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
@@ -401,9 +527,8 @@ void UGraphicSettingMenu::OnScreenResolutionChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::OnPerformanceIndicatorChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnPerformanceIndicatorChanged(int32 InActiveIndex)
 {
-	// TODO : CharacterOverlay에 별도의 UI 추가 및 연계
 	if (GameUserSettings)
 	{
 		GameUserSettings->SetPerformanceIndicatorEnabled(static_cast<bool>(InActiveIndex));
@@ -413,7 +538,7 @@ void UGraphicSettingMenu::OnPerformanceIndicatorChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::OnFPSLimitChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnFPSLimitChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
@@ -435,7 +560,7 @@ void UGraphicSettingMenu::OnFPSLimitChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::OnVSyncChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnVSyncChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
@@ -447,23 +572,11 @@ void UGraphicSettingMenu::OnVSyncChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::OnMotionBlurChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnGraphicPresetChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
-		// InActiveIndex : 0, 1 => 0, 0.5
-		GameUserSettings->SetMotionBlurValue(InActiveIndex * 0.5f);
-
-		bChangedMotionBlur = GameUserSettings->GetMotionBlurValue() != OriginalSettings.MotionBlurValue;
-		EnableApplyButton();
-	}
-}
-
-void UGraphicSettingMenu::OnGraphicPresetChanged(int32 InActiveIndex)
-{
-	if (GameUserSettings)
-	{
-		GameUserSettings->SetGraphicPresetValue(InActiveIndex + 1);
+		GameUserSettings->SetGraphicPresetValue(InActiveIndex);
 
 		bChangedGraphicPresetValue = GameUserSettings->GetGraphicPresetValue() != OriginalSettings.GraphicPresetValue;
 		EnableApplyButton();
@@ -475,7 +588,6 @@ void UGraphicSettingMenu::OnGraphicPresetChanged(int32 InActiveIndex)
 		return;
 	}
 	
-	// InActiveIndex : 0, 1, 2, 3 => 1, 2, 3, 4
 	if (GameUserSettings->GetGraphicPresetValue() != GameUserSettings->GetAntiAliasingQuality())
 	{
 		if (AntiAliasingSelector)
@@ -567,7 +679,7 @@ void UGraphicSettingMenu::OnGraphicPresetChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::UpdateGraphicPresetSelector()
+void UVideoSettingMenu::UpdateGraphicPresetSelector()
 {
 	if (GameUserSettings && GraphicPresetSelector)
 	{
@@ -582,8 +694,8 @@ void UGraphicSettingMenu::UpdateGraphicPresetSelector()
 			GameUserSettings->GetAntiAliasingQuality() == GameUserSettings->GetFoliageQuality() &&
 			GameUserSettings->GetAntiAliasingQuality() == GameUserSettings->GetShadingQuality())
 		{
-			GraphicPresetSelector->SetActiveIndex(GameUserSettings->GetAntiAliasingQuality() - 1);
-			OnGraphicPresetChanged(GameUserSettings->GetAntiAliasingQuality() - 1);
+			GraphicPresetSelector->SetActiveIndex(GameUserSettings->GetAntiAliasingQuality());
+			OnGraphicPresetChanged(GameUserSettings->GetAntiAliasingQuality());
 		}
 		// 커스텀
 		else
@@ -594,12 +706,11 @@ void UGraphicSettingMenu::UpdateGraphicPresetSelector()
 	}
 }
 
-void UGraphicSettingMenu::OnAntiAliasingChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnAntiAliasingChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
-		// InActiveIndex : 0, 1, 2, 3 => 1, 2, 3, 4
-		GameUserSettings->SetAntiAliasingQuality(InActiveIndex + 1);
+		GameUserSettings->SetAntiAliasingQuality(InActiveIndex);
 		UpdateGraphicPresetSelector();
 
 		bChangedAntiAliasing = GameUserSettings->GetAntiAliasingQuality() != OriginalSettings.AntiAliasingValue;
@@ -607,12 +718,11 @@ void UGraphicSettingMenu::OnAntiAliasingChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::OnViewDistanceChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnViewDistanceChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
-		// InActiveIndex : 0, 1, 2, 3 => 1, 2, 3, 4
-		GameUserSettings->SetViewDistanceQuality(InActiveIndex + 1);
+		GameUserSettings->SetViewDistanceQuality(InActiveIndex);
 		UpdateGraphicPresetSelector();
 
 		bChangedViewDistance = GameUserSettings->GetViewDistanceQuality() != OriginalSettings.ViewDistanceValue; 
@@ -620,12 +730,11 @@ void UGraphicSettingMenu::OnViewDistanceChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::OnShadowQualityChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnShadowQualityChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
-		// InActiveIndex : 0, 1, 2, 3 => 1, 2, 3, 4
-		GameUserSettings->SetShadowQuality(InActiveIndex + 1);
+		GameUserSettings->SetShadowQuality(InActiveIndex);
 		UpdateGraphicPresetSelector();
 
 		bChangedShadowQuality = GameUserSettings->GetShadowQuality() != OriginalSettings.ShadowQualityValue;
@@ -633,12 +742,11 @@ void UGraphicSettingMenu::OnShadowQualityChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::OnGlobalIlluminationQualityChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnGlobalIlluminationQualityChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
-		// InActiveIndex : 0, 1, 2, 3 => 1, 2, 3, 4
-		GameUserSettings->SetGlobalIlluminationQuality(InActiveIndex + 1);
+		GameUserSettings->SetGlobalIlluminationQuality(InActiveIndex);
 		UpdateGraphicPresetSelector();
 
 		bChangedGlobalIlluminationQuality = GameUserSettings->GetGlobalIlluminationQuality() != OriginalSettings.GlobalIlluminationQualityValue;
@@ -646,12 +754,11 @@ void UGraphicSettingMenu::OnGlobalIlluminationQualityChanged(int32 InActiveIndex
 	}
 }
 
-void UGraphicSettingMenu::OnReflectionQualityChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnReflectionQualityChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
-		// InActiveIndex : 0, 1, 2, 3 => 1, 2, 3, 4
-		GameUserSettings->SetReflectionQuality(InActiveIndex + 1);
+		GameUserSettings->SetReflectionQuality(InActiveIndex);
 		UpdateGraphicPresetSelector();
 
 		bChangedReflectionQuality = GameUserSettings->GetReflectionQuality() != OriginalSettings.ReflectionQualityValue;
@@ -659,12 +766,11 @@ void UGraphicSettingMenu::OnReflectionQualityChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::OnPostProcessingChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnPostProcessingChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
-		// InActiveIndex : 0, 1, 2, 3 => 1, 2, 3, 4
-		GameUserSettings->SetPostProcessingQuality(InActiveIndex + 1);
+		GameUserSettings->SetPostProcessingQuality(InActiveIndex);
 		UpdateGraphicPresetSelector();
 
 		bChangedPostProcessing = GameUserSettings->GetPostProcessingQuality() != OriginalSettings.PostProcessingValue;
@@ -672,12 +778,11 @@ void UGraphicSettingMenu::OnPostProcessingChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::OnTextureQualityChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnTextureQualityChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
-		// InActiveIndex : 0, 1, 2, 3 => 1, 2, 3, 4
-		GameUserSettings->SetTextureQuality(InActiveIndex + 1);
+		GameUserSettings->SetTextureQuality(InActiveIndex);
 		UpdateGraphicPresetSelector();
 
 		bChangedTextureQuality = GameUserSettings->GetTextureQuality() != OriginalSettings.TextureQualityValue;
@@ -685,12 +790,11 @@ void UGraphicSettingMenu::OnTextureQualityChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::OnEffectQualityChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnEffectQualityChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
-		// InActiveIndex : 0, 1, 2, 3 => 1, 2, 3, 4
-		GameUserSettings->SetVisualEffectQuality(InActiveIndex + 1);
+		GameUserSettings->SetVisualEffectQuality(InActiveIndex);
 		UpdateGraphicPresetSelector();
 
 		bChangedEffectQuality = GameUserSettings->GetVisualEffectQuality() != OriginalSettings.EffectQualityValue;
@@ -698,12 +802,11 @@ void UGraphicSettingMenu::OnEffectQualityChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::OnBackgroundQualityChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnBackgroundQualityChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
-		// InActiveIndex : 0, 1, 2, 3 => 1, 2, 3, 4
-		GameUserSettings->SetFoliageQuality(InActiveIndex + 1);
+		GameUserSettings->SetFoliageQuality(InActiveIndex);
 		UpdateGraphicPresetSelector();
 
 		bChangedBackgroundQuality = GameUserSettings->GetFoliageQuality() != OriginalSettings.BackgroundQualityValue;
@@ -711,12 +814,11 @@ void UGraphicSettingMenu::OnBackgroundQualityChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::OnShadingQualityChanged(int32 InActiveIndex)
+void UVideoSettingMenu::OnShadingQualityChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
 	{
-		// InActiveIndex : 0, 1, 2, 3 => 1, 2, 3, 4
-		GameUserSettings->SetShadingQuality(InActiveIndex + 1);
+		GameUserSettings->SetShadingQuality(InActiveIndex);
 		UpdateGraphicPresetSelector();
 
 		bChangedShadingQuality = GameUserSettings->GetShadingQuality() != OriginalSettings.ShadingQualityValue;
@@ -724,7 +826,17 @@ void UGraphicSettingMenu::OnShadingQualityChanged(int32 InActiveIndex)
 	}
 }
 
-void UGraphicSettingMenu::EnableApplyButton()
+void UVideoSettingMenu::OnGraphicQualityAutoSetButtonClicked()
+{
+	if (GameUserSettings)
+	{
+		GameUserSettings->SetGraphicOptionByAutoDetect();
+	}
+	InitializeMenuOptions(false);
+	EnableApplyButton();
+}
+
+void UVideoSettingMenu::EnableApplyButton()
 {
 	if (GameUserSettings && ApplyButton)
 	{
@@ -732,13 +844,13 @@ void UGraphicSettingMenu::EnableApplyButton()
 	}
 }
 
-bool UGraphicSettingMenu::ShouldApplyChange() const
+bool UVideoSettingMenu::ShouldApplyChange() const
 {
-	const bool bShouldApplyChange = bChangedFullScreenMode || bChangedScreenResolution || bChangedEnablePerformanceIndicator || bChangedFrameLimitValue || bChangedScreenBrightness || bChangedXAxisMouseSensitivity || bChangedYAxisMouseSensitivity || bChangedEnableVSync || bChangedMotionBlur || bChangedGraphicPresetValue || bChangedAntiAliasing || bChangedViewDistance || bChangedShadowQuality || bChangedGlobalIlluminationQuality || bChangedReflectionQuality || bChangedPostProcessing || bChangedTextureQuality || bChangedEffectQuality || bChangedBackgroundQuality || bChangedShadingQuality;
+	const bool bShouldApplyChange = bChangedFullScreenMode || bChangedScreenResolution || bChangedEnablePerformanceIndicator || bChangedFrameLimitValue || bChangedScreenBrightness || bChangedXAxisMouseSensitivity || bChangedYAxisMouseSensitivity || bChangedEnableVSync || bChangedGraphicPresetValue || bChangedAntiAliasing || bChangedViewDistance || bChangedShadowQuality || bChangedGlobalIlluminationQuality || bChangedReflectionQuality || bChangedPostProcessing || bChangedTextureQuality || bChangedEffectQuality || bChangedBackgroundQuality || bChangedShadingQuality;
 	return bShouldApplyChange;
 }
 
-void UGraphicSettingMenu::OnReturnButtonClicked()
+void UVideoSettingMenu::OnReturnButtonClicked()
 {
 	if (ShouldApplyChange())
 	{
@@ -757,7 +869,7 @@ void UGraphicSettingMenu::OnReturnButtonClicked()
 	}
 }
 
-void UGraphicSettingMenu::OnNoApplyAlertAcceptButtonClicked()
+void UVideoSettingMenu::OnNoApplyAlertAcceptButtonClicked()
 {
 	// 변경사항 되돌리기
 	if (GameUserSettings)
@@ -800,11 +912,6 @@ void UGraphicSettingMenu::OnNoApplyAlertAcceptButtonClicked()
 		if (bChangedEnableVSync)
 		{
 			GameUserSettings->SetVSyncEnabled(OriginalSettings.bEnableVSync);
-		}
-
-		if (bChangedMotionBlur)
-		{
-			GameUserSettings->SetMotionBlurValue(OriginalSettings.MotionBlurValue);
 		}
 
 		if (bChangedGraphicPresetValue)
@@ -863,7 +970,7 @@ void UGraphicSettingMenu::OnNoApplyAlertAcceptButtonClicked()
 		}	
 	}
 
-	bChangedFullScreenMode = bChangedScreenResolution = bChangedEnablePerformanceIndicator = bChangedFrameLimitValue = bChangedScreenBrightness = bChangedXAxisMouseSensitivity = bChangedYAxisMouseSensitivity = bChangedEnableVSync = bChangedMotionBlur = bChangedGraphicPresetValue = bChangedAntiAliasing = bChangedViewDistance = bChangedShadowQuality = bChangedGlobalIlluminationQuality = bChangedReflectionQuality = bChangedPostProcessing = bChangedTextureQuality = bChangedEffectQuality = bChangedBackgroundQuality = bChangedShadingQuality = false;
+	bChangedFullScreenMode = bChangedScreenResolution = bChangedEnablePerformanceIndicator = bChangedFrameLimitValue = bChangedScreenBrightness = bChangedXAxisMouseSensitivity = bChangedYAxisMouseSensitivity = bChangedEnableVSync = bChangedGraphicPresetValue = bChangedAntiAliasing = bChangedViewDistance = bChangedShadowQuality = bChangedGlobalIlluminationQuality = bChangedReflectionQuality = bChangedPostProcessing = bChangedTextureQuality = bChangedEffectQuality = bChangedBackgroundQuality = bChangedShadingQuality = false;
 	
 	if (IsValidOwnerHUD())
 	{
@@ -871,7 +978,7 @@ void UGraphicSettingMenu::OnNoApplyAlertAcceptButtonClicked()
 	}	
 }
 
-void UGraphicSettingMenu::OnNoApplyAlertCancelButtonClicked()
+void UVideoSettingMenu::OnNoApplyAlertCancelButtonClicked()
 {
 	if (NoApplyAlertOverlay)
 	{
@@ -879,7 +986,7 @@ void UGraphicSettingMenu::OnNoApplyAlertCancelButtonClicked()
 	}
 }
 
-void UGraphicSettingMenu::OnApplyButtonClicked()
+void UVideoSettingMenu::OnApplyButtonClicked()
 {
 	if (GameUserSettings)
 	{
@@ -891,7 +998,6 @@ void UGraphicSettingMenu::OnApplyButtonClicked()
 		OriginalSettings.FrameRateLimitValue = GameUserSettings->GetFrameRateLimit();
 		OriginalSettings.ScreenBrightnessValue = GameUserSettings->GetScreenBrightnessValue();
 		OriginalSettings.bEnableVSync = GameUserSettings->IsVSyncEnabled();
-		OriginalSettings.MotionBlurValue = GameUserSettings->GetMotionBlurValue();
 		OriginalSettings.GraphicPresetValue = GameUserSettings->GetGraphicPresetValue();
 		OriginalSettings.AntiAliasingValue = GameUserSettings->GetAntiAliasingQuality();
 		OriginalSettings.ViewDistanceValue = GameUserSettings->GetViewDistanceQuality();
@@ -904,7 +1010,7 @@ void UGraphicSettingMenu::OnApplyButtonClicked()
 		OriginalSettings.BackgroundQualityValue = GameUserSettings->GetFoliageQuality();
 		OriginalSettings.ShadingQualityValue = GameUserSettings->GetShadingQuality();
 		
-		bChangedFullScreenMode = bChangedScreenResolution = bChangedEnablePerformanceIndicator = bChangedFrameLimitValue = bChangedScreenBrightness = bChangedXAxisMouseSensitivity = bChangedYAxisMouseSensitivity = bChangedEnableVSync = bChangedMotionBlur = bChangedGraphicPresetValue = bChangedAntiAliasing = bChangedViewDistance = bChangedShadowQuality = bChangedGlobalIlluminationQuality = bChangedReflectionQuality = bChangedPostProcessing = bChangedTextureQuality = bChangedEffectQuality = bChangedBackgroundQuality = bChangedShadingQuality = false;
+		bChangedFullScreenMode = bChangedScreenResolution = bChangedEnablePerformanceIndicator = bChangedFrameLimitValue = bChangedScreenBrightness = bChangedXAxisMouseSensitivity = bChangedYAxisMouseSensitivity = bChangedEnableVSync = bChangedGraphicPresetValue = bChangedAntiAliasing = bChangedViewDistance = bChangedShadowQuality = bChangedGlobalIlluminationQuality = bChangedReflectionQuality = bChangedPostProcessing = bChangedTextureQuality = bChangedEffectQuality = bChangedBackgroundQuality = bChangedShadingQuality = false;
 		
 		if (ApplyButton)
 		{

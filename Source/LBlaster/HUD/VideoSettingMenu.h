@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "LBlasterUserWidget.h"
-#include "GraphicSettingMenu.generated.h"
+#include "VideoSettingMenu.generated.h"
 
 USTRUCT()
 struct FOriginalGameUserSettings
@@ -34,9 +34,6 @@ struct FOriginalGameUserSettings
 	
 	UPROPERTY()
 	bool bEnableVSync;
-	
-	UPROPERTY()
-	float MotionBlurValue;
 	
 	UPROPERTY()
 	float GraphicPresetValue;
@@ -76,7 +73,7 @@ struct FOriginalGameUserSettings
  * 
  */
 UCLASS()
-class LBLASTER_API UGraphicSettingMenu : public ULBlasterUserWidget
+class LBLASTER_API UVideoSettingMenu : public ULBlasterUserWidget
 {
 	GENERATED_BODY()
 
@@ -84,6 +81,7 @@ public:
 	virtual void MenuSetup() override;
 	virtual bool IsOverlayOpened() override;
 	virtual void CloseOverlay() override;
+	void InitializeMenuOptions(bool bFirstCall);
 
 protected:
 	UPROPERTY()
@@ -157,13 +155,6 @@ protected:
 	bool bChangedEnableVSync = false;
 
 	void OnVSyncChanged(int32 InActiveIndex);
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UOptionSelector> MotionBlurSelector;
-	
-	bool bChangedMotionBlur = false;
-
-	void OnMotionBlurChanged(int32 InActiveIndex);
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UOptionSelector> GraphicPresetSelector;
@@ -242,6 +233,15 @@ protected:
 	bool bChangedShadingQuality = false;
 	
 	void OnShadingQualityChanged(int32 InActiveIndex);
+
+	/*
+	 *	Graphic Quality Auto Set
+	 */
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<class UButton> GraphicQualityAutoSetButton;
+
+	UFUNCTION()
+	void OnGraphicQualityAutoSetButtonClicked();
 
 	/*
 	 *	Apply Button

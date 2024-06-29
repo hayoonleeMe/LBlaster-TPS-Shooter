@@ -11,7 +11,7 @@ void ABaseHUD::CreateSettingMenu()
 {
 }
 
-void ABaseHUD::CreateGraphicSettingMenu()
+void ABaseHUD::CreateVideoSettingMenu()
 {
 }
 

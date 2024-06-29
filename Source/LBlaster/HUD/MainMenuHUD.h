@@ -31,7 +31,7 @@ public:
 	 * BaseHUD
 	 */
 	virtual void CreateSettingMenu() override;
-	virtual void CreateGraphicSettingMenu() override;
+	virtual void CreateVideoSettingMenu() override;
 	virtual void ReturnMenu(bool bForceReturn = false) override;
 	virtual void AddNewMenuToStack(ULBlasterUserWidget* InNewMenu) override;
 	
@@ -95,11 +95,11 @@ private:
 	TObjectPtr<USettingMenu> SettingMenu;
 
 	/*
-	 *	Graphic Setting Menu
+	 *	Video Setting Menu
 	 */
-	UPROPERTY(EditAnywhere, Category="LBlaster|Graphic Setting Menu")
-	TSubclassOf<class UGraphicSettingMenu> GraphicSettingMenuClass;
+	UPROPERTY(EditAnywhere, Category="LBlaster|Video Setting Menu")
+	TSubclassOf<class UVideoSettingMenu> VideoSettingMenuClass;
 
 	UPROPERTY()
-	TObjectPtr<UGraphicSettingMenu> GraphicSettingMenu;
+	TObjectPtr<UVideoSettingMenu> VideoSettingMenu;
 };

@@ -19,10 +19,10 @@ public:
 	
 protected:
 	/*
-	 *	Graphic Setting	
+	 *	Video Setting	
 	 */
 	UPROPERTY(meta=(BindWidget))
-	TObjectPtr<class UButton> GraphicSettingButton;
+	TObjectPtr<class UButton> VideoSettingButton;
 
 	/*
 	 *	Return Button
@@ -32,7 +32,7 @@ protected:
 
 private:
 	UFUNCTION()
-	void GraphicSettingButtonClicked();
+	void VideoSettingButtonClicked();
 
 	UFUNCTION()
 	void ReturnButtonClicked();
