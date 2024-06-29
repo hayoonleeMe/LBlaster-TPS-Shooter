@@ -141,24 +141,6 @@ void UVideoSettingMenu::MenuSetup()
 		VSyncSelector->SetActiveIndex(GameUserSettings->IsVSyncEnabled());
 	}
 	
-	if (MotionBlurSelector)
-	{
-		if (!MotionBlurSelector->OnSwitcherActiveIndexChanged.IsBound())
-		{
-			MotionBlurSelector->OnSwitcherActiveIndexChanged.BindUObject(this, &ThisClass::OnMotionBlurChanged);
-		}
-
-		OriginalSettings.MotionBlurValue = GameUserSettings->GetMotionBlurValue();
-		if (GameUserSettings->GetMotionBlurValue() == 0.5f)
-		{
-			MotionBlurSelector->SetActiveIndex(1);
-		}
-		else if (GameUserSettings->GetMotionBlurValue() == 0.f)
-		{
-			MotionBlurSelector->SetActiveIndex(0);
-		}
-	}
-
 	if (GraphicPresetSelector)
 	{
 		if (!GraphicPresetSelector->OnSwitcherActiveIndexChanged.IsBound())
@@ -447,18 +429,6 @@ void UVideoSettingMenu::OnVSyncChanged(int32 InActiveIndex)
 	}
 }
 
-void UVideoSettingMenu::OnMotionBlurChanged(int32 InActiveIndex)
-{
-	if (GameUserSettings)
-	{
-		// InActiveIndex : 0, 1 => 0, 0.5
-		GameUserSettings->SetMotionBlurValue(InActiveIndex * 0.5f);
-
-		bChangedMotionBlur = GameUserSettings->GetMotionBlurValue() != OriginalSettings.MotionBlurValue;
-		EnableApplyButton();
-	}
-}
-
 void UVideoSettingMenu::OnGraphicPresetChanged(int32 InActiveIndex)
 {
 	if (GameUserSettings)
@@ -734,7 +704,7 @@ void UVideoSettingMenu::EnableApplyButton()
 
 bool UVideoSettingMenu::ShouldApplyChange() const
 {
-	const bool bShouldApplyChange = bChangedFullScreenMode || bChangedScreenResolution || bChangedEnablePerformanceIndicator || bChangedFrameLimitValue || bChangedScreenBrightness || bChangedXAxisMouseSensitivity || bChangedYAxisMouseSensitivity || bChangedEnableVSync || bChangedMotionBlur || bChangedGraphicPresetValue || bChangedAntiAliasing || bChangedViewDistance || bChangedShadowQuality || bChangedGlobalIlluminationQuality || bChangedReflectionQuality || bChangedPostProcessing || bChangedTextureQuality || bChangedEffectQuality || bChangedBackgroundQuality || bChangedShadingQuality;
+	const bool bShouldApplyChange = bChangedFullScreenMode || bChangedScreenResolution || bChangedEnablePerformanceIndicator || bChangedFrameLimitValue || bChangedScreenBrightness || bChangedXAxisMouseSensitivity || bChangedYAxisMouseSensitivity || bChangedEnableVSync || bChangedGraphicPresetValue || bChangedAntiAliasing || bChangedViewDistance || bChangedShadowQuality || bChangedGlobalIlluminationQuality || bChangedReflectionQuality || bChangedPostProcessing || bChangedTextureQuality || bChangedEffectQuality || bChangedBackgroundQuality || bChangedShadingQuality;
 	return bShouldApplyChange;
 }
 
@@ -802,11 +772,6 @@ void UVideoSettingMenu::OnNoApplyAlertAcceptButtonClicked()
 			GameUserSettings->SetVSyncEnabled(OriginalSettings.bEnableVSync);
 		}
 
-		if (bChangedMotionBlur)
-		{
-			GameUserSettings->SetMotionBlurValue(OriginalSettings.MotionBlurValue);
-		}
-
 		if (bChangedGraphicPresetValue)
 		{
 			GameUserSettings->SetGraphicPresetValue(OriginalSettings.GraphicPresetValue);
@@ -863,7 +828,7 @@ void UVideoSettingMenu::OnNoApplyAlertAcceptButtonClicked()
 		}	
 	}
 
-	bChangedFullScreenMode = bChangedScreenResolution = bChangedEnablePerformanceIndicator = bChangedFrameLimitValue = bChangedScreenBrightness = bChangedXAxisMouseSensitivity = bChangedYAxisMouseSensitivity = bChangedEnableVSync = bChangedMotionBlur = bChangedGraphicPresetValue = bChangedAntiAliasing = bChangedViewDistance = bChangedShadowQuality = bChangedGlobalIlluminationQuality = bChangedReflectionQuality = bChangedPostProcessing = bChangedTextureQuality = bChangedEffectQuality = bChangedBackgroundQuality = bChangedShadingQuality = false;
+	bChangedFullScreenMode = bChangedScreenResolution = bChangedEnablePerformanceIndicator = bChangedFrameLimitValue = bChangedScreenBrightness = bChangedXAxisMouseSensitivity = bChangedYAxisMouseSensitivity = bChangedEnableVSync = bChangedGraphicPresetValue = bChangedAntiAliasing = bChangedViewDistance = bChangedShadowQuality = bChangedGlobalIlluminationQuality = bChangedReflectionQuality = bChangedPostProcessing = bChangedTextureQuality = bChangedEffectQuality = bChangedBackgroundQuality = bChangedShadingQuality = false;
 	
 	if (IsValidOwnerHUD())
 	{
@@ -891,7 +856,6 @@ void UVideoSettingMenu::OnApplyButtonClicked()
 		OriginalSettings.FrameRateLimitValue = GameUserSettings->GetFrameRateLimit();
 		OriginalSettings.ScreenBrightnessValue = GameUserSettings->GetScreenBrightnessValue();
 		OriginalSettings.bEnableVSync = GameUserSettings->IsVSyncEnabled();
-		OriginalSettings.MotionBlurValue = GameUserSettings->GetMotionBlurValue();
 		OriginalSettings.GraphicPresetValue = GameUserSettings->GetGraphicPresetValue();
 		OriginalSettings.AntiAliasingValue = GameUserSettings->GetAntiAliasingQuality();
 		OriginalSettings.ViewDistanceValue = GameUserSettings->GetViewDistanceQuality();
@@ -904,7 +868,7 @@ void UVideoSettingMenu::OnApplyButtonClicked()
 		OriginalSettings.BackgroundQualityValue = GameUserSettings->GetFoliageQuality();
 		OriginalSettings.ShadingQualityValue = GameUserSettings->GetShadingQuality();
 		
-		bChangedFullScreenMode = bChangedScreenResolution = bChangedEnablePerformanceIndicator = bChangedFrameLimitValue = bChangedScreenBrightness = bChangedXAxisMouseSensitivity = bChangedYAxisMouseSensitivity = bChangedEnableVSync = bChangedMotionBlur = bChangedGraphicPresetValue = bChangedAntiAliasing = bChangedViewDistance = bChangedShadowQuality = bChangedGlobalIlluminationQuality = bChangedReflectionQuality = bChangedPostProcessing = bChangedTextureQuality = bChangedEffectQuality = bChangedBackgroundQuality = bChangedShadingQuality = false;
+		bChangedFullScreenMode = bChangedScreenResolution = bChangedEnablePerformanceIndicator = bChangedFrameLimitValue = bChangedScreenBrightness = bChangedXAxisMouseSensitivity = bChangedYAxisMouseSensitivity = bChangedEnableVSync = bChangedGraphicPresetValue = bChangedAntiAliasing = bChangedViewDistance = bChangedShadowQuality = bChangedGlobalIlluminationQuality = bChangedReflectionQuality = bChangedPostProcessing = bChangedTextureQuality = bChangedEffectQuality = bChangedBackgroundQuality = bChangedShadingQuality = false;
 		
 		if (ApplyButton)
 		{

@@ -36,9 +36,6 @@ struct FOriginalGameUserSettings
 	bool bEnableVSync;
 	
 	UPROPERTY()
-	float MotionBlurValue;
-	
-	UPROPERTY()
 	float GraphicPresetValue;
 	
 	UPROPERTY()
@@ -157,13 +154,6 @@ protected:
 	bool bChangedEnableVSync = false;
 
 	void OnVSyncChanged(int32 InActiveIndex);
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UOptionSelector> MotionBlurSelector;
-	
-	bool bChangedMotionBlur = false;
-
-	void OnMotionBlurChanged(int32 InActiveIndex);
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UOptionSelector> GraphicPresetSelector;

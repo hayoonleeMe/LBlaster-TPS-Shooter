@@ -32,14 +32,6 @@ void ULBGameUserSettings::ApplyCustomSettings(bool bCheckForCommandLineOverrides
 			/* Screen Brightness */
 			PostProcessSettings.bOverride_AutoExposureBias = true;
 			PostProcessSettings.AutoExposureBias = UKismetMathLibrary::MapRangeClamped(ScreenBrightnessValue, 0.f, 100.f, -1.f, 3.f); 
-
-			/* Motion Blur */
-			PostProcessSettings.bOverride_MotionBlurAmount = true;
-			PostProcessSettings.MotionBlurAmount = MotionBlurValue;			// 0.0(꺼짐) ~ 1.0(매우강함)
-			PostProcessSettings.bOverride_MotionBlurMax = true;
-			PostProcessSettings.MotionBlurMax = MotionBlurValue;			// 최대 강도
-			PostProcessSettings.bOverride_MotionBlurPerObjectSize = true;
-			PostProcessSettings.MotionBlurPerObjectSize = MotionBlurValue;  // 개체 크기에 따른 모션 블러의 변화량
 		}
 
 		/* Mouse Sensitivity */
@@ -74,7 +66,6 @@ void ULBGameUserSettings::SetGraphicOptionByAutoDetect(bool bFirstExecute)
 		SetScreenBrightnessValue(50.f);
 		SetXAxisMouseSensitivity(50.f);
 		SetYAxisMouseSensitivity(50.f);
-		SetMotionBlurValue(0.f);
 		SetFrameRateLimit(120.f);
 		bPerformanceIndicatorEnabled = true;
 		ApplySettings(false);
