@@ -81,6 +81,7 @@ public:
 	virtual void MenuSetup() override;
 	virtual bool IsOverlayOpened() override;
 	virtual void CloseOverlay() override;
+	void InitializeMenuOptions(bool bFirstCall);
 
 protected:
 	UPROPERTY()
@@ -232,6 +233,15 @@ protected:
 	bool bChangedShadingQuality = false;
 	
 	void OnShadingQualityChanged(int32 InActiveIndex);
+
+	/*
+	 *	Graphic Quality Auto Set
+	 */
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<class UButton> GraphicQualityAutoSetButton;
+
+	UFUNCTION()
+	void OnGraphicQualityAutoSetButtonClicked();
 
 	/*
 	 *	Apply Button
