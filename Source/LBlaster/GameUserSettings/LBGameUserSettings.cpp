@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "Character/LBlasterCharacter.h"
 #include "Engine/PostProcessVolume.h"
+#include "GameInstance/LBGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Player/LBlasterPlayerController.h"
@@ -33,9 +34,9 @@ void ULBGameUserSettings::ApplyCustomSettings(bool bCheckForCommandLineOverrides
 			PostProcessSettings.AutoExposureBias = UKismetMathLibrary::MapRangeClamped(ScreenBrightnessValue, 0.f, 100.f, -1.f, 3.f); 
 		}
 
-		/* Mouse Sensitivity */
 		if (WorldContextObject->GetWorld())
 		{
+			/* Mouse Sensitivity */
 			if (ALBlasterPlayerController* FirstPlayerController = Cast<ALBlasterPlayerController>(WorldContextObject->GetWorld()->GetFirstPlayerController()))
 			{
 				if (ALBlasterCharacter* LBCharacter = Cast<ALBlasterCharacter>(FirstPlayerController->GetCharacter()))
@@ -45,6 +46,13 @@ void ULBGameUserSettings::ApplyCustomSettings(bool bCheckForCommandLineOverrides
 					LBCharacter->SetXAxisSensitivityFromUserSettings(ClampedXAxisMouseSensitivity);
 					LBCharacter->SetYAxisSensitivityFromUserSettings(ClampedYAxisMouseSensitivity);
 				}
+			}
+
+			/* Overall Volume */
+			if (ULBGameInstance* GameInstance = WorldContextObject->GetWorld()->GetGameInstance<ULBGameInstance>())
+			{
+				const float ClampedOverallVolumeValue = OverallVolumeValue / 100.f;
+				GameInstance->SetOverallSoundVolume(WorldContextObject, ClampedOverallVolumeValue);
 			}
 		}
 	}
