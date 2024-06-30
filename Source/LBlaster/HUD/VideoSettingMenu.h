@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "LBlasterUserWidget.h"
+#include "BaseSettingMenu.h"
 #include "VideoSettingMenu.generated.h"
 
 USTRUCT()
-struct FOriginalGameUserSettings
+struct FOriginalVideoGameUserSettings
 {
 	GENERATED_BODY()
 	
@@ -25,12 +25,6 @@ struct FOriginalGameUserSettings
 	
 	UPROPERTY()
 	float ScreenBrightnessValue;
-
-	UPROPERTY()
-	float XAxisMouseSensitivity;
-
-	UPROPERTY()
-	float YAxisMouseSensitivity;
 	
 	UPROPERTY()
 	bool bEnableVSync;
@@ -73,7 +67,7 @@ struct FOriginalGameUserSettings
  * 
  */
 UCLASS()
-class LBLASTER_API UVideoSettingMenu : public ULBlasterUserWidget
+class LBLASTER_API UVideoSettingMenu : public UBaseSettingMenu
 {
 	GENERATED_BODY()
 
@@ -84,10 +78,7 @@ public:
 	void InitializeMenuOptions(bool bFirstCall);
 
 protected:
-	UPROPERTY()
-	TObjectPtr<class ULBGameUserSettings> GameUserSettings;
-
-	FOriginalGameUserSettings OriginalSettings;
+	FOriginalVideoGameUserSettings OriginalSettings;
 
 	/*
 	 *	Slider
@@ -102,21 +93,6 @@ protected:
 	void OnScreenBrightnessSliderChanged(float InSliderValue);
 
 	bool bChangedScreenBrightness = false;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<USliderWithNumericInput> XAxisMouseSensitivitySlider;
-
-	void OnXAxisMouseSensitivitySliderChanged(float InSliderValue);
-
-	bool bChangedXAxisMouseSensitivity = false;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<USliderWithNumericInput> YAxisMouseSensitivitySlider;
-
-	void OnYAxisMouseSensitivitySliderChanged(float InSliderValue);
-
-	bool bChangedYAxisMouseSensitivity = false;
-	
 
 	/*
 	 *	Selector
@@ -246,39 +222,12 @@ protected:
 	/*
 	 *	Apply Button
 	 */
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UButton> ApplyButton;
-
-	UFUNCTION()
-	void OnApplyButtonClicked();
+	virtual void OnApplyButtonClicked() override;
 	
-	void EnableApplyButton();
-	bool ShouldApplyChange() const;
-
-	/*
-	 *	Return Button
-	 */
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UButton> ReturnButton;
-
-	UFUNCTION()
-	virtual void OnReturnButtonClicked();
+	virtual bool ShouldApplyChange() const override;
 
 	/*
 	 *	NoApplyAlertOverlay
 	 */
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<class UOverlay> NoApplyAlertOverlay;
-	
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UButton> NoApplyAlertAcceptButton;
-
-	UFUNCTION()
-	virtual void OnNoApplyAlertAcceptButtonClicked();
-	
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UButton> NoApplyAlertCancelButton;
-
-	UFUNCTION()
-	void OnNoApplyAlertCancelButtonClicked();
+	virtual void OnNoApplyAlertAcceptButtonClicked() override;
 };
