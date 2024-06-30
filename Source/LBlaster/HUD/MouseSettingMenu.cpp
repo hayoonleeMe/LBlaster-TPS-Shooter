@@ -12,6 +12,7 @@ void UMouseSettingMenu::MenuSetup()
 {
 	Super::MenuSetup();
 
+	/* Slider */
 	if (XAxisMouseSensitivitySlider)
 	{
 		if (!XAxisMouseSensitivitySlider->OnSliderValueChanged.IsBound())

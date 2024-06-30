@@ -17,23 +17,31 @@ class LBLASTER_API USettingsHubMenu : public ULBlasterUserWidget
 public:
 	virtual void MenuSetup() override;
 	
-protected:
+private:
 	/*
-	 *	Video Setting	
+	 *	Video Setting Button
 	 */
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<class UButton> VideoSettingButton;
+
+	UFUNCTION()
+	void VideoSettingButtonClicked();
+
+	/*
+	 *	Mouse Setting Button
+	 */
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UButton> MouseSettingButton;
+
+	UFUNCTION()
+	void MouseSettingButtonClicked();
 
 	/*
 	 *	Return Button
 	 */
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UButton> ReturnButton;
-
-private:
-	UFUNCTION()
-	void VideoSettingButtonClicked();
-
+	
 	UFUNCTION()
 	void ReturnButtonClicked();
 };

@@ -13,6 +13,7 @@
 #include "MiniScoreboard.h"
 #include "MiniScoreboardFreeForAll.h"
 #include "MiniScoreboardTeamDeathMatch.h"
+#include "MouseSettingMenu.h"
 #include "MultiplayerSessionsSubsystem.h"
 #include "OnlineSessionSettings.h"
 #include "PauseMenu.h"
@@ -666,6 +667,19 @@ void ALBlasterHUD::CreateVideoSettingMenu()
 	}
 
 	AddNewMenuToStack(VideoSettingMenu);
+}
+
+void ALBlasterHUD::CreateMouseSettingMenu()
+{
+	if (MouseSettingMenuClass && !MouseSettingMenu)
+	{
+		if (IsValidOwnerController())
+		{
+			MouseSettingMenu = CreateWidget<UMouseSettingMenu>(OwnerController, MouseSettingMenuClass);
+		}
+	}
+
+	AddNewMenuToStack(MouseSettingMenu);
 }
 
 void ALBlasterHUD::PostInitializeComponents()

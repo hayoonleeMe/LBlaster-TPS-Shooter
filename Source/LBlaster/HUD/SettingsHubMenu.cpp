@@ -10,10 +10,16 @@ void USettingsHubMenu::MenuSetup()
 {
 	Super::MenuSetup();
 	
-	/* Video Setting */
+	/* Video Setting Button */
 	if (VideoSettingButton && !VideoSettingButton->OnClicked.IsBound())
 	{
 		VideoSettingButton->OnClicked.AddDynamic(this, &ThisClass::VideoSettingButtonClicked);
+	}
+
+	/* Mouse Setting Button */
+	if (MouseSettingButton && !MouseSettingButton->OnClicked.IsBound())
+	{
+		MouseSettingButton->OnClicked.AddDynamic(this, &ThisClass::MouseSettingButtonClicked);
 	}
 
 	/* Return Button */
@@ -28,6 +34,14 @@ void USettingsHubMenu::VideoSettingButtonClicked()
 	if (IsValidOwnerHUD())
 	{
 		OwnerHUD->CreateVideoSettingMenu();
+	}
+}
+
+void USettingsHubMenu::MouseSettingButtonClicked()
+{
+	if (IsValidOwnerHUD())
+	{
+		OwnerHUD->CreateMouseSettingMenu();
 	}
 }
 
