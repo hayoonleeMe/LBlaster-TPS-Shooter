@@ -40,7 +40,7 @@ protected:
 	TObjectPtr<UButton> ReturnButton;
 
 	UFUNCTION()
-	virtual void OnReturnButtonClicked();
+	void OnReturnButtonClicked();
 
 	/*
 	 *	NoApplyAlertOverlay

@@ -18,7 +18,7 @@ class LBLASTER_API ULBGameUserSettings : public UGameUserSettings
 
 public:
 	/*
-	 *	Video
+	 *	Video Setting
 	 */
 	FORCEINLINE bool IsEnabledPerformanceIndicator() const { return bPerformanceIndicatorEnabled; }
 	FORCEINLINE float GetScreenBrightnessValue() const { return ScreenBrightnessValue; }
@@ -37,13 +37,20 @@ public:
 	FOnPerformanceIndicatorEnabledChangedDelegate OnPerformanceIndicatorEnabledChanged;
 
 	/*
-	 *	Mouse
+	 *	Mouse Setting
 	 */
 	FORCEINLINE float GetXAxisMouseSensitivity() const { return XAxisMouseSensitivity; }
 	FORCEINLINE float GetYAxisMouseSensitivity() const { return YAxisMouseSensitivity; }
 	
 	FORCEINLINE void SetXAxisMouseSensitivity(float InValue) { XAxisMouseSensitivity = InValue; }
 	FORCEINLINE void SetYAxisMouseSensitivity(float InValue) { YAxisMouseSensitivity = InValue; }
+
+	/*
+	 *	Audio Setting
+	 */
+	FORCEINLINE float GetOverallVolumeValue() const { return OverallVolumeValue; }
+	
+	FORCEINLINE void SetOverallVolumeValue(float InValue) { OverallVolumeValue = InValue; }
 	
 private:
 	// Video Setting
@@ -79,4 +86,12 @@ private:
 	// Scalar Modifier Y Value, 0 ~ 100 => 0.2 ~ 1.4
 	UPROPERTY(config)
 	float YAxisMouseSensitivity = 50.f;
+
+	// Audio Setting
+	/*
+	 *	Overall Volume
+	 */
+	// 0 ~ 100 => 0.0 ~ 1.0
+	UPROPERTY(config)
+	float OverallVolumeValue = 100.f;
 };
