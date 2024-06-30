@@ -32,6 +32,8 @@ public:
 	 */
 	virtual void CreateSettingMenu() override;
 	virtual void CreateVideoSettingMenu() override;
+	virtual void CreateMouseSettingMenu() override;
+	virtual void CreateAudioSettingMenu() override;
 	virtual void ReturnMenu(bool bForceReturn = false) override;
 	virtual void AddNewMenuToStack(ULBlasterUserWidget* InNewMenu) override;
 	
@@ -88,7 +90,7 @@ private:
 	/*
 	 *	Setting Menu
 	 */
-	UPROPERTY(EditAnywhere, Category="LBlaster|Setting Menu")
+	UPROPERTY(EditAnywhere, Category="LBlaster|Setting")
 	TSubclassOf<class USettingsHubMenu> SettingMenuClass;
 
 	UPROPERTY()
@@ -97,9 +99,27 @@ private:
 	/*
 	 *	Video Setting Menu
 	 */
-	UPROPERTY(EditAnywhere, Category="LBlaster|Video Setting Menu")
+	UPROPERTY(EditAnywhere, Category="LBlaster|Setting")
 	TSubclassOf<class UVideoSettingMenu> VideoSettingMenuClass;
 
 	UPROPERTY()
 	TObjectPtr<UVideoSettingMenu> VideoSettingMenu;
+
+	/*
+	 *	Mouse Setting Menu
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Setting")
+	TSubclassOf<class UMouseSettingMenu> MouseSettingMenuClass;
+
+	UPROPERTY()
+	TObjectPtr<UMouseSettingMenu> MouseSettingMenu;
+
+	/*
+	 *	Audio Setting Menu
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Setting")
+	TSubclassOf<class UAudioSettingMenu> AudioSettingMenuClass;
+
+	UPROPERTY()
+	TObjectPtr<UAudioSettingMenu> AudioSettingMenu;
 };
