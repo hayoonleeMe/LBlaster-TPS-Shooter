@@ -55,6 +55,7 @@ public:
 	virtual void CreateSettingMenu() override;
 	virtual void CreateVideoSettingMenu() override;
 	virtual void CreateMouseSettingMenu() override;
+	virtual void CreateAudioSettingMenu() override;
 	virtual void ReturnMenu(bool bForceReturn = false) override;
 	virtual void AddNewMenuToStack(ULBlasterUserWidget* InNewMenu) override;
 	virtual void AddChatMessage(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam) override;
@@ -207,6 +208,15 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UMouseSettingMenu> MouseSettingMenu;
+
+	/*
+	 *	Audio Setting Menu
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Setting")
+	TSubclassOf<class UAudioSettingMenu> AudioSettingMenuClass;
+
+	UPROPERTY()
+	TObjectPtr<UAudioSettingMenu> AudioSettingMenu;
 
 	/*
 	 *	Scoreboard

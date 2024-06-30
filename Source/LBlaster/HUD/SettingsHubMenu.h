@@ -37,6 +37,15 @@ private:
 	void MouseSettingButtonClicked();
 
 	/*
+	 *	Audio Setting Button
+	 */
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UButton> AudioSettingButton;
+
+	UFUNCTION()
+	void AudioSettingButtonClicked();
+
+	/*
 	 *	Return Button
 	 */
 	UPROPERTY(meta=(BindWidget))
