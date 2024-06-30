@@ -1,12 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "HUD/SettingMenu.h"
+#include "HUD/SettingsHubMenu.h"
 
 #include "LBlasterHUD.h"
 #include "Components/Button.h"
 
-void USettingMenu::MenuSetup()
+void USettingsHubMenu::MenuSetup()
 {
 	Super::MenuSetup();
 	
@@ -23,7 +23,7 @@ void USettingMenu::MenuSetup()
 	}
 }
 
-void USettingMenu::VideoSettingButtonClicked()
+void USettingsHubMenu::VideoSettingButtonClicked()
 {
 	if (IsValidOwnerHUD())
 	{
@@ -31,7 +31,7 @@ void USettingMenu::VideoSettingButtonClicked()
 	}
 }
 
-void USettingMenu::ReturnButtonClicked()
+void USettingsHubMenu::ReturnButtonClicked()
 {
 	if (IsValidOwnerHUD())
 	{

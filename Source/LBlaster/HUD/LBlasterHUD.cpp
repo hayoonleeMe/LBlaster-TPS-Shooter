@@ -19,7 +19,7 @@
 #include "RespawnTimer.h"
 #include "ResultMenu.h"
 #include "Scoreboard.h"
-#include "SettingMenu.h"
+#include "SettingsHubMenu.h"
 #include "SniperScope.h"
 #include "Blueprint/UserWidget.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
@@ -648,7 +648,7 @@ void ALBlasterHUD::CreateSettingMenu()
 	{
 		if (IsValidOwnerController())
 		{
-			SettingMenu = CreateWidget<USettingMenu>(OwnerController, SettingMenuClass);
+			SettingMenu = CreateWidget<USettingsHubMenu>(OwnerController, SettingMenuClass);
 		}
 	}
 

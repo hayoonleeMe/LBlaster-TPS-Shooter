@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "LBlasterUserWidget.h"
-#include "SettingMenu.generated.h"
+#include "SettingsHubMenu.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class LBLASTER_API USettingMenu : public ULBlasterUserWidget
+class LBLASTER_API USettingsHubMenu : public ULBlasterUserWidget
 {
 	GENERATED_BODY()
 

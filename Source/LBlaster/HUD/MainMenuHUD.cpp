@@ -7,7 +7,7 @@
 #include "MultiplayerSessionsSubsystem.h"
 #include "MainMenu.h"
 #include "SessionListMenu.h"
-#include "SettingMenu.h"
+#include "SettingsHubMenu.h"
 #include "StartMenu.h"
 #include "Blueprint/UserWidget.h"
 
@@ -30,7 +30,7 @@ void AMainMenuHUD::CreateSettingMenu()
 	{
 		if (IsValidOwnerController())
 		{
-			SettingMenu = CreateWidget<USettingMenu>(OwnerController, SettingMenuClass);
+			SettingMenu = CreateWidget<USettingsHubMenu>(OwnerController, SettingMenuClass);
 		}
 	}
 
