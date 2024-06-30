@@ -22,6 +22,12 @@ void USettingsHubMenu::MenuSetup()
 		MouseSettingButton->OnClicked.AddDynamic(this, &ThisClass::MouseSettingButtonClicked);
 	}
 
+	/* Audio Setting Button */
+	if (AudioSettingButton && !AudioSettingButton->OnClicked.IsBound())
+	{
+		AudioSettingButton->OnClicked.AddDynamic(this, &ThisClass::AudioSettingButtonClicked);
+	}
+
 	/* Return Button */
 	if (ReturnButton && !ReturnButton->OnClicked.IsBound())
 	{
@@ -42,6 +48,14 @@ void USettingsHubMenu::MouseSettingButtonClicked()
 	if (IsValidOwnerHUD())
 	{
 		OwnerHUD->CreateMouseSettingMenu();
+	}
+}
+
+void USettingsHubMenu::AudioSettingButtonClicked()
+{
+	if (IsValidOwnerHUD())
+	{
+		OwnerHUD->CreateAudioSettingMenu();
 	}
 }
 

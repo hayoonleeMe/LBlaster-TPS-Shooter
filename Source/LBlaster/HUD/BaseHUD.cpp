@@ -19,6 +19,10 @@ void ABaseHUD::CreateMouseSettingMenu()
 {
 }
 
+void ABaseHUD::CreateAudioSettingMenu()
+{
+}
+
 void ABaseHUD::ReturnMenu(bool bForceReturn)
 {
 }

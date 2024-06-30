@@ -3,9 +3,11 @@
 
 #include "HUD/MainMenuHUD.h"
 
+#include "AudioSettingMenu.h"
 #include "VideoSettingMenu.h"
 #include "MultiplayerSessionsSubsystem.h"
 #include "MainMenu.h"
+#include "MouseSettingMenu.h"
 #include "SessionListMenu.h"
 #include "SettingsHubMenu.h"
 #include "StartMenu.h"
@@ -48,6 +50,32 @@ void AMainMenuHUD::CreateVideoSettingMenu()
 	}
 
 	AddNewMenuToStack(VideoSettingMenu);
+}
+
+void AMainMenuHUD::CreateMouseSettingMenu()
+{
+	if (MouseSettingMenuClass && !MouseSettingMenu)
+	{
+		if (IsValidOwnerController())
+		{
+			MouseSettingMenu = CreateWidget<UMouseSettingMenu>(OwnerController, MouseSettingMenuClass);
+		}
+	}
+
+	AddNewMenuToStack(MouseSettingMenu);
+}
+
+void AMainMenuHUD::CreateAudioSettingMenu()
+{
+	if (AudioSettingMenuClass && !AudioSettingMenu)
+    {
+    	if (IsValidOwnerController())
+    	{
+    		AudioSettingMenu = CreateWidget<UAudioSettingMenu>(OwnerController, AudioSettingMenuClass);
+    	}
+    }
+
+    AddNewMenuToStack(AudioSettingMenu);
 }
 
 void AMainMenuHUD::CreateSessionListMenu()

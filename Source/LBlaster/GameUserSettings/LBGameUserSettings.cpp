@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "Character/LBlasterCharacter.h"
 #include "Engine/PostProcessVolume.h"
+#include "GameInstance/LBGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Player/LBlasterPlayerController.h"
@@ -25,18 +26,17 @@ void ULBGameUserSettings::ApplyCustomSettings(bool bCheckForCommandLineOverrides
 	
 	if (WorldContextObject)
 	{
+		/* Screen Brightness */
 		if (APostProcessVolume* PostProcessVolume = Cast<APostProcessVolume>(UGameplayStatics::GetActorOfClass(WorldContextObject, APostProcessVolume::StaticClass())))
 		{
 			FPostProcessSettings& PostProcessSettings =  PostProcessVolume->Settings;
-		
-			/* Screen Brightness */
 			PostProcessSettings.bOverride_AutoExposureBias = true;
 			PostProcessSettings.AutoExposureBias = UKismetMathLibrary::MapRangeClamped(ScreenBrightnessValue, 0.f, 100.f, -1.f, 3.f); 
 		}
 
-		/* Mouse Sensitivity */
 		if (WorldContextObject->GetWorld())
 		{
+			/* Mouse Sensitivity */
 			if (ALBlasterPlayerController* FirstPlayerController = Cast<ALBlasterPlayerController>(WorldContextObject->GetWorld()->GetFirstPlayerController()))
 			{
 				if (ALBlasterCharacter* LBCharacter = Cast<ALBlasterCharacter>(FirstPlayerController->GetCharacter()))
@@ -46,6 +46,13 @@ void ULBGameUserSettings::ApplyCustomSettings(bool bCheckForCommandLineOverrides
 					LBCharacter->SetXAxisSensitivityFromUserSettings(ClampedXAxisMouseSensitivity);
 					LBCharacter->SetYAxisSensitivityFromUserSettings(ClampedYAxisMouseSensitivity);
 				}
+			}
+
+			/* Overall Volume */
+			if (ULBGameInstance* GameInstance = WorldContextObject->GetWorld()->GetGameInstance<ULBGameInstance>())
+			{
+				const float ClampedOverallVolumeValue = OverallVolumeValue / 100.f;
+				GameInstance->SetOverallSoundVolume(WorldContextObject, ClampedOverallVolumeValue);
 			}
 		}
 	}
@@ -61,13 +68,17 @@ void ULBGameUserSettings::SetGraphicOptionByAutoDetect(bool bFirstExecute)
 	// 첫 실행일 때 기본 설정
 	if (bFirstExecute)
 	{
+		// Video
 		SetScreenResolution(FIntPoint{ 1920, 1080 });
 		SetFullscreenMode(EWindowMode::WindowedFullscreen);
 		SetScreenBrightnessValue(50.f);
-		SetXAxisMouseSensitivity(50.f);
-		SetYAxisMouseSensitivity(50.f);
 		SetFrameRateLimit(120.f);
 		bPerformanceIndicatorEnabled = true;
+		// Mouse
+		SetXAxisMouseSensitivity(50.f);
+		SetYAxisMouseSensitivity(50.f);
+		// Audio
+		SetOverallVolumeValue(100.f);
 		ApplySettings(false);
 	}
 	

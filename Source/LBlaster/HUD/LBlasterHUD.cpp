@@ -4,6 +4,7 @@
 #include "HUD/LBlasterHUD.h"
 
 #include "Announcement.h"
+#include "AudioSettingMenu.h"
 #include "CharacterOverlay.h"
 #include "ChatBox.h"
 #include "Crosshair.h"
@@ -680,6 +681,19 @@ void ALBlasterHUD::CreateMouseSettingMenu()
 	}
 
 	AddNewMenuToStack(MouseSettingMenu);
+}
+
+void ALBlasterHUD::CreateAudioSettingMenu()
+{
+	if (AudioSettingMenuClass && !AudioSettingMenu)
+	{
+		if (IsValidOwnerController())
+		{
+			AudioSettingMenu = CreateWidget<UAudioSettingMenu>(OwnerController, AudioSettingMenuClass);
+		}
+	}
+
+	AddNewMenuToStack(AudioSettingMenu);
 }
 
 void ALBlasterHUD::PostInitializeComponents()
