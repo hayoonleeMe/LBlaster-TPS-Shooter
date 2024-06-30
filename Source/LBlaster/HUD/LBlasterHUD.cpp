@@ -13,13 +13,14 @@
 #include "MiniScoreboard.h"
 #include "MiniScoreboardFreeForAll.h"
 #include "MiniScoreboardTeamDeathMatch.h"
+#include "MouseSettingMenu.h"
 #include "MultiplayerSessionsSubsystem.h"
 #include "OnlineSessionSettings.h"
 #include "PauseMenu.h"
 #include "RespawnTimer.h"
 #include "ResultMenu.h"
 #include "Scoreboard.h"
-#include "SettingMenu.h"
+#include "SettingsHubMenu.h"
 #include "SniperScope.h"
 #include "Blueprint/UserWidget.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
@@ -648,7 +649,7 @@ void ALBlasterHUD::CreateSettingMenu()
 	{
 		if (IsValidOwnerController())
 		{
-			SettingMenu = CreateWidget<USettingMenu>(OwnerController, SettingMenuClass);
+			SettingMenu = CreateWidget<USettingsHubMenu>(OwnerController, SettingMenuClass);
 		}
 	}
 
@@ -666,6 +667,19 @@ void ALBlasterHUD::CreateVideoSettingMenu()
 	}
 
 	AddNewMenuToStack(VideoSettingMenu);
+}
+
+void ALBlasterHUD::CreateMouseSettingMenu()
+{
+	if (MouseSettingMenuClass && !MouseSettingMenu)
+	{
+		if (IsValidOwnerController())
+		{
+			MouseSettingMenu = CreateWidget<UMouseSettingMenu>(OwnerController, MouseSettingMenuClass);
+		}
+	}
+
+	AddNewMenuToStack(MouseSettingMenu);
 }
 
 void ALBlasterHUD::PostInitializeComponents()

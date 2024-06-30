@@ -53,7 +53,8 @@ public:
 	 *	BaseHUD
 	 */
 	virtual void CreateSettingMenu() override;
-	virtual void CreateVideoSettingMenu() override;	
+	virtual void CreateVideoSettingMenu() override;
+	virtual void CreateMouseSettingMenu() override;
 	virtual void ReturnMenu(bool bForceReturn = false) override;
 	virtual void AddNewMenuToStack(ULBlasterUserWidget* InNewMenu) override;
 	virtual void AddChatMessage(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam) override;
@@ -184,10 +185,10 @@ private:
 	 *	Setting Menu
 	 */
 	UPROPERTY(EditAnywhere, Category="LBlaster|Setting")
-	TSubclassOf<class USettingMenu> SettingMenuClass;
+	TSubclassOf<class USettingsHubMenu> SettingMenuClass;
 
 	UPROPERTY()
-	TObjectPtr<USettingMenu> SettingMenu;
+	TObjectPtr<USettingsHubMenu> SettingMenu;
 
 	/*
 	 *	Video Setting Menu
@@ -197,6 +198,15 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UVideoSettingMenu> VideoSettingMenu;
+
+	/*
+	 *	Mouse Setting Menu
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Setting")
+	TSubclassOf<class UMouseSettingMenu> MouseSettingMenuClass;
+
+	UPROPERTY()
+	TObjectPtr<UMouseSettingMenu> MouseSettingMenu;
 
 	/*
 	 *	Scoreboard

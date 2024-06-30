@@ -17,17 +17,16 @@ class LBLASTER_API ULBGameUserSettings : public UGameUserSettings
 	GENERATED_BODY()
 
 public:
+	/*
+	 *	Video
+	 */
 	FORCEINLINE bool IsEnabledPerformanceIndicator() const { return bPerformanceIndicatorEnabled; }
 	FORCEINLINE float GetScreenBrightnessValue() const { return ScreenBrightnessValue; }
 	FORCEINLINE int32 GetGraphicPresetValue() const { return GraphicPresetValue; }
-	FORCEINLINE float GetXAxisMouseSensitivity() const { return XAxisMouseSensitivity; }
-	FORCEINLINE float GetYAxisMouseSensitivity() const { return YAxisMouseSensitivity; }
 
 	void SetPerformanceIndicatorEnabled(bool bEnable);
 	FORCEINLINE void SetScreenBrightnessValue(float InValue) { ScreenBrightnessValue = InValue; }
 	FORCEINLINE void SetGraphicPresetValue(int32 InValue) { GraphicPresetValue = InValue; }
-	FORCEINLINE void SetXAxisMouseSensitivity(float InValue) { XAxisMouseSensitivity = InValue; }
-	FORCEINLINE void SetYAxisMouseSensitivity(float InValue) { YAxisMouseSensitivity = InValue; }
 
 	void ApplyCustomSettings(bool bCheckForCommandLineOverrides, const UObject* WorldContextObject);
 	void SetGraphicOptionByAutoDetect(bool bFirstExecute = false);
@@ -36,8 +35,18 @@ public:
 	inline const static TArray<FIntPoint> ScreenResolutionArray{{ { 1280, 720 }, { 1280, 800 }, { 1366, 768 }, { 1600, 900 }, { 1920, 1080 } }};
 
 	FOnPerformanceIndicatorEnabledChangedDelegate OnPerformanceIndicatorEnabledChanged;
+
+	/*
+	 *	Mouse
+	 */
+	FORCEINLINE float GetXAxisMouseSensitivity() const { return XAxisMouseSensitivity; }
+	FORCEINLINE float GetYAxisMouseSensitivity() const { return YAxisMouseSensitivity; }
+	
+	FORCEINLINE void SetXAxisMouseSensitivity(float InValue) { XAxisMouseSensitivity = InValue; }
+	FORCEINLINE void SetYAxisMouseSensitivity(float InValue) { YAxisMouseSensitivity = InValue; }
 	
 private:
+	// Video Setting
 	/*
 	 *	Performance Indicator
 	 */
@@ -55,7 +64,8 @@ private:
 	 */
 	UPROPERTY(config)
 	int32 GraphicPresetValue = 0;
-	
+
+	// Mouse Setting
 	/*
 	 *	Mouse Sensitivity
 	 */

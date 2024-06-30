@@ -1,19 +1,25 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "HUD/SettingMenu.h"
+#include "HUD/SettingsHubMenu.h"
 
 #include "LBlasterHUD.h"
 #include "Components/Button.h"
 
-void USettingMenu::MenuSetup()
+void USettingsHubMenu::MenuSetup()
 {
 	Super::MenuSetup();
 	
-	/* Video Setting */
+	/* Video Setting Button */
 	if (VideoSettingButton && !VideoSettingButton->OnClicked.IsBound())
 	{
 		VideoSettingButton->OnClicked.AddDynamic(this, &ThisClass::VideoSettingButtonClicked);
+	}
+
+	/* Mouse Setting Button */
+	if (MouseSettingButton && !MouseSettingButton->OnClicked.IsBound())
+	{
+		MouseSettingButton->OnClicked.AddDynamic(this, &ThisClass::MouseSettingButtonClicked);
 	}
 
 	/* Return Button */
@@ -23,7 +29,7 @@ void USettingMenu::MenuSetup()
 	}
 }
 
-void USettingMenu::VideoSettingButtonClicked()
+void USettingsHubMenu::VideoSettingButtonClicked()
 {
 	if (IsValidOwnerHUD())
 	{
@@ -31,7 +37,15 @@ void USettingMenu::VideoSettingButtonClicked()
 	}
 }
 
-void USettingMenu::ReturnButtonClicked()
+void USettingsHubMenu::MouseSettingButtonClicked()
+{
+	if (IsValidOwnerHUD())
+	{
+		OwnerHUD->CreateMouseSettingMenu();
+	}
+}
+
+void USettingsHubMenu::ReturnButtonClicked()
 {
 	if (IsValidOwnerHUD())
 	{

@@ -15,6 +15,10 @@ void ABaseHUD::CreateVideoSettingMenu()
 {
 }
 
+void ABaseHUD::CreateMouseSettingMenu()
+{
+}
+
 void ABaseHUD::ReturnMenu(bool bForceReturn)
 {
 }

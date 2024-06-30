@@ -89,10 +89,10 @@ private:
 	 *	Setting Menu
 	 */
 	UPROPERTY(EditAnywhere, Category="LBlaster|Setting Menu")
-	TSubclassOf<class USettingMenu> SettingMenuClass;
+	TSubclassOf<class USettingsHubMenu> SettingMenuClass;
 
 	UPROPERTY()
-	TObjectPtr<USettingMenu> SettingMenu;
+	TObjectPtr<USettingsHubMenu> SettingMenu;
 
 	/*
 	 *	Video Setting Menu

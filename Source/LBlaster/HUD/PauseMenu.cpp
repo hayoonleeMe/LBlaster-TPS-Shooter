@@ -4,7 +4,7 @@
 #include "HUD/PauseMenu.h"
 
 #include "LBlasterHUD.h"
-#include "SettingMenu.h"
+#include "SettingsHubMenu.h"
 #include "../../../Plugins/MultiplayerSessions/Source/MultiplayerSessions/Public/MultiplayerSessionsSubsystem.h"
 #include "Character/LBlasterCharacter.h"
 #include "Components/Button.h"
