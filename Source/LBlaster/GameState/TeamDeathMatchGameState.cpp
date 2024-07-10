@@ -70,8 +70,15 @@ void ATeamDeathMatchGameState::IncreaseBlueTeamScore()
 
 void ATeamDeathMatchGameState::SetRedTeamScore(const int32 InScore, bool bUpdateHUD)
 {
-	RedTeamScore = InScore;
+	RedTeamScore = FMath::Min(GoalKillScore, InScore);
 
+	// End Game
+	if (RedTeamScore == GoalKillScore)
+	{
+		EndGameOnGoalKills();
+	}
+
+	// Update HUD
 	if (bUpdateHUD && GetWorld())
 	{
 		if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
@@ -86,8 +93,15 @@ void ATeamDeathMatchGameState::SetRedTeamScore(const int32 InScore, bool bUpdate
 
 void ATeamDeathMatchGameState::SetBlueTeamScore(const int32 InScore, bool bUpdateHUD)
 {
-	BlueTeamScore = InScore;
+	BlueTeamScore = FMath::Min(GoalKillScore, InScore);
 
+	// End Game
+	if (BlueTeamScore == GoalKillScore)
+	{
+		EndGameOnGoalKills();
+	}
+	
+	// Update HUD
 	if (bUpdateHUD && GetWorld())
 	{
 		if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())

@@ -8,6 +8,12 @@
 #include "LBTypes/Team.h"
 #include "BaseGameMode.generated.h"
 
+namespace MatchState
+{
+	const FName AfterWarmup = FName(TEXT("AfterWarmup"));
+	const FName Cooldown = FName(TEXT("Cooldown"));
+}
+
 /**
  * 
  */
@@ -22,4 +28,9 @@ public:
 	 */
 	void SendChatTextToAll(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam) const;
 	void SendChatTextToSameTeam(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam) const;
+
+	/*
+	 *	Match State
+	 */
+	void SetMatchStateToCooldown();
 };

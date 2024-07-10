@@ -18,7 +18,9 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastInitGoalKillScore(); 
+	void MulticastInitGoalKillScore();
+
+	void EndGameOnGoalKills();
 	
 protected:
 	virtual void BeginPlay() override;

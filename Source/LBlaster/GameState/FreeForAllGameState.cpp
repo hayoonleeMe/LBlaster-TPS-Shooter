@@ -75,8 +75,15 @@ void AFreeForAllGameState::IncreaseTotalScore()
 
 void AFreeForAllGameState::SetTotalScore(const int32 InScore, bool bUpdateHUD)
 {
-	TotalScore = InScore;
+	TotalScore = FMath::Min(GoalKillScore, InScore);
 
+	// End Game
+	if (TotalScore == GoalKillScore)
+	{
+		EndGameOnGoalKills();
+	}
+
+	// Update HUD
 	if (bUpdateHUD && GetWorld())
 	{
 		if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
