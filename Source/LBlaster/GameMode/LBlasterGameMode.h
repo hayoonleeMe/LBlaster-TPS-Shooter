@@ -6,12 +6,6 @@
 #include "BaseGameMode.h"
 #include "LBlasterGameMode.generated.h"
 
-namespace MatchState
-{
-	const FName AfterWarmup = FName(TEXT("AfterWarmup"));
-	const FName Cooldown = FName(TEXT("Cooldown"));
-}
-
 /**
  * 
  */
@@ -35,6 +29,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category="LBlaster|Time")
 	float MatchTime;
+
+	float RemainMatchTime;
 
 	UPROPERTY(EditDefaultsOnly, Category="LBlaster|Time")
 	float CooldownTime;

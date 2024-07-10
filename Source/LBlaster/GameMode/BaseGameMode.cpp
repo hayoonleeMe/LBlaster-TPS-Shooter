@@ -33,3 +33,8 @@ void ABaseGameMode::SendChatTextToSameTeam(const FString& InPlayerName, const FT
 		}
 	}
 }
+
+void ABaseGameMode::SetMatchStateToCooldown()
+{
+	SetMatchState(MatchState::Cooldown);
+}

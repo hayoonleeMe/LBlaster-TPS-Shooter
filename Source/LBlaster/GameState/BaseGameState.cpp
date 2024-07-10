@@ -6,8 +6,17 @@
 #include "MultiplayerMapPath.h"
 #include "MultiplayerSessionsSubsystem.h"
 #include "OnlineSessionSettings.h"
+#include "GameMode/BaseGameMode.h"
 #include "HUD/LBlasterHUD.h"
 #include "Net/UnrealNetwork.h"
+
+void ABaseGameState::EndGameOnGoalKills()
+{
+	if (ABaseGameMode* BaseGameMode = GetWorld()->GetAuthGameMode<ABaseGameMode>())
+	{
+		BaseGameMode->SetMatchStateToCooldown();
+	}
+}
 
 void ABaseGameState::BeginPlay()
 {

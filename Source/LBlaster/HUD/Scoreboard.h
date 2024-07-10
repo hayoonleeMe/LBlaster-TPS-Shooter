@@ -27,8 +27,6 @@ protected:
 
 	bool IsValidOwnerPlayerState();
 
-	bool bUsedForResultMenu = false;
-
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<class UBorder> Border;
 	
