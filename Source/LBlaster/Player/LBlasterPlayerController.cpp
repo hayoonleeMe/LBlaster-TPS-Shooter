@@ -504,6 +504,9 @@ void ALBlasterPlayerController::HandleCooldown()
 	{
 		OwningHUD->RemoveCharacterOverlay();
 		OwningHUD->AddResultMenu();
+
+		// Hide RespawnTimer
+		OwningHUD->HideRespawnTimer();
 	}
 
 	// Disable Input
@@ -517,6 +520,17 @@ void ALBlasterPlayerController::HandleCooldown()
 			}	
 		}
 	}
+
+	// 전투 상태 해제
+	if (IsValidOwningCharacter())
+	{
+		OwningCharacter->ReleaseCombatState();
+	}
+}
+
+bool ALBlasterPlayerController::IsMatchInCooldown() const
+{
+	return MatchState == MatchState::Cooldown;
 }
 
 void ALBlasterPlayerController::EnablePauseMenuMappingContext() const

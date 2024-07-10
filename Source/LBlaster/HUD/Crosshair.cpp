@@ -9,11 +9,19 @@
 
 void UCrosshair::DrawCrosshair(const FCrosshairTexture& CrosshairTexture)
 {
-	DrawCrosshair(TopCrosshair, CrosshairTexture.TopCrosshair);
-	DrawCrosshair(BottomCrosshair, CrosshairTexture.BottomCrosshair);
-	DrawCrosshair(LeftCrosshair, CrosshairTexture.LeftCrosshair);
-	DrawCrosshair(RightCrosshair, CrosshairTexture.RightCrosshair);
-	DrawCrosshair(CenterCrosshair, CrosshairTexture.CenterCrosshair);
+	if (CrosshairTexture.bIsCrosshairVisible)
+	{
+		SetVisibility(ESlateVisibility::Visible);
+		DrawCrosshair(TopCrosshair, CrosshairTexture.TopCrosshair);
+		DrawCrosshair(BottomCrosshair, CrosshairTexture.BottomCrosshair);
+		DrawCrosshair(LeftCrosshair, CrosshairTexture.LeftCrosshair);
+		DrawCrosshair(RightCrosshair, CrosshairTexture.RightCrosshair);
+		DrawCrosshair(CenterCrosshair, CrosshairTexture.CenterCrosshair);	
+	}
+	else
+	{
+		SetVisibility(ESlateVisibility::Collapsed);
+	}
 }
 
 void UCrosshair::DrawCrosshair(UImage* ImageToDraw, UTexture2D* InTexture)
@@ -22,24 +30,21 @@ void UCrosshair::DrawCrosshair(UImage* ImageToDraw, UTexture2D* InTexture)
 	{
 		return;
 	}
-	if (!InTexture)
-	{
-		ImageToDraw->SetVisibility(ESlateVisibility::Collapsed);
-		return;
-	}
 	
-	ImageToDraw->SetVisibility(ESlateVisibility::Visible);
 	ImageToDraw->SetBrushFromTexture(InTexture, true);
 }
 
 void UCrosshair::UpdateCrosshair(float InSpreadScaled, const FLinearColor& InCrosshairColor)
 {
-	UpdateCrosshair(TopCrosshair, { 0.f, -InSpreadScaled }, InCrosshairColor);
-	UpdateCrosshair(BottomCrosshair, { 0.f, InSpreadScaled }, InCrosshairColor);
-	UpdateCrosshair(LeftCrosshair, { -InSpreadScaled, 0.f }, InCrosshairColor);
-	UpdateCrosshair(RightCrosshair, { InSpreadScaled, 0.f }, InCrosshairColor);
-	UpdateCrosshair(CenterCrosshair, { 0.f, 0.f }, InCrosshairColor);
-	UpdatePlayerNameText(InCrosshairColor);
+	if (IsVisible())
+	{
+		UpdateCrosshair(TopCrosshair, { 0.f, -InSpreadScaled }, InCrosshairColor);
+		UpdateCrosshair(BottomCrosshair, { 0.f, InSpreadScaled }, InCrosshairColor);
+		UpdateCrosshair(LeftCrosshair, { -InSpreadScaled, 0.f }, InCrosshairColor);
+		UpdateCrosshair(RightCrosshair, { InSpreadScaled, 0.f }, InCrosshairColor);
+		UpdateCrosshair(CenterCrosshair, { 0.f, 0.f }, InCrosshairColor);
+		UpdatePlayerNameText(InCrosshairColor);
+	}
 }
 
 void UCrosshair::SetPlayerNameText(const FString& InPlayerName) const
@@ -50,9 +55,9 @@ void UCrosshair::SetPlayerNameText(const FString& InPlayerName) const
 	}
 }
 
-void UCrosshair::OnHelpInfoVisibilityChanged(bool bHelpInfoVisible)
+void UCrosshair::OnDesiredCrosshairVisibilityChanged(bool bDesiredCrosshairVisibility)
 {
-	SetVisibility(bHelpInfoVisible ? ESlateVisibility::Collapsed : ESlateVisibility::Visible);
+	SetVisibility(bDesiredCrosshairVisibility ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
 }
 
 void UCrosshair::UpdateCrosshair(UImage* ImageToDraw, const FVector2D& InSpread, const FLinearColor& InCrosshairColor) const

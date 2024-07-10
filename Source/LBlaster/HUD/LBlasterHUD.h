@@ -11,7 +11,7 @@
 #include "LBTypes/WeaponTypes.h"
 #include "LBlasterHUD.generated.h"
 
-DECLARE_DELEGATE_OneParam(FOnHelpInfoVisibilityChanged, bool /* bHelpInfoVisible */);
+DECLARE_DELEGATE_OneParam(FOnDesiredCrosshairVisibilityChanged, bool /* bDesiredCrosshairVisibility */);
 
 /**
  * 
@@ -77,7 +77,7 @@ public:
 	 *	Respawn Timer
 	 */
 	void StartRespawnTimer(float InElimDelay, float InRespawnTimerUpdateFrequency);
-	void HideRespawnTimer() const;
+	void HideRespawnTimer();
 
 	/*
 	 *	Result Menu
@@ -266,7 +266,8 @@ private:
 
 	void AddHelpInfo();
 
-	FOnHelpInfoVisibilityChanged OnHelpInfoVisibilityChanged;
+	FOnDesiredCrosshairVisibilityChanged OnDesiredCrosshairVisibilityChanged;
+	
 
 	/*
 	 *	Result Menu
