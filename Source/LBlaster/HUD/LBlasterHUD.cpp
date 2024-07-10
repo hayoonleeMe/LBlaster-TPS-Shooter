@@ -491,11 +491,12 @@ void ALBlasterHUD::StartRespawnTimer(float InElimDelay, float InRespawnTimerUpda
 	}
 }
 
-void ALBlasterHUD::HideRespawnTimer() const
+void ALBlasterHUD::HideRespawnTimer()
 {
 	if (RespawnTimer)
 	{
 		RespawnTimer->SetVisibility(ESlateVisibility::Collapsed);
+		GetWorldTimerManager().ClearTimer(RespawnTimerHandle);
 	}
 }
 

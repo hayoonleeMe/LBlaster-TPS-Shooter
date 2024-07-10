@@ -77,7 +77,7 @@ public:
 	 *	Respawn Timer
 	 */
 	void StartRespawnTimer(float InElimDelay, float InRespawnTimerUpdateFrequency);
-	void HideRespawnTimer() const;
+	void HideRespawnTimer();
 
 	/*
 	 *	Result Menu

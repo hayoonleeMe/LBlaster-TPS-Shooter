@@ -504,6 +504,9 @@ void ALBlasterPlayerController::HandleCooldown()
 	{
 		OwningHUD->RemoveCharacterOverlay();
 		OwningHUD->AddResultMenu();
+
+		// Hide RespawnTimer
+		OwningHUD->HideRespawnTimer();
 	}
 
 	// Disable Input
@@ -523,6 +526,11 @@ void ALBlasterPlayerController::HandleCooldown()
 	{
 		OwningCharacter->ReleaseCombatState();
 	}
+}
+
+bool ALBlasterPlayerController::IsMatchInCooldown() const
+{
+	return MatchState == MatchState::Cooldown;
 }
 
 void ALBlasterPlayerController::EnablePauseMenuMappingContext() const

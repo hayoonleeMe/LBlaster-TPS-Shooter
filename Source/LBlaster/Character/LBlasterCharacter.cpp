@@ -864,6 +864,9 @@ void ALBlasterCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
 	// 죽는 중에 중복 타격되지 않도록 충돌 제거
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+	// 매치가 종료됐는지
+	bool bIsMatchInCooldown = false;
+	
 	if (ALBlasterPlayerController* PlayerController = Cast<ALBlasterPlayerController>(Controller))
 	{
 		// 탄약 UI 0으로 업데이트
@@ -872,9 +875,11 @@ void ALBlasterCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
 		PlayerController->SetHUDWeaponTypeText();
 		PlayerController->SetWeaponSlotIcon(EEquipSlot::EES_FirstSlot, EWeaponType::EWT_Unarmed);
 		PlayerController->SetWeaponSlotIcon(EEquipSlot::EES_SecondSlot, EWeaponType::EWT_Unarmed);
-
+		
+		// 매치가 종료되면 리스폰 타이머 활성화 제한
+		bIsMatchInCooldown = PlayerController->IsMatchInCooldown();
 		// Start Respawn Timer
-		if (IsLocallyControlled() && !bPlayerLeftGame)
+		if (!bIsMatchInCooldown && IsLocallyControlled() && !bPlayerLeftGame)
 		{
 			PlayerController->StartRespawnTimer(ElimDelay, RespawnTimerUpdateFrequency);
 		}
@@ -902,7 +907,12 @@ void ALBlasterCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
 	StartDissolve();
 
 	bLeftGame = bPlayerLeftGame;
-	GetWorldTimerManager().SetTimer(ElimTimer, this, &ThisClass::ElimTimerFinished, ElimDelay);
+
+	// 매치가 종료되면 리스폰 제한
+	if (!bIsMatchInCooldown)
+	{
+		GetWorldTimerManager().SetTimer(ElimTimer, this, &ThisClass::ElimTimerFinished, ElimDelay);
+	}
 }
 
 #pragma region HitBoxes

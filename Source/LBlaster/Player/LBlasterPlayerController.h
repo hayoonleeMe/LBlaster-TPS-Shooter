@@ -51,6 +51,7 @@ public:
 	void HandleMatchHasStarted();
 	void HandleAfterWarmup();
 	void HandleCooldown();
+	bool IsMatchInCooldown() const;
 
 	void EnablePauseMenuMappingContext() const;
 	void DisablePauseMenuMappingContext() const;
