@@ -12,7 +12,6 @@ void UScoreboard::UpdateBoard()
 void UScoreboard::SetScoreboardForResultMenu()
 {
 	UpdateBoard();
-	bUsedForResultMenu = true;
 	SetVisibility(ESlateVisibility::Visible);
 }
 

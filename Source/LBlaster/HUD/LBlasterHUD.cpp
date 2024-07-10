@@ -286,6 +286,11 @@ void ALBlasterHUD::UpdateScoreboard()
 	if (Scoreboard && Scoreboard->IsVisible())
 	{
 		Scoreboard->UpdateBoard();
+		
+		if (ResultMenu)
+		{
+			ResultMenu->MenuSetup();
+		}
 	}
 }
 
@@ -496,15 +501,6 @@ void ALBlasterHUD::HideRespawnTimer() const
 
 void ALBlasterHUD::AddResultMenu()
 {
-	if (IsValidOwnerController() && ResultMenuClassByMatchModeMap.Contains(GetMatchModeType()) && ResultMenuClassByMatchModeMap[GetMatchModeType()])
-	{
-		ResultMenu = CreateWidget<UResultMenu>(OwnerController, ResultMenuClassByMatchModeMap[GetMatchModeType()]);
-		if (ResultMenu)
-		{
-			ResultMenu->MenuSetup();
-		}
-	}
-
 	if (Scoreboard)
 	{
 		Scoreboard->SetScoreboardForResultMenu();
@@ -512,6 +508,15 @@ void ALBlasterHUD::AddResultMenu()
 	if (MiniScoreboard)
 	{
 		MiniScoreboard->SetVisibility(ESlateVisibility::Collapsed);
+	}
+	
+	if (IsValidOwnerController() && ResultMenuClassByMatchModeMap.Contains(GetMatchModeType()) && ResultMenuClassByMatchModeMap[GetMatchModeType()])
+	{
+		ResultMenu = CreateWidget<UResultMenu>(OwnerController, ResultMenuClassByMatchModeMap[GetMatchModeType()]);
+	}
+	if (ResultMenu)
+	{
+		ResultMenu->MenuSetup();
 	}
 }
 
