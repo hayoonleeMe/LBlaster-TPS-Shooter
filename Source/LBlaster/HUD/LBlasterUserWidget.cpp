@@ -7,9 +7,12 @@
 
 void ULBlasterUserWidget::MenuSetup()
 {
-	AddToViewport();
-	SetVisibility(ESlateVisibility::Visible);
-	SetIsFocusable(true);
+	if (!IsInViewport())
+	{
+		AddToViewport();
+		SetVisibility(ESlateVisibility::Visible);
+		SetIsFocusable(true);
+	}
 }
 
 void ULBlasterUserWidget::MenuTearDown()
