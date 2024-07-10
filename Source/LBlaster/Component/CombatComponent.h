@@ -164,6 +164,7 @@ public:
 	void PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount);
 	void EquipFinished();
 	void HideCrosshair();
+	void ShowCrosshair(EWeaponType InWeaponType);
 
 	FString GetCombatInfo();
 

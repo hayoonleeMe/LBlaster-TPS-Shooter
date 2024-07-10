@@ -957,6 +957,12 @@ void UCombatComponent::HideCrosshair()
 	SetHUDCrosshair(EWeaponType::EWT_Unarmed);
 }
 
+void UCombatComponent::ShowCrosshair(EWeaponType InWeaponType)
+{
+	bShowCrosshair = true;
+	SetHUDCrosshair(InWeaponType);	
+}
+
 FString UCombatComponent::GetCombatInfo()
 {
 	FString Str(TEXT("CombatInfo : "));
@@ -1484,7 +1490,7 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 			OwnerController->SetHUDWeaponTypeText(GetWeaponTypeString());
 			OwnerController->SetWeaponSlotIcon(EquipSlotType, EWeaponType::EWT_Unarmed);
 			OwnerController->ChooseWeaponSlot(EquipSlotType);
-			SetHUDCrosshair(EWeaponType::EWT_Unarmed);
+			HideCrosshair();
 		}
 
 		// Unarmed State로 변경하면 Firing Animation 정지
@@ -1531,7 +1537,7 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 				OwnerController->SetWeaponSlotIcon(EquipSlotType, GetEquippingWeapon()->GetWeaponType());
 				OwnerController->ChooseWeaponSlot(EquipSlotType);
 			}
-			SetHUDCrosshair(GetEquippingWeapon()->GetWeaponType());
+			ShowCrosshair(GetEquippingWeapon()->GetWeaponType());
 		}
 
 		/* ADS FOV */

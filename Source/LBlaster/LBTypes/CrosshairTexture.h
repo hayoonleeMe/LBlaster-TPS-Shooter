@@ -23,4 +23,7 @@ struct FCrosshairTexture
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UTexture2D> RightCrosshair;
+
+	UPROPERTY(EditAnywhere)
+	bool bIsCrosshairVisible;
 };
