@@ -22,7 +22,7 @@ public:
 	void SetPlayerNameText(const FString& InPlayerName) const;
 
 	UFUNCTION()
-	void OnHelpInfoVisibilityChanged(bool bHelpInfoVisible);
+	void OnDesiredCrosshairVisibilityChanged(bool bDesiredCrosshairVisibility);
 
 private:
 	/*

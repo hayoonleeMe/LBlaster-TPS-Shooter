@@ -182,7 +182,7 @@ void ALBlasterHUD::AddCrosshair()
 	if (Crosshair)
 	{
 		Crosshair->MenuSetup();
-		OnHelpInfoVisibilityChanged.BindUObject(Crosshair, &UCrosshair::OnHelpInfoVisibilityChanged);
+		OnDesiredCrosshairVisibilityChanged.BindUObject(Crosshair, &UCrosshair::OnDesiredCrosshairVisibilityChanged);
 	}
 }
 
@@ -518,6 +518,8 @@ void ALBlasterHUD::AddResultMenu()
 	{
 		ResultMenu->MenuSetup();
 	}
+	
+	OnDesiredCrosshairVisibilityChanged.ExecuteIfBound(false);
 }
 
 void ALBlasterHUD::SetHUDMatchCooldown(float InTime)
@@ -645,7 +647,7 @@ void ALBlasterHUD::SetHelpInfoVisibility(bool bVisible)
 	if (HelpInfo)
 	{
 		HelpInfo->SetVisibility(bVisible ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
-		OnHelpInfoVisibilityChanged.ExecuteIfBound(bVisible);
+		OnDesiredCrosshairVisibilityChanged.ExecuteIfBound(!bVisible);
 	}
 }
 
