@@ -4,8 +4,10 @@
 #include "FreeForAllGameMode.h"
 
 #include "Character/LBlasterCharacter.h"
+#include "GameFramework/PlayerStart.h"
 #include "GameState/FreeForAllGameState.h"
 #include "HUD/LBlasterHUD.h"
+#include "Kismet/GameplayStatics.h"
 #include "Player/LBlasterPlayerController.h"
 
 AFreeForAllGameMode::AFreeForAllGameMode()
@@ -94,4 +96,22 @@ void AFreeForAllGameMode::PlayerEliminated(ALBlasterCharacter* EliminatedCharact
 	}	
 
 	EliminatedCharacter->Elim(false);
+}
+
+void AFreeForAllGameMode::RestartPlayer(AController* NewPlayer)
+{
+	if (GetWorld())
+	{
+		TArray<AActor*> OutPlayerStarts;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), OutPlayerStarts);
+
+		if (!OutPlayerStarts.IsEmpty())
+		{
+			const int32 RandIndex = FMath::RandRange(0, OutPlayerStarts.Num() - 1);
+			if (OutPlayerStarts.IsValidIndex(RandIndex))
+			{
+				RestartPlayerAtPlayerStart(NewPlayer, OutPlayerStarts[RandIndex]);	
+			}
+		}
+	}
 }
