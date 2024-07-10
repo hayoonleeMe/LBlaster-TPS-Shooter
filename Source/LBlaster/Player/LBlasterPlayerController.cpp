@@ -517,6 +517,12 @@ void ALBlasterPlayerController::HandleCooldown()
 			}	
 		}
 	}
+
+	// 전투 상태 해제
+	if (IsValidOwningCharacter())
+	{
+		OwningCharacter->ReleaseCombatState();
+	}
 }
 
 void ALBlasterPlayerController::EnablePauseMenuMappingContext() const
