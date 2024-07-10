@@ -143,6 +143,7 @@ void ALBlasterPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	DOREPLIFETIME(ALBlasterPlayerController, RemainMatchTime);
 	DOREPLIFETIME(ALBlasterPlayerController, MatchState);
 }
 
@@ -180,7 +181,7 @@ void ALBlasterPlayerController::SetHUDTime()
 	}
 	else if (MatchState == MatchState::Cooldown)
 	{
-		TimeLeft = WarmupTime + MatchTime + CooldownTime - GetServerTime() + LevelStartingTime;
+		TimeLeft = WarmupTime + RemainMatchTime + CooldownTime - GetServerTime() + LevelStartingTime;
 	}
 	uint32 SecondsLeft = FMath::CeilToInt(TimeLeft);
 	if (HasAuthority() && IsValidOwnerGameMode())
@@ -237,17 +238,19 @@ void ALBlasterPlayerController::ServerCheckMatchState_Implementation()
 	{
 		WarmupTime = OwnerGameMode->WarmupTime;
 		MatchTime = OwnerGameMode->MatchTime;
+		RemainMatchTime = OwnerGameMode->RemainMatchTime;
 		CooldownTime = OwnerGameMode->CooldownTime;
 		LevelStartingTime = OwnerGameMode->LevelStartingTime;
 		MatchState = OwnerGameMode->GetMatchState();
-		ClientJoinMidGame(MatchState, WarmupTime, MatchTime, CooldownTime, LevelStartingTime);
+		ClientJoinMidGame(MatchState, WarmupTime, MatchTime, RemainMatchTime, CooldownTime, LevelStartingTime);
 	}
 }
 
-void ALBlasterPlayerController::ClientJoinMidGame_Implementation(FName StateOfMatch, float Warmup, float Match, float Cooldown, float StartingTime)
+void ALBlasterPlayerController::ClientJoinMidGame_Implementation(FName StateOfMatch, float Warmup, float Match, float RemainMatch, float Cooldown, float StartingTime)
 {
 	WarmupTime = Warmup;
 	MatchTime = Match;
+	RemainMatchTime = RemainMatch;
 	CooldownTime = Cooldown;
 	LevelStartingTime = StartingTime;
 	MatchState = StateOfMatch;
@@ -371,6 +374,12 @@ void ALBlasterPlayerController::OnMatchStateSet(FName InState)
 	{
 		HandleCooldown();
 	}
+}
+
+void ALBlasterPlayerController::OnMatchStateSet(FName InState, float InRemainMatchTime)
+{
+	RemainMatchTime = InRemainMatchTime;
+	OnMatchStateSet(InState);
 }
 
 void ALBlasterPlayerController::OnRep_MatchState()

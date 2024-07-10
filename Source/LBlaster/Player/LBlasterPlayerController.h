@@ -36,6 +36,7 @@ public:
 	void SetHUDMatchCountdown(float InCountdownTime, bool bPlayAnimation);
 	void SetHUDMatchCooldown(float InTime);
 	void OnMatchStateSet(FName InState);
+	void OnMatchStateSet(FName InState, float InRemainMatchTime);
 	void UpdateHUDHealth();
 	void UpdateHUDGrenadeAmount();
 	void UpdateHUDGrenadeAmount(int32 InGrenadeAmount);
@@ -146,7 +147,7 @@ protected:
 	void ServerCheckMatchState();
 
 	UFUNCTION(Client, Reliable)
-	void ClientJoinMidGame(FName StateOfMatch, float Warmup, float Match, float Cooldown, float StartingTime);
+	void ClientJoinMidGame(FName StateOfMatch, float Warmup, float Match, float RemainMatch, float Cooldown, float StartingTime);
 	
 private:
 	/*
@@ -178,6 +179,9 @@ private:
 	float CooldownTime = 0.f;
     uint8 CountdownInt = 0.f;
 
+	UPROPERTY(Replicated)
+	float RemainMatchTime = 0.f;
+	
 	UPROPERTY(ReplicatedUsing=OnRep_MatchState)
 	FName MatchState;
 

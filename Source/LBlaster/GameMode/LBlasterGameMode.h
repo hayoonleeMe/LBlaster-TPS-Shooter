@@ -30,6 +30,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category="LBlaster|Time")
 	float MatchTime;
 
+	float RemainMatchTime;
+
 	UPROPERTY(EditDefaultsOnly, Category="LBlaster|Time")
 	float CooldownTime;
 

@@ -65,7 +65,7 @@ void ALBlasterGameMode::Tick(float DeltaSeconds)
 	}
 	else if (MatchState == MatchState::Cooldown)
 	{
-		CountdownTime = WarmupTime + MatchTime + CooldownTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
+		CountdownTime = WarmupTime + RemainMatchTime + CooldownTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
 		if (CountdownTime <= 0.f && !bAlreadyReturnToMainMenu)
 		{
 			bAlreadyReturnToMainMenu = true;
@@ -170,12 +170,25 @@ void ALBlasterGameMode::OnMatchStateSet()
 {
 	Super::OnMatchStateSet();
 
+	// Early Game End
+	if (MatchState == MatchState::Cooldown)
+	{
+		RemainMatchTime = FMath::Max(0.f, MatchTime - CountdownTime);
+	}
+	
 	// 모든 Player Controller에 접근하는 Iterator
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
 		if (ALBlasterPlayerController* PlayerController = Cast<ALBlasterPlayerController>(*It))
 		{
-			PlayerController->OnMatchStateSet(MatchState);
+			if (MatchState == MatchState::Cooldown)
+			{
+				PlayerController->OnMatchStateSet(MatchState, RemainMatchTime);
+			}
+			else
+			{
+				PlayerController->OnMatchStateSet(MatchState);
+			}
 		}
 	}
 }
