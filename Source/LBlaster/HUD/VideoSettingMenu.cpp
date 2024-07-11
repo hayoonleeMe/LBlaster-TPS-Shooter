@@ -18,31 +18,6 @@ void UVideoSettingMenu::MenuSetup()
 	InitializeMenuOptions(true);
 }
 
-bool UVideoSettingMenu::IsOverlayOpened()
-{
-	if (NoApplyAlertOverlay && NoApplyAlertOverlay->IsVisible())
-	{
-		return true;
-	}
-	if (ShouldApplyChange())
-	{
-		return true;
-	}
-	return false;
-}
-
-void UVideoSettingMenu::CloseOverlay()
-{
-	if (NoApplyAlertOverlay && NoApplyAlertOverlay->IsVisible())
-	{
-		OnNoApplyAlertCancelButtonClicked();
-	}
-	else
-	{
-		OnReturnButtonClicked();
-	}
-}
-
 void UVideoSettingMenu::InitializeMenuOptions(bool bFirstCall)
 {
 	/* Slider */

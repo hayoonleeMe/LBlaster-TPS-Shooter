@@ -47,6 +47,31 @@ void UBaseSettingMenu::MenuSetup()
 	}
 }
 
+bool UBaseSettingMenu::IsOverlayOpened()
+{
+	if (NoApplyAlertOverlay && NoApplyAlertOverlay->IsVisible())
+	{
+		return true;
+	}
+	if (ShouldApplyChange())
+	{
+		return true;
+	}
+	return false;
+}
+
+void UBaseSettingMenu::CloseOverlay()
+{
+	if (NoApplyAlertOverlay && NoApplyAlertOverlay->IsVisible())
+	{
+		OnNoApplyAlertCancelButtonClicked();
+	}
+	else
+	{
+		OnReturnButtonClicked();
+	}
+}
+
 void UBaseSettingMenu::OnApplyButtonClicked()
 {
 }

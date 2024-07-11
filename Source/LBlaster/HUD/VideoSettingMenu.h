@@ -73,8 +73,6 @@ class LBLASTER_API UVideoSettingMenu : public UBaseSettingMenu
 
 public:
 	virtual void MenuSetup() override;
-	virtual bool IsOverlayOpened() override;
-	virtual void CloseOverlay() override;
 	void InitializeMenuOptions(bool bFirstCall);
 
 protected:

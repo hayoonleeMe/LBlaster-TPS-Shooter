@@ -16,6 +16,8 @@ class LBLASTER_API UBaseSettingMenu : public ULBlasterUserWidget
 
 public:
 	virtual void MenuSetup() override;
+	virtual bool IsOverlayOpened() override;
+	virtual void CloseOverlay() override;
 
 protected:
 	UPROPERTY()
