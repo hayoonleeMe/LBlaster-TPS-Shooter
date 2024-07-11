@@ -93,7 +93,7 @@ void ULBGameUserSettings::SetGraphicOptionByAutoDetect(bool bFirstExecute)
 	else
 	{
 		// 커스텀
-		GraphicPresetValue = 5;
+		GraphicPresetValue = 4;
 	}
 
 	// 한번 더 저장.
