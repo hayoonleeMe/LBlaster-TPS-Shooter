@@ -23,14 +23,7 @@ AWeapon::AWeapon()
 	/* Mesh */
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	SetRootComponent(WeaponMesh);
-	WeaponMesh->SetIsReplicated(false);
-	WeaponMesh->SetCollisionResponseToAllChannels(ECR_Block);
-	WeaponMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-	WeaponMesh->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
-	WeaponMesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
-	WeaponMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
-	WeaponMesh->SetCollisionResponseToChannel(ECC_SkeletalMesh, ECR_Ignore);
-	WeaponMesh->SetCollisionResponseToChannel(ECC_FootPlacement, ECR_Ignore);
+	WeaponMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	/* Custom Depth */
@@ -41,8 +34,8 @@ AWeapon::AWeapon()
 	/* Overlap Sphere */
 	AreaSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AreaSphere"));
 	AreaSphere->SetupAttachment(RootComponent);
-	AreaSphere->SetIsReplicated(false);
 	AreaSphere->SetCollisionResponseToAllChannels(ECR_Ignore);
+	AreaSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	/* Auto Fire */
@@ -88,6 +81,18 @@ void AWeapon::SetOwner(AActor* NewOwner)
 	}
 }
 
+void AWeapon::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	// Overlap Event
+	if (AreaSphere)
+	{
+		AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnSphereBeginOverlap);	
+	}
+}
+
 void AWeapon::SetHUDAmmo()
 {
 	if (IsValidOwnerCharacter() && bSelected)
@@ -124,15 +129,11 @@ void AWeapon::OnWeaponEquipped(bool bInSelected)
 
 	// 무기가 장착된 상태라면 Overlapping Event 발생 중지
 	AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	WeaponMesh->SetSimulatePhysics(false);
-	WeaponMesh->SetEnableGravity(false);
-	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	EnableCustomDepth(false);
 }
 
 void AWeapon::SetWeaponVisibility(bool bInVisible)
 {
-	SetActorEnableCollision(bInVisible);
 	SetActorHiddenInGame(!bInVisible);
 }
 
@@ -275,16 +276,6 @@ float AWeapon::GetDamageFallOffMultiplier(float InDistance) const
 		return DamageFallOffCurve->GetFloatValue(InDistance);
 	}
 	return 0.f;
-}
-
-void AWeapon::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// Overlap Event
-	AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	AreaSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
-	AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnSphereBeginOverlap);
 }
 
 void AWeapon::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
