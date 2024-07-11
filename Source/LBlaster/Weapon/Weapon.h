@@ -40,6 +40,7 @@ public:
 	AWeapon();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void SetOwner(AActor* NewOwner) override;
+	virtual void PostInitializeComponents() override;
 	
 	void SetHUDAmmo();
 	void AddAmmo(int32 InAmmoToAdd);
@@ -76,8 +77,6 @@ public:
 	virtual void CallServerScoreRequest(class ALBlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize100& InitialVelocity, float HitTime, float InDamage, float InHeadshotMultiplier, float InProjectileGravityScale);
 
 protected:
-	virtual void BeginPlay() override;
-
 	UFUNCTION()
 	virtual void OnSphereBeginOverlap(
 		UPrimitiveComponent* OverlappedComponent,
