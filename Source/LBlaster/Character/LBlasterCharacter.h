@@ -64,7 +64,7 @@ public:
 	int32 GetGrenadeAmount() const;
 	void EquipDefaultWeapon() const;
 	void ReleaseCombatState() const;
-	FORCEINLINE void SetInvincible(bool bInInvincible) { bInvincible = bInInvincible; }
+	void SetInvincible(bool bInInvincible);
 	FORCEINLINE float GetInvincibilityTime() const { return InvincibilityTime; }
 
 	/*
@@ -230,8 +230,11 @@ private:
 	/*
 	 *	Invincibility
 	 */
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing=OnRep_Invincible)
 	uint8 bInvincible : 1;
+
+	UFUNCTION()
+	void OnRep_Invincible();
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Invincibility")
 	float InvincibilityTime;
