@@ -713,6 +713,12 @@ void ALBlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const
 	{
 		HealthComponent->ReceiveDamage(Damage, InstigatorController);
 	}
+
+	// Damage Indicator
+	if (ALBlasterPlayerController* LBInstigatorController = Cast<ALBlasterPlayerController>(InstigatorController))
+	{
+		LBInstigatorController->ClientRequestDamageIndication(Damage, this);
+	}
 }
 
 void ALBlasterCharacter::PollInit()
@@ -897,6 +903,9 @@ void ALBlasterCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
 	}
 	
 	PlayDeathMontage(LastHitNormal);
+
+	// Damage Indicator Widget이 바닥을 뚫고 내려가는 것을 방지
+	GetDamageIndicatorWidgetComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 	
 	// 죽는 중에 중복 타격되지 않도록 충돌 제거
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);

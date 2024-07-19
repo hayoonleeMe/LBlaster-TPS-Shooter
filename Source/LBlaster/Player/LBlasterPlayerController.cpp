@@ -614,6 +614,11 @@ void ALBlasterPlayerController::ChooseWeaponSlot(EEquipSlot InEquipSlot)
 	}
 }
 
+void ALBlasterPlayerController::ClientRequestDamageIndication_Implementation(float InDamage, ALBlasterCharacter* DamagedActor)
+{
+	DamagedActor->RequestDamageIndication(InDamage);
+}
+
 void ALBlasterPlayerController::StartInvincibilityTimer()
 {
 	if (ALBlasterCharacter* LBCharacter = Cast<ALBlasterCharacter>(GetCharacter()))
