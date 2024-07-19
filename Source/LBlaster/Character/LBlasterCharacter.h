@@ -104,7 +104,7 @@ public:
 	/*
 	 *	Damage Indicator
 	 */
-	void RequestDamageIndication(float InDamage) const;
+	void RequestDamageIndication(float InDamage, const FVector& InstigatorLocation) const;
 
 	FORCEINLINE class UWidgetComponent* GetDamageIndicatorWidgetComponent() const { return DamageIndicatorWidgetComponent; } 
 

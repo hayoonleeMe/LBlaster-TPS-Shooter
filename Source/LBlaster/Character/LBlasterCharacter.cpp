@@ -180,7 +180,6 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 	DamageIndicatorComponent = CreateDefaultSubobject<UDamageIndicatorComponent>(TEXT("Damage Indicator Component"));
 
 	DamageIndicatorWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Damage Indicator Widget Component"));
-	DamageIndicatorWidgetComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 	DamageIndicatorWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	DamageIndicatorWidgetComponent->SetDrawAtDesiredSize(true);
 	DamageIndicatorWidgetComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -441,11 +440,20 @@ void ALBlasterCharacter::Elim(bool bPlayerLeftGame)
 	MulticastElim(bPlayerLeftGame);
 }
 
-void ALBlasterCharacter::RequestDamageIndication(float InDamage) const
+void ALBlasterCharacter::RequestDamageIndication(float InDamage, const FVector& InstigatorLocation) const
 {
 	if (DamageIndicatorComponent)
 	{
 		DamageIndicatorComponent->RequestDamageIndication(InDamage);
+	}
+	if (DamageIndicatorWidgetComponent)
+	{
+		const FVector Offset = FVector(0.f, -70.f, 110.f);
+		const FVector Direction = (GetActorLocation() - InstigatorLocation).GetSafeNormal();
+		const FVector RightVector = FVector::CrossProduct(Direction, FVector::UpVector).GetSafeNormal();
+		const FVector UpVector = FVector::CrossProduct(RightVector, Direction).GetSafeNormal();
+		const FVector OffsetPosition = GetActorLocation() + RightVector * Offset.Y + UpVector * Offset.Z;
+		DamageIndicatorWidgetComponent->SetWorldLocation(OffsetPosition);
 	}
 }
 
@@ -904,9 +912,6 @@ void ALBlasterCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
 	
 	PlayDeathMontage(LastHitNormal);
 
-	// Damage Indicator Widget이 바닥을 뚫고 내려가는 것을 방지
-	GetDamageIndicatorWidgetComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-	
 	// 죽는 중에 중복 타격되지 않도록 충돌 제거
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
