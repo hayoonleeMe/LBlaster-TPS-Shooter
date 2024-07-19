@@ -76,6 +76,7 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 	GetMesh()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -88.f), FRotator(0.f, -90.f, 0.f));
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+	GetMesh()->SetCustomDepthStencilValue(CUSTOM_DEPTH_YELLOW);
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/LBlaster/Actors/Manny/Meshes/SKM_Manny.SKM_Manny'"));
 	if (SkeletalMeshRef.Object)
@@ -618,6 +619,24 @@ void ALBlasterCharacter::ReleaseCombatState() const
 	{
 		CombatComponent->SetAiming(false);
 		CombatComponent->SetFiring(false);
+	}
+}
+
+void ALBlasterCharacter::SetInvincible(bool bInInvincible)
+{
+	bInvincible = bInInvincible;
+
+	if (GetMesh())
+	{
+		GetMesh()->SetRenderCustomDepth(bInvincible);
+	}
+}
+
+void ALBlasterCharacter::OnRep_Invincible()
+{
+	if (GetMesh())
+	{
+		GetMesh()->SetRenderCustomDepth(bInvincible);
 	}
 }
 
