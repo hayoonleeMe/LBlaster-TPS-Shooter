@@ -10,7 +10,7 @@ void UDamageIndicator::SetDamageText(float InDamage, float InDuration)
 {
 	if (DamageText)
 	{
-		DamageText->SetText(FText::AsNumber(FMath::RoundToInt32(InDamage)));
+		DamageText->SetText(FText::AsNumber(FMath::FloorToInt32(InDamage)));
 	}
 	if (DamageAnimation)
 	{
