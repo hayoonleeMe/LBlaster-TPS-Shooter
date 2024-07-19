@@ -15,6 +15,7 @@ APickupSpawnPoint::APickupSpawnPoint()
 
 	/* Spawn Pickup */
 	SpawnCooldownTime = 5.f;
+	MinimumPickupDelay = 1.f;
 
 	/* Pad Mesh */
 	PadMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Pad Mesh"));
@@ -111,6 +112,16 @@ void APickupSpawnPoint::BeginPlay()
 
 void APickupSpawnPoint::OnRep_SpawnedPickup()
 {
+	// Pickup을 생성하자마자 바로 획득하는 것을 방지하기 위해 딜레이
+	FTimerHandle DelayTimerHandle;
+	GetWorldTimerManager().SetTimer(DelayTimerHandle, FTimerDelegate::CreateLambda([this]()
+	{
+		// 게임이 시작할 때 바로 착용되는 Default Weapon은 수행하지 않도록
+		if (SpawnedPickup)
+		{
+			SpawnedPickup->SetActorEnableCollision(true);
+		}
+	}), MinimumPickupDelay, false);
 }
 
 void APickupSpawnPoint::SpawnPickup()
@@ -120,7 +131,20 @@ void APickupSpawnPoint::SpawnPickup()
 		const int32 Index = FMath::RandRange(0, PickupClasses.Num() - 1);
 		SpawnedPickup = GetWorld()->SpawnActorDeferred<APickup>(PickupClasses[Index], GetActorTransform());
 		SpawnedPickup->OnDestroyed.AddDynamic(this, &ThisClass::StartSpawnPickupTimer);
+		// 생성된 이후에 일정 시간 뒤에 습득할 수 있게
+		SpawnedPickup->SetActorEnableCollision(false);
 		SpawnedPickup->FinishSpawning(GetActorTransform());
+
+		// Pickup을 생성하자마자 바로 획득하는 것을 방지하기 위해 딜레이
+		FTimerHandle DelayTimerHandle;
+		GetWorldTimerManager().SetTimer(DelayTimerHandle, FTimerDelegate::CreateLambda([this]()
+		{
+			// 게임이 시작할 때 바로 착용되는 Default Weapon은 수행하지 않도록
+			if (SpawnedPickup)
+			{
+				SpawnedPickup->SetActorEnableCollision(true);
+			}
+		}), MinimumPickupDelay, false);
 
 		MulticastDeactivatePadLoadingParticle();
 	}

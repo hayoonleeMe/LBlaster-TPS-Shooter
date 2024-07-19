@@ -11,6 +11,8 @@
 
 void AWeaponSpawnPoint::OnRep_SpawnedPickup()
 {
+	Super::OnRep_SpawnedPickup();
+	
 	ForceEquipNewOverlappingWeapon();
 }
 
@@ -41,7 +43,20 @@ void AWeaponSpawnPoint::SpawnPickup()
 			SpawnedWeaponPickup->SetParentLocation(GetActorLocation());
 			SpawnedWeaponPickup->SetActorLocation(GetActorLocation() + SpawnedWeaponPickup->GetSpawnPosOffset());
 		}
+		// 생성된 이후에 일정 시간 뒤에 습득할 수 있게
+		SpawnedPickup->SetActorEnableCollision(false);
 		SpawnedPickup->FinishSpawning(GetActorTransform());
+
+		// Pickup을 생성하자마자 바로 획득하는 것을 방지하기 위해 딜레이
+		FTimerHandle DelayTimerHandle;
+		GetWorldTimerManager().SetTimer(DelayTimerHandle, FTimerDelegate::CreateLambda([this]()
+		{
+			// 게임이 시작할 때 바로 착용되는 Default Weapon은 수행하지 않도록
+			if (SpawnedPickup)
+			{
+				SpawnedPickup->SetActorEnableCollision(true);
+			}
+		}), MinimumPickupDelay, false);
 
 		MulticastDeactivatePadLoadingParticle();
 		ForceEquipNewOverlappingWeapon();

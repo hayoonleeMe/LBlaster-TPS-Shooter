@@ -41,6 +41,9 @@ protected:
 
 	FTimerHandle SpawnPickupTimer;
 
+	UPROPERTY(EditAnywhere, Category="LBlaster|Spawn Pickup")
+	float MinimumPickupDelay;
+
 	/*
 	 *	Pad Mesh
 	 */

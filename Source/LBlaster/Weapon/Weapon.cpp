@@ -91,6 +91,7 @@ void AWeapon::PostInitializeComponents()
 		AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnSphereBeginOverlap);	
 	}
+	SetActorEnableCollision(false);
 }
 
 void AWeapon::SetHUDAmmo()
