@@ -9,6 +9,7 @@
 #include "InputMappingContext.h"
 #include "LBlaster.h"
 #include "Component/CombatComponent.h"
+#include "Component/DamageIndicatorComponent.h"
 #include "Component/HealthComponent.h"
 #include "Component/LBCharacterMovementComponent.h"
 #include "Component/LBlasterCameraComponent.h"
@@ -174,6 +175,15 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 
 	/* Combat Component */
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>(TEXT("Combat Component"));
+
+	/* Damage Indicator */
+	DamageIndicatorComponent = CreateDefaultSubobject<UDamageIndicatorComponent>(TEXT("Damage Indicator Component"));
+
+	DamageIndicatorWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Damage Indicator Widget Component"));
+	DamageIndicatorWidgetComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+	DamageIndicatorWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	DamageIndicatorWidgetComponent->SetDrawAtDesiredSize(true);
+	DamageIndicatorWidgetComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	/* Animation */
 	static ConstructorHelpers::FClassFinder<UAnimInstance> BaseAnimLayerRef(TEXT("/Game/LBlaster/Actors/Manny/Animations/Locomotion/Unarmed/ABP_UnarmedAnimLayers.ABP_UnarmedAnimLayers_C"));
@@ -429,6 +439,14 @@ void ALBlasterCharacter::Elim(bool bPlayerLeftGame)
 {
 	bIsDead = true;
 	MulticastElim(bPlayerLeftGame);
+}
+
+void ALBlasterCharacter::RequestDamageIndication(float InDamage) const
+{
+	if (DamageIndicatorComponent)
+	{
+		DamageIndicatorComponent->RequestDamageIndication(InDamage);
+	}
 }
 
 bool ALBlasterCharacter::IsServerSideRewindEnabled() const
