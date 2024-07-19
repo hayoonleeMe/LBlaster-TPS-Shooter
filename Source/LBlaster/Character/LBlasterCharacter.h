@@ -102,6 +102,13 @@ public:
 	FORCEINLINE bool IsDead() const { return bIsDead; }
 
 	/*
+	 *	Damage Indicator
+	 */
+	void RequestDamageIndication(float InDamage) const;
+
+	FORCEINLINE class UWidgetComponent* GetDamageIndicatorWidgetComponent() const { return DamageIndicatorWidgetComponent; } 
+
+	/*
 	 *	Lag Compensation
 	 */
 	FORCEINLINE TMap<FName, class UBoxComponent*> GetHitCollisionBoxes() const { return HitCollisionBoxes; }
@@ -206,6 +213,15 @@ private:
 	 */
 	UPROPERTY(VisibleAnywhere, Category="LBlaster|Combat")
 	TObjectPtr<class UCombatComponent> CombatComponent;
+
+	/*
+	 *	Damage Indicator
+	 */
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class UDamageIndicatorComponent> DamageIndicatorComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UWidgetComponent> DamageIndicatorWidgetComponent;
 
 	/*
 	 *	Animation

@@ -63,6 +63,9 @@ public:
 	void SetWeaponSlotIcon(EEquipSlot InEquipSlot, EWeaponType InWeaponType);
 	void ChooseWeaponSlot(EEquipSlot InEquipSlot);
 
+	UFUNCTION(Client, Reliable)
+	void ClientRequestDamageIndication(float InDamage, class ALBlasterCharacter* DamagedActor);
+	
 	/*
 	 *	Leave Game
 	 */
