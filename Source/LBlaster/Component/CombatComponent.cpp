@@ -1413,6 +1413,12 @@ void UCombatComponent::EquipNewOverlappingWeapon()
 		AActor* NearestActor = nullptr;
 		for (AActor* Actor : OverlappingActors)
 		{
+			// 이미 장착된 무기는 착용할 수 없도록
+			if (Actor->GetOwner())
+			{
+				continue;
+			}
+			
 			if (const float Distance = (Location - Actor->GetActorLocation()).Length(); Distance < MinDistance)
 			{
 				NearestActor = Actor;
