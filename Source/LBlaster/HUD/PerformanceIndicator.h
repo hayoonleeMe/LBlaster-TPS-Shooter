@@ -25,7 +25,7 @@ private:
 
 	FTimerHandle PerformanceIndicatorTimer;
 
-	float PerformanceIndicatorTimerRate = 1.f;
+	float PerformanceIndicatorTimerRate = 2.f;
 	
 	void UpdatePerformanceIndicator();
 	
