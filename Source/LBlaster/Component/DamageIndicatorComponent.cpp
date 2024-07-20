@@ -29,7 +29,15 @@ void UDamageIndicatorComponent::RequestDamageIndication(float InDamage)
 		{
 			AccumulatedDamage = InDamage;
 		}
-		DamageIndicator->SetDamageText(AccumulatedDamage, ClearDelay);
+		
+		int32 AccumulatedDamageInt = FMath::FloorToInt32(AccumulatedDamage);
+		// DamagedActor가 무적 상태라 데미지가 0이면 0으로 표시
+		if (FMath::FloorToInt32(InDamage) == 0)
+		{
+			AccumulatedDamageInt = 0;
+		}
+		
+		DamageIndicator->SetDamageText(AccumulatedDamageInt, ClearDelay);
 		GetWorld()->GetTimerManager().SetTimer(ClearTimerHandle, ClearDelay, false);
 	}
 }

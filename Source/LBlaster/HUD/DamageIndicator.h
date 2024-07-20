@@ -15,7 +15,7 @@ class LBLASTER_API UDamageIndicator : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void SetDamageText(float InDamage, float InDuration);
+	void SetDamageText(int32 InDamage, float InDuration);
 
 private:
 	UPROPERTY(meta=(BindWidget))
@@ -24,4 +24,19 @@ private:
 	UPROPERTY(Transient, meta=(BindWidgetAnim))
 	TObjectPtr<UWidgetAnimation> DamageAnimation;
 
+	/*
+	 *	Color and Font
+	 *	Defined in derived Blueprint (WBP_DamageIndicator)
+	 */	
+	UPROPERTY(EditAnywhere, Category="LBlaster", meta=(AllowPrivateAccess=true))
+	FSlateColor NoDamageColor;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster", meta=(AllowPrivateAccess=true))
+	FSlateFontInfo NoDamageFont;	
+	
+	UPROPERTY(EditAnywhere, Category="LBlaster", meta=(AllowPrivateAccess=true))
+	FSlateColor DamageColor;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster", meta=(AllowPrivateAccess=true))
+	FSlateFontInfo DamageFont;
 };

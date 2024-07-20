@@ -693,6 +693,15 @@ void ALBlasterCharacter::PlayHitReactMontage(const FVector& HitNormal) const
 void ALBlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController,
                                        AActor* DamageCauser)
 {
+	const float ActualDamage = bInvincible ? 0.f : Damage;
+	
+	// Damage Indicator
+	// 무적 상태일 때도 표시
+	if (ALBlasterPlayerController* LBInstigatorController = Cast<ALBlasterPlayerController>(InstigatorController))
+	{
+		LBInstigatorController->ClientRequestDamageIndication(ActualDamage, this);
+	}
+	
 	// 스폰 무적
 	if (bInvincible)
 	{
@@ -720,12 +729,6 @@ void ALBlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const
 	if (HealthComponent)
 	{
 		HealthComponent->ReceiveDamage(Damage, InstigatorController);
-	}
-
-	// Damage Indicator
-	if (ALBlasterPlayerController* LBInstigatorController = Cast<ALBlasterPlayerController>(InstigatorController))
-	{
-		LBInstigatorController->ClientRequestDamageIndication(Damage, this);
 	}
 }
 
