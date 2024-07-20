@@ -97,6 +97,9 @@ protected:
 	TObjectPtr<class UInputAction> PauseMenuAction;
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
+	TObjectPtr<UInputAction> PauseMenuForEditorAction;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
 	TObjectPtr<UInputAction> FocusChatAction;
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Input")

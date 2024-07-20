@@ -51,6 +51,12 @@ ALBlasterPlayerController::ALBlasterPlayerController()
 		PauseMenuAction = PauseMenuActionRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> PauseMenuForEditorActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_PauseMenuForEditor.IA_PauseMenuForEditor'"));
+	if (PauseMenuForEditorActionRef.Object)
+	{
+		PauseMenuForEditorAction = PauseMenuForEditorActionRef.Object;
+	}
+
 	static ConstructorHelpers::FObjectFinder<UInputAction> FocusChatActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_FocusChat.IA_FocusChat'"));
 	if (FocusChatActionRef.Object)
 	{
@@ -111,7 +117,9 @@ void ALBlasterPlayerController::SetupInputComponent()
 
 	/* IMC_PauseMenuContext */
 	EnhancedInputComponent->BindAction(PauseMenuAction, ETriggerEvent::Triggered, this, &ThisClass::ShowPauseMenu);
-
+#if WITH_EDITOR
+	EnhancedInputComponent->BindAction(PauseMenuForEditorAction, ETriggerEvent::Triggered, this, &ThisClass::ShowPauseMenu);
+#endif
 	/* IMC_MenuContext */
 	EnhancedInputComponent->BindAction(ReturnMenuAction, ETriggerEvent::Triggered, this, &ThisClass::ReturnMenu);
 }
