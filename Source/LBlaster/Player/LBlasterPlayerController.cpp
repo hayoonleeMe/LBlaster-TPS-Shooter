@@ -80,6 +80,12 @@ ALBlasterPlayerController::ALBlasterPlayerController()
 	{
 		ReturnMenuAction = ReturnMenuActionRef.Object;
 	}
+	
+	static ConstructorHelpers::FObjectFinder<UInputAction> ReturnMenuForEditorActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_ReturnMenuForEditor.IA_ReturnMenuForEditor'"));
+	if (ReturnMenuForEditorActionRef.Object)
+	{
+		ReturnMenuForEditorAction = ReturnMenuForEditorActionRef.Object;
+	}
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> ScoreboardActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/LBlaster/Core/Inputs/IA_Scoreboard.IA_Scoreboard'"));
 	if (ScoreboardActionRef.Object)
@@ -115,13 +121,17 @@ void ALBlasterPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(ScoreboardAction, ETriggerEvent::Triggered, this, &ThisClass::ShowScoreboard);
 	EnhancedInputComponent->BindAction(HelpInfoAction, ETriggerEvent::Triggered, this, &ThisClass::ShowHelpInfo);
 
-	/* IMC_PauseMenuContext */
+	/* IMC_LBContext & IMC_PauseMenuContext */
 	EnhancedInputComponent->BindAction(PauseMenuAction, ETriggerEvent::Triggered, this, &ThisClass::ShowPauseMenu);
 #if WITH_EDITOR
 	EnhancedInputComponent->BindAction(PauseMenuForEditorAction, ETriggerEvent::Triggered, this, &ThisClass::ShowPauseMenu);
 #endif
+	
 	/* IMC_MenuContext */
 	EnhancedInputComponent->BindAction(ReturnMenuAction, ETriggerEvent::Triggered, this, &ThisClass::ReturnMenu);
+#if WITH_EDITOR
+	EnhancedInputComponent->BindAction(ReturnMenuForEditorAction, ETriggerEvent::Triggered, this, &ThisClass::ReturnMenu);
+#endif
 }
 
 float ALBlasterPlayerController::GetServerTime()

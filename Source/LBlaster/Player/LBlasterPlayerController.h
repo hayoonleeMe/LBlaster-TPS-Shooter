@@ -110,6 +110,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
 	TObjectPtr<UInputAction> ReturnMenuAction;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
+	TObjectPtr<UInputAction> ReturnMenuForEditorAction;
 	
 	UPROPERTY(EditAnywhere, Category="LBlaster|Input")
 	TObjectPtr<UInputAction> ScoreboardAction;
