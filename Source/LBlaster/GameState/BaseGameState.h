@@ -15,6 +15,7 @@ class LBLASTER_API ABaseGameState : public AGameState
 	GENERATED_BODY()
 
 public:
+	ABaseGameState();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION(NetMulticast, Reliable)

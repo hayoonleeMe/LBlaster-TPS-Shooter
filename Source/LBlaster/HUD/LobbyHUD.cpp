@@ -144,11 +144,11 @@ void ALobbyHUD::TravelToMatch()
 	{
 		if (GetMatchModeType() == EMatchMode::TeamDeathMatch)
 		{
-			World->ServerTravel(FMultiplayerMapPath::TeamDeathMatchTestMapPath);
+			World->ServerTravel(FMultiplayerMapPath::TeamDeathMatchMapPath);
 		}
 		else if (GetMatchModeType() == EMatchMode::FreeForAll)
 		{
-			World->ServerTravel(FMultiplayerMapPath::FreeForAllTestMapPath);
+			World->ServerTravel(FMultiplayerMapPath::FreeForAllMapPath);
 		}
 	}
 }

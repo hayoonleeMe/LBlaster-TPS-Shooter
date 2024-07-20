@@ -10,6 +10,13 @@
 #include "HUD/LBlasterHUD.h"
 #include "Net/UnrealNetwork.h"
 
+ABaseGameState::ABaseGameState()
+{
+#if WITH_EDITOR
+	GoalKillScore = 10;
+#endif
+}
+
 void ABaseGameState::EndGameOnGoalKills()
 {
 	if (ABaseGameMode* BaseGameMode = GetWorld()->GetAuthGameMode<ABaseGameMode>())
@@ -37,6 +44,7 @@ void ABaseGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 
 void ABaseGameState::InitGoalKillScoreFromSession()
 {
+#if !WITH_EDITOR
 	if (GetGameInstance())
 	{
 		if (UMultiplayerSessionsSubsystem* MultiplayerSessionsSubsystem = GetGameInstance()->GetSubsystem<UMultiplayerSessionsSubsystem>())
@@ -47,6 +55,7 @@ void ABaseGameState::InitGoalKillScoreFromSession()
 			}
 		}
 	}
+#endif
 	
 	UpdateHUDGoalKillScore();
 }
