@@ -69,11 +69,12 @@ void ULBlasterCameraComponent::BlendView(const FCameraView& InView)
 {
 	View.Location = FMath::Lerp(View.Location, InView.Location, BlendWeight);
 
+	const float RotBlendWeight = BlendWeight < 1.f ? 0.8f : 1.f;
 	const FRotator DeltaRotation = (InView.Rotation - View.Rotation).GetNormalized();
-	View.Rotation += BlendWeight * DeltaRotation;
+	View.Rotation += RotBlendWeight * DeltaRotation;
 
 	const FRotator DeltaControlRotation = (InView.ControlRotation - View.ControlRotation).GetNormalized();
-	View.ControlRotation += BlendWeight * DeltaControlRotation;
+	View.ControlRotation += RotBlendWeight * DeltaControlRotation;
 
 	View.FieldOfView = FMath::Lerp(View.FieldOfView, InView.FieldOfView, BlendWeight);
 }
@@ -188,14 +189,16 @@ void ULBlasterCameraComponent::UpdatePreventPenetration(FCameraView& OutView)
 			float DistanceSqr;
 			PPActorRootComponent->GetSquaredDistanceToCollision(ClosestPointOnLineToCapsuleCenter, DistanceSqr, SafeLocation);
 			// 라인 검사를 수행할 때 초기 침투를 방지하기 위해 캡슐 내부로 밀어 넣습니다.	
-			SafeLocation += (SafeLocation - ClosestPointOnLineToCapsuleCenter).GetSafeNormal() * PushInDistance;
+			SafeLocation += (SafeLocation - ClosestPointOnLineToCapsuleCenter).GetSafeNormal() * CollisionPushOutDistance;
+			// 바라보는 방향 반대로 이동. 즉, 카메라를 좀 더 뒤로 이동.
+			SafeLocation += PPActor->GetActorForwardVector() * -CollisionPushOutDistance;
 			
 			PreventCameraPenetration(PPActor, SafeLocation, OutView.Location);
 		}
 	}
 }
 
-void ULBlasterCameraComponent::PreventCameraPenetration(const AActor* PPActor, const FVector& SafeLocation, FVector& CameraLocation)
+void ULBlasterCameraComponent::PreventCameraPenetration(const AActor* PPActor, FVector& SafeLocation, FVector& CameraLocation)
 {
 	if (PPActor)
 	{
@@ -224,6 +227,23 @@ void ULBlasterCameraComponent::PreventCameraPenetration(const AActor* PPActor, c
 		}
 
 		DistBlockedPctThisFrame = FMath::Clamp(DistBlockedPctThisFrame, 0.f, 1.f);
+		// 카메라와 벽이 더 가까워질 때
+		if (DistBlockedPctThisFrame < PrevDistBlockedPct)
+		{
+			SetBlendWeight(DistBlockedPctThisFrame);
+		}
+		// 카메라가 벽에 근접해있다가 벗어날 때
+		else if (DistBlockedPctThisFrame - PrevDistBlockedPct >= 0.5f)
+		{
+			SetBlendWeight(PrevDistBlockedPct);
+		}
+		// 카메라가 벽과 아주 가까우면(ex.오른쪽이 벽에 닿음) 카메라를 좀 올림.
+		if (DistBlockedPctThisFrame < 0.4f)
+		{
+			SafeLocation.Z += CollisionPushOutDistance;
+		}
+		
+		PrevDistBlockedPct = DistBlockedPctThisFrame;
 		CameraLocation = SafeLocation + (CameraLocation - SafeLocation) * DistBlockedPctThisFrame;
 	}
 }
