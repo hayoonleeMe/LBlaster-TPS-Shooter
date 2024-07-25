@@ -40,6 +40,9 @@ protected:
 private:
 	UPROPERTY()
 	TObjectPtr<class ALBlasterCharacter> Character;
+	
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USkeletalMeshComponent> SkeletalMeshComp;
 
 	UPROPERTY()
 	TObjectPtr<class ULBCharacterMovementComponent> CharacterMovementComponent;

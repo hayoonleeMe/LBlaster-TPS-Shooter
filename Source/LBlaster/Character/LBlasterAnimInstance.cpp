@@ -20,6 +20,8 @@ void ULBlasterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		return;
 	}
 
+	SkeletalMeshComp = Character->GetMesh();
+
 	/* Character State */
 	bIsAiming = Character->IsAiming();
 	const FLBlasterCharacterGroundInfo& GroundInfo = CharacterMovementComponent->GetGroundInfo();
