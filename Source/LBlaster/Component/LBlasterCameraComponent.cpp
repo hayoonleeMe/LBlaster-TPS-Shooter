@@ -69,12 +69,10 @@ void ULBlasterCameraComponent::BlendView(const FCameraView& InView)
 {
 	View.Location = FMath::Lerp(View.Location, InView.Location, BlendWeight);
 
-	const float RotBlendWeight = BlendWeight < 1.f ? 0.8f : 1.f;
 	const FRotator DeltaRotation = (InView.Rotation - View.Rotation).GetNormalized();
-	View.Rotation += RotBlendWeight * DeltaRotation;
+	View.Rotation += BlendWeight * DeltaRotation;
 
-	const FRotator DeltaControlRotation = (InView.ControlRotation - View.ControlRotation).GetNormalized();
-	View.ControlRotation += RotBlendWeight * DeltaControlRotation;
+	View.ControlRotation = InView.Rotation;
 
 	View.FieldOfView = FMath::Lerp(View.FieldOfView, InView.FieldOfView, BlendWeight);
 }
