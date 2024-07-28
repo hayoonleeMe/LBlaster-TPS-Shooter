@@ -146,7 +146,7 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 		UpdateHUDCrosshair(DeltaTime);
 	}
 
-	if (CombatState == ECombatState::ECS_TossingGrenade)
+	if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled() && CombatState == ECombatState::ECS_TossingGrenade)
 	{
 		DrawGrenadeTrajectory();
 	}
