@@ -499,12 +499,12 @@ private:
 	void OnRep_GrenadeAmount();
 
 	UFUNCTION(Server, Reliable)
-	void ServerLaunchGrenade(const FVector_NetQuantize& HitTarget);
+	void ServerLaunchGrenade(const FVector_NetQuantize& LaunchLocation, const FVector_NetQuantize& LaunchVelocity);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastLaunchGrenade(const FVector_NetQuantize& HitTarget);
+	void MulticastLaunchGrenade(const FVector_NetQuantize& LaunchLocation, const FVector_NetQuantize& LaunchVelocity);
 
-	void LocalLaunchGrenade(const FVector_NetQuantize& HitTarget);
+	void LocalLaunchGrenade(const FVector_NetQuantize& LaunchLocation, const FVector_NetQuantize& LaunchVelocity);
 	void HandleUnEquipBeforeTossGrenade();
 	void ShowAttachedGrenade(bool bShow);
 

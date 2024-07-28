@@ -886,32 +886,39 @@ void UCombatComponent::OnRep_GrenadeAmount()
 	UpdateHUDGrenadeAmount();
 }
 
-void UCombatComponent::ServerLaunchGrenade_Implementation(const FVector_NetQuantize& HitTarget)
+void UCombatComponent::ServerLaunchGrenade_Implementation(const FVector_NetQuantize& LaunchLocation, const FVector_NetQuantize& LaunchVelocity)
 {
-	LocalLaunchGrenade(HitTarget);
-	MulticastLaunchGrenade(HitTarget);
+	// Update GrenadeAmount
+	if (OwnerCharacter->HasAuthority())
+	{
+		GrenadeAmount = FMath::Clamp(GrenadeAmount - 1, 0, MaxGrenadeAmount);
+		UpdateHUDGrenadeAmount();
+	}
+	
+	MulticastLaunchGrenade(LaunchLocation, LaunchVelocity);
 }
 
-void UCombatComponent::MulticastLaunchGrenade_Implementation(const FVector_NetQuantize& HitTarget)
+void UCombatComponent::MulticastLaunchGrenade_Implementation(const FVector_NetQuantize& LaunchLocation, const FVector_NetQuantize& LaunchVelocity)
 {
 	// 중복 Launch 방지
 	if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled())
 	{
 		return;
 	}
-
-	LocalLaunchGrenade(HitTarget);
+	LocalLaunchGrenade(LaunchLocation, LaunchVelocity);
 }
 
-void UCombatComponent::LocalLaunchGrenade(const FVector_NetQuantize& HitTarget)
+void UCombatComponent::LocalLaunchGrenade(const FVector_NetQuantize& LaunchLocation, const FVector_NetQuantize& LaunchVelocity)
 {
 	if (IsValidOwnerCharacter() && OwnerCharacter->GetAttachedGrenade() && GrenadeClass && GetWorld())
 	{
+		ShowAttachedGrenade(false);
+
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.Owner = SpawnParams.Instigator = OwnerCharacter;
-		if (AThrowableGrenade* Grenade = GetWorld()->SpawnActor<AThrowableGrenade>(GrenadeClass, GrenadeLaunchLocation, GrenadeLaunchVelocity.Rotation(), SpawnParams))
+		if (AThrowableGrenade* Grenade = GetWorld()->SpawnActor<AThrowableGrenade>(GrenadeClass, LaunchLocation, LaunchVelocity.Rotation(), SpawnParams))
 		{
-			Grenade->SetInitialVelocity(GrenadeLaunchVelocity);
+			Grenade->SetInitialVelocity(LaunchVelocity);
 
 			if (OwnerCharacter->HasAuthority())
 			{
@@ -1177,15 +1184,16 @@ void UCombatComponent::LaunchGrenade()
 		UpdateHUDGrenadeAmount();
 	}
 
-	ShowAttachedGrenade(false);
 	if (OwnerCharacter->GetLocalRole() == ROLE_AutonomousProxy)
 	{
-		LocalLaunchGrenade(TraceHitTarget);
-		ServerLaunchGrenade(TraceHitTarget);
+		LocalLaunchGrenade(GrenadeLaunchLocation, GrenadeLaunchVelocity);
+		ServerLaunchGrenade(GrenadeLaunchLocation, GrenadeLaunchVelocity);
 	}
+	// 서버 Local Character
 	if (OwnerCharacter->HasAuthority() && OwnerCharacter->IsLocallyControlled())
 	{
-		ServerLaunchGrenade(TraceHitTarget);
+		LocalLaunchGrenade(GrenadeLaunchLocation, GrenadeLaunchVelocity);
+		MulticastLaunchGrenade(GrenadeLaunchLocation, GrenadeLaunchVelocity);
 	}
 }
 
