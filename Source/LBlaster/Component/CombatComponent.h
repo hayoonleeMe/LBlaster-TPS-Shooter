@@ -509,6 +509,7 @@ private:
 	void ShowAttachedGrenade(bool bShow);
 
 	bool bDrawGrenadeTrajectory = false;
+	bool bCanLaunchGrenade = true;
 	
 	FVector GrenadeLaunchLocation;
 	FVector GrenadeLaunchVelocity;

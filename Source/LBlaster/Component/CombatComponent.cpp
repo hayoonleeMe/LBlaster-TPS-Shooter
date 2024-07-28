@@ -913,6 +913,7 @@ void UCombatComponent::LocalLaunchGrenade(const FVector_NetQuantize& LaunchLocat
 	if (IsValidOwnerCharacter() && OwnerCharacter->GetAttachedGrenade() && GrenadeClass && GetWorld())
 	{
 		ShowAttachedGrenade(false);
+		bCanLaunchGrenade = true;
 
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.Owner = SpawnParams.Instigator = OwnerCharacter;
@@ -1141,7 +1142,11 @@ void UCombatComponent::TossGrenade(bool bPressed)
 	}
 	else
 	{
-		StartTossGrenade(true);
+		if (bCanLaunchGrenade)
+		{
+			bCanLaunchGrenade = false;
+			StartTossGrenade(true);
+		}
 	}
 }
 
