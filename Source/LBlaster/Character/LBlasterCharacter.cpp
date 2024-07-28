@@ -16,6 +16,7 @@
 #include "Component/LagCompensationComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SplineComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -175,6 +176,9 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 
 	/* Combat Component */
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>(TEXT("Combat Component"));
+	GrenadeSplineComponent = CreateDefaultSubobject<USplineComponent>(TEXT("Grenade Spline Component"));
+	GrenadeSplineComponent->SetupAttachment(RootComponent);
+	GrenadeSplineComponent->SetIsReplicated(false);
 
 	/* Damage Indicator */
 	DamageIndicatorComponent = CreateDefaultSubobject<UDamageIndicatorComponent>(TEXT("Damage Indicator Component"));

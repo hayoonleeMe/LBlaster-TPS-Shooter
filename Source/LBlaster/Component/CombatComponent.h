@@ -486,7 +486,7 @@ private:
 	float MaxGrenadeThrowDistance = 1300.f;
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Grenade")
-	float GrenadePathArcValue = 0.6f;
+	float GrenadePathArcValue = 0.8f;
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Grenade")
 	int32 MaxGrenadeAmount;
@@ -506,4 +506,12 @@ private:
 	void LocalLaunchGrenade(const FVector_NetQuantize& HitTarget);
 	void HandleUnEquipBeforeTossGrenade();
 	void ShowAttachedGrenade(bool bShow);
+	FVector GrenadeLaunchLocation;
+	FVector GrenadeLaunchVelocity;
+
+	UPROPERTY()
+	TArray<TObjectPtr<class USplineMeshComponent>> SplineMeshes;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Grenade")
+	TObjectPtr<UStaticMesh> GrenadeTrajectorySM;
 };

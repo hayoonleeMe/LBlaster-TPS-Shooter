@@ -85,6 +85,7 @@ public:
 	void SetAdsFov(float InAdsFov) const;
 	FORCEINLINE UStaticMeshComponent* GetAttachedGrenade() const { return AttachedGrenade; }
 	class AWeapon* GetEquippingWeapon() const;
+	FORCEINLINE class USplineComponent* GetGrenadeSplineComponent() const { return GrenadeSplineComponent; }
 
 	UFUNCTION(BlueprintCallable)
 	FString GetCombatInfo();
@@ -213,6 +214,9 @@ private:
 	 */
 	UPROPERTY(VisibleAnywhere, Category="LBlaster|Combat")
 	TObjectPtr<class UCombatComponent> CombatComponent;
+
+	UPROPERTY(VisibleAnywhere, Category="LBlaster|Combat")
+	TObjectPtr<USplineComponent> GrenadeSplineComponent;
 
 	/*
 	 *	Damage Indicator

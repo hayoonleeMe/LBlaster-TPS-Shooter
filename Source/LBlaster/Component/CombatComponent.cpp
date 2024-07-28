@@ -10,6 +10,8 @@
 #include "Weapon/Weapon.h"
 #include "Character/LBlasterCharacter.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SplineComponent.h"
+#include "Components/SplineMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/GameStateBase.h"
 #include "HUD/LBlasterHUD.h"
@@ -899,35 +901,15 @@ void UCombatComponent::LocalLaunchGrenade(const FVector_NetQuantize& HitTarget)
 {
 	if (IsValidOwnerCharacter() && OwnerCharacter->GetAttachedGrenade() && GrenadeClass && GetWorld())
 	{
-		const FVector StartingLocation = OwnerCharacter->GetAttachedGrenade()->GetComponentLocation();
-		FVector ToTarget = HitTarget - StartingLocation;
-		const FVector ToTargetDir = ToTarget.GetSafeNormal();
-		if (ToTarget.Length() > MaxGrenadeThrowDistance)
-		{
-			ToTarget = StartingLocation + ToTargetDir * MaxGrenadeThrowDistance;
-		}
-		
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.Owner = SpawnParams.Instigator = OwnerCharacter;
-		if (AThrowableGrenade* Grenade = GetWorld()->SpawnActor<AThrowableGrenade>(GrenadeClass, StartingLocation, ToTarget.Rotation(), SpawnParams))
+		if (AThrowableGrenade* Grenade = GetWorld()->SpawnActor<AThrowableGrenade>(GrenadeClass, GrenadeLaunchLocation, GrenadeLaunchVelocity.Rotation(), SpawnParams))
 		{
-			// 발사 Velocity 설정
-			FVector OutVelocity;
-			if (UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), OutVelocity, StartingLocation, ToTarget, 0.f, GrenadePathArcValue))
+			Grenade->SetInitialVelocity(GrenadeLaunchVelocity);
+
+			if (OwnerCharacter->HasAuthority())
 			{
-				Grenade->SetInitialVelocity(OutVelocity);
-
-				if (OwnerCharacter->HasAuthority())
-				{
-					Grenade->SetReplicatesPostInit(false);
-				}
-
-				// 수류탄 궤적 디버깅
-				FPredictProjectilePathParams PredictParams(5.f, StartingLocation, OutVelocity, 15.0f);
-				//PredictParams.DrawDebugTime = 15.0f;     //디버그 라인 보여지는 시간 (초)
-				//PredictParams.DrawDebugType = EDrawDebugTrace::Type::ForDuration;  // DrawDebugTime 을 지정하면 EDrawDebugTrace::Type::ForDuration 필요.
-				FPredictProjectilePathResult Result;
-				UGameplayStatics::PredictProjectilePath(this, PredictParams, Result);
+				Grenade->SetReplicatesPostInit(false);
 			}
 		}
 	}
@@ -978,6 +960,99 @@ void UCombatComponent::ShowCrosshair(EWeaponType InWeaponType)
 {
 	bShowCrosshair = true;
 	SetHUDCrosshair(InWeaponType);	
+}
+
+void UCombatComponent::DrawGrenadeTrajectory()
+{
+	if (IsValidOwnerCharacter() && OwnerCharacter->GetAttachedGrenade() && GetWorld())
+	{
+		const FVector StartingLocation = OwnerCharacter->GetAttachedGrenade()->GetComponentLocation();
+		GrenadeLaunchLocation = StartingLocation;
+		
+		FVector Target = TraceHitTarget;
+		FVector ToTargetDir = (Target - StartingLocation).GetSafeNormal();
+		if ((TraceHitTarget - StartingLocation).SizeSquared() > MaxGrenadeThrowDistance * MaxGrenadeThrowDistance)
+		{
+			Target = StartingLocation + ToTargetDir * MaxGrenadeThrowDistance;
+			ToTargetDir = (Target - StartingLocation).GetSafeNormal();
+		}
+		
+		// 발사 Velocity 설정
+		FVector OutVelocity;
+		if (UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), OutVelocity, StartingLocation, Target, 0.f, GrenadePathArcValue))
+		{
+			OutVelocity = OutVelocity.GetSafeNormal() * 1500.f;
+			GrenadeLaunchVelocity = OutVelocity;
+			
+			if (USplineComponent* GrenadeSplineComponent = OwnerCharacter->GetGrenadeSplineComponent())
+			{
+				GrenadeSplineComponent->ClearSplinePoints();
+
+				if (!bDrawGrenadeTrajectory)
+				{
+					// Spine에 포함되지 않는 SplineMesh는 숨김
+					for (int32 Index = 0; Index < SplineMeshes.Num(); ++Index)
+					{
+						if (SplineMeshes[Index])
+						{
+							SplineMeshes[Index]->SetVisibility(false);
+						}
+					}
+					return;
+				}
+				
+				// 수류탄 궤적
+				FPredictProjectilePathParams PredictParams(5.f, StartingLocation, OutVelocity, 15.0f);
+				PredictParams.ActorsToIgnore.Add(OwnerCharacter);
+				//PredictParams.DrawDebugTime = 15.0f;     //디버그 라인 보여지는 시간 (초)
+				//PredictParams.DrawDebugType = EDrawDebugTrace::Type::ForOneFrame;  // DrawDebugTime 을 지정하면 EDrawDebugTrace::Type::ForDuration 필요.
+				FPredictProjectilePathResult Result;
+				UGameplayStatics::PredictProjectilePath(this, PredictParams, Result);
+				const TArray<FPredictProjectilePathPointData>& PathData = Result.PathData;
+				
+				for (int32 Index = 0; Index < PathData.Num(); ++Index)
+				{
+					GrenadeSplineComponent->AddSplinePointAtIndex(PathData[Index].Location, Index, ESplineCoordinateSpace::Local);
+				}
+
+				// Spline Mesh Component 그리기
+				int32 Index = 0;
+				for (; Index < GrenadeSplineComponent->GetNumberOfSplinePoints(); ++Index)
+				{
+					// 해당 인덱스에 이미 생성된 USplineMeshComponent가 없으면 새로 생성
+					if (!SplineMeshes.IsValidIndex(Index) && GrenadeTrajectorySM)
+					{
+						if (USplineMeshComponent* NewSplineMeshComp = NewObject<USplineMeshComponent>(this, USplineMeshComponent::StaticClass()))
+						{
+							NewSplineMeshComp->SetStaticMesh(GrenadeTrajectorySM);
+							NewSplineMeshComp->SetMobility(EComponentMobility::Movable);
+							NewSplineMeshComp->CreationMethod = EComponentCreationMethod::UserConstructionScript;
+							NewSplineMeshComp->RegisterComponentWithWorld(GetWorld());
+							NewSplineMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+							NewSplineMeshComp->SetCastShadow(false);
+							SplineMeshes.Add(NewSplineMeshComp);
+						}
+					}
+					if (SplineMeshes[Index])
+					{
+						FVector StartLocation, StartTangent, EndLocation, EndTangent;
+						GrenadeSplineComponent->GetLocationAndTangentAtSplinePoint(Index, StartLocation, StartTangent, ESplineCoordinateSpace::Local);
+						GrenadeSplineComponent->GetLocationAndTangentAtSplinePoint(Index + 1, EndLocation, EndTangent, ESplineCoordinateSpace::Local);
+						SplineMeshes[Index]->SetStartAndEnd(StartLocation, StartTangent, EndLocation, EndTangent);
+						SplineMeshes[Index]->SetVisibility(true);
+					}
+				}
+				// Spine에 포함되지 않는 SplineMesh는 숨김
+				for (; Index < SplineMeshes.Num(); ++Index)
+				{
+					if (SplineMeshes[Index])
+					{
+						SplineMeshes[Index]->SetVisibility(false);
+					}
+				}
+			}
+		}
+	}
 }
 
 FString UCombatComponent::GetCombatInfo()
