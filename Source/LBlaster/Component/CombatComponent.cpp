@@ -1586,6 +1586,7 @@ void UCombatComponent::EquipWeapon(EEquipSlot InEquipSlotType, EEquipMode InEqui
 		bDrawGrenadeTrajectory = false;
 		HideAllSplineMesh();
 		TossGrenadeFinished();
+		OwnerCharacter->StopAnimMontage();
 	}
 
 	FWeaponEquip WeaponEquip = CreateWeaponEquip(InEquipSlotType, InEquipMode, InWeaponToEquip, true);
@@ -1632,8 +1633,12 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 		if (bShouldPlayUnarmedEquipMontage)
 		{
 			OwnerCharacter->SetWeaponAnimLayers(EWeaponType::EWT_Unarmed);
+			ChangeCombatState(ECombatState::ECS_Equipping, bPlayEquipMontage, bShouldPlayUnarmedEquipMontage, bCanSendCombatStateRPC);
 		}
-		ChangeCombatState(ECombatState::ECS_Equipping, bPlayEquipMontage, bShouldPlayUnarmedEquipMontage, bCanSendCombatStateRPC);
+		else
+		{
+			ChangeCombatState(ECombatState::ECS_Unoccupied, bPlayEquipMontage, bShouldPlayUnarmedEquipMontage, bCanSendCombatStateRPC);
+		}
 		
 		if (IsValidOwnerController() && OwnerCharacter->IsLocallyControlled())
 		{
