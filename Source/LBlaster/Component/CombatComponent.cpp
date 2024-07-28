@@ -17,6 +17,7 @@
 #include "Player/LBlasterPlayerController.h"
 #include "Weapon/Projectile.h"
 #include "Weapon/SniperRifle.h"
+#include "Weapon/ThrowableGrenade.h"
 
 UCombatComponent::UCombatComponent()
 {
@@ -896,21 +897,37 @@ void UCombatComponent::MulticastLaunchGrenade_Implementation(const FVector_NetQu
 
 void UCombatComponent::LocalLaunchGrenade(const FVector_NetQuantize& HitTarget)
 {
-	if (IsValidOwnerCharacter() && OwnerCharacter->GetAttachedGrenade() && GrenadeClass)
+	if (IsValidOwnerCharacter() && OwnerCharacter->GetAttachedGrenade() && GrenadeClass && GetWorld())
 	{
 		const FVector StartingLocation = OwnerCharacter->GetAttachedGrenade()->GetComponentLocation();
-		const FVector ToTarget = HitTarget - StartingLocation;
-
+		FVector ToTarget = HitTarget - StartingLocation;
+		const FVector ToTargetDir = ToTarget.GetSafeNormal();
+		if (ToTarget.Length() > MaxGrenadeThrowDistance)
+		{
+			ToTarget = StartingLocation + ToTargetDir * MaxGrenadeThrowDistance;
+		}
+		
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.Owner = SpawnParams.Instigator = OwnerCharacter;
-
-		if (UWorld* World = GetWorld())
+		if (AThrowableGrenade* Grenade = GetWorld()->SpawnActor<AThrowableGrenade>(GrenadeClass, StartingLocation, ToTarget.Rotation(), SpawnParams))
 		{
-			AProjectile* Projectile = World->SpawnActor<AProjectile>(GrenadeClass, StartingLocation, ToTarget.Rotation(), SpawnParams);
-			
-			if (OwnerCharacter->HasAuthority())
+			// 발사 Velocity 설정
+			FVector OutVelocity;
+			if (UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), OutVelocity, StartingLocation, ToTarget, 0.f, GrenadePathArcValue))
 			{
-				Projectile->SetReplicatesPostInit(false);
+				Grenade->SetInitialVelocity(OutVelocity);
+
+				if (OwnerCharacter->HasAuthority())
+				{
+					Grenade->SetReplicatesPostInit(false);
+				}
+
+				// 수류탄 궤적 디버깅
+				FPredictProjectilePathParams PredictParams(5.f, StartingLocation, OutVelocity, 15.0f);
+				//PredictParams.DrawDebugTime = 15.0f;     //디버그 라인 보여지는 시간 (초)
+				//PredictParams.DrawDebugType = EDrawDebugTrace::Type::ForDuration;  // DrawDebugTime 을 지정하면 EDrawDebugTrace::Type::ForDuration 필요.
+				FPredictProjectilePathResult Result;
+				UGameplayStatics::PredictProjectilePath(this, PredictParams, Result);
 			}
 		}
 	}

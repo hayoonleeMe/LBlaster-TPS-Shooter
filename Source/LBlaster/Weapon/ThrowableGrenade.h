@@ -16,6 +16,7 @@ class LBLASTER_API AThrowableGrenade : public AProjectileGrenade
 
 public:
 	AThrowableGrenade();
+	void SetInitialVelocity(const FVector& Velocity) const;
 	
 protected:
 	virtual void BeginPlay() override;

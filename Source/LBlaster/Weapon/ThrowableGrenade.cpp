@@ -11,8 +11,6 @@ AThrowableGrenade::AThrowableGrenade()
 	DestroyTime = 2.5f;
 
 	/* Projectile Movement */
-	ProjectileMovementComponent->Velocity.Z = 0.3f;
-	ProjectileMovementComponent->ProjectileGravityScale = 1.2f;
 	ProjectileMovementComponent->Bounciness = 0.5f;
 	ProjectileMovementComponent->Friction = 0.5f;
 
@@ -22,6 +20,14 @@ AThrowableGrenade::AThrowableGrenade()
 	
 	/* ThrowableGrenade */
 	DamageExposure = 120.f;
+}
+
+void AThrowableGrenade::SetInitialVelocity(const FVector& Velocity) const
+{
+	if (ProjectileMovementComponent)
+	{
+		ProjectileMovementComponent->Velocity = Velocity;
+	}
 }
 
 void AThrowableGrenade::BeginPlay()

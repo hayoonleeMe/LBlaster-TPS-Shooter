@@ -483,6 +483,12 @@ private:
 	TSubclassOf<class AProjectile> GrenadeClass;
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Grenade")
+	float MaxGrenadeThrowDistance = 1300.f;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Grenade")
+	float GrenadePathArcValue = 0.6f;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Grenade")
 	int32 MaxGrenadeAmount;
 
 	UPROPERTY(ReplicatedUsing=OnRep_GrenadeAmount)
