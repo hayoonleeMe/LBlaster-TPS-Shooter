@@ -913,7 +913,6 @@ void UCombatComponent::LocalLaunchGrenade(const FVector_NetQuantize& LaunchLocat
 	if (IsValidOwnerCharacter() && OwnerCharacter->GetAttachedGrenade() && GrenadeClass && GetWorld())
 	{
 		ShowAttachedGrenade(false);
-		bCanLaunchGrenade = true;
 
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.Owner = SpawnParams.Instigator = OwnerCharacter;
@@ -942,6 +941,18 @@ void UCombatComponent::ShowAttachedGrenade(bool bShow)
 	if (IsValidOwnerCharacter() && OwnerCharacter->GetAttachedGrenade())
 	{
 		OwnerCharacter->GetAttachedGrenade()->SetVisibility(bShow);
+	}
+}
+
+void UCombatComponent::HideAllSplineMesh()
+{
+	// Spine에 포함되지 않는 SplineMesh는 숨김
+	for (int32 Index = 0; Index < SplineMeshes.Num(); ++Index)
+	{
+		if (SplineMeshes[Index])
+		{
+			SplineMeshes[Index]->SetVisibility(false);
+		}
 	}
 }
 
@@ -1004,14 +1015,7 @@ void UCombatComponent::DrawGrenadeTrajectory()
 
 				if (!bDrawGrenadeTrajectory)
 				{
-					// Spine에 포함되지 않는 SplineMesh는 숨김
-					for (int32 Index = 0; Index < SplineMeshes.Num(); ++Index)
-					{
-						if (SplineMeshes[Index])
-						{
-							SplineMeshes[Index]->SetVisibility(false);
-						}
-					}
+					HideAllSplineMesh();
 					return;
 				}
 				
@@ -1136,13 +1140,14 @@ void UCombatComponent::TossGrenade(bool bPressed)
 	{
 		if (CombatState == ECombatState::ECS_Unoccupied)
 		{
+			bCanLaunchGrenade = true;
 			// Local & Server Call HandleUnEquipBeforeTossGrenade()
 			ChangeCombatState(ECombatState::ECS_TossingGrenade);
 		}
 	}
 	else
 	{
-		if (bCanLaunchGrenade)
+		if (bCanLaunchGrenade && CombatState == ECombatState::ECS_TossingGrenade)
 		{
 			bCanLaunchGrenade = false;
 			StartTossGrenade(true);
@@ -1567,6 +1572,20 @@ void UCombatComponent::EquipWeapon(EEquipSlot InEquipSlotType, EEquipMode InEqui
 	if (!IsValidOwnerCharacter())
 	{
 		return;
+	}
+
+	// 수류탄 Hold 중이면 Toss Grenade를 취소하도 EquipWeapon 수행
+	if (CombatState == ECombatState::ECS_TossingGrenade)
+	{
+		// 수류탄 Launch 중이면 방지
+		if (!bCanLaunchGrenade)
+		{
+			return;
+		}
+		bCanLaunchGrenade = true;
+		bDrawGrenadeTrajectory = false;
+		HideAllSplineMesh();
+		TossGrenadeFinished();
 	}
 
 	FWeaponEquip WeaponEquip = CreateWeaponEquip(InEquipSlotType, InEquipMode, InWeaponToEquip, true);

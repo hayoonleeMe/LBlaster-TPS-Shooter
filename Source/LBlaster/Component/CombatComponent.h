@@ -509,13 +509,15 @@ private:
 	void ShowAttachedGrenade(bool bShow);
 
 	bool bDrawGrenadeTrajectory = false;
-	bool bCanLaunchGrenade = true;
+	bool bCanLaunchGrenade = false;
 	
 	FVector GrenadeLaunchLocation;
 	FVector GrenadeLaunchVelocity;
 
 	UPROPERTY()
 	TArray<TObjectPtr<class USplineMeshComponent>> SplineMeshes;
+
+	void HideAllSplineMesh();
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Grenade")
 	TObjectPtr<UStaticMesh> GrenadeTrajectorySM;
