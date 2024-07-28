@@ -341,7 +341,8 @@ void ALBlasterCharacter::StartTossGrenade() const
 {
 	if (CombatComponent)
 	{
-		CombatComponent->StartTossGrenade();
+		// 무기를 집어넣는 UnEquipBeforeTossGrenade 몽타주에 의해 TossGrenade 몽타주를 재생하므로 섹션 점프 X
+		CombatComponent->StartTossGrenade(false);
 	}
 }
 
@@ -400,13 +401,17 @@ void ALBlasterCharacter::PlayReloadMontage(UAnimMontage* InReloadMontage)
 	}
 }
 
-void ALBlasterCharacter::PlayTossGrenadeMontage(UAnimMontage* InTossGrenadeMontage)
+void ALBlasterCharacter::PlayTossGrenadeMontage(UAnimMontage* InTossGrenadeMontage, bool bShouldJump)
 {
 	if (InTossGrenadeMontage)
 	{
 		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
 		{
 			AnimInstance->Montage_Play(InTossGrenadeMontage);
+			if (bShouldJump)
+			{
+				AnimInstance->Montage_JumpToSection(FName(TEXT("TossGrenade")), InTossGrenadeMontage);
+			}
 		}
 	}
 }
@@ -603,11 +608,11 @@ void ALBlasterCharacter::Reload()
 	}
 }
 
-void ALBlasterCharacter::TossGrenade()
+void ALBlasterCharacter::TossGrenade(const FInputActionValue& ActionValue)
 {
 	if (CombatComponent)
 	{
-		CombatComponent->TossGrenade();
+		CombatComponent->TossGrenade(ActionValue.Get<bool>());
 	}
 }
 

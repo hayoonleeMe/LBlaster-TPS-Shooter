@@ -145,6 +145,11 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 		// 크로스헤어 Draw
 		UpdateHUDCrosshair(DeltaTime);
 	}
+
+	if (CombatState == ECombatState::ECS_TossingGrenade)
+	{
+		DrawGrenadeTrajectory();
+	}
 }
 
 void UCombatComponent::SetAiming(bool bInAiming)
@@ -423,8 +428,9 @@ void UCombatComponent::OnChangedCombatState(bool bPlayEquipMontage, bool bShould
 		}
 		else
 		{
-			StartTossGrenade();
+			StartTossGrenade(false);
 		}
+		bDrawGrenadeTrajectory = true;
 		break;
 		
 	case ECombatState::ECS_Equipping:
@@ -919,7 +925,7 @@ void UCombatComponent::HandleUnEquipBeforeTossGrenade()
 {
 	if (IsValidOwnerCharacter() && UnEquipBeforeTossGrenadeMontage)
 	{
-		OwnerCharacter->PlayTossGrenadeMontage(UnEquipBeforeTossGrenadeMontage);
+		OwnerCharacter->PlayTossGrenadeMontage(UnEquipBeforeTossGrenadeMontage, false);
 	}
 }
 
@@ -1111,12 +1117,24 @@ void UCombatComponent::ShowSniperScopeWidget(bool bShowScope)
 	}
 }
 
-void UCombatComponent::TossGrenade()
+void UCombatComponent::TossGrenade(bool bPressed)
 {
-	if (CombatState == ECombatState::ECS_Unoccupied && GrenadeAmount > 0)
+	if (GrenadeAmount <= 0)
 	{
-		// Local & Server Call HandleUnEquipBeforeTossGrenade()
-		ChangeCombatState(ECombatState::ECS_TossingGrenade);
+		return;
+	}
+	
+	if (bPressed)
+	{
+		if (CombatState == ECombatState::ECS_Unoccupied)
+		{
+			// Local & Server Call HandleUnEquipBeforeTossGrenade()
+			ChangeCombatState(ECombatState::ECS_TossingGrenade);
+		}
+	}
+	else
+	{
+		StartTossGrenade(true);
 	}
 }
 
@@ -1132,11 +1150,15 @@ void UCombatComponent::TossGrenadeFinished()
 	}
 }
 
-void UCombatComponent::StartTossGrenade()
+void UCombatComponent::StartTossGrenade(bool bShouldJumpToSection)
 {
 	if (IsValidOwnerCharacter() && TossGrenadeMontage)
 	{
-		OwnerCharacter->PlayTossGrenadeMontage(TossGrenadeMontage);
+		if (bShouldJumpToSection)
+		{
+			bDrawGrenadeTrajectory = false;
+		}
+		OwnerCharacter->PlayTossGrenadeMontage(TossGrenadeMontage, bShouldJumpToSection);
 		ShowAttachedGrenade(true);
 	}
 }

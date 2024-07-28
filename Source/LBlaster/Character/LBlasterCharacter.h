@@ -79,7 +79,7 @@ public:
 	void SetWeaponAnimLayers(EWeaponType InWeaponType, TSubclassOf<UAnimInstance> InWeaponAnimLayer = nullptr);
 	void PlayFireMontage(UAnimMontage* InFireMontage);
 	void PlayReloadMontage(UAnimMontage* InReloadMontage);
-	void PlayTossGrenadeMontage(UAnimMontage* InTossGrenadeMontage);
+	void PlayTossGrenadeMontage(UAnimMontage* InTossGrenadeMontage, bool bShouldJump);
 	void PlayEquipMontage(UAnimMontage* InEquipMontage);
 	void SetBlendWeight(float InWeight) const;
 	void SetAdsFov(float InAdsFov) const;
@@ -170,7 +170,7 @@ protected:
 	void DoADS(const FInputActionValue& ActionValue);
 	void DoFire(const FInputActionValue& ActionValue);
 	void Reload();
-	void TossGrenade();
+	void TossGrenade(const FInputActionValue& ActionValue);
 	void ChooseFirstWeaponSlot();
 	void ChooseSecondWeaponSlot();
 	void ChooseThirdWeaponSlot();

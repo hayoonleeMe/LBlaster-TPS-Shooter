@@ -156,15 +156,16 @@ public:
 	void Reload();
 	void ReloadFinished();
 	void ShowSniperScopeWidget(bool bShowScope);
-	void TossGrenade();
+	void TossGrenade(bool bPressed);
 	void TossGrenadeFinished();
-	void StartTossGrenade();
+	void StartTossGrenade(bool bShouldJumpToSection);
 	void LaunchGrenade();
 	void UpdateHUDGrenadeAmount();
 	void PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount);
 	void EquipFinished();
 	void HideCrosshair();
 	void ShowCrosshair(EWeaponType InWeaponType);
+	void DrawGrenadeTrajectory();
 
 	FString GetCombatInfo();
 
@@ -506,6 +507,9 @@ private:
 	void LocalLaunchGrenade(const FVector_NetQuantize& HitTarget);
 	void HandleUnEquipBeforeTossGrenade();
 	void ShowAttachedGrenade(bool bShow);
+
+	bool bDrawGrenadeTrajectory = false;
+	
 	FVector GrenadeLaunchLocation;
 	FVector GrenadeLaunchVelocity;
 
