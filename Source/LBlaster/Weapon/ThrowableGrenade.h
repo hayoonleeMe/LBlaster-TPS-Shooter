@@ -16,6 +16,7 @@ class LBLASTER_API AThrowableGrenade : public AProjectileGrenade
 
 public:
 	AThrowableGrenade();
+	virtual void Tick(float DeltaSeconds) override;
 	void SetInitialVelocity(const FVector& Velocity) const;
 	
 protected:
@@ -25,4 +26,6 @@ private:
 	// ThrowableGrenade Only
 	UPROPERTY(EditAnywhere, Category="LBlaster|Explosive Damage", meta = (DisplayName = "Damage"))
 	float DamageExposure;
+
+	FVector RotationVelocity;
 };

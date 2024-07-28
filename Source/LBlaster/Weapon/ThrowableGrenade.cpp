@@ -7,6 +7,8 @@
 
 AThrowableGrenade::AThrowableGrenade()
 {
+	PrimaryActorTick.bCanEverTick = true;
+	
 	/* Destroy */
 	DestroyTime = 2.5f;
 
@@ -20,6 +22,21 @@ AThrowableGrenade::AThrowableGrenade()
 	
 	/* ThrowableGrenade */
 	DamageExposure = 120.f;
+
+	// 임의의 회전 속도 설정
+	RotationVelocity = FVector(FMath::FRandRange(-360.0f, 360.0f), FMath::FRandRange(-360.0f, 360.0f), FMath::FRandRange(-360.0f, 360.0f));
+}
+
+void AThrowableGrenade::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	// 회전 적용
+	if (ProjectileMesh && ProjectileMovementComponent)
+	{
+		const FQuat QuatRotation = FQuat(RotationVelocity.Rotation() * 0.07f);
+		ProjectileMesh->AddLocalRotation(QuatRotation);
+	}
 }
 
 void AThrowableGrenade::SetInitialVelocity(const FVector& Velocity) const
