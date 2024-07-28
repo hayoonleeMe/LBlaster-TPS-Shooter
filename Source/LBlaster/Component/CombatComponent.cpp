@@ -954,6 +954,10 @@ void UCombatComponent::HideAllSplineMesh()
 			SplineMeshes[Index]->SetVisibility(false);
 		}
 	}
+	if (GrenadeTrajectoryPointMesh)
+	{
+		GrenadeTrajectoryPointMesh->SetVisibility(false);
+	}
 }
 
 void UCombatComponent::EquipFinished()
@@ -1020,13 +1024,12 @@ void UCombatComponent::DrawGrenadeTrajectory()
 				}
 				
 				// 수류탄 궤적
-				FPredictProjectilePathParams PredictParams(5.f, StartingLocation, OutVelocity, 15.0f);
-				PredictParams.ActorsToIgnore.Add(OwnerCharacter);
+				FPredictProjectilePathParams PredictParams(5.f, StartingLocation, OutVelocity, 15.0f, ECC_Visibility, OwnerCharacter);
 				//PredictParams.DrawDebugTime = 15.0f;     //디버그 라인 보여지는 시간 (초)
 				//PredictParams.DrawDebugType = EDrawDebugTrace::Type::ForOneFrame;  // DrawDebugTime 을 지정하면 EDrawDebugTrace::Type::ForDuration 필요.
-				FPredictProjectilePathResult Result;
-				UGameplayStatics::PredictProjectilePath(this, PredictParams, Result);
-				const TArray<FPredictProjectilePathPointData>& PathData = Result.PathData;
+				FPredictProjectilePathResult PredictResult;
+				UGameplayStatics::PredictProjectilePath(this, PredictParams, PredictResult);
+				const TArray<FPredictProjectilePathPointData>& PathData = PredictResult.PathData;
 				
 				for (int32 Index = 0; Index < PathData.Num(); ++Index)
 				{
@@ -1060,13 +1063,43 @@ void UCombatComponent::DrawGrenadeTrajectory()
 						SplineMeshes[Index]->SetVisibility(true);
 					}
 				}
-				// Spine에 포함되지 않는 SplineMesh는 숨김
+				// Spline에 포함되지 않는 SplineMesh는 숨김
 				for (; Index < SplineMeshes.Num(); ++Index)
 				{
 					if (SplineMeshes[Index])
 					{
 						SplineMeshes[Index]->SetVisibility(false);
 					}
+				}
+
+				// 마지막 Point 그리기
+				if (!GrenadeTrajectoryPointMesh)
+				{
+					GrenadeTrajectoryPointMesh = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass());
+					if (GrenadeTrajectoryPointMesh && GrenadeTrajectoryPointSM)
+					{
+						GrenadeTrajectoryPointMesh->SetStaticMesh(GrenadeTrajectoryPointSM);
+						GrenadeTrajectoryPointMesh->SetMobility(EComponentMobility::Movable);
+						GrenadeTrajectoryPointMesh->CreationMethod = EComponentCreationMethod::UserConstructionScript;
+						GrenadeTrajectoryPointMesh->RegisterComponentWithWorld(GetWorld());
+						GrenadeTrajectoryPointMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+						GrenadeTrajectoryPointMesh->SetCastShadow(false);
+					}
+				}
+				if (GrenadeTrajectoryPointMesh)
+				{
+					// 마지막 PathData 포인트
+					const FVector& LastPoint = PathData.Last().Location;
+					const FVector ImpactNormal = PredictResult.HitResult.ImpactNormal;
+					FRotator Rotation = ImpactNormal.Rotation();
+
+					// Adjust the rotation so that the mesh is parallel to the surface
+					FRotator AdjustedRotation = FRotator(Rotation.Pitch - 90.0f, Rotation.Yaw, Rotation.Roll);
+					FVector AdjustedLocation = LastPoint - (GrenadeTrajectoryPointMesh->GetStaticMesh()->GetBounds().BoxExtent.Z * ImpactNormal);
+
+					GrenadeTrajectoryPointMesh->SetWorldLocation(AdjustedLocation);
+					GrenadeTrajectoryPointMesh->SetWorldRotation(AdjustedRotation);
+					GrenadeTrajectoryPointMesh->SetVisibility(true);
 				}
 			}
 		}
