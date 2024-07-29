@@ -766,6 +766,14 @@ void ALBlasterPlayerController::BeginPlay()
 #endif
 }
 
+void ALBlasterPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	// 게임이 종료된 뒤 호출됨을 방지
+	GetWorldTimerManager().ClearTimer(InvincibilityTimer);
+}
+
 void ALBlasterPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
