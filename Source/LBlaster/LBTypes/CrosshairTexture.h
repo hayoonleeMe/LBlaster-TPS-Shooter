@@ -9,6 +9,10 @@ struct FCrosshairTexture
 {
 	GENERATED_BODY()
 
+	FCrosshairTexture()
+		: bIsCrosshairVisible(false)
+	{}
+
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UTexture2D> CenterCrosshair;
 

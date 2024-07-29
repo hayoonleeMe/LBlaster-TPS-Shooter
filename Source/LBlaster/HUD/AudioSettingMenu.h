@@ -11,6 +11,10 @@ struct FOriginalAudioGameUserSettings
 {
 	GENERATED_BODY()
 
+	FOriginalAudioGameUserSettings()
+		: OverallVolumeValue(0.f)
+	{}
+
 	UPROPERTY()
 	float OverallVolumeValue;
 };

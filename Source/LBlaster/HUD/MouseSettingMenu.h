@@ -11,6 +11,10 @@ struct FOriginalMouseGameUserSettings
 {
 	GENERATED_BODY()
 
+	FOriginalMouseGameUserSettings()
+		: XAxisMouseSensitivity(0.f), YAxisMouseSensitivity(0.f)
+	{}
+
 	UPROPERTY()
 	float XAxisMouseSensitivity;
 

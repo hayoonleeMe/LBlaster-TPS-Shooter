@@ -11,6 +11,10 @@ struct FBoxInformation
 {
 	GENERATED_BODY()
 
+	FBoxInformation()
+		: Location(FVector::ZeroVector), Rotation(FRotator::ZeroRotator), BoxExtent(FVector::ZeroVector)
+	{}
+
 	UPROPERTY()
 	FVector Location;
 
@@ -26,6 +30,10 @@ struct FFramePackage
 {
 	GENERATED_BODY()
 
+	FFramePackage()
+		: Time(0.f)
+	{}
+
 	UPROPERTY()
 	float Time;
 
@@ -37,6 +45,18 @@ USTRUCT(BlueprintType)
 struct FServerSideRewindResult
 {
 	GENERATED_BODY()
+
+	FServerSideRewindResult()
+		: bHitConfirmed(false), bHeadShot(false), ImpactNormal(FVector_NetQuantizeNormal::ZeroVector), HitDistanceMeter(0.f)
+	{}
+
+	FServerSideRewindResult(bool bInHitConfirmed, bool bInHeadShot)
+		: bHitConfirmed(bInHitConfirmed), bHeadShot(bInHeadShot), ImpactNormal(FVector_NetQuantizeNormal::ZeroVector), HitDistanceMeter(0.f)
+	{}
+
+	FServerSideRewindResult(bool bInHitConfirmed, bool bInHeadShot, FVector_NetQuantizeNormal InImpactNormal, float InHitDistanceMeter)
+		: bHitConfirmed(bInHitConfirmed), bHeadShot(bInHeadShot), ImpactNormal(InImpactNormal), HitDistanceMeter(InHitDistanceMeter)
+	{}
 
 	UPROPERTY()
 	uint8 bHitConfirmed : 1;
@@ -55,6 +75,14 @@ USTRUCT()
 struct FShotgunHitInfo
 {
 	GENERATED_BODY()
+
+	FShotgunHitInfo()
+		: HitCount(0), HitDistanceMeter(0.f)
+	{}
+
+	FShotgunHitInfo(uint32 InHitCount, float InHitDistanceMeter)
+		: HitCount(InHitCount), HitDistanceMeter(InHitDistanceMeter)
+	{}
 
 	UPROPERTY()
 	uint32 HitCount;

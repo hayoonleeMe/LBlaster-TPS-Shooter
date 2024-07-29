@@ -11,6 +11,10 @@ struct FOriginalVideoGameUserSettings
 {
 	GENERATED_BODY()
 	
+	FOriginalVideoGameUserSettings()
+		: FullScreenMode(EWindowMode::Fullscreen), ScreenResolution(FIntPoint::ZeroValue), bEnablePerformanceIndicator(false), FrameRateLimitValue(0.f), ScreenBrightnessValue(0.f), bEnableVSync(false), GraphicPresetValue(0.f), AntiAliasingValue(0.f), ViewDistanceValue(0.f), ShadowQualityValue(0.f), GlobalIlluminationQualityValue(0.f), ReflectionQualityValue(0.f), PostProcessingValue(0.f), TextureQualityValue(0.f), EffectQualityValue(0.f), BackgroundQualityValue(0.f), ShadingQualityValue(0.f)
+	{}
+	
 	UPROPERTY()
 	TEnumAsByte<EWindowMode::Type> FullScreenMode;
 

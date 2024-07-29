@@ -12,6 +12,10 @@ struct FAmmoChange
 {
 	GENERATED_BODY()
 
+	FAmmoChange()
+		: AmmoToAdd(0), Time(0.f)
+	{}
+
 	UPROPERTY()
 	int32 AmmoToAdd;
 
@@ -23,6 +27,10 @@ USTRUCT()
 struct FAmmoState
 {
 	GENERATED_BODY()
+
+	FAmmoState()
+		: Ammo(0)
+	{}
 
 	UPROPERTY()
 	int32 Ammo;

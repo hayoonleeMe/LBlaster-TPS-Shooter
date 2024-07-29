@@ -16,6 +16,10 @@ struct FCarriedAmmoChange
 {
 	GENERATED_BODY()
 
+	FCarriedAmmoChange()
+		: WeaponType(EWeaponType::EWT_Unarmed), CarriedAmmoToAdd(0), Time(0.f)
+	{}
+
 	UPROPERTY()
 	EWeaponType WeaponType;
 	
@@ -31,6 +35,10 @@ struct FCarriedAmmoState
 {
 	GENERATED_BODY()
 
+	FCarriedAmmoState()
+		: WeaponType(EWeaponType::EWT_Unarmed), CarriedAmmo(0)
+	{}
+
 	UPROPERTY()
 	EWeaponType WeaponType;
 
@@ -45,6 +53,10 @@ USTRUCT()
 struct FCombatStateChange
 {
 	GENERATED_BODY()
+
+	FCombatStateChange()
+		: CombatStateToChange(ECombatState::ECS_Unoccupied), bPlayEquipMontage(false), bShouldPlayUnarmedEquipMontage(false), Time(0.f)
+	{}
 	
 	UPROPERTY()
 	ECombatState CombatStateToChange;
@@ -63,6 +75,10 @@ USTRUCT()
 struct FCombatStateChangedState
 {
 	GENERATED_BODY()
+
+	FCombatStateChangedState()
+		: CombatState(ECombatState::ECS_Unoccupied)
+	{}
 
 	UPROPERTY()
 	ECombatState CombatState;
@@ -83,6 +99,10 @@ USTRUCT()
 struct FWeaponEquip
 {
 	GENERATED_BODY()
+
+	FWeaponEquip()
+		: SlotToEquip(EEquipSlot::EES_FirstSlot), EquipMode(EEquipMode::EEM_UnarmedState), bPlayEquipMontage(false), Time(0.f)
+	{}
 
 	UPROPERTY()
 	EEquipSlot SlotToEquip;
@@ -105,6 +125,10 @@ struct FWeaponEquipState
 {
 	GENERATED_BODY()
 
+	FWeaponEquipState()
+		: EquippingSlot(EEquipSlot::EES_FirstSlot), EquipMode(EEquipMode::EEM_UnarmedState)
+	{}
+	
 	UPROPERTY()
 	EEquipSlot EquippingSlot;
 	
