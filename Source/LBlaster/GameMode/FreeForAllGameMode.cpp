@@ -64,24 +64,25 @@ void AFreeForAllGameMode::PlayerEliminated(ALBlasterCharacter* EliminatedCharact
 			if (AttackerPlayerState != VictimPlayerState)
 			{
 				AttackerPlayerState->AddToKillScore(1.f);
-				VictimPlayerState->AddToDeath(1);
 
 				// Update Mini Scoreboard
 				if (AFreeForAllGameState* FFAGameState = GetGameState<AFreeForAllGameState>())
 				{
 					FFAGameState->IncreaseTotalScore();
 				}
-
-				// Update Scoreboard
-				if (GetWorld())
+			}
+			// 자살 데스 카운트 포함
+			VictimPlayerState->AddToDeath(1);
+			
+			// Update Scoreboard
+			if (GetWorld())
+			{
+				if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
 				{
-					if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+					if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
 					{
-						if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
-						{
-							HUD->UpdateScoreboard();
-						}	
-					}
+						HUD->UpdateScoreboard();
+					}	
 				}
 			}
 			

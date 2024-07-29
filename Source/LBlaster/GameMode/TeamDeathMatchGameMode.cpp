@@ -93,7 +93,6 @@ void ATeamDeathMatchGameMode::PlayerEliminated(ALBlasterCharacter* EliminatedCha
 			if (AttackerPlayerState != VictimPlayerState)
 			{
 				AttackerPlayerState->AddToKillScore(1);
-				VictimPlayerState->AddToDeath(1);
 
 				// Update Mini Scoreboard
 				if (ATeamDeathMatchGameState* TDMGameState = GetGameState<ATeamDeathMatchGameState>())
@@ -107,20 +106,22 @@ void ATeamDeathMatchGameMode::PlayerEliminated(ALBlasterCharacter* EliminatedCha
 						TDMGameState->IncreaseBlueTeamScore();
 					}
 				}
+			}
+			// 자살 데스 카운트 포함
+			VictimPlayerState->AddToDeath(1);
 
-				// Update Scoreboard
-				if (GetWorld())
+			// Update Scoreboard
+			if (GetWorld())
+			{
+				if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
 				{
-					if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+					if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
 					{
-						if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
-						{
-							HUD->UpdateScoreboard();
-						}	
-					}
+						HUD->UpdateScoreboard();
+					}	
 				}
 			}
-			
+
 			for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 			{
 				if (ALBlasterPlayerController* PlayerController = Cast<ALBlasterPlayerController>(*It))
