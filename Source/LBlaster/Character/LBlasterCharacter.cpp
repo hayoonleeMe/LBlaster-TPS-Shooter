@@ -702,31 +702,35 @@ void ALBlasterCharacter::PlayHitReactMontage(const FVector& HitNormal) const
 void ALBlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController,
                                        AActor* DamageCauser)
 {
-	const float ActualDamage = bInvincible ? 0.f : Damage;
-	
-	// Damage Indicator
-	// 무적 상태일 때도 표시
-	if (ALBlasterPlayerController* LBInstigatorController = Cast<ALBlasterPlayerController>(InstigatorController))
-	{
-		LBInstigatorController->ClientRequestDamageIndication(ActualDamage, this);
-	}
-	
-	// 스폰 무적
-	if (bInvincible)
-	{
-		return;
-	}
-	
-	// 팀 데스매치에서 아군사격 방지 (폭발 데미지)
+	// 아군 사격 여부
+	bool bFriendlyFire = false;
 	if (ALBlasterPlayerState* VictimState = GetPlayerState<ALBlasterPlayerState>())
 	{
 		if (ALBlasterPlayerState* AttackerState = InstigatorController->GetPlayerState<ALBlasterPlayerState>())
 		{
-			if (VictimState->GetTeam() != ETeam::ET_MAX && VictimState->GetTeam() == AttackerState->GetTeam())
-			{
-				return;
-			}
+			bFriendlyFire = VictimState->GetTeam() != ETeam::ET_MAX && VictimState != AttackerState && VictimState->GetTeam() == AttackerState->GetTeam();
 		}
+	}
+	
+	
+	// Damage Indicator
+	// 무적 상태일 때도 표시
+	const float ActualDamage = bInvincible ? 0.f : Damage;
+	if (ALBlasterPlayerController* LBInstigatorController = Cast<ALBlasterPlayerController>(InstigatorController))
+	{
+		// 자기 자신한테 데미지를 입힐 땐 표시 X
+		// 팀데스매치에서 같은 팀엔 표시 X
+		if (LBInstigatorController->GetCharacter() != DamagedActor && !bFriendlyFire)
+		{
+			LBInstigatorController->ClientRequestDamageIndication(ActualDamage, this);
+		}
+	}
+	
+	// 스폰 무적
+	// 팀 데스매치에서 아군사격 방지
+	if (bInvincible || bFriendlyFire)
+	{
+		return;
 	}
 	
 	// 폭발 데미지면 랜덤한 HitReact Montage 재생
