@@ -15,6 +15,7 @@ AThrowableGrenade::AThrowableGrenade()
 	/* Projectile Movement */
 	ProjectileMovementComponent->Bounciness = 0.5f;
 	ProjectileMovementComponent->Friction = 0.5f;
+	ProjectileMovementComponent->bRotationFollowsVelocity = false;
 
 	/* Explosive Damage */
 	DamageInnerRadius = 300.f;
@@ -34,7 +35,7 @@ void AThrowableGrenade::Tick(float DeltaSeconds)
 	// 회전 적용
 	if (ProjectileMesh && ProjectileMovementComponent)
 	{
-		const FQuat QuatRotation = FQuat(RotationVelocity.Rotation() * 0.07f);
+		const FQuat QuatRotation = FQuat(RotationVelocity.Rotation() * 0.1f);
 		ProjectileMesh->AddLocalRotation(QuatRotation);
 	}
 }

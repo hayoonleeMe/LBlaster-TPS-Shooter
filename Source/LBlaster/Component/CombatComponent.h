@@ -487,7 +487,7 @@ private:
 	float MaxGrenadeThrowDistance = 1300.f;
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Grenade")
-	float GrenadePathArcValue = 0.8f;
+	float GrenadePathArcValue = 0.7f;
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Grenade")
 	int32 MaxGrenadeAmount;
