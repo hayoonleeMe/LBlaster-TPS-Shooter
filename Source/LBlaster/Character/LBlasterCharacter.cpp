@@ -16,6 +16,7 @@
 #include "Component/LagCompensationComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SplineComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -175,6 +176,9 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 
 	/* Combat Component */
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>(TEXT("Combat Component"));
+	GrenadeSplineComponent = CreateDefaultSubobject<USplineComponent>(TEXT("Grenade Spline Component"));
+	GrenadeSplineComponent->SetupAttachment(RootComponent);
+	GrenadeSplineComponent->SetIsReplicated(false);
 
 	/* Damage Indicator */
 	DamageIndicatorComponent = CreateDefaultSubobject<UDamageIndicatorComponent>(TEXT("Damage Indicator Component"));
@@ -337,7 +341,8 @@ void ALBlasterCharacter::StartTossGrenade() const
 {
 	if (CombatComponent)
 	{
-		CombatComponent->StartTossGrenade();
+		// 무기를 집어넣는 UnEquipBeforeTossGrenade 몽타주에 의해 TossGrenade 몽타주를 재생하므로 섹션 점프 X
+		CombatComponent->StartTossGrenade(false);
 	}
 }
 
@@ -396,13 +401,17 @@ void ALBlasterCharacter::PlayReloadMontage(UAnimMontage* InReloadMontage)
 	}
 }
 
-void ALBlasterCharacter::PlayTossGrenadeMontage(UAnimMontage* InTossGrenadeMontage)
+void ALBlasterCharacter::PlayTossGrenadeMontage(UAnimMontage* InTossGrenadeMontage, bool bShouldJump)
 {
 	if (InTossGrenadeMontage)
 	{
 		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
 		{
 			AnimInstance->Montage_Play(InTossGrenadeMontage);
+			if (bShouldJump)
+			{
+				AnimInstance->Montage_JumpToSection(FName(TEXT("TossGrenade")), InTossGrenadeMontage);
+			}
 		}
 	}
 }
@@ -599,11 +608,11 @@ void ALBlasterCharacter::Reload()
 	}
 }
 
-void ALBlasterCharacter::TossGrenade()
+void ALBlasterCharacter::TossGrenade(const FInputActionValue& ActionValue)
 {
 	if (CombatComponent)
 	{
-		CombatComponent->TossGrenade();
+		CombatComponent->TossGrenade(ActionValue.Get<bool>());
 	}
 }
 
@@ -693,31 +702,35 @@ void ALBlasterCharacter::PlayHitReactMontage(const FVector& HitNormal) const
 void ALBlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController,
                                        AActor* DamageCauser)
 {
-	const float ActualDamage = bInvincible ? 0.f : Damage;
-	
-	// Damage Indicator
-	// 무적 상태일 때도 표시
-	if (ALBlasterPlayerController* LBInstigatorController = Cast<ALBlasterPlayerController>(InstigatorController))
-	{
-		LBInstigatorController->ClientRequestDamageIndication(ActualDamage, this);
-	}
-	
-	// 스폰 무적
-	if (bInvincible)
-	{
-		return;
-	}
-	
-	// 팀 데스매치에서 아군사격 방지 (폭발 데미지)
+	// 아군 사격 여부
+	bool bFriendlyFire = false;
 	if (ALBlasterPlayerState* VictimState = GetPlayerState<ALBlasterPlayerState>())
 	{
 		if (ALBlasterPlayerState* AttackerState = InstigatorController->GetPlayerState<ALBlasterPlayerState>())
 		{
-			if (VictimState->GetTeam() != ETeam::ET_MAX && VictimState->GetTeam() == AttackerState->GetTeam())
-			{
-				return;
-			}
+			bFriendlyFire = VictimState->GetTeam() != ETeam::ET_MAX && VictimState != AttackerState && VictimState->GetTeam() == AttackerState->GetTeam();
 		}
+	}
+	
+	
+	// Damage Indicator
+	// 무적 상태일 때도 표시
+	const float ActualDamage = bInvincible ? 0.f : Damage;
+	if (ALBlasterPlayerController* LBInstigatorController = Cast<ALBlasterPlayerController>(InstigatorController))
+	{
+		// 자기 자신한테 데미지를 입힐 땐 표시 X
+		// 팀데스매치에서 같은 팀엔 표시 X
+		if (LBInstigatorController->GetCharacter() != DamagedActor && !bFriendlyFire)
+		{
+			LBInstigatorController->ClientRequestDamageIndication(ActualDamage, this);
+		}
+	}
+	
+	// 스폰 무적
+	// 팀 데스매치에서 아군사격 방지
+	if (bInvincible || bFriendlyFire)
+	{
+		return;
 	}
 	
 	// 폭발 데미지면 랜덤한 HitReact Montage 재생

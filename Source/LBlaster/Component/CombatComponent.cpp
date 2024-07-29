@@ -10,6 +10,8 @@
 #include "Weapon/Weapon.h"
 #include "Character/LBlasterCharacter.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SplineComponent.h"
+#include "Components/SplineMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/GameStateBase.h"
 #include "HUD/LBlasterHUD.h"
@@ -17,6 +19,7 @@
 #include "Player/LBlasterPlayerController.h"
 #include "Weapon/Projectile.h"
 #include "Weapon/SniperRifle.h"
+#include "Weapon/ThrowableGrenade.h"
 
 UCombatComponent::UCombatComponent()
 {
@@ -133,14 +136,19 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	// Tick에서 Trace를 통해 크로스헤어 색상 설정
+	FHitResult HitResult;
+	TraceUnderCrosshair(HitResult);
+	
 	if (bShowCrosshair)
 	{
-		// Tick에서 Trace를 통해 크로스헤어 색상 설정
-		FHitResult HitResult;
-		TraceUnderCrosshair(HitResult);
-	
 		// 크로스헤어 Draw
 		UpdateHUDCrosshair(DeltaTime);
+	}
+
+	if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled() && CombatState == ECombatState::ECS_TossingGrenade)
+	{
+		DrawGrenadeTrajectory();
 	}
 }
 
@@ -415,13 +423,19 @@ void UCombatComponent::OnChangedCombatState(bool bPlayEquipMontage, bool bShould
 		// 무기 숨김
 		if (GetEquippingWeapon())
 		{
+			// 크로스헤어 숨김
+			if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled())
+			{
+				HideCrosshair();
+			}
 			GetEquippingWeapon()->SetWeaponVisibility(false);
 			HandleUnEquipBeforeTossGrenade();
 		}
 		else
 		{
-			StartTossGrenade();
+			StartTossGrenade(false);
 		}
+		bDrawGrenadeTrajectory = true;
 		break;
 		
 	case ECombatState::ECS_Equipping:
@@ -438,9 +452,14 @@ void UCombatComponent::OnChangedCombatState(bool bPlayEquipMontage, bool bShould
 				UGameplayStatics::PlaySoundAtLocation(this, GetEquippingWeapon()->GetEquipSound(), GetEquippingWeapon()->GetActorLocation());
 			}
 		}
-		// Equip Montage와 관계없이 무기 보이게
 		if (GetEquippingWeapon())
 		{
+			// 교체한 무기의 크로스헤어 표시
+			if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled())
+			{
+				ShowCrosshair(GetEquippingWeapon()->GetWeaponType());
+			}
+			// Equip Montage와 관계없이 무기 보이게 표시
 			GetEquippingWeapon()->SetWeaponVisibility(true);
 		}
 		break;
@@ -877,40 +896,43 @@ void UCombatComponent::OnRep_GrenadeAmount()
 	UpdateHUDGrenadeAmount();
 }
 
-void UCombatComponent::ServerLaunchGrenade_Implementation(const FVector_NetQuantize& HitTarget)
+void UCombatComponent::ServerLaunchGrenade_Implementation(const FVector_NetQuantize& LaunchLocation, const FVector_NetQuantize& LaunchVelocity)
 {
-	LocalLaunchGrenade(HitTarget);
-	MulticastLaunchGrenade(HitTarget);
+	// Update GrenadeAmount
+	if (OwnerCharacter->HasAuthority())
+	{
+		GrenadeAmount = FMath::Clamp(GrenadeAmount - 1, 0, MaxGrenadeAmount);
+		UpdateHUDGrenadeAmount();
+	}
+	
+	MulticastLaunchGrenade(LaunchLocation, LaunchVelocity);
 }
 
-void UCombatComponent::MulticastLaunchGrenade_Implementation(const FVector_NetQuantize& HitTarget)
+void UCombatComponent::MulticastLaunchGrenade_Implementation(const FVector_NetQuantize& LaunchLocation, const FVector_NetQuantize& LaunchVelocity)
 {
 	// 중복 Launch 방지
 	if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled())
 	{
 		return;
 	}
-
-	LocalLaunchGrenade(HitTarget);
+	LocalLaunchGrenade(LaunchLocation, LaunchVelocity);
 }
 
-void UCombatComponent::LocalLaunchGrenade(const FVector_NetQuantize& HitTarget)
+void UCombatComponent::LocalLaunchGrenade(const FVector_NetQuantize& LaunchLocation, const FVector_NetQuantize& LaunchVelocity)
 {
-	if (IsValidOwnerCharacter() && OwnerCharacter->GetAttachedGrenade() && GrenadeClass)
+	if (IsValidOwnerCharacter() && OwnerCharacter->GetAttachedGrenade() && GrenadeClass && GetWorld())
 	{
-		const FVector StartingLocation = OwnerCharacter->GetAttachedGrenade()->GetComponentLocation();
-		const FVector ToTarget = HitTarget - StartingLocation;
+		ShowAttachedGrenade(false);
 
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.Owner = SpawnParams.Instigator = OwnerCharacter;
-
-		if (UWorld* World = GetWorld())
+		if (AThrowableGrenade* Grenade = GetWorld()->SpawnActor<AThrowableGrenade>(GrenadeClass, LaunchLocation, LaunchVelocity.Rotation(), SpawnParams))
 		{
-			AProjectile* Projectile = World->SpawnActor<AProjectile>(GrenadeClass, StartingLocation, ToTarget.Rotation(), SpawnParams);
-			
+			Grenade->SetInitialVelocity(LaunchVelocity);
+
 			if (OwnerCharacter->HasAuthority())
 			{
-				Projectile->SetReplicatesPostInit(false);
+				Grenade->SetReplicatesPostInit(false);
 			}
 		}
 	}
@@ -920,7 +942,7 @@ void UCombatComponent::HandleUnEquipBeforeTossGrenade()
 {
 	if (IsValidOwnerCharacter() && UnEquipBeforeTossGrenadeMontage)
 	{
-		OwnerCharacter->PlayTossGrenadeMontage(UnEquipBeforeTossGrenadeMontage);
+		OwnerCharacter->PlayTossGrenadeMontage(UnEquipBeforeTossGrenadeMontage, false);
 	}
 }
 
@@ -929,6 +951,22 @@ void UCombatComponent::ShowAttachedGrenade(bool bShow)
 	if (IsValidOwnerCharacter() && OwnerCharacter->GetAttachedGrenade())
 	{
 		OwnerCharacter->GetAttachedGrenade()->SetVisibility(bShow);
+	}
+}
+
+void UCombatComponent::HideAllSplineMesh()
+{
+	// Spine에 포함되지 않는 SplineMesh는 숨김
+	for (int32 Index = 0; Index < SplineMeshes.Num(); ++Index)
+	{
+		if (SplineMeshes[Index])
+		{
+			SplineMeshes[Index]->SetVisibility(false);
+		}
+	}
+	if (GrenadeTrajectoryPointMesh)
+	{
+		GrenadeTrajectoryPointMesh->SetVisibility(false);
 	}
 }
 
@@ -961,6 +999,121 @@ void UCombatComponent::ShowCrosshair(EWeaponType InWeaponType)
 {
 	bShowCrosshair = true;
 	SetHUDCrosshair(InWeaponType);	
+}
+
+void UCombatComponent::DrawGrenadeTrajectory()
+{
+	if (IsValidOwnerCharacter() && OwnerCharacter->GetAttachedGrenade() && GetWorld())
+	{
+		const FVector StartingLocation = OwnerCharacter->GetAttachedGrenade()->GetComponentLocation();
+		GrenadeLaunchLocation = StartingLocation;
+		
+		FVector Target = TraceHitTarget;
+		FVector ToTargetDir = (Target - StartingLocation).GetSafeNormal();
+		if ((TraceHitTarget - StartingLocation).SizeSquared() > MaxGrenadeThrowDistance * MaxGrenadeThrowDistance)
+		{
+			Target = StartingLocation + ToTargetDir * MaxGrenadeThrowDistance;
+			ToTargetDir = (Target - StartingLocation).GetSafeNormal();
+		}
+		
+		// 발사 Velocity 설정
+		FVector OutVelocity;
+		if (UGameplayStatics::SuggestProjectileVelocity_CustomArc(GetWorld(), OutVelocity, StartingLocation, Target, 0.f, GrenadePathArcValue))
+		{
+			OutVelocity = OutVelocity.GetSafeNormal() * 1500.f;
+			GrenadeLaunchVelocity = OutVelocity;
+			
+			if (USplineComponent* GrenadeSplineComponent = OwnerCharacter->GetGrenadeSplineComponent())
+			{
+				GrenadeSplineComponent->ClearSplinePoints();
+
+				if (!bDrawGrenadeTrajectory)
+				{
+					HideAllSplineMesh();
+					return;
+				}
+				
+				// 수류탄 궤적
+				FPredictProjectilePathParams PredictParams(5.f, StartingLocation, OutVelocity, 15.0f, ECC_Visibility, OwnerCharacter);
+				//PredictParams.DrawDebugTime = 15.0f;     //디버그 라인 보여지는 시간 (초)
+				//PredictParams.DrawDebugType = EDrawDebugTrace::Type::ForOneFrame;  // DrawDebugTime 을 지정하면 EDrawDebugTrace::Type::ForDuration 필요.
+				FPredictProjectilePathResult PredictResult;
+				UGameplayStatics::PredictProjectilePath(this, PredictParams, PredictResult);
+				const TArray<FPredictProjectilePathPointData>& PathData = PredictResult.PathData;
+				
+				for (int32 Index = 0; Index < PathData.Num(); ++Index)
+				{
+					GrenadeSplineComponent->AddSplinePointAtIndex(PathData[Index].Location, Index, ESplineCoordinateSpace::Local);
+				}
+
+				// Spline Mesh Component 그리기
+				int32 Index = 0;
+				for (; Index < GrenadeSplineComponent->GetNumberOfSplinePoints(); ++Index)
+				{
+					// 해당 인덱스에 이미 생성된 USplineMeshComponent가 없으면 새로 생성
+					if (!SplineMeshes.IsValidIndex(Index) && GrenadeTrajectorySM)
+					{
+						if (USplineMeshComponent* NewSplineMeshComp = NewObject<USplineMeshComponent>(this, USplineMeshComponent::StaticClass()))
+						{
+							NewSplineMeshComp->SetStaticMesh(GrenadeTrajectorySM);
+							NewSplineMeshComp->SetMobility(EComponentMobility::Movable);
+							NewSplineMeshComp->CreationMethod = EComponentCreationMethod::UserConstructionScript;
+							NewSplineMeshComp->RegisterComponentWithWorld(GetWorld());
+							NewSplineMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+							NewSplineMeshComp->SetCastShadow(false);
+							SplineMeshes.Add(NewSplineMeshComp);
+						}
+					}
+					if (SplineMeshes[Index])
+					{
+						FVector StartLocation, StartTangent, EndLocation, EndTangent;
+						GrenadeSplineComponent->GetLocationAndTangentAtSplinePoint(Index, StartLocation, StartTangent, ESplineCoordinateSpace::Local);
+						GrenadeSplineComponent->GetLocationAndTangentAtSplinePoint(Index + 1, EndLocation, EndTangent, ESplineCoordinateSpace::Local);
+						SplineMeshes[Index]->SetStartAndEnd(StartLocation, StartTangent, EndLocation, EndTangent);
+						SplineMeshes[Index]->SetVisibility(true);
+					}
+				}
+				// Spline에 포함되지 않는 SplineMesh는 숨김
+				for (; Index < SplineMeshes.Num(); ++Index)
+				{
+					if (SplineMeshes[Index])
+					{
+						SplineMeshes[Index]->SetVisibility(false);
+					}
+				}
+
+				// 마지막 Point 그리기
+				if (!GrenadeTrajectoryPointMesh)
+				{
+					GrenadeTrajectoryPointMesh = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass());
+					if (GrenadeTrajectoryPointMesh && GrenadeTrajectoryPointSM)
+					{
+						GrenadeTrajectoryPointMesh->SetStaticMesh(GrenadeTrajectoryPointSM);
+						GrenadeTrajectoryPointMesh->SetMobility(EComponentMobility::Movable);
+						GrenadeTrajectoryPointMesh->CreationMethod = EComponentCreationMethod::UserConstructionScript;
+						GrenadeTrajectoryPointMesh->RegisterComponentWithWorld(GetWorld());
+						GrenadeTrajectoryPointMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+						GrenadeTrajectoryPointMesh->SetCastShadow(false);
+					}
+				}
+				if (GrenadeTrajectoryPointMesh)
+				{
+					// 마지막 PathData 포인트
+					const FVector& LastPoint = PathData.Last().Location;
+					const FVector ImpactNormal = PredictResult.HitResult.ImpactNormal;
+					FRotator Rotation = ImpactNormal.Rotation();
+
+					// Adjust the rotation so that the mesh is parallel to the surface
+					FRotator AdjustedRotation = FRotator(Rotation.Pitch - 90.0f, Rotation.Yaw, Rotation.Roll);
+					FVector AdjustedLocation = LastPoint - (GrenadeTrajectoryPointMesh->GetStaticMesh()->GetBounds().BoxExtent.Z * ImpactNormal);
+
+					GrenadeTrajectoryPointMesh->SetWorldLocation(AdjustedLocation);
+					GrenadeTrajectoryPointMesh->SetWorldRotation(AdjustedRotation);
+					GrenadeTrajectoryPointMesh->SetVisibility(true);
+				}
+			}
+		}
+	}
 }
 
 FString UCombatComponent::GetCombatInfo()
@@ -1019,12 +1172,29 @@ void UCombatComponent::ShowSniperScopeWidget(bool bShowScope)
 	}
 }
 
-void UCombatComponent::TossGrenade()
+void UCombatComponent::TossGrenade(bool bPressed)
 {
-	if (CombatState == ECombatState::ECS_Unoccupied && GrenadeAmount > 0)
+	if (GrenadeAmount <= 0)
 	{
-		// Local & Server Call HandleUnEquipBeforeTossGrenade()
-		ChangeCombatState(ECombatState::ECS_TossingGrenade);
+		return;
+	}
+	
+	if (bPressed)
+	{
+		if (CombatState == ECombatState::ECS_Unoccupied)
+		{
+			bCanLaunchGrenade = true;
+			// Local & Server Call HandleUnEquipBeforeTossGrenade()
+			ChangeCombatState(ECombatState::ECS_TossingGrenade);
+		}
+	}
+	else
+	{
+		if (bCanLaunchGrenade && CombatState == ECombatState::ECS_TossingGrenade)
+		{
+			bCanLaunchGrenade = false;
+			StartTossGrenade(true);
+		}
 	}
 }
 
@@ -1040,11 +1210,15 @@ void UCombatComponent::TossGrenadeFinished()
 	}
 }
 
-void UCombatComponent::StartTossGrenade()
+void UCombatComponent::StartTossGrenade(bool bShouldJumpToSection)
 {
 	if (IsValidOwnerCharacter() && TossGrenadeMontage)
 	{
-		OwnerCharacter->PlayTossGrenadeMontage(TossGrenadeMontage);
+		if (bShouldJumpToSection)
+		{
+			bDrawGrenadeTrajectory = false;
+		}
+		OwnerCharacter->PlayTossGrenadeMontage(TossGrenadeMontage, bShouldJumpToSection);
 		ShowAttachedGrenade(true);
 	}
 }
@@ -1063,15 +1237,16 @@ void UCombatComponent::LaunchGrenade()
 		UpdateHUDGrenadeAmount();
 	}
 
-	ShowAttachedGrenade(false);
 	if (OwnerCharacter->GetLocalRole() == ROLE_AutonomousProxy)
 	{
-		LocalLaunchGrenade(TraceHitTarget);
-		ServerLaunchGrenade(TraceHitTarget);
+		LocalLaunchGrenade(GrenadeLaunchLocation, GrenadeLaunchVelocity);
+		ServerLaunchGrenade(GrenadeLaunchLocation, GrenadeLaunchVelocity);
 	}
+	// 서버 Local Character
 	if (OwnerCharacter->HasAuthority() && OwnerCharacter->IsLocallyControlled())
 	{
-		ServerLaunchGrenade(TraceHitTarget);
+		LocalLaunchGrenade(GrenadeLaunchLocation, GrenadeLaunchVelocity);
+		MulticastLaunchGrenade(GrenadeLaunchLocation, GrenadeLaunchVelocity);
 	}
 }
 
@@ -1442,6 +1617,21 @@ void UCombatComponent::EquipWeapon(EEquipSlot InEquipSlotType, EEquipMode InEqui
 		return;
 	}
 
+	// 수류탄 Hold 중이면 Toss Grenade를 취소하도 EquipWeapon 수행
+	if (CombatState == ECombatState::ECS_TossingGrenade)
+	{
+		// 수류탄 Launch 중이면 방지
+		if (!bCanLaunchGrenade)
+		{
+			return;
+		}
+		bCanLaunchGrenade = true;
+		bDrawGrenadeTrajectory = false;
+		HideAllSplineMesh();
+		TossGrenadeFinished();
+		OwnerCharacter->StopAnimMontage();
+	}
+
 	FWeaponEquip WeaponEquip = CreateWeaponEquip(InEquipSlotType, InEquipMode, InWeaponToEquip, true);
 	if (OwnerCharacter->GetLocalRole() == ROLE_AutonomousProxy)
 	{
@@ -1486,8 +1676,12 @@ void UCombatComponent::ProcessEquipWeapon(EEquipSlot InEquipSlotType, EEquipMode
 		if (bShouldPlayUnarmedEquipMontage)
 		{
 			OwnerCharacter->SetWeaponAnimLayers(EWeaponType::EWT_Unarmed);
+			ChangeCombatState(ECombatState::ECS_Equipping, bPlayEquipMontage, bShouldPlayUnarmedEquipMontage, bCanSendCombatStateRPC);
 		}
-		ChangeCombatState(ECombatState::ECS_Equipping, bPlayEquipMontage, bShouldPlayUnarmedEquipMontage, bCanSendCombatStateRPC);
+		else
+		{
+			ChangeCombatState(ECombatState::ECS_Unoccupied, bPlayEquipMontage, bShouldPlayUnarmedEquipMontage, bCanSendCombatStateRPC);
+		}
 		
 		if (IsValidOwnerController() && OwnerCharacter->IsLocallyControlled())
 		{

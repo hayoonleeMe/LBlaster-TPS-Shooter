@@ -79,12 +79,13 @@ public:
 	void SetWeaponAnimLayers(EWeaponType InWeaponType, TSubclassOf<UAnimInstance> InWeaponAnimLayer = nullptr);
 	void PlayFireMontage(UAnimMontage* InFireMontage);
 	void PlayReloadMontage(UAnimMontage* InReloadMontage);
-	void PlayTossGrenadeMontage(UAnimMontage* InTossGrenadeMontage);
+	void PlayTossGrenadeMontage(UAnimMontage* InTossGrenadeMontage, bool bShouldJump);
 	void PlayEquipMontage(UAnimMontage* InEquipMontage);
 	void SetBlendWeight(float InWeight) const;
 	void SetAdsFov(float InAdsFov) const;
 	FORCEINLINE UStaticMeshComponent* GetAttachedGrenade() const { return AttachedGrenade; }
 	class AWeapon* GetEquippingWeapon() const;
+	FORCEINLINE class USplineComponent* GetGrenadeSplineComponent() const { return GrenadeSplineComponent; }
 
 	UFUNCTION(BlueprintCallable)
 	FString GetCombatInfo();
@@ -169,7 +170,7 @@ protected:
 	void DoADS(const FInputActionValue& ActionValue);
 	void DoFire(const FInputActionValue& ActionValue);
 	void Reload();
-	void TossGrenade();
+	void TossGrenade(const FInputActionValue& ActionValue);
 	void ChooseFirstWeaponSlot();
 	void ChooseSecondWeaponSlot();
 	void ChooseThirdWeaponSlot();
@@ -213,6 +214,9 @@ private:
 	 */
 	UPROPERTY(VisibleAnywhere, Category="LBlaster|Combat")
 	TObjectPtr<class UCombatComponent> CombatComponent;
+
+	UPROPERTY(VisibleAnywhere, Category="LBlaster|Combat")
+	TObjectPtr<USplineComponent> GrenadeSplineComponent;
 
 	/*
 	 *	Damage Indicator

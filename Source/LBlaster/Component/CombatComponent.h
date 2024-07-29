@@ -156,15 +156,16 @@ public:
 	void Reload();
 	void ReloadFinished();
 	void ShowSniperScopeWidget(bool bShowScope);
-	void TossGrenade();
+	void TossGrenade(bool bPressed);
 	void TossGrenadeFinished();
-	void StartTossGrenade();
+	void StartTossGrenade(bool bShouldJumpToSection);
 	void LaunchGrenade();
 	void UpdateHUDGrenadeAmount();
 	void PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount);
 	void EquipFinished();
 	void HideCrosshair();
 	void ShowCrosshair(EWeaponType InWeaponType);
+	void DrawGrenadeTrajectory();
 
 	FString GetCombatInfo();
 
@@ -483,6 +484,12 @@ private:
 	TSubclassOf<class AProjectile> GrenadeClass;
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Grenade")
+	float MaxGrenadeThrowDistance = 1300.f;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Grenade")
+	float GrenadePathArcValue = 0.7f;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Grenade")
 	int32 MaxGrenadeAmount;
 
 	UPROPERTY(ReplicatedUsing=OnRep_GrenadeAmount)
@@ -492,12 +499,32 @@ private:
 	void OnRep_GrenadeAmount();
 
 	UFUNCTION(Server, Reliable)
-	void ServerLaunchGrenade(const FVector_NetQuantize& HitTarget);
+	void ServerLaunchGrenade(const FVector_NetQuantize& LaunchLocation, const FVector_NetQuantize& LaunchVelocity);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastLaunchGrenade(const FVector_NetQuantize& HitTarget);
+	void MulticastLaunchGrenade(const FVector_NetQuantize& LaunchLocation, const FVector_NetQuantize& LaunchVelocity);
 
-	void LocalLaunchGrenade(const FVector_NetQuantize& HitTarget);
+	void LocalLaunchGrenade(const FVector_NetQuantize& LaunchLocation, const FVector_NetQuantize& LaunchVelocity);
 	void HandleUnEquipBeforeTossGrenade();
 	void ShowAttachedGrenade(bool bShow);
+
+	bool bDrawGrenadeTrajectory = false;
+	bool bCanLaunchGrenade = false;
+	
+	FVector GrenadeLaunchLocation;
+	FVector GrenadeLaunchVelocity;
+
+	UPROPERTY()
+	TArray<TObjectPtr<class USplineMeshComponent>> SplineMeshes;
+
+	void HideAllSplineMesh();
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Grenade")
+	TObjectPtr<UStaticMesh> GrenadeTrajectorySM;
+	
+	UPROPERTY()
+	TObjectPtr<UStaticMeshComponent> GrenadeTrajectoryPointMesh;
+
+	UPROPERTY(EditAnywhere, Category="LBlaster|Grenade")
+	TObjectPtr<UStaticMesh> GrenadeTrajectoryPointSM;
 };
