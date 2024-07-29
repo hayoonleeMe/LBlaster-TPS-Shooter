@@ -39,6 +39,9 @@ ALBlasterGameMode::ALBlasterGameMode()
 	}
 
 	WarmupTime = 10.f;
+#if WITH_EDITOR
+	WarmupTime = 1.f;
+#endif
 	MatchTime = 900.f;
 	CooldownTime = 10.f;
 }
