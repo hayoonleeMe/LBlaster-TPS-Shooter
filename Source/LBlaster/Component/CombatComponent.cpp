@@ -423,6 +423,11 @@ void UCombatComponent::OnChangedCombatState(bool bPlayEquipMontage, bool bShould
 		// 무기 숨김
 		if (GetEquippingWeapon())
 		{
+			// 크로스헤어 숨김
+			if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled())
+			{
+				HideCrosshair();
+			}
 			GetEquippingWeapon()->SetWeaponVisibility(false);
 			HandleUnEquipBeforeTossGrenade();
 		}
@@ -447,9 +452,14 @@ void UCombatComponent::OnChangedCombatState(bool bPlayEquipMontage, bool bShould
 				UGameplayStatics::PlaySoundAtLocation(this, GetEquippingWeapon()->GetEquipSound(), GetEquippingWeapon()->GetActorLocation());
 			}
 		}
-		// Equip Montage와 관계없이 무기 보이게
 		if (GetEquippingWeapon())
 		{
+			// 교체한 무기의 크로스헤어 표시
+			if (IsValidOwnerCharacter() && OwnerCharacter->IsLocallyControlled())
+			{
+				ShowCrosshair(GetEquippingWeapon()->GetWeaponType());
+			}
+			// Equip Montage와 관계없이 무기 보이게 표시
 			GetEquippingWeapon()->SetWeaponVisibility(true);
 		}
 		break;
