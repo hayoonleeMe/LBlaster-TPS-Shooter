@@ -3,9 +3,13 @@
 
 #include "HUD/BaseHUD.h"
 
+#include "LBlaster.h"
 #include "MultiplayerMapPath.h"
 #include "MultiplayerSessionsSubsystem.h"
 #include "OnlineSessionSettings.h"
+#include "GameMode/FreeForAllGameMode.h"
+#include "GameMode/TeamDeathMatchGameMode.h"
+#include "Kismet/GameplayStatics.h"
 
 void ABaseHUD::CreateSettingMenu()
 {
@@ -55,4 +59,9 @@ void ABaseHUD::PostInitializeComponents()
 			}
 		}
 	}
+
+	// set MatchModeType for debugging in editor
+#if WITH_EDITOR
+	MatchModeType = (UGameplayStatics::GetActorOfClass(GetWorld(), AFreeForAllGameMode::StaticClass()) != nullptr) ? EMatchMode::FreeForAll : EMatchMode::TeamDeathMatch;
+#endif
 }
