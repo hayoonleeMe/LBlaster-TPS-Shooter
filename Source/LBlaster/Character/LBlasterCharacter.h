@@ -66,6 +66,7 @@ public:
 	void ReleaseCombatState() const;
 	void SetInvincible(bool bInInvincible);
 	FORCEINLINE float GetInvincibilityTime() const { return InvincibilityTime; }
+	void SetCrosshairVisibility(bool bShow);
 
 	/*
 	 *	LBlasterPlayerState

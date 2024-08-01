@@ -995,6 +995,14 @@ void UCombatComponent::HideCrosshair()
 	SetHUDCrosshair(EWeaponType::EWT_Unarmed);
 }
 
+void UCombatComponent::ShowCrosshair()
+{
+	if (GetEquippingWeapon())
+	{
+		ShowCrosshair(GetEquippingWeapon()->GetWeaponType());
+	}
+}
+
 void UCombatComponent::ShowCrosshair(EWeaponType InWeaponType)
 {
 	bShowCrosshair = true;

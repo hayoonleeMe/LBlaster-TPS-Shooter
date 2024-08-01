@@ -188,6 +188,7 @@ public:
 	void PickupAmmo(EWeaponType InWeaponType, int32 InAmmoAmount);
 	void EquipFinished();
 	void HideCrosshair();
+	void ShowCrosshair();
 	void ShowCrosshair(EWeaponType InWeaponType);
 	void DrawGrenadeTrajectory();
 

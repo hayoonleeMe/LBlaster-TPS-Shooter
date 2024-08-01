@@ -675,6 +675,21 @@ void ALBlasterCharacter::OnRep_Invincible()
 	}
 }
 
+void ALBlasterCharacter::SetCrosshairVisibility(bool bShow)
+{
+	if (CombatComponent)
+	{
+		if (bShow)
+		{
+			CombatComponent->ShowCrosshair();
+		}
+		else
+		{
+			CombatComponent->HideCrosshair();
+		}
+	}
+}
+
 void ALBlasterCharacter::SetCharacterMaterialsByTeam(const FTeamCharacterMaterials& TeamCharacterMaterials)
 {
 	if (GetMesh())

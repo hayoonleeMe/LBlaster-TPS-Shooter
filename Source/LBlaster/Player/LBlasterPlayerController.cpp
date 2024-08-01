@@ -728,6 +728,10 @@ void ALBlasterPlayerController::ShowScoreboard(const FInputActionValue& ActionVa
 	{
 		OwningHUD->SetScoreboardVisibility(ActionValue.Get<bool>());
 	}
+	if (IsValidOwningCharacter())
+	{
+		OwningCharacter->SetCrosshairVisibility(!ActionValue.Get<bool>());
+	}
 }
 
 void ALBlasterPlayerController::ShowHelpInfo(const FInputActionValue& ActionValue)
