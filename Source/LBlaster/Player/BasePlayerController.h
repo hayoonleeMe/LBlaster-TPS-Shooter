@@ -4,8 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "LBTypes/ChatMode.h"
-#include "LBTypes/Team.h"
+#include "LBTypes/ChatParams.h"
 #include "BasePlayerController.generated.h"
 
 /**
@@ -27,13 +26,10 @@ public:
 	 *	ChatBox
 	 */
 	UFUNCTION(Server, Reliable)
-	void ServerSendChatTextToAll(const FString& InPlayerName, const FText& InText, EChatMode InChatMode);
-
-	UFUNCTION(Server, Reliable)
-	void ServerSendChatTextToSameTeam(const FString& InPlayerName, const FText& InText, EChatMode InChatMode);
-
-	void BroadcastChatText(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam = ETeam::ET_MAX);
-
+	void ServerSendChatText(const FChatParams& ChatParams);
+	
 	UFUNCTION(Client, Reliable)
-	void ClientAddChatText(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam = ETeam::ET_MAX);
+	void ClientAddChatText(const FChatParams& ChatParams);
+	
+	void BroadcastChatText(const FChatParams& ChatParams);
 };

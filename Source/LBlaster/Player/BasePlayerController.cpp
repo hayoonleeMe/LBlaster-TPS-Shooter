@@ -3,7 +3,6 @@
 
 #include "BasePlayerController.h"
 
-#include "LBlasterPlayerState.h"
 #include "MultiplayerSessionsSubsystem.h"
 #include "GameMode/BaseGameMode.h"
 #include "HUD/BaseHUD.h"
@@ -20,37 +19,23 @@ void ABasePlayerController::ClientDestroySession_Implementation()
 	}
 }
 
-void ABasePlayerController::ServerSendChatTextToAll_Implementation(const FString& InPlayerName, const FText& InText, EChatMode InChatMode)
+void ABasePlayerController::ServerSendChatText_Implementation(const FChatParams& ChatParams)
 {
-	if (ALBlasterPlayerState* LBPlayerState = GetPlayerState<ALBlasterPlayerState>())
+	if (ABaseGameMode* BaseGameMode = Cast<ABaseGameMode>(UGameplayStatics::GetGameMode(this)))
 	{
-		if (ABaseGameMode* BaseGameMode = Cast<ABaseGameMode>(UGameplayStatics::GetGameMode(this)))
-		{
-			BaseGameMode->SendChatTextToAll(InPlayerName, InText, InChatMode, LBPlayerState->GetTeam());
-		}
+		BaseGameMode->SendChatText(ChatParams);
 	}
 }
 
-void ABasePlayerController::ServerSendChatTextToSameTeam_Implementation(const FString& InPlayerName, const FText& InText, EChatMode InChatMode)
+void ABasePlayerController::BroadcastChatText(const FChatParams& ChatParams)
 {
-	if (ALBlasterPlayerState* LBPlayerState = GetPlayerState<ALBlasterPlayerState>())
-	{
-		if (ABaseGameMode* BaseGameMode = Cast<ABaseGameMode>(UGameplayStatics::GetGameMode(this)))
-		{
-			BaseGameMode->SendChatTextToSameTeam(InPlayerName, InText, InChatMode, LBPlayerState->GetTeam());
-		}
-	}
+	ClientAddChatText(ChatParams);
 }
 
-void ABasePlayerController::BroadcastChatText(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam)
-{
-	ClientAddChatText(InPlayerName, InText, InChatMode, SourceTeam);
-}
-
-void ABasePlayerController::ClientAddChatText_Implementation(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam)
+void ABasePlayerController::ClientAddChatText_Implementation(const FChatParams& ChatParams)
 {
 	if (ABaseHUD* BaseHUD = Cast<ABaseHUD>(GetHUD()))
 	{
-		BaseHUD->AddChatMessage(InPlayerName, InText, InChatMode, SourceTeam);
+		BaseHUD->AddChatMessage(ChatParams);
 	}
 }

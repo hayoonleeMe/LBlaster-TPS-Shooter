@@ -4,8 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
-#include "LBTypes/ChatMode.h"
-#include "LBTypes/Team.h"
+#include "LBTypes/ChatParams.h"
 #include "BaseGameMode.generated.h"
 
 namespace MatchState
@@ -26,8 +25,7 @@ public:
 	/*
 	 *	ChatBox
 	 */
-	void SendChatTextToAll(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam) const;
-	void SendChatTextToSameTeam(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam) const;
+	void SendChatText(const FChatParams& ChatParams) const;
 
 	/*
 	 *	Match State

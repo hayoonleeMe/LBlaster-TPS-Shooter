@@ -286,11 +286,11 @@ void ALBlasterHUD::AddNewMenuToStack(ULBlasterUserWidget* InNewMenu)
 	InNewMenu->MenuSetup();
 }
 
-void ALBlasterHUD::AddChatMessage(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam)
+void ALBlasterHUD::AddChatMessage(const FChatParams& ChatParams)
 {
 	if (ChatUI && ChatUI->ChatBox)
     {
-    	ChatUI->ChatBox->AddChatMessage(InPlayerName, InText, InChatMode, SourceTeam);
+    	ChatUI->ChatBox->AddChatMessage(ChatParams);
     }
 }
 

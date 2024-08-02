@@ -4,7 +4,6 @@
 #include "HUD/ChatBox.h"
 
 #include "ChatEntry.h"
-#include "LBlasterHUD.h"
 #include "Components/Border.h"
 #include "Components/EditableText.h"
 #include "Components/ScrollBox.h"
@@ -28,7 +27,7 @@ void UChatBox::FocusChatEdit()
 		{
 			OwnerController->SetInputMode(FInputModeUIOnly());
 		}
-		
+
 		ChatEditText->SetFocus();
 		SetFrameBorderVisibility(true);
 	}
@@ -43,35 +42,21 @@ void UChatBox::ExitChatEdit()
 	}
 }
 
-void UChatBox::AddChatMessage(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam)
+void UChatBox::AddChatMessage(const FChatParams& ChatParams)
 {
 	if (ScrollBox && ChatEntryClass && IsValidOwnerController())
 	{
 		if (UChatEntry* ChatEntry = CreateWidget<UChatEntry>(OwnerController, ChatEntryClass))
 		{
-			if (InChatMode == EChatMode::ECM_All)
+			// 팀 데스매치에서 전달받은 채팅 메시지가 아군 or 적군이 보냈는지 판별
+			bool bFriendly = false;
+			if (ChatParams.ChatMode == EChatMode::ECM_All || ChatParams.ChatMode == EChatMode::ECM_FriendlyTeam)
 			{
-				if (ALBlasterPlayerState* LBPlayerState = OwnerController->GetPlayerState<ALBlasterPlayerState>())
-				{
-					const bool bFriendlyTeam = LBPlayerState->GetTeam() == SourceTeam;
-					const FString& TextStyleToUse = bFriendlyTeam ? UChatEntry::FriendlyTeamTextStyle : UChatEntry::OpponentTeamTextStyle;
-					ChatEntry->SetChatEntryText(TEXT("[전체]"), InPlayerName, InText, TextStyleToUse);
-				}
+				const ALBlasterPlayerState* ReceiverPlayerState = OwnerController->GetPlayerState<ALBlasterPlayerState>();
+				bFriendly = (ReceiverPlayerState != nullptr) && (ChatParams.SenderPlayerTeam == ReceiverPlayerState->GetTeam());
 			}
-			else if (InChatMode == EChatMode::ECM_FriendlyTeam)
-			{
-				ChatEntry->SetChatEntryText(FString(), InPlayerName, InText, UChatEntry::FriendlyTeamTextStyle);
-			}
-			else if (InChatMode == EChatMode::ECM_FreeForAll)
-			{
-				// TODO : 개인전 구현 후 다시 테스트
-				ChatEntry->SetChatEntryText(TEXT("[전체]"), InPlayerName, InText, UChatEntry::DefaultTextStyle);
-			}
-			else if (InChatMode == EChatMode::ECM_Lobby)
-			{
-				ChatEntry->SetChatEntryText(FString(), InPlayerName, InText, UChatEntry::DefaultTextStyle);
-			}
-			
+			ChatEntry->SetChatEntryText(ChatParams, bFriendly);
+
 			ScrollBox->AddChild(ChatEntry);
 			ScrollBox->ScrollToEnd();
 		}
@@ -94,12 +79,12 @@ void UChatBox::ChangeChatMode()
 	{
 		return;
 	}
-	
+
 	// 0 ~ 1
 	if (IsValidOwnerController() && ChatEditText && ChatEditText->HasUserFocus(OwnerController))
 	{
 		const EChatMode NewChatMode = static_cast<EChatMode>((static_cast<uint8>(ChatModeType) + 1) % 2);
-		SetChatMode(NewChatMode);	
+		SetChatMode(NewChatMode);
 	}
 }
 
@@ -119,18 +104,8 @@ void UChatBox::SetChatMode(EChatMode InChatMode)
 
 	if (ChatTargetText)
 	{
-		switch (ChatModeType)
-		{
-		case EChatMode::ECM_All:
-		case EChatMode::ECM_FreeForAll:
-		case EChatMode::ECM_Lobby:
-			ChatTargetText->SetText(FText::FromString(TEXT("[전체]")));
-			break;
-
-		case EChatMode::ECM_FriendlyTeam:
-			ChatTargetText->SetText(FText::FromString(TEXT("[팀]")));
-			break;
-		}	
+		const FString ChatTargetPrefix = ChatTextStyle::GetChatTargetPrefix(ChatModeType);
+		ChatTargetText->SetText(FText::FromString(ChatTargetPrefix));
 	}
 }
 
@@ -172,21 +147,21 @@ void UChatBox::OnTextCommitted(const FText& Text, ETextCommit::Type CommitMethod
 	{
 		return;
 	}
-	
+
 	if (CommitMethod == ETextCommit::OnEnter && !Text.IsEmpty())
 	{
-		if (APlayerState* PlayerState = OwnerController->GetPlayerState<APlayerState>())
+		FChatParams ChatParams;
+		ChatParams.Content = Text.ToString();
+		ChatParams.ChatMode = ChatModeType;
+
+		if (ALBlasterPlayerState* LBPlayerState = OwnerController->GetPlayerState<ALBlasterPlayerState>())
 		{
+			ChatParams.SenderPlayerName = LBPlayerState->GetPlayerName();
+			ChatParams.SenderPlayerTeam = LBPlayerState->GetTeam();
+
 			if (ABasePlayerController* BasePlayerController = Cast<ABasePlayerController>(OwnerController))
 			{
-				if (ChatModeType == EChatMode::ECM_All || ChatModeType == EChatMode::ECM_FreeForAll || ChatModeType == EChatMode::ECM_Lobby)
-				{
-					BasePlayerController->ServerSendChatTextToAll(PlayerState->GetPlayerName(), Text, ChatModeType);
-				}
-				else if (ChatModeType == EChatMode::ECM_FriendlyTeam)
-				{
-					BasePlayerController->ServerSendChatTextToSameTeam(PlayerState->GetPlayerName(), Text, ChatModeType);
-				}
+				BasePlayerController->ServerSendChatText(ChatParams);
 			}
 		}
 	}

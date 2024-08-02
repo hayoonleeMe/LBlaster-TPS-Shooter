@@ -40,7 +40,7 @@ public:
 	/*
 	 *	BaseHUD
 	 */
-	virtual void AddChatMessage(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam) override;
+	virtual void AddChatMessage(const FChatParams& ChatParams) override;
 
 protected:
 	virtual void BeginPlay() override;
