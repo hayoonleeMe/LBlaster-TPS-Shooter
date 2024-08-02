@@ -9,6 +9,7 @@
 #include "HUD/LBlasterHUD.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/LBlasterPlayerController.h"
+#include "PlayerStart/BasePlayerStart.h"
 
 AFreeForAllGameMode::AFreeForAllGameMode()
 {
@@ -104,14 +105,28 @@ void AFreeForAllGameMode::RestartPlayer(AController* NewPlayer)
 	if (GetWorld())
 	{
 		TArray<AActor*> OutPlayerStarts;
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), OutPlayerStarts);
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABasePlayerStart::StaticClass(), OutPlayerStarts);
 
 		if (!OutPlayerStarts.IsEmpty())
 		{
-			const int32 RandIndex = FMath::RandRange(0, OutPlayerStarts.Num() - 1);
-			if (OutPlayerStarts.IsValidIndex(RandIndex))
+			// 사용할 수 있는 Player Start 중에서 랜덤으로 하나를 고른다.
+			TArray<ABasePlayerStart*> ValidPlayerStarts;
+			for (AActor* PlayerStart : OutPlayerStarts)
 			{
-				RestartPlayerAtPlayerStart(NewPlayer, OutPlayerStarts[RandIndex]);	
+				ABasePlayerStart* BasePlayerStart = Cast<ABasePlayerStart>(PlayerStart);
+				if (BasePlayerStart && BasePlayerStart->CanRespawn())
+				{
+					ValidPlayerStarts.Emplace(BasePlayerStart);
+				}
+			}
+			const int32 RandIndex = FMath::RandRange(0, ValidPlayerStarts.Num() - 1);
+			if (ValidPlayerStarts.IsValidIndex(RandIndex))
+			{
+				if (ABasePlayerStart* ValidPlayerStart = ValidPlayerStarts[RandIndex])
+				{
+					ValidPlayerStart->StartRespawnDelayTimer();
+					RestartPlayerAtPlayerStart(NewPlayer, ValidPlayerStart);	
+				}
 			}
 		}
 	}

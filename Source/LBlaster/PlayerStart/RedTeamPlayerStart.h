@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/PlayerStart.h"
+#include "BasePlayerStart.h"
 #include "RedTeamPlayerStart.generated.h"
 
 UCLASS()
-class LBLASTER_API ARedTeamPlayerStart : public APlayerStart
+class LBLASTER_API ARedTeamPlayerStart : public ABasePlayerStart
 {
 	GENERATED_BODY()
 
