@@ -147,21 +147,53 @@ AActor* ATeamDeathMatchGameMode::FindPlayerStartTDM(AController* Player)
 				TArray<AActor*> RedTeamPlayerStarts;
 				UGameplayStatics::GetAllActorsOfClass(GetWorld(), ARedTeamPlayerStart::StaticClass(), RedTeamPlayerStarts);
 
-				const int32 RandIndex = FMath::RandRange(0, RedTeamPlayerStarts.Num() - 1);
-				if (RedTeamPlayerStarts.IsValidIndex(RandIndex))
+				if (!RedTeamPlayerStarts.IsEmpty())
 				{
-					return RedTeamPlayerStarts[RandIndex];
+					TArray<ARedTeamPlayerStart*> ValidPlayerStarts;
+					for (AActor* PlayerStart : RedTeamPlayerStarts)
+					{
+						ARedTeamPlayerStart* RedTeamPlayerStart = Cast<ARedTeamPlayerStart>(PlayerStart);
+						if (RedTeamPlayerStart && RedTeamPlayerStart->CanRespawn())
+						{
+							ValidPlayerStarts.Emplace(RedTeamPlayerStart);
+						}
+					}
+					const int32 RandIndex = FMath::RandRange(0, ValidPlayerStarts.Num() - 1);
+					if (ValidPlayerStarts.IsValidIndex(RandIndex))
+					{
+						if (ARedTeamPlayerStart* ValidPlayerStart = ValidPlayerStarts[RandIndex])
+						{
+							ValidPlayerStart->StartRespawnDelayTimer();
+							return ValidPlayerStart;
+						}
+					}
 				}
 			}
 			else if (Team == ETeam::ET_BlueTeam)
 			{
 				TArray<AActor*> BlueTeamPlayerStarts;
 				UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABlueTeamPlayerStart::StaticClass(), BlueTeamPlayerStarts);
-				
-				const int32 RandIndex = FMath::RandRange(0, BlueTeamPlayerStarts.Num() - 1);
-				if (BlueTeamPlayerStarts.IsValidIndex(RandIndex))
+
+				if (!BlueTeamPlayerStarts.IsEmpty())
 				{
-					return BlueTeamPlayerStarts[RandIndex];
+					TArray<ABlueTeamPlayerStart*> ValidPlayerStarts;
+					for (AActor* PlayerStart : BlueTeamPlayerStarts)
+					{
+						ABlueTeamPlayerStart* BlueTeamPlayerStart = Cast<ABlueTeamPlayerStart>(PlayerStart);
+						if (BlueTeamPlayerStart && BlueTeamPlayerStart->CanRespawn())
+						{
+							ValidPlayerStarts.Emplace(BlueTeamPlayerStart);
+						}
+					}
+					const int32 RandIndex = FMath::RandRange(0, ValidPlayerStarts.Num() - 1);
+					if (ValidPlayerStarts.IsValidIndex(RandIndex))
+					{
+						if (ABlueTeamPlayerStart* ValidPlayerStart = ValidPlayerStarts[RandIndex])
+						{
+							ValidPlayerStart->StartRespawnDelayTimer();
+							return ValidPlayerStart;
+						}
+					}
 				}
 			}
 		}
