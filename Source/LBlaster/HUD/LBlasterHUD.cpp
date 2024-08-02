@@ -710,11 +710,28 @@ void ALBlasterHUD::PostInitializeComponents()
 
 	AddCharacterOverlay();
 	HideAnnouncement();
+	AddCrosshair();
+
+	// Add UI by MatchModeType for Debugging
+#if !WITH_EDITOR
 	AddChatUI();
 	AddScoreboard();
 	AddMiniScoreboard();
 	AddHelpInfo();
-	AddCrosshair();
+#endif
+}
+
+void ALBlasterHUD::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// Add UI by MatchModeType for Debugging
+#if WITH_EDITOR
+	AddChatUI();
+	AddScoreboard();
+	AddMiniScoreboard();
+	AddHelpInfo();
+#endif
 }
 
 bool ALBlasterHUD::IsValidOwnerController()

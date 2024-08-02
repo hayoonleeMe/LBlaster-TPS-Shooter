@@ -7,8 +7,8 @@
 #include "MultiplayerMapPath.h"
 #include "MultiplayerSessionsSubsystem.h"
 #include "OnlineSessionSettings.h"
-#include "GameMode/FreeForAllGameMode.h"
 #include "GameMode/TeamDeathMatchGameMode.h"
+#include "GameState/FreeForAllGameState.h"
 #include "Kismet/GameplayStatics.h"
 
 void ABaseHUD::CreateSettingMenu()
@@ -59,9 +59,14 @@ void ABaseHUD::PostInitializeComponents()
 			}
 		}
 	}
+}
+
+void ABaseHUD::BeginPlay()
+{
+	Super::BeginPlay();
 
 	// set MatchModeType for debugging in editor
 #if WITH_EDITOR
-	MatchModeType = (UGameplayStatics::GetActorOfClass(GetWorld(), AFreeForAllGameMode::StaticClass()) != nullptr) ? EMatchMode::FreeForAll : EMatchMode::TeamDeathMatch;
+	MatchModeType = (UGameplayStatics::GetActorOfClass(GetWorld(), AFreeForAllGameState::StaticClass()) != nullptr) ? EMatchMode::FreeForAll : EMatchMode::TeamDeathMatch;
 #endif
 }
