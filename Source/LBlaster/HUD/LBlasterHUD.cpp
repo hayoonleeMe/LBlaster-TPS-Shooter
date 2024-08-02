@@ -11,6 +11,7 @@
 #include "ElimAnnouncement.h"
 #include "VideoSettingMenu.h"
 #include "LBlaster.h"
+#include "MatchTimeTimer.h"
 #include "MiniScoreboard.h"
 #include "MiniScoreboardFreeForAll.h"
 #include "MiniScoreboardTeamDeathMatch.h"
@@ -123,9 +124,9 @@ void ALBlasterHUD::SetHUDWeaponTypeText(const FString& InWeaponTypeString)
 
 void ALBlasterHUD::SetHUDMatchCountdown(float InCountdownTime, bool bPlayAnimation)
 {
-	if (CharacterOverlay)
+	if (MatchTimeTimer)
 	{
-		CharacterOverlay->SetMatchCountdownText(InCountdownTime, bPlayAnimation);
+		MatchTimeTimer->SetMatchCountdownText(InCountdownTime, bPlayAnimation);
 	}
 }
 
@@ -170,6 +171,18 @@ void ALBlasterHUD::RemoveCharacterOverlay()
 	if (CharacterOverlay)
 	{
 		CharacterOverlay->RemoveFromParent();
+	}
+}
+
+void ALBlasterHUD::AddMatchTimeTimer()
+{
+	if (!MatchTimeTimer && MatchTimeTimerClass && IsValidOwnerController())
+	{
+		MatchTimeTimer = CreateWidget<UMatchTimeTimer>(OwnerController, MatchTimeTimerClass);
+	}
+	if (MatchTimeTimer)
+	{
+		MatchTimeTimer->MenuSetup();
 	}
 }
 
@@ -718,6 +731,7 @@ void ALBlasterHUD::PostInitializeComponents()
 	AddScoreboard();
 	AddMiniScoreboard();
 	AddHelpInfo();
+	AddMatchTimeTimer();
 #endif
 }
 
@@ -731,6 +745,7 @@ void ALBlasterHUD::BeginPlay()
 	AddScoreboard();
 	AddMiniScoreboard();
 	AddHelpInfo();
+	AddMatchTimeTimer();
 #endif
 }
 

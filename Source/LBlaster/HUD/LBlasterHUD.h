@@ -35,6 +35,7 @@ public:
 	void SetHUDGrenadeAmount(int32 InGrenadeAmount);
 	void AddCharacterOverlay();
 	void RemoveCharacterOverlay();
+	void AddMatchTimeTimer();
 	void AddAnnouncement();
 	void HideAnnouncement();
 	void AddElimAnnouncement(const FString& AttackerName, const FString& VictimName);
@@ -136,6 +137,15 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<class UCharacterOverlay> CharacterOverlay;
+
+	/*
+	 *	Match Time Timer
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Match Time Timer")
+	TSubclassOf<class UMatchTimeTimer> MatchTimeTimerClass;
+
+	UPROPERTY()
+	TObjectPtr<UMatchTimeTimer> MatchTimeTimer;
 
 	/*
 	 *	Announcement Overlay

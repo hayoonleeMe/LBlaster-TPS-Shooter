@@ -24,7 +24,6 @@ public:
 	void SetAmmoAmount(int32 InAmmo);
 	void SetCarriedAmmoAmount(int32 InCarriedAmmo);
 	void SetWeaponTypeText(const FString& InWeaponTypeString);
-	void SetMatchCountdownText(float InCountdownTime, bool bPlayAnimation);
 	void SetGrenadeAmount(int32 InGrenadeAmount) const;
 	void HighPingWarning(float InDuration);
 	void SetWeaponSlotIcon(EEquipSlot InEquipSlot, EWeaponType InWeaponType);
@@ -59,9 +58,6 @@ private:
 	TObjectPtr<UTextBlock> WeaponTypeText;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> MatchCountdownText;
-
-	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> GrenadeAmount;
 
 	UPROPERTY(meta = (BindWidget))
@@ -80,16 +76,7 @@ private:
 	 *	Widget Animation
 	 */
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-	TObjectPtr<UWidgetAnimation> MatchCountdownBlink;
-
-	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	TObjectPtr<UWidgetAnimation> HighPingImageBlink;
-
-	/*
-	 *	Miscellaneous
-	 */
-	UPROPERTY(EditAnywhere, Category="LBlaster|Miscellaneous")
-	float ThresholdToPlayMatchCountdownBlinkAnim = 20.f;
 
 	/*
 	 *	Weapon Slot Icon

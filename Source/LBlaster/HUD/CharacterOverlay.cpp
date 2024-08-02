@@ -68,26 +68,6 @@ void UCharacterOverlay::SetWeaponTypeText(const FString& InWeaponTypeString)
 	}
 }
 
-void UCharacterOverlay::SetMatchCountdownText(float InCountdownTime, bool bPlayAnimation)
-{
-	if (InCountdownTime < 0.f)
-	{
-		MatchCountdownText->SetText(FText());
-		return;
-	}
-	
-	int32 Minutes = FMath::FloorToInt(InCountdownTime / 60.f);
-	int32 Seconds = InCountdownTime - Minutes * 60;
-	FString CountdownString = FString::Printf(TEXT("%02d : %02d"), Minutes, Seconds);
-	MatchCountdownText->SetText(FText::FromString(CountdownString));
-
-	// 해당 함수는 1초마다 호출되고, 애니메이션의 길이도 1초이므로 매초 호출됨
-	if (bPlayAnimation && InCountdownTime <= ThresholdToPlayMatchCountdownBlinkAnim)
-	{
-		PlayAnimation(MatchCountdownBlink);
-	}
-}
-
 void UCharacterOverlay::SetGrenadeAmount(int32 InGrenadeAmount) const
 {
 	GrenadeAmount->SetText(FText::AsNumber(InGrenadeAmount));
