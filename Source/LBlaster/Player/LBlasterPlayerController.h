@@ -44,7 +44,7 @@ public:
 	void HideRespawnTimer();
 	
 	UFUNCTION(Client, Reliable)
-	void ClientMarkPlayerHit();
+	void ClientMarkPlayerHit(bool bElimination);
 	
 	UFUNCTION(Client, Reliable)
 	void ClientHideRespawnTimer();

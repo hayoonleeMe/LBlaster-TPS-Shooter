@@ -20,7 +20,7 @@ public:
 	void DrawCrosshair(const FCrosshairTexture& CrosshairTexture);
 	void UpdateCrosshair(float InSpreadScaled, const FLinearColor& InCrosshairColor);
 	void SetPlayerNameText(const FString& InPlayerName) const;
-	void MarkPlayerHit();
+	void MarkPlayerHit(bool bElimination);
 
 	UFUNCTION()
 	void OnDesiredCrosshairVisibilityChanged(bool bDesiredCrosshairVisibility);
@@ -63,4 +63,10 @@ private:
 
 	UPROPERTY(Transient, meta=(BindWidgetAnim))
 	TObjectPtr<UWidgetAnimation> HitMarkerAnim;
+
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UImage> EliminationMarkerImage;
+
+	UPROPERTY(Transient, meta=(BindWidgetAnim))
+	TObjectPtr<UWidgetAnimation> EliminationMarkerAnim;
 };

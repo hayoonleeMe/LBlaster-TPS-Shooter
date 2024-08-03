@@ -35,17 +35,25 @@ void UHealthComponent::ReceiveDamage(float InDamage, AController* InstigatorCont
 	Health = FMath::Clamp(Health - InDamage, 0.f, MaxHealth);
 	UpdateHUDHealth();
 
-	if (Health == 0.f)
+	if (ALBlasterPlayerController* AttackerController = Cast<ALBlasterPlayerController>(InstigatorController))
 	{
-		if (ALBlasterGameMode* GameMode = GetWorld()->GetAuthGameMode<ALBlasterGameMode>())
+		if (Health == 0.f)
 		{
-			if (ALBlasterPlayerController* VictimController = Cast<ALBlasterPlayerController>(OwnerCharacter->Controller))
+			if (ALBlasterGameMode* GameMode = GetWorld()->GetAuthGameMode<ALBlasterGameMode>())
 			{
-				if (ALBlasterPlayerController* AttackerController = Cast<ALBlasterPlayerController>(InstigatorController))
+				if (ALBlasterPlayerController* VictimController = Cast<ALBlasterPlayerController>(OwnerCharacter->Controller))
 				{
 					GameMode->PlayerEliminated(OwnerCharacter, VictimController, AttackerController);
-				}
-			}	
+				}	
+			}
+			
+			// Hit Marker
+			AttackerController->ClientMarkPlayerHit(true);
+		}
+		else
+		{
+			// Hit Marker
+			AttackerController->ClientMarkPlayerHit(false);
 		}
 	}
 }

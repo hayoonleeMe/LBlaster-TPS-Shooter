@@ -91,7 +91,7 @@ public:
 	void UpdateCrosshair(float InCrosshairSpread, const FLinearColor& InCrosshairColor);
 	void DrawCrosshair(const FCrosshairTexture& CrosshairTexture) const;
 	void SetPlayerNameText(const FString& InPlayerName) const;
-	void MarkPlayerHit() const;
+	void MarkPlayerHit(bool bElimination) const;
 
 protected:
 	virtual void PostInitializeComponents() override;

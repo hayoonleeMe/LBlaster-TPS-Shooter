@@ -55,11 +55,11 @@ void UCrosshair::SetPlayerNameText(const FString& InPlayerName) const
 	}
 }
 
-void UCrosshair::MarkPlayerHit()
+void UCrosshair::MarkPlayerHit(bool bElimination)
 {
-	if (HitMarkerAnim)
+	if (HitMarkerAnim && EliminationMarkerAnim)
 	{
-		PlayAnimation(HitMarkerAnim);
+		PlayAnimation(bElimination ? EliminationMarkerAnim : HitMarkerAnim);
 	}
 }
 

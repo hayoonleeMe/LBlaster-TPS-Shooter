@@ -73,11 +73,11 @@ void ALBlasterHUD::SetPlayerNameText(const FString& InPlayerName) const
 	}
 }
 
-void ALBlasterHUD::MarkPlayerHit() const
+void ALBlasterHUD::MarkPlayerHit(bool bElimination) const
 {
 	if (Crosshair)
 	{
-		Crosshair->MarkPlayerHit();
+		Crosshair->MarkPlayerHit(bElimination);
 	}
 }
 
