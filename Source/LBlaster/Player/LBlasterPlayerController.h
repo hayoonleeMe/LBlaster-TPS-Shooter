@@ -44,6 +44,9 @@ public:
 	void HideRespawnTimer();
 	
 	UFUNCTION(Client, Reliable)
+	void ClientMarkPlayerHit();
+	
+	UFUNCTION(Client, Reliable)
 	void ClientHideRespawnTimer();
 
 	FORCEINLINE float GetSingleTripTime() const { return SingleTripTime; }

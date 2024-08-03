@@ -73,6 +73,14 @@ void ALBlasterHUD::SetPlayerNameText(const FString& InPlayerName) const
 	}
 }
 
+void ALBlasterHUD::MarkPlayerHit() const
+{
+	if (Crosshair)
+	{
+		Crosshair->MarkPlayerHit();
+	}
+}
+
 void ALBlasterHUD::SetHUDHealth(float InHealth, float InMaxHealth)
 {
 	if (CharacterOverlay)
