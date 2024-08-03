@@ -7,7 +7,13 @@ LBlaster 는 언리얼 엔진으로 개발된 Multiplayer TPS Shooting Game 입�
 - [목차](#목차)
 - [구현 상세 설명](#구현-상세-설명)
 - [게임 플레이](#게임-플레이)
+  - [무기](#무기)
+  - [전투](#전투)
+  - [게임 모드](#게임-모드)
+  - [채팅](#채팅)
+  - [환경 설정](#환경-설정)
 - [회고](#회고)
+
 
 ## 소개
 
@@ -32,93 +38,123 @@ LBlaster 는 언리얼 엔진으로 개발된 Multiplayer TPS Shooting Game 입�
 ## 게임플레이 & 기능
 게임의 주요 게임플레이 및 기능을 간단하게 설명한다.
 
-### 게임 모드
-![image](https://github.com/user-attachments/assets/66d0a604-b9e8-4a3e-84e8-42a3a94301c4)
-
-![image](https://github.com/user-attachments/assets/37c035b3-9446-4bee-8cc7-46ad54baf57c)
-
-![image](https://github.com/user-attachments/assets/bc6cdb30-3fa5-4816-8ba9-ff37b9933b52)
-
-![image](https://github.com/user-attachments/assets/c6692598-1267-4933-9c91-b14d8928888b)
-
-### 팀데스매치
-
-### 개인전
-
----
 ### 무기
 
-### Pistol
+#### Pistol
 ![Pistol](https://github.com/user-attachments/assets/bdd16482-818f-498f-ad9c-edf19fc3a832)
 
 ![Pistol-ADS](https://github.com/user-attachments/assets/041d9547-980f-46a4-8f90-a706159cd6e4)
 
-### Assault Rifle
+#### Assault Rifle
 ![AR](https://github.com/user-attachments/assets/df7196e8-15c0-4203-a85a-5afd9523e275)
 
 ![AR-ADS](https://github.com/user-attachments/assets/811d076c-1aa6-4078-895e-2ae2c1610c3c)
 
-### Submachine Gun
+#### Submachine Gun
 ![SMG](https://github.com/user-attachments/assets/25e56ad9-c111-4e74-9eeb-205a30ace1d4)
 
 ![SMG-ADS](https://github.com/user-attachments/assets/e4e4a7bd-9644-42ef-8818-11dee3ca1f5e)
 
-### Snipe Rifle
+#### Snipe Rifle
 ![SR](https://github.com/user-attachments/assets/587557da-2486-46ae-a481-0518a41252bb)
 
 ![SR-ADS](https://github.com/user-attachments/assets/88a897ff-6f16-4623-a4c4-c01522b2d9e6)
 
-### Shotgun
+#### Shotgun
 ![SG](https://github.com/user-attachments/assets/34584d6b-50fe-4074-8dcd-7f8682968b76)
 
 ![SG-ADS](https://github.com/user-attachments/assets/ca74cca6-4f47-46d9-85fe-fa758dcdb868)
 
-### Grenade Launcher
+#### Grenade Launcher
 ![GL](https://github.com/user-attachments/assets/718db3a8-2146-4b8b-9795-1fe77f6d6905)
 
-### Rocket Launcher
+#### Rocket Launcher
 ![RL](https://github.com/user-attachments/assets/83dfe1ac-610a-4d5a-9630-d0ba8ea9d1d3)
 
-### Grenade
+#### Grenade
 ![Grenade](https://github.com/user-attachments/assets/6ceb73a4-41e1-4cba-bc49-b3e527c087f6)
 
 ---
+
 ### 전투
 
-### Elimination
+#### Elimination
 ![Elimination](https://github.com/user-attachments/assets/aed9e8cc-5096-434c-a8ed-75b50e1b0ac2)
 
-### Updating Scoreboard
+#### Updating Scoreboard
 ![UpdatingScoreboard](https://github.com/user-attachments/assets/1f5686ac-3afc-49c5-bb68-d834db3616c5)
 
 ---
+
+### 게임 모드
+게임 모드는 개인전과 팀 데스매치가 존재한다.
+두 게임 모드 모두 동일하게 게임에 참가할 수 있는 최대 플레이어 수와 게임의 목표 킬 수를 설정할 수 있다.
+![image](https://github.com/user-attachments/assets/bc6cdb30-3fa5-4816-8ba9-ff37b9933b52)
+
+![image](https://github.com/user-attachments/assets/c6692598-1267-4933-9c91-b14d8928888b)
+
+#### 팀 데스매치
+세션 생성 창에서 팀 데스매치 세션을 생성할 수 있다.
+![image](https://github.com/user-attachments/assets/37c035b3-9446-4bee-8cc7-46ad54baf57c)
+
+로비에서 게임에 참가할 팀을 선택할 수 있다.
+
+팀 데스매치는 두가지 팀이 존재하고, 맵에 각 팀의 진영이 존재한다.  
+플레이어는 자신이 속한 팀의 진영에서만 리스폰된다.  
+한 팀이 목표 킬 수를 달성하거나 제한 시간이 종료되면 게임이 종료된다.  
+먼저 목표 킬 수를 달성한 팀이 승리한다.
+
+#### 개인전
+세션 생성 창에서 개인전 세션을 생성할 수 있다.
+![image](https://github.com/user-attachments/assets/66d0a604-b9e8-4a3e-84e8-42a3a94301c4)
+
+개인전은 맵에 배치된 Player Spawn 중 랜덤한 곳에서 리스폰된다.  
+모든 플레이어의 킬 수의 합이 목표 킬 수를 달성하거나 제한 시간이 종료되면 게임이 종료된다.  
+게임이 종료되면 위가 매겨진다.
+
+---
+
 ### 채팅
+실시간으로 표시되는 채팅 기능을 제공한다.
 
-### 로비 내
+#### 로비 내
 
 
-### 매치 내
+#### 매치 내
+개인전에서 모든 플레이어의 화면에서 표시되는 전체 채팅을 보낼 수 있다.
 ![FFA-Chat](https://github.com/user-attachments/assets/fd1f7b93-2ef3-4373-ac41-4c9ba8a15b1d)
 
+팀 데스매치에서 채팅을 보낼 대상을 전체, 팀 중에서 선택할 수 있다.  
+이름을 아군은 파란색, 적군은 빨간색으로 표시해 구분한다.
 ![TDM-Chat(all)](https://github.com/user-attachments/assets/066e78dd-0403-4e37-8c98-25269b41007e)
 
 ![TDM-Chat(team)](https://github.com/user-attachments/assets/043f3fab-b1a8-46bc-8728-e1ac31a06f8f)
 
 ---
+
 ### 환경 설정
+간단한 환경 설정을 제공한다.
 ![image](https://github.com/user-attachments/assets/704e1393-eaef-484c-a5bf-516a05fe8f6e)
 
-### 비디오
+#### 비디오
+언리얼 엔진의 Engine Scalability에 따른 설정을 제공한다.  
+하드웨어 품질에 적합한 설정을 선택해주는 품질 자동 설정 기능을 제공한다.
+
 ![image](https://github.com/user-attachments/assets/521c4ab8-b933-46cf-968a-ba5cadb53be0)
 
 ![image](https://github.com/user-attachments/assets/f9a63161-1c3d-4001-a6c5-db38639a8ab6)
 
 ![image](https://github.com/user-attachments/assets/d7e85831-cc2b-4ed8-acdf-0bae66334fa0)
 
-### 오디오
+FPS, Ping을 표시하는 성능 표시 기능을 제공한다.
+![PerformaneIndicator2](https://github.com/user-attachments/assets/ccabae2d-9d8d-4033-9323-7485f0f286a5)
+
+#### 오디오
+간단하게 Master 볼륨 하나만 제공한다.
 ![image](https://github.com/user-attachments/assets/fb315fbc-3803-4fa0-8d48-59f2b8a16768)
 
 ### 마우스
+간단하게 Master 감도만 제공한다.
 ![image](https://github.com/user-attachments/assets/8d4f97c6-7700-4fd2-85cc-a2be952642f0)
 
 
