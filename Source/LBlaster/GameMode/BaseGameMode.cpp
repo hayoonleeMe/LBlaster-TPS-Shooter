@@ -3,33 +3,63 @@
 
 #include "BaseGameMode.h"
 
+#include "LBlaster.h"
 #include "Player/LBlasterPlayerState.h"
 #include "Player/BasePlayerController.h"
 
-void ABaseGameMode::SendChatTextToAll(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam) const
+void ABaseGameMode::PostLogin(APlayerController* NewPlayer)
 {
-	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	Super::PostLogin(NewPlayer);
+
+	FChatParams ChatParams;
+	ChatParams.ChatMode = EChatMode::ECM_System;
+	ChatParams.ChatSystemInfoTemplate = EChatSystemInfoTemplate::ECSIT_Login;
+	if (APlayerState* PlayerState = NewPlayer->GetPlayerState<APlayerState>())
 	{
-		if (ABasePlayerController* BasePlayerController = Cast<ABasePlayerController>(It->Get()))
-		{
-			BasePlayerController->BroadcastChatText(InPlayerName, InText, InChatMode, SourceTeam);
-		}
+		ChatParams.SenderPlayerName = PlayerState->GetPlayerName();
+	}
+	if (ABasePlayerController* BasePlayerController = Cast<ABasePlayerController>(NewPlayer))
+	{
+		BasePlayerController->ServerSendChatText(ChatParams);
 	}
 }
 
-void ABaseGameMode::SendChatTextToSameTeam(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam) const
+void ABaseGameMode::Logout(AController* Exiting)
+{
+	Super::Logout(Exiting);
+
+	FChatParams ChatParams;
+	ChatParams.ChatMode = EChatMode::ECM_System;
+	ChatParams.ChatSystemInfoTemplate = EChatSystemInfoTemplate::ECSIT_Logout;
+	if (APlayerState* PlayerState = Exiting->GetPlayerState<APlayerState>())
+	{
+		ChatParams.SenderPlayerName = PlayerState->GetPlayerName();
+	}
+	if (ABasePlayerController* BasePlayerController = Cast<ABasePlayerController>(Exiting))
+	{
+		BasePlayerController->ServerSendChatText(ChatParams);
+	}
+}
+
+void ABaseGameMode::SendChatText(const FChatParams& ChatParams) const
 {
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
-		if (ABasePlayerController* BasePlayerController = Cast<ABasePlayerController>(It->Get()))
+		if (ABasePlayerController* ReceiverPlayerController = Cast<ABasePlayerController>(It->Get()))
 		{
-			if (ALBlasterPlayerState* LBPlayerState = It->Get()->GetPlayerState<ALBlasterPlayerState>())
+			// 팀 채팅이면 같은 팀 플레이어에게만 전송해줌.
+			if (ChatParams.ChatMode == EChatMode::ECM_FriendlyTeam)
 			{
-				if (LBPlayerState->GetTeam() == SourceTeam)
+				ALBlasterPlayerState* ReceiverPlayerState = ReceiverPlayerController->GetPlayerState<ALBlasterPlayerState>();
+				if (ReceiverPlayerState && ChatParams.SenderPlayerTeam == ReceiverPlayerState->GetTeam())
 				{
-					BasePlayerController->BroadcastChatText(InPlayerName, InText, InChatMode, SourceTeam);	
+					ReceiverPlayerController->BroadcastChatText(ChatParams);
 				}
-			}			
+			}
+			else
+			{
+				ReceiverPlayerController->BroadcastChatText(ChatParams);
+			}
 		}
 	}
 }

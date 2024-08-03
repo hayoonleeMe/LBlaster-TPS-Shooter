@@ -4,8 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
-#include "LBTypes/ChatMode.h"
-#include "LBTypes/Team.h"
+#include "LBTypes/ChatParams.h"
 #include "BaseGameMode.generated.h"
 
 namespace MatchState
@@ -23,11 +22,13 @@ class LBLASTER_API ABaseGameMode : public AGameMode
 	GENERATED_BODY()
 
 public:
+	virtual void PostLogin(APlayerController* NewPlayer) override;
+	virtual void Logout(AController* Exiting) override;
+	
 	/*
 	 *	ChatBox
 	 */
-	void SendChatTextToAll(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam) const;
-	void SendChatTextToSameTeam(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam) const;
+	void SendChatText(const FChatParams& ChatParams) const;
 
 	/*
 	 *	Match State

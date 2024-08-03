@@ -5,15 +5,35 @@
 
 #include "Components/RichTextBlock.h"
 
-void UChatEntry::SetChatEntryText(FString ChatTarget, const FString& PlayerName, const FText& Text, const FString& TextStyle)
+void UChatEntry::SetChatEntryText(const FChatParams& ChatParams, bool bInFriendly) const
 {
-	if (ChatEntryText)
+	if (!ChatEntryText)
 	{
-		if (!ChatTarget.IsEmpty())
-		{
-			ChatTarget = FString::Printf(TEXT("<%s>%s</> "), *TextStyle, *ChatTarget);
-		}
-		const FString FinalPlayerName = FString::Printf(TEXT("<%s>%s:</> "), *TextStyle, *PlayerName);
-		ChatEntryText->SetText(FText::FromString(ChatTarget + FinalPlayerName + Text.ToString()));
+		return;
 	}
+
+	const FString ChatTargetPrefix = ChatTextStyle::GetChatTargetPrefix(ChatParams.ChatMode);
+	const FString TextStyle = ChatTextStyle::GetChatTextStyle(ChatParams.ChatMode, bInFriendly);
+	const FString FinalPrefix = FString::Printf(TEXT("<%s>%s [%s] </>"), *TextStyle, *ChatTargetPrefix, *ChatParams.SenderPlayerName);
+	
+	const FText FinalText = FText::FromString(FinalPrefix + ChatParams.Content);
+	ChatEntryText->SetText(FinalText);
+}
+
+void UChatEntry::SetChatEntryTextForSystem(const FChatParams& ChatParams) const
+{
+	if (!ChatEntryText)
+	{
+		return;
+	}
+
+	const FString ChatTargetPrefix = ChatTextStyle::GetChatTargetPrefix(ChatParams.ChatMode);
+	const FString TextStyle = ChatTextStyle::GetChatTextStyle(ChatParams.ChatMode);
+	const FString FinalPrefix = FString::Printf(TEXT("<%s>%s [%s] </>"), *TextStyle, *ChatTargetPrefix, *ChatParams.SenderPlayerName);
+	
+	const FString SystemInfoTemplate = ChatSystemInfoTemplate::GetChatSystemInfoTemplate(ChatParams.ChatSystemInfoTemplate);
+	const FString FinalTemplate = FString::Printf(TEXT("<%s>%s</>"), *TextStyle, *SystemInfoTemplate);
+	
+	const FText FinalText = FText::FromString(FinalPrefix + FinalTemplate);
+	ChatEntryText->SetText(FinalText);
 }

@@ -4,8 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "LBlasterUserWidget.h"
-#include "LBTypes/ChatMode.h"
-#include "LBTypes/Team.h"
+#include "LBTypes/ChatParams.h"
 #include "ChatBox.generated.h"
 
 /**
@@ -20,7 +19,7 @@ public:
 	void InitializeChatBox(EChatMode InChatMode, bool bIsAlwaysExposed);
 	void FocusChatEdit();
 	void ExitChatEdit();
-	void AddChatMessage(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam);
+	void AddChatMessage(const FChatParams& ChatParams);
 	void Scroll(float InScrollValue) const;
 	void ChangeChatMode();
 

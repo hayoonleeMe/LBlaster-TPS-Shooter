@@ -271,11 +271,16 @@ void ALobbyHUD::BroadcastRemovePlayerList(const FString& InName)
 	}
 }
 
-void ALobbyHUD::AddChatMessage(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam)
+void ALobbyHUD::AddChatMessage(const FChatParams& ChatParams)
 {
 	if (ChatUI && ChatUI->ChatBox)
 	{
-		ChatUI->ChatBox->AddChatMessage(InPlayerName, InText, InChatMode, SourceTeam);
+		ChatUI->ChatBox->AddChatMessage(ChatParams);
+	}
+	// Chat Message Caching
+	else
+	{
+		CachedChatParams.Emplace(ChatParams);
 	}
 }
 
@@ -420,6 +425,16 @@ void ALobbyHUD::AddChatUI()
 		{
 			ChatUI->AddToViewport();
 			ChatUI->ChatBox->InitializeChatBox(EChatMode::ECM_Lobby, true);
+
+			// 캐싱된 Chat Message 표시
+			if (!CachedChatParams.IsEmpty())
+			{
+				for (const FChatParams& ChatParams : CachedChatParams)
+				{
+					ChatUI->ChatBox->AddChatMessage(ChatParams);
+				}
+				CachedChatParams.Empty();
+			}
 		}
 	}
 }

@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "BaseHUD.h"
-#include "LBTypes/ChatMode.h"
 #include "LBTypes/CrosshairTexture.h"
 #include "LBTypes/EquipSlot.h"
 #include "LBTypes/Team.h"
@@ -59,7 +58,7 @@ public:
 	virtual void CreateAudioSettingMenu() override;
 	virtual void ReturnMenu(bool bForceReturn = false) override;
 	virtual void AddNewMenuToStack(ULBlasterUserWidget* InNewMenu) override;
-	virtual void AddChatMessage(const FString& InPlayerName, const FText& InText, EChatMode InChatMode, ETeam SourceTeam) override;
+	virtual void AddChatMessage(const FChatParams& ChatParams) override;
 
 	/*
 	 *	Scoreboard

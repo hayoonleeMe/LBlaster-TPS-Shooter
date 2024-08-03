@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "LBTypes/ChatParams.h"
 #include "ChatEntry.generated.h"
 
 /**
@@ -15,11 +16,8 @@ class LBLASTER_API UChatEntry : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void SetChatEntryText(FString ChatTarget, const FString& PlayerName, const FText& Text, const FString& TextStyle);
-
-	inline const static FString FriendlyTeamTextStyle{ TEXT("FriendlyTeam") };
-	inline const static FString OpponentTeamTextStyle{ TEXT("OpponentTeam") };
-	inline const static FString DefaultTextStyle{ TEXT("Default") };
+	void SetChatEntryText(const FChatParams& ChatParams, bool bInFriendly) const;
+	void SetChatEntryTextForSystem(const FChatParams& ChatParams) const;
 	
 private:
 	UPROPERTY(meta = (BindWidget))
