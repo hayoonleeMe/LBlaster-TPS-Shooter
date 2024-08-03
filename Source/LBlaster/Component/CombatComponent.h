@@ -563,7 +563,7 @@ private:
 	TObjectPtr<UStaticMesh> GrenadeTrajectorySM;
 	
 	UPROPERTY()
-	TObjectPtr<UStaticMeshComponent> GrenadeTrajectoryPointMesh;
+	TObjectPtr<UStaticMeshComponent> GrenadeTrajectoryPointMeshComp;
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Grenade")
 	TObjectPtr<UStaticMesh> GrenadeTrajectoryPointSM;

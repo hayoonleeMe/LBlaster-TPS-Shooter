@@ -986,9 +986,9 @@ void UCombatComponent::HideAllSplineMesh()
 			SplineMeshes[Index]->SetVisibility(false);
 		}
 	}
-	if (GrenadeTrajectoryPointMesh)
+	if (GrenadeTrajectoryPointMeshComp)
 	{
-		GrenadeTrajectoryPointMesh->SetVisibility(false);
+		GrenadeTrajectoryPointMeshComp->SetVisibility(false);
 	}
 }
 
@@ -1113,20 +1113,20 @@ void UCombatComponent::DrawGrenadeTrajectory()
 				}
 
 				// 마지막 Point 그리기
-				if (!GrenadeTrajectoryPointMesh)
+				if (!GrenadeTrajectoryPointMeshComp)
 				{
-					GrenadeTrajectoryPointMesh = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass());
-					if (GrenadeTrajectoryPointMesh && GrenadeTrajectoryPointSM)
+					GrenadeTrajectoryPointMeshComp = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass());
+					if (GrenadeTrajectoryPointMeshComp && GrenadeTrajectoryPointSM)
 					{
-						GrenadeTrajectoryPointMesh->SetStaticMesh(GrenadeTrajectoryPointSM);
-						GrenadeTrajectoryPointMesh->SetMobility(EComponentMobility::Movable);
-						GrenadeTrajectoryPointMesh->CreationMethod = EComponentCreationMethod::UserConstructionScript;
-						GrenadeTrajectoryPointMesh->RegisterComponentWithWorld(GetWorld());
-						GrenadeTrajectoryPointMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-						GrenadeTrajectoryPointMesh->SetCastShadow(false);
+						GrenadeTrajectoryPointMeshComp->SetStaticMesh(GrenadeTrajectoryPointSM);
+						GrenadeTrajectoryPointMeshComp->SetMobility(EComponentMobility::Movable);
+						GrenadeTrajectoryPointMeshComp->CreationMethod = EComponentCreationMethod::UserConstructionScript;
+						GrenadeTrajectoryPointMeshComp->RegisterComponentWithWorld(GetWorld());
+						GrenadeTrajectoryPointMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+						GrenadeTrajectoryPointMeshComp->SetCastShadow(false);
 					}
 				}
-				if (GrenadeTrajectoryPointMesh)
+				if (GrenadeTrajectoryPointMeshComp)
 				{
 					// 마지막 PathData 포인트
 					const FVector& LastPoint = PathData.Last().Location;
@@ -1135,11 +1135,11 @@ void UCombatComponent::DrawGrenadeTrajectory()
 
 					// Adjust the rotation so that the mesh is parallel to the surface
 					FRotator AdjustedRotation = FRotator(Rotation.Pitch - 90.0f, Rotation.Yaw, Rotation.Roll);
-					FVector AdjustedLocation = LastPoint - (GrenadeTrajectoryPointMesh->GetStaticMesh()->GetBounds().BoxExtent.Z * ImpactNormal);
+					FVector AdjustedLocation = LastPoint - (GrenadeTrajectoryPointMeshComp->GetStaticMesh()->GetBounds().BoxExtent.Z * ImpactNormal);
 
-					GrenadeTrajectoryPointMesh->SetWorldLocation(AdjustedLocation);
-					GrenadeTrajectoryPointMesh->SetWorldRotation(AdjustedRotation);
-					GrenadeTrajectoryPointMesh->SetVisibility(true);
+					GrenadeTrajectoryPointMeshComp->SetWorldLocation(AdjustedLocation);
+					GrenadeTrajectoryPointMeshComp->SetWorldRotation(AdjustedRotation);
+					GrenadeTrajectoryPointMeshComp->SetVisibility(true);
 				}
 			}
 		}
