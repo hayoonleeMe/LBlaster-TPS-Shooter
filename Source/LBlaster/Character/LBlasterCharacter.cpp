@@ -727,7 +727,6 @@ void ALBlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const
 		}
 	}
 	
-	
 	// Damage Indicator
 	// 무적 상태일 때도 표시
 	const float ActualDamage = bInvincible ? 0.f : Damage;
@@ -747,7 +746,7 @@ void ALBlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const
 	{
 		return;
 	}
-	
+
 	// 폭발 데미지면 랜덤한 HitReact Montage 재생
 	if (DamageType->IsA(UDamageType_Explosive::StaticClass()))
 	{

@@ -376,6 +376,14 @@ void ALBlasterPlayerController::HideRespawnTimer()
 	}
 }
 
+void ALBlasterPlayerController::ClientMarkPlayerHit_Implementation(bool bElimination)
+{
+	if (IsValidOwningHUD())
+	{
+		OwningHUD->MarkPlayerHit(bElimination);
+	}
+}
+
 void ALBlasterPlayerController::ClientHideRespawnTimer_Implementation()
 {
 	HideRespawnTimer();

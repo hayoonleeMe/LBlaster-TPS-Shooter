@@ -55,6 +55,14 @@ void UCrosshair::SetPlayerNameText(const FString& InPlayerName) const
 	}
 }
 
+void UCrosshair::MarkPlayerHit(bool bElimination)
+{
+	if (HitMarkerAnim && EliminationMarkerAnim)
+	{
+		PlayAnimation(bElimination ? EliminationMarkerAnim : HitMarkerAnim);
+	}
+}
+
 void UCrosshair::OnDesiredCrosshairVisibilityChanged(bool bDesiredCrosshairVisibility)
 {
 	SetVisibility(bDesiredCrosshairVisibility ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
