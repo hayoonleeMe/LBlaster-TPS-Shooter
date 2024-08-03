@@ -3,8 +3,43 @@
 
 #include "BaseGameMode.h"
 
+#include "LBlaster.h"
 #include "Player/LBlasterPlayerState.h"
 #include "Player/BasePlayerController.h"
+
+void ABaseGameMode::PostLogin(APlayerController* NewPlayer)
+{
+	Super::PostLogin(NewPlayer);
+
+	FChatParams ChatParams;
+	ChatParams.ChatMode = EChatMode::ECM_System;
+	ChatParams.ChatSystemInfoTemplate = EChatSystemInfoTemplate::ECSIT_Login;
+	if (APlayerState* PlayerState = NewPlayer->GetPlayerState<APlayerState>())
+	{
+		ChatParams.SenderPlayerName = PlayerState->GetPlayerName();
+	}
+	if (ABasePlayerController* BasePlayerController = Cast<ABasePlayerController>(NewPlayer))
+	{
+		BasePlayerController->ServerSendChatText(ChatParams);
+	}
+}
+
+void ABaseGameMode::Logout(AController* Exiting)
+{
+	Super::Logout(Exiting);
+
+	FChatParams ChatParams;
+	ChatParams.ChatMode = EChatMode::ECM_System;
+	ChatParams.ChatSystemInfoTemplate = EChatSystemInfoTemplate::ECSIT_Logout;
+	if (APlayerState* PlayerState = Exiting->GetPlayerState<APlayerState>())
+	{
+		ChatParams.SenderPlayerName = PlayerState->GetPlayerName();
+	}
+	if (ABasePlayerController* BasePlayerController = Cast<ABasePlayerController>(Exiting))
+	{
+		BasePlayerController->ServerSendChatText(ChatParams);
+	}
+}
 
 void ABaseGameMode::SendChatText(const FChatParams& ChatParams) const
 {

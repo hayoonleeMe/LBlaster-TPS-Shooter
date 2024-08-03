@@ -48,14 +48,21 @@ void UChatBox::AddChatMessage(const FChatParams& ChatParams)
 	{
 		if (UChatEntry* ChatEntry = CreateWidget<UChatEntry>(OwnerController, ChatEntryClass))
 		{
-			// 팀 데스매치에서 전달받은 채팅 메시지가 아군 or 적군이 보냈는지 판별
-			bool bFriendly = false;
-			if (ChatParams.ChatMode == EChatMode::ECM_All || ChatParams.ChatMode == EChatMode::ECM_FriendlyTeam)
+			if (ChatParams.ChatMode == EChatMode::ECM_System)
 			{
-				const ALBlasterPlayerState* ReceiverPlayerState = OwnerController->GetPlayerState<ALBlasterPlayerState>();
-				bFriendly = (ReceiverPlayerState != nullptr) && (ChatParams.SenderPlayerTeam == ReceiverPlayerState->GetTeam());
+				ChatEntry->SetChatEntryTextForSystem(ChatParams);
 			}
-			ChatEntry->SetChatEntryText(ChatParams, bFriendly);
+			else
+			{
+				// 팀 데스매치에서 전달받은 채팅 메시지가 아군 or 적군이 보냈는지 판별
+				bool bFriendly = false;
+				if (ChatParams.ChatMode == EChatMode::ECM_All || ChatParams.ChatMode == EChatMode::ECM_FriendlyTeam)
+				{
+					const ALBlasterPlayerState* ReceiverPlayerState = OwnerController->GetPlayerState<ALBlasterPlayerState>();
+					bFriendly = (ReceiverPlayerState != nullptr) && (ChatParams.SenderPlayerTeam == ReceiverPlayerState->GetTeam());
+				}
+				ChatEntry->SetChatEntryText(ChatParams, bFriendly);
+			}
 
 			ScrollBox->AddChild(ChatEntry);
 			ScrollBox->ScrollToEnd();

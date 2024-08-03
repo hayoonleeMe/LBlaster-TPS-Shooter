@@ -17,6 +17,7 @@ class LBLASTER_API UChatEntry : public UUserWidget
 
 public:
 	void SetChatEntryText(const FChatParams& ChatParams, bool bInFriendly) const;
+	void SetChatEntryTextForSystem(const FChatParams& ChatParams) const;
 	
 private:
 	UPROPERTY(meta = (BindWidget))

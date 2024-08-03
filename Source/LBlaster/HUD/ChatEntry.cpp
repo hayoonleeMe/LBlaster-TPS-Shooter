@@ -15,11 +15,25 @@ void UChatEntry::SetChatEntryText(const FChatParams& ChatParams, bool bInFriendl
 	const FString ChatTargetPrefix = ChatTextStyle::GetChatTargetPrefix(ChatParams.ChatMode);
 	const FString TextStyle = ChatTextStyle::GetChatTextStyle(ChatParams.ChatMode, bInFriendly);
 	const FString FinalPrefix = FString::Printf(TEXT("<%s>%s %s:</> "), *TextStyle, *ChatTargetPrefix, *ChatParams.SenderPlayerName);
-	FString FinalContent = ChatParams.Content;
-	if (ChatParams.ChatMode == EChatMode::ECM_System)
+	
+	const FText FinalText = FText::FromString(FinalPrefix + ChatParams.Content);
+	ChatEntryText->SetText(FinalText);
+}
+
+void UChatEntry::SetChatEntryTextForSystem(const FChatParams& ChatParams) const
+{
+	if (!ChatEntryText)
 	{
-		FinalContent = FString::Printf(TEXT("<%s>%s</>"), *TextStyle, *ChatParams.Content);
+		return;
 	}
-	const FText FinalText = FText::FromString(FinalPrefix + FinalContent);
+
+	const FString ChatTargetPrefix = ChatTextStyle::GetChatTargetPrefix(ChatParams.ChatMode);
+	const FString TextStyle = ChatTextStyle::GetChatTextStyle(ChatParams.ChatMode);
+	const FString FinalPrefix = FString::Printf(TEXT("<%s>%s %s</> "), *TextStyle, *ChatTargetPrefix, *ChatParams.SenderPlayerName);
+	
+	const FString SystemInfoTemplate = ChatSystemInfoTemplate::GetChatSystemInfoTemplate(ChatParams.ChatSystemInfoTemplate);
+	const FString FinalTemplate = FString::Printf(TEXT("<%s>%s</>"), *TextStyle, *SystemInfoTemplate);
+	
+	const FText FinalText = FText::FromString(FinalPrefix + FinalTemplate);
 	ChatEntryText->SetText(FinalText);
 }

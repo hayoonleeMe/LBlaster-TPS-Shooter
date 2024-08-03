@@ -92,4 +92,6 @@ private:
 	TObjectPtr<UChatUI> ChatUI;
 
 	void AddChatUI();
+
+	TArray<FChatParams> CachedChatParams;
 };
