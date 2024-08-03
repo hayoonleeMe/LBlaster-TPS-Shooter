@@ -58,6 +58,9 @@ UCombatComponent::UCombatComponent()
 	FireMontages.Emplace(EWeaponType::EWT_SniperRifle, nullptr);
 	FireMontages.Emplace(EWeaponType::EWT_GrenadeLauncher, nullptr);
 
+	/* Impact Indicator */
+	ImpactIndicationDist = 250.f;
+
 	/* Reload */
 	ReloadMontages.Emplace(EWeaponType::EWT_Unarmed, nullptr);
 	ReloadMontages.Emplace(EWeaponType::EWT_Rifle, nullptr);
@@ -137,8 +140,7 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// Tick에서 Trace를 통해 크로스헤어 색상 설정
-	FHitResult HitResult;
-	TraceUnderCrosshair(HitResult);
+	TraceUnderCrosshair();
 	
 	if (bShowCrosshair)
 	{
@@ -546,14 +548,16 @@ bool UCombatComponent::IsValidHUD()
 	return HUD != nullptr;
 }
 
-void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
+void UCombatComponent::TraceUnderCrosshair()
 {
+	if (!GetWorld() || !IsValidOwnerCharacter() || !IsValidOwnerController() || !GEngine || !GEngine->GameViewport)
+	{
+		return;
+	}
+	
 	// Viewport Size
 	FVector2D ViewportSize;
-	if (GEngine && GEngine->GameViewport)
-	{
-		GEngine->GameViewport->GetViewportSize(ViewportSize);
-	}
+	GEngine->GameViewport->GetViewportSize(ViewportSize);
 
 	// Viewport 정중앙의 크로스헤어 위치 계산 (Viewport space = screen space)
 	const FVector2D CrosshairLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
@@ -562,25 +566,43 @@ void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 	FVector CrosshairWorldPosition;
 	FVector CrosshairWorldDirection;
 	
-	if (UGameplayStatics::DeprojectScreenToWorld(UGameplayStatics::GetPlayerController(this, 0), CrosshairLocation,CrosshairWorldPosition, CrosshairWorldDirection))
+	if (UGameplayStatics::DeprojectScreenToWorld(OwnerController, CrosshairLocation,CrosshairWorldPosition, CrosshairWorldDirection))
 	{
-		FVector Start = CrosshairWorldPosition;
-		if (IsValidOwnerCharacter())
+		// 로컬에서의 총구에서 Trace
+		FVector TraceStart;
+		if (GetEquippingWeapon() && GetEquippingWeapon()->GetMuzzleFlashLocation(TraceStart))
+		{}
+		else
 		{
-			const float DistanceToCharacter = (OwnerCharacter->GetActorLocation() - Start).Size();
-			Start += CrosshairWorldDirection * (DistanceToCharacter + 50.f);
+			TraceStart = OwnerCharacter->GetActorLocation();
 		}
-		const FVector End = Start + CrosshairWorldDirection * TRACE_LENGTH;
+		const FVector TraceEnd = CrosshairWorldPosition + CrosshairWorldDirection * TRACE_LENGTH;
 
-		GetWorld()->LineTraceSingleByChannel(TraceHitResult, Start, End, ECC_Visibility);
+		FCollisionQueryParams QueryParams;
+		QueryParams.AddIgnoredActor(OwnerCharacter);
+		
+		FHitResult TraceHitResult;
+		GetWorld()->LineTraceSingleByChannel(TraceHitResult, TraceStart, TraceEnd, ECC_Visibility, QueryParams);
 		
 		// HitTarget 보정
 		if (!TraceHitResult.bBlockingHit)
 		{
-			TraceHitResult.ImpactPoint = End;
+			TraceHitResult.ImpactPoint = TraceEnd;
 		}
 		// ImpactPoint Caching
 		TraceHitTarget = TraceHitResult.ImpactPoint;
+
+		if ((TraceHitTarget - TraceStart).SquaredLength() <= ImpactIndicationDist * ImpactIndicationDist)
+		{
+			IndicateImpactPoint(TraceHitResult.ImpactNormal);
+		}
+		else 
+		{
+			if (ImpactIndicatorPointMeshComp)
+			{
+				ImpactIndicatorPointMeshComp->SetVisibility(false);
+			}
+		}
 
 		// 캐릭터 조준 시 크로스 헤어 색상 변경
 		SetHUDCrosshairColor(TraceHitResult.GetActor());
@@ -1153,6 +1175,39 @@ FCrosshairTexture UCombatComponent::GetCrosshairTexture(EWeaponType InWeaponType
 	return DefaultCrosshair;
 }
 
+void UCombatComponent::IndicateImpactPoint(const FVector& ImpactNormal)
+{
+	// ImpactIndicatorPointMeshComp 초기화
+	if (!ImpactIndicatorPointMeshComp)
+	{
+		ImpactIndicatorPointMeshComp = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass());
+		if (ImpactIndicatorPointMeshComp && ImpactIndicatorPointSM && GetWorld())
+		{
+			ImpactIndicatorPointMeshComp->SetStaticMesh(ImpactIndicatorPointSM);
+			ImpactIndicatorPointMeshComp->SetMobility(EComponentMobility::Movable);
+			ImpactIndicatorPointMeshComp->CreationMethod = EComponentCreationMethod::UserConstructionScript;
+			ImpactIndicatorPointMeshComp->RegisterComponentWithWorld(GetWorld());
+			ImpactIndicatorPointMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			ImpactIndicatorPointMeshComp->SetCastShadow(false);
+		}
+	}
+	
+	// 실제 충돌 지점에 Impact Indicator 배치
+	if (ImpactIndicatorPointMeshComp)
+	{
+		const FVector& Location = TraceHitTarget;
+		const FRotator Rotation = ImpactNormal.Rotation();
+
+		// Adjust the rotation so that the mesh is parallel to the surface
+		const FRotator AdjustedRotation = FRotator(Rotation.Pitch - 90.0f, Rotation.Yaw, Rotation.Roll);
+		const FVector AdjustedLocation = Location + ImpactNormal;
+
+		ImpactIndicatorPointMeshComp->SetWorldLocation(AdjustedLocation);
+		ImpactIndicatorPointMeshComp->SetWorldRotation(AdjustedRotation);
+		ImpactIndicatorPointMeshComp->SetVisibility(true);
+	}
+}
+
 void UCombatComponent::InitSniperScope()
 {
 	if (IsValidHUD() && GetEquippingWeapon() && GetEquippingWeapon()->GetWeaponType() == EWeaponType::EWT_SniperRifle)
@@ -1341,7 +1396,7 @@ void UCombatComponent::Fire()
 		// 로컬에서의 총구 Location, Rotation 캐싱
 		FVector_NetQuantize MuzzleFlashLocation;
 		FRotator MuzzleFlashRotation;
-		if (!GetEquippingWeapon()->GetMuzzleFlashLocation(MuzzleFlashLocation, MuzzleFlashRotation))
+		if (!GetEquippingWeapon()->GetMuzzleFlashLocationForRep(MuzzleFlashLocation, MuzzleFlashRotation))
 		{
 			return;
 		}

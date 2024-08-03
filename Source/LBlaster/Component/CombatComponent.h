@@ -329,7 +329,7 @@ private:
 	UFUNCTION(NetMulticast, Reliable)
     void MulticastShotgunFire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const TArray<FVector_NetQuantize>& HitTargets);
 
-	void TraceUnderCrosshair(FHitResult& TraceHitResult);
+	void TraceUnderCrosshair();
 
 	FVector TraceHitTarget;
 
@@ -368,6 +368,21 @@ private:
 	FCrosshairTexture ShotgunCrosshair;
 
 	FCrosshairTexture GetCrosshairTexture(EWeaponType InWeaponType) const;
+
+	/*
+	 *	Impact Indicator
+	 */
+	UPROPERTY()
+    TObjectPtr<UStaticMeshComponent> ImpactIndicatorPointMeshComp;
+
+    UPROPERTY(EditAnywhere, Category="LBlaster|Impact Indicator")
+    TObjectPtr<UStaticMesh> ImpactIndicatorPointSM;
+	
+	// Impact Indicator를 활성화시킬 거리
+	UPROPERTY(EditAnywhere, Category="LBlaster|Impact Indicator")
+	float ImpactIndicationDist;
+
+	void IndicateImpactPoint(const FVector& ImpactNormal);
 
 	/*
 	 *	Sniper Scope
