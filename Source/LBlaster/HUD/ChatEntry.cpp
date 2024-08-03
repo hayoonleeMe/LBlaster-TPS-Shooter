@@ -14,7 +14,7 @@ void UChatEntry::SetChatEntryText(const FChatParams& ChatParams, bool bInFriendl
 
 	const FString ChatTargetPrefix = ChatTextStyle::GetChatTargetPrefix(ChatParams.ChatMode);
 	const FString TextStyle = ChatTextStyle::GetChatTextStyle(ChatParams.ChatMode, bInFriendly);
-	const FString FinalPrefix = FString::Printf(TEXT("<%s>%s %s:</> "), *TextStyle, *ChatTargetPrefix, *ChatParams.SenderPlayerName);
+	const FString FinalPrefix = FString::Printf(TEXT("<%s>%s [%s] </>"), *TextStyle, *ChatTargetPrefix, *ChatParams.SenderPlayerName);
 	
 	const FText FinalText = FText::FromString(FinalPrefix + ChatParams.Content);
 	ChatEntryText->SetText(FinalText);
@@ -29,7 +29,7 @@ void UChatEntry::SetChatEntryTextForSystem(const FChatParams& ChatParams) const
 
 	const FString ChatTargetPrefix = ChatTextStyle::GetChatTargetPrefix(ChatParams.ChatMode);
 	const FString TextStyle = ChatTextStyle::GetChatTextStyle(ChatParams.ChatMode);
-	const FString FinalPrefix = FString::Printf(TEXT("<%s>%s %s</> "), *TextStyle, *ChatTargetPrefix, *ChatParams.SenderPlayerName);
+	const FString FinalPrefix = FString::Printf(TEXT("<%s>%s [%s] </>"), *TextStyle, *ChatTargetPrefix, *ChatParams.SenderPlayerName);
 	
 	const FString SystemInfoTemplate = ChatSystemInfoTemplate::GetChatSystemInfoTemplate(ChatParams.ChatSystemInfoTemplate);
 	const FString FinalTemplate = FString::Printf(TEXT("<%s>%s</>"), *TextStyle, *SystemInfoTemplate);
