@@ -58,6 +58,9 @@ UCombatComponent::UCombatComponent()
 	FireMontages.Emplace(EWeaponType::EWT_SniperRifle, nullptr);
 	FireMontages.Emplace(EWeaponType::EWT_GrenadeLauncher, nullptr);
 
+	/* Impact Indicator */
+	ImpactIndicationDist = 250.f;
+
 	/* Reload */
 	ReloadMontages.Emplace(EWeaponType::EWT_Unarmed, nullptr);
 	ReloadMontages.Emplace(EWeaponType::EWT_Rifle, nullptr);
@@ -588,6 +591,18 @@ void UCombatComponent::TraceUnderCrosshair()
 		}
 		// ImpactPoint Caching
 		TraceHitTarget = TraceHitResult.ImpactPoint;
+
+		if ((TraceHitTarget - TraceStart).SquaredLength() <= ImpactIndicationDist * ImpactIndicationDist)
+		{
+			IndicateImpactPoint(TraceHitResult.ImpactNormal);
+		}
+		else 
+		{
+			if (ImpactIndicatorPointMeshComp)
+			{
+				ImpactIndicatorPointMeshComp->SetVisibility(false);
+			}
+		}
 
 		// 캐릭터 조준 시 크로스 헤어 색상 변경
 		SetHUDCrosshairColor(TraceHitResult.GetActor());
@@ -1158,6 +1173,39 @@ FCrosshairTexture UCombatComponent::GetCrosshairTexture(EWeaponType InWeaponType
 		return ShotgunCrosshair;
 	}
 	return DefaultCrosshair;
+}
+
+void UCombatComponent::IndicateImpactPoint(const FVector& ImpactNormal)
+{
+	// ImpactIndicatorPointMeshComp 초기화
+	if (!ImpactIndicatorPointMeshComp)
+	{
+		ImpactIndicatorPointMeshComp = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass());
+		if (ImpactIndicatorPointMeshComp && ImpactIndicatorPointSM && GetWorld())
+		{
+			ImpactIndicatorPointMeshComp->SetStaticMesh(ImpactIndicatorPointSM);
+			ImpactIndicatorPointMeshComp->SetMobility(EComponentMobility::Movable);
+			ImpactIndicatorPointMeshComp->CreationMethod = EComponentCreationMethod::UserConstructionScript;
+			ImpactIndicatorPointMeshComp->RegisterComponentWithWorld(GetWorld());
+			ImpactIndicatorPointMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			ImpactIndicatorPointMeshComp->SetCastShadow(false);
+		}
+	}
+	
+	// 실제 충돌 지점에 Impact Indicator 배치
+	if (ImpactIndicatorPointMeshComp)
+	{
+		const FVector& Location = TraceHitTarget;
+		const FRotator Rotation = ImpactNormal.Rotation();
+
+		// Adjust the rotation so that the mesh is parallel to the surface
+		const FRotator AdjustedRotation = FRotator(Rotation.Pitch - 90.0f, Rotation.Yaw, Rotation.Roll);
+		const FVector AdjustedLocation = Location + ImpactNormal;
+
+		ImpactIndicatorPointMeshComp->SetWorldLocation(AdjustedLocation);
+		ImpactIndicatorPointMeshComp->SetWorldRotation(AdjustedRotation);
+		ImpactIndicatorPointMeshComp->SetVisibility(true);
+	}
 }
 
 void UCombatComponent::InitSniperScope()

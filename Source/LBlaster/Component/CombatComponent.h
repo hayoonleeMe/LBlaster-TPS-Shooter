@@ -370,6 +370,21 @@ private:
 	FCrosshairTexture GetCrosshairTexture(EWeaponType InWeaponType) const;
 
 	/*
+	 *	Impact Indicator
+	 */
+	UPROPERTY()
+    TObjectPtr<UStaticMeshComponent> ImpactIndicatorPointMeshComp;
+
+    UPROPERTY(EditAnywhere, Category="LBlaster|Impact Indicator")
+    TObjectPtr<UStaticMesh> ImpactIndicatorPointSM;
+	
+	// Impact Indicator를 활성화시킬 거리
+	UPROPERTY(EditAnywhere, Category="LBlaster|Impact Indicator")
+	float ImpactIndicationDist;
+
+	void IndicateImpactPoint(const FVector& ImpactNormal);
+
+	/*
 	 *	Sniper Scope
 	 */
 	void InitSniperScope();
