@@ -93,6 +93,11 @@ public:
 	void SetPlayerNameText(const FString& InPlayerName) const;
 	void MarkPlayerHit(bool bElimination) const;
 
+	/*
+	 *	Hit Direction Indicator
+	 */
+	void IndicateHitDirection(const FVector& InHitNormal);
+
 protected:
 	virtual void PostInitializeComponents() override;
 	virtual void BeginPlay() override;
@@ -128,6 +133,12 @@ private:
 	 */
 	UPROPERTY()
 	TObjectPtr<class USniperScope> SniperScope;
+
+	/*
+	 *	Hit Direction Indicator
+	 */
+	UPROPERTY(EditAnywhere, Category="LBlaster|Hit Direction Indicator")
+	TSubclassOf<class UHitDirectionIndicator> HitDirectionIndicatorClass;
 
 	/*
 	 *	Character Overlay

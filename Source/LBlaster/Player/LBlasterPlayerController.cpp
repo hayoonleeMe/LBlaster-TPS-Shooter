@@ -376,6 +376,14 @@ void ALBlasterPlayerController::HideRespawnTimer()
 	}
 }
 
+void ALBlasterPlayerController::IndicateHitDirection(const FVector& InHitNormal)
+{
+	if (IsValidOwningHUD())
+	{
+		OwningHUD->IndicateHitDirection(InHitNormal);
+	}
+}
+
 void ALBlasterPlayerController::ClientMarkPlayerHit_Implementation(bool bElimination)
 {
 	if (IsValidOwningHUD())

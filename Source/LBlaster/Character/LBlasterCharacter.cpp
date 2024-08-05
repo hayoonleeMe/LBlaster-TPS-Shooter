@@ -834,7 +834,13 @@ void ALBlasterCharacter::SetLastHitNormal(const FVector& InHitNormal)
 	if (!bInvincible)
 	{
 		LastHitNormal = InHitNormal;
-		PlayHitReactMontage(LastHitNormal);	
+		PlayHitReactMontage(LastHitNormal);
+
+		// 공격받은 방향을 알려주는 Hit Direction Indicator
+		if (ALBlasterPlayerController* LBPlayerController = Cast<ALBlasterPlayerController>(Controller))
+		{
+			LBPlayerController->IndicateHitDirection(LastHitNormal);
+		}
 	}
 }
 

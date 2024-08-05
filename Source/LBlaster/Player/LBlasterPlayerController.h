@@ -42,6 +42,7 @@ public:
 	void UpdateHUDGrenadeAmount(int32 InGrenadeAmount);
 	void StartRespawnTimer(float InElimDelay, float InRespawnTimerUpdateFrequency);
 	void HideRespawnTimer();
+	void IndicateHitDirection(const FVector& InHitNormal);
 	
 	UFUNCTION(Client, Reliable)
 	void ClientMarkPlayerHit(bool bElimination);
