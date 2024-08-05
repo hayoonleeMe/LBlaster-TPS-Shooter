@@ -104,6 +104,11 @@ public:
 	FORCEINLINE bool IsDead() const { return bIsDead; }
 
 	/*
+	 *	Impact Indicator
+	 */
+	FORCEINLINE UStaticMeshComponent* GetImpactIndicatorMeshComponent() const { return ImpactIndicatorMeshComponent; }
+	
+	/*
 	 *	Damage Indicator
 	 */
 	void RequestDamageIndication(float InDamage, const FVector& InstigatorLocation) const;
@@ -218,6 +223,12 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category="LBlaster|Combat")
 	TObjectPtr<USplineComponent> GrenadeSplineComponent;
+
+	/*
+	 * Impact Indicator
+	 */
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UStaticMeshComponent> ImpactIndicatorMeshComponent;
 
 	/*
 	 *	Damage Indicator

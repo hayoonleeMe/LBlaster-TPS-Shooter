@@ -332,6 +332,7 @@ private:
 	void TraceUnderCrosshair();
 
 	FVector TraceHitTarget;
+	FVector TraceHitNormal;
 
 	UPROPERTY(EditAnywhere, Category = "LBlaster|Firing")
 	TMap<EWeaponType, UAnimMontage*> FireMontages;
@@ -372,17 +373,12 @@ private:
 	/*
 	 *	Impact Indicator
 	 */
-	UPROPERTY()
-    TObjectPtr<UStaticMeshComponent> ImpactIndicatorPointMeshComp;
-
-    UPROPERTY(EditAnywhere, Category="LBlaster|Impact Indicator")
-    TObjectPtr<UStaticMesh> ImpactIndicatorPointSM;
+	void IndicateImpactPoint();
+	void IndicateImpactPoint(const FVector& ActualImpactPoint, const FVector& ActualImpactNormal);
 	
 	// Impact Indicator를 활성화시킬 거리
 	UPROPERTY(EditAnywhere, Category="LBlaster|Impact Indicator")
 	float ImpactIndicationDist;
-
-	void IndicateImpactPoint(const FVector& ImpactNormal);
 
 	/*
 	 *	Sniper Scope
