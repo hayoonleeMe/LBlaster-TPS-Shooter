@@ -9,6 +9,7 @@
 #include "ChatBox.h"
 #include "Crosshair.h"
 #include "ElimAnnouncement.h"
+#include "HitDirectionIndicator.h"
 #include "VideoSettingMenu.h"
 #include "LBlaster.h"
 #include "MatchTimeTimer.h"
@@ -78,6 +79,18 @@ void ALBlasterHUD::MarkPlayerHit(bool bElimination) const
 	if (Crosshair)
 	{
 		Crosshair->MarkPlayerHit(bElimination);
+	}
+}
+
+void ALBlasterHUD::IndicateHitDirection(const FVector& InHitNormal)
+{
+	if (IsValidOwnerController() && HitDirectionIndicatorClass)
+	{
+		if (UHitDirectionIndicator* HitDirectionIndicator = CreateWidget<UHitDirectionIndicator>(OwnerController, HitDirectionIndicatorClass))
+		{
+			HitDirectionIndicator->SetHitNormal(InHitNormal);
+			HitDirectionIndicator->MenuSetup();
+		}
 	}
 }
 
