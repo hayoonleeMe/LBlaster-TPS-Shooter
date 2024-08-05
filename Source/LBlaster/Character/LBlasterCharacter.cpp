@@ -180,6 +180,14 @@ ALBlasterCharacter::ALBlasterCharacter(const FObjectInitializer& ObjectInitializ
 	GrenadeSplineComponent->SetupAttachment(RootComponent);
 	GrenadeSplineComponent->SetIsReplicated(false);
 
+	/* Impact Indicator */
+	ImpactIndicatorMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Impact Indicator Component"));
+	ImpactIndicatorMeshComponent->SetIsReplicated(false);
+	ImpactIndicatorMeshComponent->SetMobility(EComponentMobility::Movable);
+	ImpactIndicatorMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	ImpactIndicatorMeshComponent->SetCastShadow(false);
+	ImpactIndicatorMeshComponent->SetVisibility(false);
+
 	/* Damage Indicator */
 	DamageIndicatorComponent = CreateDefaultSubobject<UDamageIndicatorComponent>(TEXT("Damage Indicator Component"));
 
