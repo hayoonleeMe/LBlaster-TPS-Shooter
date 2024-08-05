@@ -77,7 +77,7 @@ public:
 	FVector TraceEndWithScatter(const FVector_NetQuantize& TraceStart, const FVector& HitTarget) const;
 	virtual TArray<FVector_NetQuantize> ShotgunTraceEndWithScatter(const FVector_NetQuantize& TraceStart, const FVector& HitTarget) const { return TArray<FVector_NetQuantize>(); }
 	bool GetMuzzleFlashLocationForRep(FVector_NetQuantize& OutMuzzleFlashLocation, FRotator& OutMuzzleFlashRotation) const;
-	bool GetMuzzleFlashLocation(FVector& OutMuzzleFlashLocation) const;
+	bool GetMuzzleFlashLocationAndDirection(FVector& OutMuzzleFlashLocation, FVector& OutMuzzleFlashDirection) const;
 
 	void Holstered();
 	void EnableCustomDepth(bool bEnable) const;

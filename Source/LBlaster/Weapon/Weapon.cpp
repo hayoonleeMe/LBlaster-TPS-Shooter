@@ -224,12 +224,13 @@ bool AWeapon::GetMuzzleFlashLocationForRep(FVector_NetQuantize& OutMuzzleFlashLo
 	return false;
 }
 
-bool AWeapon::GetMuzzleFlashLocation(FVector& OutMuzzleFlashLocation) const
+bool AWeapon::GetMuzzleFlashLocationAndDirection(FVector& OutMuzzleFlashLocation, FVector& OutMuzzleFlashDirection) const
 {
 	if (const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(TEXT("MuzzleFlash")))
 	{
 		const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
 		OutMuzzleFlashLocation = SocketTransform.GetLocation();
+		OutMuzzleFlashDirection = SocketTransform.GetRotation().Vector();
 		return true;
 	}
 	return false;
