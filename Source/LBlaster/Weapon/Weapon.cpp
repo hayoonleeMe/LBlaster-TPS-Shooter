@@ -46,6 +46,10 @@ AWeapon::AWeapon()
 	bUseScatter = true;
 	DistanceToSphere = 910.f;
 
+	/* Spread */
+	CrosshairSpreadRecoverySpeed = 5.f;
+	CrosshairSpreadShootingGain = 0.8f;
+
 	/* Recoil */
 	VerticalRecoilValue = 0.3f;
 
@@ -94,6 +98,14 @@ void AWeapon::PostInitializeComponents()
 	SetActorEnableCollision(false);
 }
 
+void AWeapon::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	// Recovery CrosshairSpreadShootingFactor
+	CrosshairSpreadShootingFactor = FMath::FInterpTo(CrosshairSpreadShootingFactor, 0.f, DeltaSeconds, CrosshairSpreadRecoverySpeed);
+}
+
 void AWeapon::SetHUDAmmo()
 {
 	if (IsValidOwnerCharacter() && bSelected)
@@ -131,6 +143,9 @@ void AWeapon::OnWeaponEquipped(bool bInSelected)
 	// 무기가 장착된 상태라면 Overlapping Event 발생 중지
 	AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	EnableCustomDepth(false);
+
+	// Spread 초기화
+	CrosshairSpreadShootingFactor = 0.f;
 }
 
 void AWeapon::SetWeaponVisibility(bool bInVisible)
@@ -138,9 +153,9 @@ void AWeapon::SetWeaponVisibility(bool bInVisible)
 	SetActorHiddenInGame(!bInVisible);
 }
 
-float AWeapon::GetSphereRadius() const
+float AWeapon::GetMinuteOfAngle() const
 {
-	return MOA * 2.54f;
+	return MinuteOfAngle * 2.54f + CrosshairSpreadShootingFactor;
 }
 
 void AWeapon::SpendRound()
@@ -251,6 +266,9 @@ void AWeapon::Fire(const FVector_NetQuantize& TraceStart, const FRotator& TraceR
 		}
 	}
 
+	// Update CrosshairShootingFactor
+	CrosshairSpreadShootingFactor += CrosshairSpreadShootingGain;
+	
 	SpendRound();
 }
 

@@ -360,7 +360,6 @@ private:
 	
 	float CrosshairInAirFactor;
 	float CrosshairAimFactor;
-	float CrosshairShootingFactor;
 
 	UPROPERTY(EditAnywhere, Category="LBlaster|Crosshair")
 	FCrosshairTexture DefaultCrosshair;

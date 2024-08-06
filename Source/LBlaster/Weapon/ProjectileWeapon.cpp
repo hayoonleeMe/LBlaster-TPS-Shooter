@@ -13,7 +13,7 @@
 AProjectileWeapon::AProjectileWeapon()
 {
 	/* Scatter (Minute of Angle) */
-	MOA = 2.f;
+	MinuteOfAngle = 2.f;
 }
 
 void AProjectileWeapon::Fire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const FVector& HitTarget)

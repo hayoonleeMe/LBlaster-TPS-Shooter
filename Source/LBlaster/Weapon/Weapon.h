@@ -49,6 +49,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void SetOwner(AActor* NewOwner) override;
 	virtual void PostInitializeComponents() override;
+	virtual void Tick(float DeltaSeconds) override;
 	
 	void SetHUDAmmo();
 	void AddAmmo(int32 InAmmoToAdd);
@@ -70,6 +71,7 @@ public:
 	FORCEINLINE float GetDamage() const { return Damage; }
 	FORCEINLINE float GetHeadshotMultiplier() const { return HeadshotMultiplier; }
 	FORCEINLINE float GetVerticalRecoilValue() const { return VerticalRecoilValue; }
+	FORCEINLINE float GetCrosshairSpreadShootingFactor() const { return CrosshairSpreadShootingFactor; }
 
 	virtual void Fire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const FVector& HitTarget);
 	virtual void ShotgunFire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const TArray<FVector_NetQuantize>& HitTargets) {}
@@ -161,12 +163,26 @@ protected:
 
 	// 이 SphereRadius로 정의되는 Sphere의 랜덤한 지점으로 총알이 발사된다. 이 값이 작을수록 맞추기 쉽다. bUseScatter 옵션을 사용해야 적용된다.
 	UPROPERTY(EditAnywhere, Category="LBlaster|Weapon Scatter")
-	float MOA;
+	float MinuteOfAngle;
+	
+	float GetMinuteOfAngle() const;
 	
 	UPROPERTY(EditAnywhere, Category="LBlaster|Weapon Scatter")
 	uint8 bUseScatter : 1;
 
-	float GetSphereRadius() const;
+	/*
+	 *	Crosshair Spread
+	 */
+	// 발사로 인한 크로스헤어 퍼짐에 영향을 끼치는 정도
+	float CrosshairSpreadShootingFactor;
+
+	// 크로스헤어 퍼짐 정도가 회복되는 속도
+	UPROPERTY(EditAnywhere, Category="LBlaster|Crosshair Spread")
+	float CrosshairSpreadRecoverySpeed;
+
+	// 총을 발사할 때 CrosshairSpreadShootingFactor에 더해지는 정도
+	UPROPERTY(EditAnywhere, Category="LBlaster|Crosshair Spread")
+    float CrosshairSpreadShootingGain;
 
 	/*
 	 *	Ammo

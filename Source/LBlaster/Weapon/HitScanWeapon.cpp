@@ -15,7 +15,7 @@
 AHitScanWeapon::AHitScanWeapon()
 {
 	/* Scatter (Minute of Angle) */
-	MOA = 9.f;
+	MinuteOfAngle = 9.f;
 }
 
 void AHitScanWeapon::Fire(const FVector_NetQuantize& TraceStart, const FRotator& TraceRotation, const FVector& HitTarget)
