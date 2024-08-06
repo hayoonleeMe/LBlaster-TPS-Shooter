@@ -23,13 +23,17 @@ ULBlasterCameraComponent::ULBlasterCameraComponent(const FObjectInitializer& Obj
 	CameraMode = BaseMode;
 
 	/* Prevent Penetration */
-	PenetrationAvoidanceFeelers.Add(FPenetrationAvoidanceFeeler(FRotator(+00.0f, +00.0f, 0.0f),  00.f));
-	PenetrationAvoidanceFeelers.Add(FPenetrationAvoidanceFeeler(FRotator(+00.0f, +16.0f, 0.0f),  00.f));
-	PenetrationAvoidanceFeelers.Add(FPenetrationAvoidanceFeeler(FRotator(+00.0f, -16.0f, 0.0f),  00.f));
-	PenetrationAvoidanceFeelers.Add(FPenetrationAvoidanceFeeler(FRotator(+00.0f, +32.0f, 0.0f),  00.f));
-	PenetrationAvoidanceFeelers.Add(FPenetrationAvoidanceFeeler(FRotator(+00.0f, -32.0f, 0.0f),  00.f));
-	PenetrationAvoidanceFeelers.Add(FPenetrationAvoidanceFeeler(FRotator(+20.0f, +00.0f, 0.0f),  00.f));
-	PenetrationAvoidanceFeelers.Add(FPenetrationAvoidanceFeeler(FRotator(-20.0f, +00.0f, 0.0f),  00.f));
+	PenetrationBlendInTime = 0.1f;
+	PenetrationBlendOutTime = 0.15f;
+	CollisionPushOutDistance = 2.f;
+	
+	PenetrationAvoidanceFeelers.Add(FPenetrationAvoidanceFeeler(FRotator(0.f, 0.f, 0.f), 0.5f, 1.f, 5.f, 0));
+	PenetrationAvoidanceFeelers.Add(FPenetrationAvoidanceFeeler(FRotator(0.f, 0.f, 5.f), 0.2f, 0.75f, 0.f, 3));
+	PenetrationAvoidanceFeelers.Add(FPenetrationAvoidanceFeeler(FRotator(0.f, 0.f, -5.f), 0.2f, 0.75f, 0.f, 3));
+	PenetrationAvoidanceFeelers.Add(FPenetrationAvoidanceFeeler(FRotator(0.f, 0.f, 5.f), 0.15f, 0.5f, 0.f, 5));
+	PenetrationAvoidanceFeelers.Add(FPenetrationAvoidanceFeeler(FRotator(0.f, 0.f, -5.f), 0.15f, 0.5f, 0.f, 5));
+	PenetrationAvoidanceFeelers.Add(FPenetrationAvoidanceFeeler(FRotator(0.f, 15.f, 0.f), 0.5f, 1.f, 0.f, 4));
+	PenetrationAvoidanceFeelers.Add(FPenetrationAvoidanceFeeler(FRotator(0.f, -10.f, 0.f), 0.5f, 0.5f, 0.f, 4));
 }
 
 void ULBlasterCameraComponent::GetCameraView(float DeltaTime, FMinimalViewInfo& DesiredView)
@@ -134,7 +138,7 @@ void ULBlasterCameraComponent::UpdateView(float DeltaTime, FCameraView& OutView)
 	OutView.ControlRotation = OutView.Rotation;
 	OutView.FieldOfView = CameraMode.FieldOfView;
 
-	UpdatePreventPenetration(OutView);
+	UpdatePreventPenetration(DeltaTime, OutView);
 }
 
 void ULBlasterCameraComponent::SetBlendWeight(float Weight)
@@ -166,15 +170,14 @@ void ULBlasterCameraComponent::UpdateBlending(float DeltaTime)
 	BlendWeight = FMath::InterpEaseOut(0.f, 1.f, BlendAlpha, Exponent);
 }
 
-void ULBlasterCameraComponent::UpdatePreventPenetration(FCameraView& OutView)
+void ULBlasterCameraComponent::UpdatePreventPenetration(float DeltaTime, FCameraView& OutView)
 {
 	if (const AActor* PPActor = OwnerCharacter)
 	{
 		if (const UPrimitiveComponent* PPActorRootComponent = Cast<UPrimitiveComponent>(PPActor->GetRootComponent()))
 		{
-			// 자동으로 SafeLocation을 선택하려는 시도입니다. 이를 통해 조준 시 카메라의 이동을 줄일 수 있습니다.
-			// 우리의 카메라는 조준점이므로, 조준을 가능한 한 부드럽고 안정적으로 유지하고 싶습니다.
-			// 캡슐에서 조준 라인에 가장 가까운 지점을 선택합니다.
+			// 자동으로 SafeLocation을 선택해 카메라 이동을 최소화하려는 시도입니다.
+			// 조준 라인에 가장 가까운 지점을 선택합니다.
 			FVector ClosestPointOnLineToCapsuleCenter;
 			FVector SafeLocation = PPActor->GetActorLocation();
 			FMath::PointDistToLine(SafeLocation, OutView.Rotation.Vector(), OutView.Location, ClosestPointOnLineToCapsuleCenter);
@@ -184,65 +187,135 @@ void ULBlasterCameraComponent::UpdatePreventPenetration(FCameraView& OutView)
 			const float MaxHalfHeight = PPActor->GetSimpleCollisionHalfHeight() - PushInDistance;
 			SafeLocation.Z = FMath::Clamp(ClosestPointOnLineToCapsuleCenter.Z, SafeLocation.Z - MaxHalfHeight, SafeLocation.Z + MaxHalfHeight);
 
+			// 초기에 카메라가 캐릭터 캡슐에 침투하는 것을 방지하기 위해 SafeLocation을 캡슐 내부로 밀어 넣습니다.	
 			float DistanceSqr;
 			PPActorRootComponent->GetSquaredDistanceToCollision(ClosestPointOnLineToCapsuleCenter, DistanceSqr, SafeLocation);
-			// 라인 검사를 수행할 때 초기 침투를 방지하기 위해 캡슐 내부로 밀어 넣습니다.	
-			SafeLocation += (SafeLocation - ClosestPointOnLineToCapsuleCenter).GetSafeNormal() * CollisionPushOutDistance;
-			// 바라보는 방향 반대로 이동. 즉, 카메라를 좀 더 뒤로 이동.
-			SafeLocation += PPActor->GetActorForwardVector() * -CollisionPushOutDistance;
+			SafeLocation += (SafeLocation - ClosestPointOnLineToCapsuleCenter).GetSafeNormal() * PushInDistance;
 			
-			PreventCameraPenetration(PPActor, SafeLocation, OutView.Location);
+			PreventCameraPenetration(PPActor, SafeLocation, OutView.Location, DeltaTime);
 		}
 	}
 }
 
-void ULBlasterCameraComponent::PreventCameraPenetration(const AActor* PPActor, FVector& SafeLocation, FVector& CameraLocation)
+void ULBlasterCameraComponent::	PreventCameraPenetration(const AActor* ViewTarget, FVector& SafeLocation, FVector& CameraLocation, float DeltaTime)
 {
-	if (PPActor)
-	{
-		FVector BaseRay = CameraLocation - SafeLocation;
-		FRotationMatrix BaseRayMatrix(BaseRay.Rotation());
-		FVector BaseRayLocalUp, BaseRayLocalFwd, BaseRayLocalRight;
-	
-		BaseRayMatrix.GetScaledAxes(BaseRayLocalFwd, BaseRayLocalRight, BaseRayLocalUp);
-		float DistBlockedPctThisFrame = 1.f;
-	
-		FCollisionQueryParams SphereParams;
-		SphereParams.AddIgnoredActor(PPActor);
+	float HardBlockedPct = DistBlockedPct;
+	float SoftBlockedPct = DistBlockedPct;
 
-		for (const FPenetrationAvoidanceFeeler& Feeler : PenetrationAvoidanceFeelers)
+	// 현재 카메라 위치와 SafeLocation 사이의 기본 Ray
+	FVector BaseRay = CameraLocation - SafeLocation;
+	FRotationMatrix BaseRayMatrix(BaseRay.Rotation());
+	FVector BaseRayLocalUp, BaseRayLocalFwd, BaseRayLocalRight;
+	BaseRayMatrix.GetScaledAxes(BaseRayLocalFwd, BaseRayLocalRight, BaseRayLocalUp);
+
+	// 현재 프레임에서 차단된 비율
+	float DistBlockedPctThisFrame = 1.f;
+	
+	FCollisionQueryParams SphereParams;
+	SphereParams.AddIgnoredActor(ViewTarget);
+	
+	FCollisionShape SphereShape = FCollisionShape::MakeSphere(0.f);
+
+	// 각 Feeler에 대해 충돌을 감지
+	for (int32 RayIdx = 0; RayIdx < PenetrationAvoidanceFeelers.Num(); ++RayIdx)
+	{
+		FPenetrationAvoidanceFeeler& Feeler = PenetrationAvoidanceFeelers[RayIdx];
+
+		if (Feeler.FramesUntilNextTrace <= 0)
 		{
+			// Feeler의 회전 값으로 Ray 회전
 			FVector RotatedRay = BaseRay.RotateAngleAxis(Feeler.AdjustmentRot.Yaw, BaseRayLocalUp);
 			RotatedRay = RotatedRay.RotateAngleAxis(Feeler.AdjustmentRot.Pitch, BaseRayLocalRight);
 			FVector RayTarget = SafeLocation + RotatedRay;
 
+			// Trace에 사용할 Sphere Radius 설정
+			SphereShape.Sphere.Radius = Feeler.Extent;
+			ECollisionChannel TraceChannel = ECC_Camera;
+
+			// SafeLocation에서 Ray를 따라 Sphere로 Trace 
 			FHitResult Hit;
-			if (GetWorld()->SweepSingleByChannel(Hit, SafeLocation, RayTarget, FQuat::Identity, ECC_Camera, FCollisionShape::MakeSphere(Feeler.Extent), SphereParams))
+			const bool bHit = GetWorld()->SweepSingleByChannel(Hit, SafeLocation, RayTarget, FQuat::Identity, TraceChannel, SphereShape, SphereParams);
+			const AActor* HitActor = Hit.GetActor();
+
+			// 해당 Feeler의 다음 Trace까지의 프레임 수 설정.
+			// 현재 Trace에서 충돌이 감지되지 않으면 FramesUntilNextTrace만큼의 프레임이 지나야 다시 Trace 수행 가능
+			Feeler.FramesUntilNextTrace = Feeler.TraceInterval;
+
+			// 충돌 발생
+			if (bHit && HitActor)
 			{
-				float NewBlockPct = ((Hit.Location - SafeLocation).Size() - CollisionPushOutDistance) / (RayTarget - SafeLocation).Size();
+				float const Weight = Cast<APawn>(Hit.GetActor()) ? Feeler.PawnWeight : Feeler.WorldWeight;
+				float NewBlockPct = Hit.Time;
+				NewBlockPct += (1.f - NewBlockPct) * (1.f - Weight);
+
+				// CollisionPushOutDistance를 고려하여 차단 비율을 재계산
+				// 차단 비율은 0에 가까울수록 SafeLocation에 가까움
+				NewBlockPct = ((Hit.Location - SafeLocation).Size() - CollisionPushOutDistance) / (RayTarget - SafeLocation).Size();
 				DistBlockedPctThisFrame = FMath::Min(NewBlockPct, DistBlockedPctThisFrame);
+
+				// 충돌이 발생했으므로 다음 프레임에서 다시 추적
+				Feeler.FramesUntilNextTrace = 0;
+			}
+
+			// 기존 카메라 위치로 향하는 Ray는 Interpolation X
+			if (RayIdx == 0)
+			{
+				HardBlockedPct = DistBlockedPctThisFrame;
+			}
+			else
+			{
+				SoftBlockedPct = DistBlockedPctThisFrame;
 			}
 		}
+		else
+		{
+			--Feeler.FramesUntilNextTrace;
+		}
+	}
 
-		DistBlockedPctThisFrame = FMath::Clamp(DistBlockedPctThisFrame, 0.f, 1.f);
-		// 카메라와 벽이 더 가까워질 때
-		if (DistBlockedPctThisFrame < PrevDistBlockedPct)
+	// 현재 프레임에서의 차단 비율이 더 큼 => 카메라가 SafeLocation 쪽으로 더 많이 침투한 상태 => 현재 차단 비율을 현재 프레임에서의 차단 비율이 되도록 설정해줌
+	if (DistBlockedPct < DistBlockedPctThisFrame)
+	{
+		// 현재 프레임에서의 차단 비율까지 부드럽게 보간해 설정해줌.
+		if (PenetrationBlendOutTime > DeltaTime)
 		{
-			SetBlendWeight(DistBlockedPctThisFrame);
+			DistBlockedPct = DistBlockedPct + DeltaTime / PenetrationBlendOutTime * (DistBlockedPctThisFrame - DistBlockedPct);
 		}
-		// 카메라가 벽에 근접해있다가 벗어날 때
-		else if (DistBlockedPctThisFrame - PrevDistBlockedPct >= 0.5f)
+		// 현재 차단 비율을 바로 현재 프레임에서의 차단 비율로 설정.
+		else
 		{
-			SetBlendWeight(PrevDistBlockedPct);
+			DistBlockedPct = DistBlockedPctThisFrame;
 		}
-		// 카메라가 벽과 아주 가까우면(ex.오른쪽이 벽에 닿음) 카메라를 좀 올림.
-		if (DistBlockedPctThisFrame < 0.4f)
+	}
+	// 현재 차단 비율이 더 큼 => 카메라가 SafeLocation 쪽으로 덜 침투한 상태
+	else
+	{
+		// 현재 차단 비율이 Base Ray에 의한 차단 비율보다 작다면 => 카메라가 더 뒤에 있음 => 바로 설정.
+		if (DistBlockedPct > HardBlockedPct)
 		{
-			SafeLocation.Z += CollisionPushOutDistance;
+			DistBlockedPct = HardBlockedPct;
 		}
-		
-		PrevDistBlockedPct = DistBlockedPctThisFrame;
-		CameraLocation = SafeLocation + (CameraLocation - SafeLocation) * DistBlockedPctThisFrame;
+		// SoftBlockedPct는 Base Ray를 제외한 Feeler에서의 Trace에 의한 현재 프레임에서의 차단 비율
+		else if (DistBlockedPct > SoftBlockedPct)
+		{
+			// 현재 차단 비율을 현재 프레임에서의 차단 비율로 보간해 부드럽게 설정
+			if (PenetrationBlendInTime > DeltaTime)
+			{
+				DistBlockedPct = DistBlockedPct - DeltaTime / PenetrationBlendInTime * (DistBlockedPct - SoftBlockedPct);
+			}
+			// 현재 차단 비율을 바로 현재 프레임에서의 차단 비율로 설정.
+			else
+			{
+				DistBlockedPct = SoftBlockedPct;
+			}
+		}
+	}
+
+	// 카메라가 SafeLocation 쪽으로 보간되고 있으면 보간된 위치로 설정
+	DistBlockedPct = FMath::Clamp<float>(DistBlockedPct, 0.f, 1.f);
+	if (DistBlockedPct < (1.f - ZERO_ANIMWEIGHT_THRESH))
+	{
+		CameraLocation = SafeLocation + (CameraLocation - SafeLocation) * DistBlockedPct;
 	}
 }
 
