@@ -155,6 +155,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category="LBlaster|Recoil")
 	float VerticalRecoilValue;
 
+	UPROPERTY(EditAnywhere, Category="LBlaster|Recoil")
+	float SpreadRecoilFactor;
+
 	/*
 	 *	Scatter (Minute of Angle)
 	 */

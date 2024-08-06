@@ -674,7 +674,6 @@ void UCombatComponent::UpdateHUDCrosshair(float DeltaTime)
 		if (GetEquippingWeapon())
 		{
 			CrosshairSpread += GetEquippingWeapon()->GetCrosshairSpreadShootingFactor();
-
 		}
 	}
 	HUD->UpdateCrosshair(CrosshairSpread, CrosshairColor);

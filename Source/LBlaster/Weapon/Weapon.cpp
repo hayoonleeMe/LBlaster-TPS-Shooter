@@ -52,6 +52,7 @@ AWeapon::AWeapon()
 
 	/* Recoil */
 	VerticalRecoilValue = 0.3f;
+	SpreadRecoilFactor = 1.f;
 
 	/* Damage */
 	Damage = 20.f;
@@ -155,7 +156,7 @@ void AWeapon::SetWeaponVisibility(bool bInVisible)
 
 float AWeapon::GetMinuteOfAngle() const
 {
-	return MinuteOfAngle * 2.54f + CrosshairSpreadShootingFactor;
+	return MinuteOfAngle * 2.54f + CrosshairSpreadShootingFactor * SpreadRecoilFactor;
 }
 
 void AWeapon::SpendRound()
@@ -276,11 +277,11 @@ FVector AWeapon::TraceEndWithScatter(const FVector_NetQuantize& TraceStart, cons
 {
 	const FVector ToTargetNormalized = (HitTarget - TraceStart).GetSafeNormal();
 	const FVector SphereCenter = TraceStart + ToTargetNormalized * DistanceToSphere;
-	const FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, GetSphereRadius());
+	const FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, GetMinuteOfAngle());
 	const FVector EndLoc = SphereCenter + RandVec;
-	const FVector ToEndLoc = EndLoc - TraceStart;
-
-	return TraceStart + ToEndLoc / ToEndLoc.Size() * TRACE_LENGTH;
+	const FVector ToEndLoc = (EndLoc - TraceStart).GetSafeNormal();
+	
+	return TraceStart + ToEndLoc * TRACE_LENGTH;
 }
 
 void AWeapon::Holstered()
