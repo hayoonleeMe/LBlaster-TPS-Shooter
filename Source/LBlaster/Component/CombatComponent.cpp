@@ -669,9 +669,12 @@ void UCombatComponent::UpdateHUDCrosshair(float DeltaTime)
 			CrosshairAimFactor = FMath::FInterpTo(CrosshairAimFactor, 0.f, DeltaTime, 30.f);
 		}
 
-		CrosshairShootingFactor = FMath::FInterpTo(CrosshairShootingFactor, 0.f, DeltaTime, 30.f);
+		CrosshairSpread = 0.5f + CrosshairSpreadVelocityFactor + CrosshairInAirFactor - CrosshairAimFactor;
 
-		CrosshairSpread = 0.5f + CrosshairSpreadVelocityFactor + CrosshairInAirFactor - CrosshairAimFactor + CrosshairShootingFactor;
+		if (GetEquippingWeapon())
+		{
+			CrosshairSpread += GetEquippingWeapon()->GetCrosshairSpreadShootingFactor();
+		}
 	}
 	HUD->UpdateCrosshair(CrosshairSpread, CrosshairColor);
 }
@@ -1444,11 +1447,12 @@ void UCombatComponent::Fire()
 			ServerFire(MuzzleFlashLocation, MuzzleFlashRotation, TraceHitTarget, OwnerCharacter->IsServerSideRewindEnabled());
 		}
 		
-		CrosshairShootingFactor = 0.75f;
 		StartFireTimer();
 
 		// 수직 반동
 		OwnerCharacter->AddControllerPitchInput(GetEquippingWeapon()->GetVerticalRecoilValue());
+		// 수평 반동
+		OwnerCharacter->AddControllerYawInput(FMath::RandRange(-1.f, 1.f) * FMath::Clamp(GetEquippingWeapon()->GetCrosshairSpreadShootingFactor(), 0.f, 0.7f));
 	}
 	else if (CanReloadOnFire())
 	{

@@ -46,8 +46,13 @@ AWeapon::AWeapon()
 	bUseScatter = true;
 	DistanceToSphere = 910.f;
 
+	/* Spread */
+	CrosshairSpreadRecoverySpeed = 5.f;
+	CrosshairSpreadShootingGain = 0.8f;
+
 	/* Recoil */
 	VerticalRecoilValue = 0.3f;
+	SpreadRecoilFactor = 1.f;
 
 	/* Damage */
 	Damage = 20.f;
@@ -94,6 +99,14 @@ void AWeapon::PostInitializeComponents()
 	SetActorEnableCollision(false);
 }
 
+void AWeapon::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	// Recovery CrosshairSpreadShootingFactor
+	CrosshairSpreadShootingFactor = FMath::FInterpTo(CrosshairSpreadShootingFactor, 0.f, DeltaSeconds, CrosshairSpreadRecoverySpeed);
+}
+
 void AWeapon::SetHUDAmmo()
 {
 	if (IsValidOwnerCharacter() && bSelected)
@@ -131,6 +144,9 @@ void AWeapon::OnWeaponEquipped(bool bInSelected)
 	// 무기가 장착된 상태라면 Overlapping Event 발생 중지
 	AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	EnableCustomDepth(false);
+
+	// Spread 초기화
+	CrosshairSpreadShootingFactor = 0.f;
 }
 
 void AWeapon::SetWeaponVisibility(bool bInVisible)
@@ -138,9 +154,9 @@ void AWeapon::SetWeaponVisibility(bool bInVisible)
 	SetActorHiddenInGame(!bInVisible);
 }
 
-float AWeapon::GetSphereRadius() const
+float AWeapon::GetMinuteOfAngle() const
 {
-	return MOA * 2.54f;
+	return MinuteOfAngle * 2.54f + CrosshairSpreadShootingFactor * SpreadRecoilFactor;
 }
 
 void AWeapon::SpendRound()
@@ -251,6 +267,9 @@ void AWeapon::Fire(const FVector_NetQuantize& TraceStart, const FRotator& TraceR
 		}
 	}
 
+	// Update CrosshairShootingFactor
+	CrosshairSpreadShootingFactor += CrosshairSpreadShootingGain;
+	
 	SpendRound();
 }
 
@@ -258,11 +277,11 @@ FVector AWeapon::TraceEndWithScatter(const FVector_NetQuantize& TraceStart, cons
 {
 	const FVector ToTargetNormalized = (HitTarget - TraceStart).GetSafeNormal();
 	const FVector SphereCenter = TraceStart + ToTargetNormalized * DistanceToSphere;
-	const FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, GetSphereRadius());
+	const FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, GetMinuteOfAngle());
 	const FVector EndLoc = SphereCenter + RandVec;
-	const FVector ToEndLoc = EndLoc - TraceStart;
-
-	return TraceStart + ToEndLoc / ToEndLoc.Size() * TRACE_LENGTH;
+	const FVector ToEndLoc = (EndLoc - TraceStart).GetSafeNormal();
+	
+	return TraceStart + ToEndLoc * TRACE_LENGTH;
 }
 
 void AWeapon::Holstered()
