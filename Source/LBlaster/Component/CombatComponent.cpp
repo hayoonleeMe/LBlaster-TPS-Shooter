@@ -1451,6 +1451,8 @@ void UCombatComponent::Fire()
 
 		// 수직 반동
 		OwnerCharacter->AddControllerPitchInput(GetEquippingWeapon()->GetVerticalRecoilValue());
+		// 수평 반동
+		OwnerCharacter->AddControllerYawInput(FMath::RandRange(-1.f, 1.f) * FMath::Clamp(GetEquippingWeapon()->GetCrosshairSpreadShootingFactor(), 0.f, 0.7f));
 	}
 	else if (CanReloadOnFire())
 	{
