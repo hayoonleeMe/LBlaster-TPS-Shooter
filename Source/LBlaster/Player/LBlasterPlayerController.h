@@ -28,8 +28,6 @@ public:
 	virtual void Destroyed() override;
 
 	void SetHUDHealth(float Health, float MaxHealth);
-	void SetHUDKillScore(int32 InKillScore);
-	void SetHUDDeath(int32 InDeath);
 	void SetHUDAmmo(int32 InAmmo);
 	void SetHUDCarriedAmmo(int32 InCarriedAmmo);
 	void SetHUDWeaponTypeText(const FString& InWeaponTypeString = FString());

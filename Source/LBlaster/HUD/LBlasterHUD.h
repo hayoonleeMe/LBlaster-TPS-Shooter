@@ -25,8 +25,6 @@ public:
 	virtual void DrawHUD() override;
 	
 	void SetHUDHealth(float InHealth, float InMaxHealth);
-	void SetHUDKillScore(int32 InKillScore);
-	void SetHUDDeath(int32 InDeath);
 	void SetHUDAmmo(int32 InAmmo);
 	void SetHUDCarriedAmmo(int32 InCarriedAmmo);
 	void SetHUDWeaponTypeText(const FString& InWeaponTypeString);

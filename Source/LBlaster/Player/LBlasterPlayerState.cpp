@@ -39,11 +39,6 @@ void ALBlasterPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 
 void ALBlasterPlayerState::OnRep_Death()
 {
-	if (IsValidOwnerCharacter() && IsValidOwnerController())
-	{
-		OwnerController->SetHUDDeath(Death);
-	}
-
 	if (GetWorld())
 	{
 		if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
@@ -64,21 +59,11 @@ void ALBlasterPlayerState::ServerSetTeam_Implementation(ETeam InTeam)
 void ALBlasterPlayerState::AddToDeath(int32 InDeathAmount)
 {
 	Death += InDeathAmount;
-
-	if (IsValidOwnerCharacter() && IsValidOwnerController())
-	{
-		OwnerController->SetHUDDeath(Death);
-	}
 }
 
 void ALBlasterPlayerState::AddToKillScore(int32 InKillScoreAmount)
 {
 	SetKillScore(GetKillScore() + InKillScoreAmount);
-
-	if (IsValidOwnerCharacter() && IsValidOwnerController())
-	{
-		OwnerController->SetHUDKillScore(GetKillScore());
-	}
 }
 
 void ALBlasterPlayerState::InitTeam()
@@ -207,11 +192,6 @@ bool ALBlasterPlayerState::IsValidOwnerController()
 
 void ALBlasterPlayerState::OnRep_KillScore()
 {
-	if (IsValidOwnerCharacter() && IsValidOwnerController())
-	{
-		OwnerController->SetHUDKillScore(GetKillScore());
-	}
-
 	if (GetWorld())
 	{
 		if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())

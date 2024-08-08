@@ -103,22 +103,6 @@ void ALBlasterHUD::SetHUDHealth(float InHealth, float InMaxHealth)
 	}
 }
 
-void ALBlasterHUD::SetHUDKillScore(int32 InKillScore)
-{
-	if (CharacterOverlay)
-	{
-		CharacterOverlay->SetKillScoreAmount(InKillScore);
-	}
-}
-
-void ALBlasterHUD::SetHUDDeath(int32 InDeath)
-{
-	if (CharacterOverlay)
-	{
-		CharacterOverlay->SetDeathAmount(InDeath);
-	}
-}
-
 void ALBlasterHUD::SetHUDAmmo(int32 InAmmo)
 {
 	if (CharacterOverlay)
@@ -173,8 +157,6 @@ void ALBlasterHUD::AddCharacterOverlay()
 			CharacterOverlay = CreateWidget<UCharacterOverlay>(OwnerController, CharacterOverlayClass);
 			CharacterOverlay->AddToViewport();
 
-			SetHUDKillScore(0);
-			SetHUDDeath(0);
 			SetHUDAmmo(0);
 			SetHUDCarriedAmmo(0);
 			SetHUDWeaponTypeText(FString());

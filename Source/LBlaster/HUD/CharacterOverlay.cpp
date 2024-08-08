@@ -32,16 +32,6 @@ void UCharacterOverlay::SetHealthText(float InHealth, float InMaxHealth)
 	HealthText->SetText(FText::FromString(HealthString));
 }
 
-void UCharacterOverlay::SetKillScoreAmount(int32 InKillScore)
-{
-	KillScoreAmount->SetText(FText::AsNumber(InKillScore));
-}
-
-void UCharacterOverlay::SetDeathAmount(int32 InDeath)
-{
-	DeathAmount->SetText(FText::AsNumber(InDeath));
-}
-
 void UCharacterOverlay::SetAmmoAmount(int32 InAmmo)
 {
 	AmmoAmount->SetText(FText::AsNumber(InAmmo));
