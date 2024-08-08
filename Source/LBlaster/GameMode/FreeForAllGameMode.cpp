@@ -25,12 +25,31 @@ void AFreeForAllGameMode::PostLogin(APlayerController* NewPlayer)
 	Super::PostLogin(NewPlayer);
 
 	RestartPlayerAtPlayerStart(NewPlayer, FindPlayerStart(NewPlayer));
+
+	if (GetWorld())
+	{
+		if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+		{
+			if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
+			{
+				HUD->UpdateScoreboard();
+			}
+		}
+	}
 }
 
 void AFreeForAllGameMode::Logout(AController* Exiting)
 {
 	Super::Logout(Exiting);
 
+	if (Exiting && Exiting->GetPlayerState<APlayerState>())
+	{
+		if (AFreeForAllGameState* FFAGameState = GetGameState<AFreeForAllGameState>())
+		{
+			FFAGameState->RemoveAllPlayerStateByName(Exiting->GetPlayerState<APlayerState>());
+		}
+	}
+	
 	if (GetWorld())
 	{
 		if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())

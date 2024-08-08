@@ -18,6 +18,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void AddPlayerState(APlayerState* PlayerState) override;
 	virtual void RemovePlayerState(APlayerState* PlayerState) override;
+	void RemoveAllPlayerStateByName(APlayerState* PlayerState);
 
 	void IncreaseTotalScore();
 	void SetTotalScore(const int32 InScore, bool bUpdateHUD);

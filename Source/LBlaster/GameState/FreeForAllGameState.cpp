@@ -27,17 +27,6 @@ void AFreeForAllGameState::AddPlayerState(APlayerState* PlayerState)
 			LBPlayerArray.AddUnique(LBPlayerState);
 		}	
 	}
-	
-	if (GetWorld())
-	{
-		if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
-		{
-			if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
-			{
-				HUD->UpdateScoreboard();
-			}
-		}
-	}
 }
 
 void AFreeForAllGameState::RemovePlayerState(APlayerState* PlayerState)
@@ -45,7 +34,7 @@ void AFreeForAllGameState::RemovePlayerState(APlayerState* PlayerState)
 	Super::RemovePlayerState(PlayerState);
 
 	if (ALBlasterPlayerState* LBPlayerState = Cast<ALBlasterPlayerState>(PlayerState))
-	{
+	{	
 		for (int32 Index = 0; Index < LBPlayerArray.Num(); Index++)
 		{
 			if (LBPlayerArray[Index] == LBPlayerState)
@@ -63,6 +52,20 @@ void AFreeForAllGameState::RemovePlayerState(APlayerState* PlayerState)
 			if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
 			{
 				HUD->UpdateScoreboard();
+			}
+		}
+	}	
+}
+
+void AFreeForAllGameState::RemoveAllPlayerStateByName(APlayerState* PlayerState)
+{
+	for (int32 Index = 0; Index < LBPlayerArray.Num(); Index++)
+	{
+		if (LBPlayerArray[Index] && PlayerState)
+		{
+			if (LBPlayerArray[Index] == PlayerState || LBPlayerArray[Index]->GetPlayerName() == PlayerState->GetPlayerName())
+			{
+				LBPlayerArray.RemoveAt(Index, 1);
 			}
 		}
 	}	
