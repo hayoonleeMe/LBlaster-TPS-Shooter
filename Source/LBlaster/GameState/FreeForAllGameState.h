@@ -26,8 +26,11 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastInitTotalScore();
 
-	UPROPERTY(Transient)
+	UPROPERTY(Transient, ReplicatedUsing=OnRep_LBPlayerArray)
 	TArray<TObjectPtr<class ALBlasterPlayerState>> LBPlayerArray;
+
+	UFUNCTION()
+	void OnRep_LBPlayerArray();
 	
 	void SortPlayersByKda();
 
@@ -40,4 +43,6 @@ private:
 
 	UFUNCTION()
 	void OnRep_TotalScore();
+
+	void UpdateScoreboard() const;
 };

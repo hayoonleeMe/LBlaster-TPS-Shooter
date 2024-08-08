@@ -13,12 +13,18 @@ void AFreeForAllGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AFreeForAllGameState, TotalScore);
+	DOREPLIFETIME(AFreeForAllGameState, LBPlayerArray);
 }
 
 void AFreeForAllGameState::AddPlayerState(APlayerState* PlayerState)
 {
 	Super::AddPlayerState(PlayerState);
 
+	if (!HasAuthority())
+	{
+		return;
+	}
+		
 	if (ALBlasterPlayerState* LBPlayerState = Cast<ALBlasterPlayerState>(PlayerState))
 	{
 		if (!LBPlayerState->IsInactive())
@@ -27,12 +33,19 @@ void AFreeForAllGameState::AddPlayerState(APlayerState* PlayerState)
 			LBPlayerArray.AddUnique(LBPlayerState);
 		}	
 	}
+
+	UpdateScoreboard();
 }
 
 void AFreeForAllGameState::RemovePlayerState(APlayerState* PlayerState)
 {
 	Super::RemovePlayerState(PlayerState);
 
+	if (!HasAuthority())
+	{
+		return;
+	}
+	
 	if (ALBlasterPlayerState* LBPlayerState = Cast<ALBlasterPlayerState>(PlayerState))
 	{	
 		for (int32 Index = 0; Index < LBPlayerArray.Num(); Index++)
@@ -45,16 +58,7 @@ void AFreeForAllGameState::RemovePlayerState(APlayerState* PlayerState)
 		}	
 	}
 
-	if (GetWorld())
-	{
-		if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
-		{
-			if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
-			{
-				HUD->UpdateScoreboard();
-			}
-		}
-	}	
+	UpdateScoreboard();
 }
 
 void AFreeForAllGameState::RemoveAllPlayerStateByName(APlayerState* PlayerState)
@@ -104,6 +108,11 @@ void AFreeForAllGameState::MulticastInitTotalScore_Implementation()
 	SetTotalScore(0, true);
 }
 
+void AFreeForAllGameState::OnRep_LBPlayerArray()
+{
+	UpdateScoreboard();
+}
+
 void AFreeForAllGameState::SortPlayersByKda()
 {
 	// KDA를 기준으로 내림차순 정렬
@@ -144,6 +153,20 @@ void AFreeForAllGameState::OnRep_TotalScore()
 			if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
 			{
 				HUD->UpdateTotalScoreMiniScoreboard(TotalScore);
+			}
+		}
+	}
+}
+
+void AFreeForAllGameState::UpdateScoreboard() const
+{
+	if (GetWorld())
+	{
+		if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+		{
+			if (ALBlasterHUD* HUD = PlayerController->GetHUD<ALBlasterHUD>())
+			{
+				HUD->UpdateScoreboard();
 			}
 		}
 	}
