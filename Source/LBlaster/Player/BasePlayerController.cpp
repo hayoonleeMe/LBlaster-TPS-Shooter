@@ -27,11 +27,6 @@ void ABasePlayerController::ServerSendChatText_Implementation(const FChatParams&
 	}
 }
 
-void ABasePlayerController::BroadcastChatText(const FChatParams& ChatParams)
-{
-	ClientAddChatText(ChatParams);
-}
-
 void ABasePlayerController::ClientAddChatText_Implementation(const FChatParams& ChatParams)
 {
 	if (ABaseHUD* BaseHUD = Cast<ABaseHUD>(GetHUD()))

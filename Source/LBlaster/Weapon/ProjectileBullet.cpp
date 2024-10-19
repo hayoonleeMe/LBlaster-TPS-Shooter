@@ -77,7 +77,7 @@ void AProjectileBullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 		}
 	}
 	
-	Super::OnHit(HitComp, OtherActor, OtherComp, NormalImpulse, Hit);
+	Destroy();
 }
 
 void AProjectileBullet::BeginPlay()

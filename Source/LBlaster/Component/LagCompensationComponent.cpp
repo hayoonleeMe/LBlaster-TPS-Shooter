@@ -42,6 +42,7 @@ FServerSideRewindResult ULagCompensationComponent::ServerSideRewind(ALBlasterCha
 	// FrameToCheck Confirm Hit
 	return ConfirmHit(FrameToCheck, HitCharacter, TraceStart, HitLocation);
 }
+
 FShotgunServerSideRewindResult ULagCompensationComponent::ShotgunServerSideRewind(const TArray<ALBlasterCharacter*>& HitCharacters,
 	const FVector_NetQuantize& TraceStart, const TArray<FVector_NetQuantize>& HitLocations, float HitTime)
 {

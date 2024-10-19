@@ -20,6 +20,7 @@ void UMultiplayerSessionsSubsystem::CreateSession(EMatchMode InMatchModeType, in
 {
 	if (!IsValidSessionInterface())
 	{
+		LBOnCreateSessionCompleteDelegate.Broadcast(false);
 		return;
 	}
 
@@ -181,6 +182,7 @@ void UMultiplayerSessionsSubsystem::DestroySession()
 {
 	if (!IsValidSessionInterface())
 	{
+		LBOnDestroySessionCompleteDelegate.Broadcast(false);
 		return;
 	}
 

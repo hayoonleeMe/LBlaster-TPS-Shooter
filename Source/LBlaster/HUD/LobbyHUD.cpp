@@ -280,7 +280,7 @@ void ALobbyHUD::AddChatMessage(const FChatParams& ChatParams)
 	// Chat Message Caching
 	else
 	{
-		CachedChatParams.Emplace(ChatParams);
+		CachedChatParams.Enqueue(ChatParams);
 	}
 }
 
@@ -427,13 +427,11 @@ void ALobbyHUD::AddChatUI()
 			ChatUI->ChatBox->InitializeChatBox(EChatMode::ECM_Lobby, true);
 
 			// 캐싱된 Chat Message 표시
-			if (!CachedChatParams.IsEmpty())
+			while (!CachedChatParams.IsEmpty())
 			{
-				for (const FChatParams& ChatParams : CachedChatParams)
-				{
-					ChatUI->ChatBox->AddChatMessage(ChatParams);
-				}
-				CachedChatParams.Empty();
+				FChatParams ChatParams;
+				CachedChatParams.Dequeue(ChatParams);
+				ChatUI->ChatBox->AddChatMessage(ChatParams);
 			}
 		}
 	}

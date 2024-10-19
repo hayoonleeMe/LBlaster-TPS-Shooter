@@ -30,6 +30,4 @@ public:
 	
 	UFUNCTION(Client, Reliable)
 	void ClientAddChatText(const FChatParams& ChatParams);
-	
-	void BroadcastChatText(const FChatParams& ChatParams);
 };

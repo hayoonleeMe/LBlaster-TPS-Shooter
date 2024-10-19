@@ -53,12 +53,12 @@ void ABaseGameMode::SendChatText(const FChatParams& ChatParams) const
 				ALBlasterPlayerState* ReceiverPlayerState = ReceiverPlayerController->GetPlayerState<ALBlasterPlayerState>();
 				if (ReceiverPlayerState && ChatParams.SenderPlayerTeam == ReceiverPlayerState->GetTeam())
 				{
-					ReceiverPlayerController->BroadcastChatText(ChatParams);
+					ReceiverPlayerController->ClientAddChatText(ChatParams);
 				}
 			}
 			else
 			{
-				ReceiverPlayerController->BroadcastChatText(ChatParams);
+				ReceiverPlayerController->ClientAddChatText(ChatParams);
 			}
 		}
 	}

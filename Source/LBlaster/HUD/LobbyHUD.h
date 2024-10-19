@@ -93,5 +93,5 @@ private:
 
 	void AddChatUI();
 
-	TArray<FChatParams> CachedChatParams;
+	TQueue<FChatParams> CachedChatParams;
 };
