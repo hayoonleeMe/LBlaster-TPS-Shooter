@@ -31,7 +31,7 @@ public:
 	FORCEINLINE void SetGraphicPresetValue(int32 InValue) { GraphicPresetValue = InValue; }
 
 	void ApplyCustomSettings(bool bCheckForCommandLineOverrides, const UObject* WorldContextObject);
-	void SetGraphicOptionByAutoDetect(bool bFirstExecute = false);
+	void SetGraphicOptionByAutoDetect();
 
 	// 화면 해상도 프리셋
 	inline const static TArray<FIntPoint> ScreenResolutionArray{{ { 1280, 720 }, { 1280, 800 }, { 1366, 768 }, { 1600, 900 }, { 1920, 1080 } }};

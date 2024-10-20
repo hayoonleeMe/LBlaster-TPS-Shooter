@@ -58,7 +58,7 @@ void ULBGameUserSettings::ApplyCustomSettings(bool bCheckForCommandLineOverrides
 	}
 }
 
-void ULBGameUserSettings::SetGraphicOptionByAutoDetect(bool bFirstExecute)
+void ULBGameUserSettings::SetGraphicOptionByAutoDetect()
 {
 	RunHardwareBenchmark();
 	
