@@ -17,6 +17,8 @@ class LBLASTER_API ULBGameUserSettings : public UGameUserSettings
 	GENERATED_BODY()
 
 public:
+	FORCEINLINE bool IsFirstExecute() const { return bFirstExecute; }
+	
 	/*
 	 *	Video Setting
 	 */
@@ -53,6 +55,9 @@ public:
 	FORCEINLINE void SetOverallVolumeValue(float InValue) { OverallVolumeValue = InValue; }
 	
 private:
+	UPROPERTY(config)
+	bool bFirstExecute = true;
+	
 	// Video Setting
 	/*
 	 *	Performance Indicator
