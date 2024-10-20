@@ -5,7 +5,6 @@
 
 #include "GameUserSettings/LBGameUserSettings.h"
 #include "Kismet/GameplayStatics.h"
-#include "SaveGame/LBSaveGame.h"
 #include "Sound/SoundMix.h"
 #include "Sound/SoundClass.h"
 
@@ -34,26 +33,17 @@ void ULBGameInstance::Init()
 	{
 		return;
 	}
-	
-	if (UGameplayStatics::DoesSaveGameExist(SaveGameFileName, 0))
+
+	if (ULBGameUserSettings* GameUserSettings = Cast<ULBGameUserSettings>(GEngine->GetGameUserSettings()))
 	{
-		if (ULBGameUserSettings* GameUserSettings = Cast<ULBGameUserSettings>(GEngine->GetGameUserSettings()))
+		if (GameUserSettings->IsFirstExecute())
+		{
+			GameUserSettings->SetGraphicOptionByAutoDetect();
+		}
+		else
 		{
 			GameUserSettings->LoadSettings();
 			GameUserSettings->ApplyCustomSettings(false, GetWorld());
-		}
-	}
-	else
-	{
-		// 첫 실행
-		if (ULBGameUserSettings* GameUserSettings = Cast<ULBGameUserSettings>(GEngine->GetGameUserSettings()))
-		{
-			GameUserSettings->SetGraphicOptionByAutoDetect(true);
-		}
-		
-		if (USaveGame* SaveGame = UGameplayStatics::CreateSaveGameObject(ULBSaveGame::StaticClass()))
-		{
-			UGameplayStatics::SaveGameToSlot(SaveGame, SaveGameFileName, 0);
 		}
 	}
 }

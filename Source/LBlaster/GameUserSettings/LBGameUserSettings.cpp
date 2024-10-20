@@ -58,7 +58,7 @@ void ULBGameUserSettings::ApplyCustomSettings(bool bCheckForCommandLineOverrides
 	}
 }
 
-void ULBGameUserSettings::SetGraphicOptionByAutoDetect(bool bFirstExecute)
+void ULBGameUserSettings::SetGraphicOptionByAutoDetect()
 {
 	RunHardwareBenchmark();
 	
@@ -68,6 +68,7 @@ void ULBGameUserSettings::SetGraphicOptionByAutoDetect(bool bFirstExecute)
 	// 첫 실행일 때 기본 설정
 	if (bFirstExecute)
 	{
+		bFirstExecute = false;
 		// Video
 		SetScreenResolution(FIntPoint{ 1920, 1080 });
 		SetFullscreenMode(EWindowMode::WindowedFullscreen);
